@@ -1487,7 +1487,11 @@ CREATE TABLE data_set_type_property_types (
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
     is_unique boolean_char DEFAULT false NOT NULL,
-    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
+    pattern text_value,
+    pattern_type pattern_type,
+    pattern_regex text_value,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL,
+    CONSTRAINT property_types_pattern_ck CHECK ((pattern IS NULL AND pattern_type IS NULL AND pattern_regex IS NULL) OR (pattern IS NOT NULL AND pattern_type IS NOT NULL AND pattern_regex IS NOT NULL))
 );
 CREATE TABLE data_set_types (
     id tech_id NOT NULL,
@@ -1804,7 +1808,11 @@ CREATE TABLE experiment_type_property_types (
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
     is_unique boolean_char DEFAULT false NOT NULL,
-    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
+    pattern text_value,
+    pattern_type pattern_type,
+    pattern_regex text_value,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL,
+    CONSTRAINT property_types_pattern_ck CHECK ((pattern IS NULL AND pattern_type IS NULL AND pattern_regex IS NULL) OR (pattern IS NOT NULL AND pattern_type IS NOT NULL AND pattern_regex IS NOT NULL))
 );
 CREATE TABLE experiment_types (
     id tech_id NOT NULL,
@@ -2053,6 +2061,9 @@ CREATE TABLE material_type_property_types (
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
     is_unique boolean_char DEFAULT false NOT NULL,
+    pattern text_value,
+    pattern_type pattern_type,
+    pattern_regex text_value,
     is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE material_types (
@@ -2247,11 +2258,7 @@ CREATE TABLE property_types (
     transformation text_value,
     meta_data jsonb,
     saty_prop_id tech_id,
-    is_multi_value boolean_char DEFAULT false NOT NULL,
-    pattern text_value,
-    pattern_type pattern_type,
-    pattern_regex text_value,
-    CONSTRAINT property_types_pattern_ck CHECK ((pattern IS NULL AND pattern_type IS NULL AND pattern_regex IS NULL) OR (pattern IS NOT NULL AND pattern_type IS NOT NULL AND pattern_regex IS NOT NULL))
+    is_multi_value boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE queries (
     id tech_id NOT NULL,
@@ -2516,7 +2523,11 @@ CREATE TABLE sample_type_property_types (
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
     is_unique boolean_char DEFAULT false NOT NULL,
-    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
+    pattern text_value,
+    pattern_type pattern_type,
+    pattern_regex text_value,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL,
+    CONSTRAINT property_types_pattern_ck CHECK ((pattern IS NULL AND pattern_type IS NULL AND pattern_regex IS NULL) OR (pattern IS NOT NULL AND pattern_type IS NOT NULL AND pattern_regex IS NOT NULL))
 );
 CREATE TABLE sample_types (
     id tech_id NOT NULL,
