@@ -271,6 +271,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
                 worker.createContext(performanceAuditor);
                 worker.setConnection(connection);
                 worker.setTransactionManagerMode(isValidTransactionManagerMode);
+                worker.setInteractiveSessionMode(isValidInteractiveSession);
 
                 if (sessionTokenFound) {
                     worker.setSessionToken(sessionToken);
@@ -404,9 +405,9 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
                 requestParamsForApiMethod[pIdx] = requestParam;
             }
 
-            observer.beforeAPICall(api, request.getMethod(), request.getParams());
+            observer.beforeAPICall(api, request);
             Object result = apiMethod.invoke(api, requestParamsForApiMethod);
-            observer.afterAPICall(api, request.getMethod(), request.getParams());
+            observer.afterAPICall(api, request);
 
             return responseBuilder.build(request.getId(), result);
         } else {

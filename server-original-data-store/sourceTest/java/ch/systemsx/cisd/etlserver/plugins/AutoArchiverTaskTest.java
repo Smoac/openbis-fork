@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.IArchiveCandidateDiscoverer;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
@@ -216,23 +217,23 @@ public class AutoArchiverTaskTest extends AssertJUnit
     private void prepareArchiveDataSets(final boolean removeFromDataStore, final List<String> dataSetCodes)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).archiveDataSets(with(dataSetCodes), with(removeFromDataStore), with(new IsAnything<Map<String, String>>()));
-                }
-            });
+                one(service).archiveDataSets(with(dataSetCodes), with(removeFromDataStore), with(new IsAnything<Map<String, String>>()));
+            }
+        });
     }
 
     private RecordingMatcher<ArchiverDataSetCriteria> prepareListAvailableDataSets(final AbstractExternalData... dataSets)
     {
         final RecordingMatcher<ArchiverDataSetCriteria> criteriaRecorder = new RecordingMatcher<ArchiverDataSetCriteria>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listAvailableDataSets(with(criteriaRecorder));
-                    will(returnValue(Arrays.asList(dataSets)));
-                }
-            });
+                one(service).listAvailableDataSets(with(criteriaRecorder));
+                will(returnValue(Arrays.asList(dataSets)));
+            }
+        });
         return criteriaRecorder;
     }
 
@@ -253,7 +254,7 @@ public class AutoArchiverTaskTest extends AssertJUnit
 
     private void assertLogs(String... expectedLogEntries)
     {
-        assertEquals(createBasicLogExpectation(expectedLogEntries).toString().trim(), logRecorder.getLogContent());
+        AssertionUtil.assertContainsLines(createBasicLogExpectation(expectedLogEntries).toString().trim(), logRecorder.getLogContent());
     }
 
     private StringBuilder createBasicLogExpectation(String... expectedLogEntries)

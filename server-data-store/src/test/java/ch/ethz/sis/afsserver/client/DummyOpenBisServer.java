@@ -18,6 +18,7 @@
 package ch.ethz.sis.afsserver.client;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter;
@@ -78,7 +79,7 @@ public final class DummyOpenBisServer
                     final Object result = operationExecutor.executeOperation(method, arguments);
                     remoteInvocationResult = new RemoteInvocationResult(result);
                 }catch(Throwable e){
-                    remoteInvocationResult = new RemoteInvocationResult(e);
+                    remoteInvocationResult = new RemoteInvocationResult(new InvocationTargetException(e));
                 }
 
                 this.writeRemoteInvocationResult(exchange, remoteInvocationResult);

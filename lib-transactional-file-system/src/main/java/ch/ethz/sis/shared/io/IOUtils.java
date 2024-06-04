@@ -649,7 +649,7 @@ public class IOUtils {
                 {
                     return false;
                 }
-            }).map(file -> file.getFileName().toString()).sorted().toArray(String[]::new);
+            }).map(file -> Integer.parseInt(file.getFileName().toString())).sorted().map(Object::toString).toArray(String[]::new);
         } catch (IOException e)
         {
             throw new RuntimeException(e);

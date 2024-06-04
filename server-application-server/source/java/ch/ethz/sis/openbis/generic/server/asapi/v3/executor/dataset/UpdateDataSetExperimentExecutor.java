@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -83,6 +84,11 @@ public class UpdateDataSetExperimentExecutor extends
     @Override
     protected void check(IOperationContext context, DataPE entity, IExperimentId relatedId, ExperimentPE related)
     {
+        if (entity.isAfsData())
+        {
+            throw new UserFailureException("Experiment of AFS data cannot be changed");
+        }
+
         ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
         validator.init(new AuthorizationDataProvider(daoFactory));
 

@@ -22,6 +22,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +40,15 @@ import ch.ethz.sis.afsapi.dto.ExceptionReason;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.exception.ThrowableReason;
 import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
@@ -51,6 +57,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class OpenBisAuthApiClientTest extends BaseApiClientTest
 {
@@ -61,6 +68,10 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     private static final int OPENBIS_DUMMY_SERVER_PORT = 8084;
 
     private static final String OPENBIS_DUMMY_SERVER_PATH = "/";
+
+    private static final String TRANSACTION_MANAGER_KEY = "5678";
+
+    private static final String INTERACTIVE_SESSION_KEY = "1234";
 
     private static final String SHARE_1 = "1";
 
@@ -111,7 +122,12 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                         "src/test/resources/test-server-with-auth-config.properties");
         final DummyServerObserver dummyServerObserver = new DummyServerObserver();
 
-        afsServer = new Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
+        if (apiServerObserver == null)
+        {
+            apiServerObserver = new DummyServerObserver();
+        }
+
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
@@ -123,6 +139,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         IOUtils.createDirectories(storageRoot + "/" + SHARE_1);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_2);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_3);
+
+        afsServer = new Server<>(configuration, dummyServerObserver, apiServerObserver);
     }
 
     @Before
@@ -431,6 +449,323 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     }
 
     @Test
+    public void write_createsDataSetInASThatDoesNotExist() throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                    return List.of(new DataSetPermId(ownerWithoutFiles));
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+
+        // dataset gets created on first write
+        assertEquals(1, dataSetCreations.size());
+        assertEquals(ownerWithoutFiles, dataSetCreations.get(0).getCode());
+        assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+
+        // no more datasets get created on subsequent writes
+        assertEquals(1, dataSetCreations.size());
+    }
+
+    @Test
+    public void write_createsDataSetInASThatAlreadyExists() throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    throw new DataSetAlreadyExistsException();
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        // even though AS throws an exception this does not fail
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+    }
+
+    @Test
+    public void write_createsDataSetInAS_1PCTransaction_commitWithASSuccess() throws Exception
+    {
+        write_createsDataSetInAS_1PCTransaction(false, false);
+    }
+
+    @Test
+    public void write_createsDataSetInAS_1PCTransaction_commitWithASFailure() throws Exception
+    {
+        write_createsDataSetInAS_1PCTransaction(false, true);
+    }
+
+    @Test
+    public void write_createsDataSetInAS_1PCTransaction_rollbackWithASSuccess() throws Exception
+    {
+        write_createsDataSetInAS_1PCTransaction(true, false);
+    }
+
+    @Test
+    public void write_createsDataSetInAS_1PCTransaction_rollbackWithASFailure() throws Exception
+    {
+        write_createsDataSetInAS_1PCTransaction(true, true);
+    }
+
+    private void write_createsDataSetInAS_1PCTransaction(boolean rollbackTransaction, boolean dataSetCreationFails) throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    if (dataSetCreationFails)
+                    {
+                        throw new RuntimeException();
+                    } else
+                    {
+                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                        return List.of(new DataSetPermId(ownerWithoutFiles));
+                    }
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        UUID transactionId = UUID.randomUUID();
+        afsClient.setInteractiveSessionKey(INTERACTIVE_SESSION_KEY);
+
+        afsClient.begin(transactionId);
+        assertEquals(0, dataSetCreations.size());
+
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        assertEquals(0, dataSetCreations.size());
+
+        if (rollbackTransaction)
+        {
+            afsClient.rollback();
+
+            // no datasets get created on rollback
+            assertEquals(0, dataSetCreations.size());
+
+            // no files were stored
+            String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
+            assertFalse(Files.exists(Path.of(ownerFolderPath)));
+        } else
+        {
+            if (dataSetCreationFails)
+            {
+                try
+                {
+                    afsClient.commit();
+                    fail();
+                } catch (Exception e)
+                {
+                    // no datasets get created on commit if AS fails
+                    assertEquals(0, dataSetCreations.size());
+
+                    // no files were stored
+                    String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
+                    assertFalse(Files.exists(Path.of(ownerFolderPath)));
+                }
+            } else
+            {
+                afsClient.commit();
+
+                // dataset gets created on commit (if the commit itself would fail then the dataset unfortunately would stay)
+                assertEquals(1, dataSetCreations.size());
+                assertEquals(ownerWithoutFiles.toUpperCase(), dataSetCreations.get(0).getCode());
+                assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+
+                // files were stored
+                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
+                assertTrue(Files.exists(Path.of(ownerFolderPath)));
+            }
+        }
+
+        // make AS data set creation succeed unless data set already exists
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    if (dataSetCreations.isEmpty())
+                    {
+                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                        return List.of(new DataSetPermId(ownerWithoutFiles));
+                    } else
+                    {
+                        throw new DataSetAlreadyExistsException();
+                    }
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        UUID transactionId2 = UUID.randomUUID();
+
+        afsClient.begin(transactionId2);
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.commit();
+
+        // no more than 1 dataset gets created
+        assertEquals(1, dataSetCreations.size());
+    }
+
+    @Test
+    public void write_createsDataSetInAS_2PCTransaction_commitWithASSuccess() throws Exception
+    {
+        write_createsDataSetInAS_2PCTransaction(false, false);
+    }
+
+    @Test
+    public void write_createsDataSetInAS_2PCTransaction_commitWithASFailure() throws Exception
+    {
+        write_createsDataSetInAS_2PCTransaction(false, true);
+    }
+
+    @Test
+    public void write_createsDataSetInAS_2PCTransaction_rollbackWithASSuccess() throws Exception
+    {
+        write_createsDataSetInAS_2PCTransaction(true, false);
+    }
+
+    @Test
+    public void write_createsDataSetInAS_2PCTransaction_rollbackWithASFailure() throws Exception
+    {
+        write_createsDataSetInAS_2PCTransaction(true, true);
+    }
+
+    private void write_createsDataSetInAS_2PCTransaction(boolean rollbackTransaction, boolean dataSetCreationFails) throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    if (dataSetCreationFails)
+                    {
+                        throw new RuntimeException();
+                    } else
+                    {
+                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                        return List.of(new DataSetPermId(ownerWithoutFiles));
+                    }
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        UUID transactionId = UUID.randomUUID();
+        afsClient.setTransactionManagerKey(TRANSACTION_MANAGER_KEY);
+        afsClient.setInteractiveSessionKey(INTERACTIVE_SESSION_KEY);
+
+        afsClient.begin(transactionId);
+        assertEquals(0, dataSetCreations.size());
+
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        assertEquals(0, dataSetCreations.size());
+
+        if (dataSetCreationFails)
+        {
+            try
+            {
+                afsClient.prepare();
+                fail();
+            } catch (Exception e)
+            {
+                // no datasets get created on prepare if AS fails
+                assertEquals(0, dataSetCreations.size());
+
+                // no files were stored
+                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
+                assertFalse(Files.exists(Path.of(ownerFolderPath)));
+            }
+        } else
+        {
+            afsClient.prepare();
+
+            // dataset gets created on prepare (if the transaction is rolled back then it unfortunately stays)
+            assertEquals(1, dataSetCreations.size());
+            assertEquals(ownerWithoutFiles.toUpperCase(), dataSetCreations.get(0).getCode());
+            assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+
+            if (rollbackTransaction)
+            {
+                afsClient.rollback();
+
+                // no files were stored
+                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
+                assertFalse(Files.exists(Path.of(ownerFolderPath)));
+            } else
+            {
+                afsClient.commit();
+
+                // files were stored
+                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
+                assertTrue(Files.exists(Path.of(ownerFolderPath)));
+            }
+        }
+
+        // make AS data set creation succeed unless data set already exists
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    if (dataSetCreations.isEmpty())
+                    {
+                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                        return List.of(new DataSetPermId(ownerWithoutFiles));
+                    } else
+                    {
+                        throw new DataSetAlreadyExistsException();
+                    }
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        UUID transactionId2 = UUID.randomUUID();
+
+        afsClient.begin(transactionId2);
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.prepare();
+        afsClient.commit();
+
+        // no more than 1 dataset gets created
+        assertEquals(1, dataSetCreations.size());
+    }
+
+    @Test
     public void move_failsDueToMissingPermissions() throws Exception
     {
         login();
@@ -519,6 +854,14 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         public UnsupportedOperationException(String methodName, Object[] methodArguments)
         {
             super("Method: '" + methodName + ", arguments: '" + Arrays.toString(methodArguments) + "'");
+        }
+    }
+
+    private static class DataSetAlreadyExistsException extends UserFailureException
+    {
+        public DataSetAlreadyExistsException()
+        {
+            super("DataSet already exists in the database and needs to be unique");
         }
     }
 

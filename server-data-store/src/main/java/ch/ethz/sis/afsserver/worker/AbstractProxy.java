@@ -21,6 +21,7 @@ import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import lombok.NonNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
 
     @Override
     public void createContext(PerformanceAuditor performanceAuditor) {
-        setWorkerContext(new WorkerContext(performanceAuditor, null, null, null, null, false, null, null, null));
+        setWorkerContext(new WorkerContext(performanceAuditor, null, null, null, null, false, false, new HashMap<>()));
     }
 
     @Override
@@ -91,6 +92,16 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
     @Override
     public boolean isTransactionManagerMode() {
         return workerContext.isTransactionManagerMode();
+    }
+
+    @Override public void setInteractiveSessionMode(final boolean interactiveSessionMode)
+    {
+        workerContext.setInteractiveSessionMode(interactiveSessionMode);
+    }
+
+    @Override public boolean isInteractiveSessionMode()
+    {
+        return workerContext.isInteractiveSessionMode();
     }
 
     @Override

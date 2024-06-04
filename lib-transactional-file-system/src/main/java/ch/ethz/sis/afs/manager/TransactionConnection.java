@@ -285,8 +285,8 @@ public class TransactionConnection implements TransactionalFileSystem {
 
     @Override
     public boolean write(String source, long offset, byte[] data, byte[] md5Hash) throws Exception {
-        source = getSafePath(OperationName.Write, source);
         String tempSource = OperationExecutor.getTempPath(transaction, source) + "." + UUID.randomUUID();
+        source = getSafePath(OperationName.Write, source);
         WriteOperation operation = new WriteOperation(transaction.getUuid(), source, tempSource, offset, data, md5Hash);
         boolean prepared = prepare(operation, source, null);
         if (prepared) {

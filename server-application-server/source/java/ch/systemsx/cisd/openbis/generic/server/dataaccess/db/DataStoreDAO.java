@@ -36,11 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
  * Hibernate-based implementation of {@link IDataStoreDAO}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
 {
+    public static final String AFS_DATA_STORE_CODE = "AFS";
+
     private final static Class<DataStorePE> ENTITY_CLASS = DataStorePE.class;
 
     private static final Logger operationLog =
@@ -73,37 +75,39 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
         assert dataStoreCode != null : "Unspecified data store code.";
 
         return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<DataStorePE>()
+        {
+            @Override
+            public DataStorePE doInHibernate(Session session) throws HibernateException
             {
-                @Override
-                public DataStorePE doInHibernate(Session session) throws HibernateException
-                {
-                    final Criteria criteria = session.createCriteria(DataStorePE.class);
-                    criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(dataStoreCode)));
-                    return (DataStorePE) criteria.uniqueResult();
-                }
-            });
+                final Criteria criteria = session.createCriteria(DataStorePE.class);
+                criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(dataStoreCode)));
+                return (DataStorePE) criteria.uniqueResult();
+            }
+        });
     }
 
     @Override
     public List<DataStorePE> listDataStores()
     {
         return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<List<DataStorePE>>()
-            {
+        {
 
-                @Override
-                public List<DataStorePE> doInHibernate(Session session) throws HibernateException
+            @Override
+            public List<DataStorePE> doInHibernate(Session session) throws HibernateException
+            {
+                final Criteria criteria = session.createCriteria(ENTITY_CLASS);
+                criteria.add(Restrictions.ne("code", AFS_DATA_STORE_CODE));
+                criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
+                criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+                final List<DataStorePE> list = cast(criteria.list());
+
+                if (operationLog.isDebugEnabled())
                 {
-                    final Criteria criteria = session.createCriteria(ENTITY_CLASS);
-                    criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
-                    criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-                    final List<DataStorePE> list = cast(criteria.list());
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug(String.format("%d data stores have been found.", list.size()));
-                    }
-                    return list;
+                    operationLog.debug(String.format("%d data stores have been found.", list.size()));
                 }
-            });
+                return list;
+            }
+        });
     }
 
 }
