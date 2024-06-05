@@ -77,7 +77,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -95,7 +94,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -1462,7 +1460,7 @@ public class ExportExecutor implements IExportExecutor
             titleStringBuilder.append(entityObj.getCode());
         }
 
-        documentBuilder.addTitle(titleStringBuilder.toString());
+        documentBuilder.addHeader(titleStringBuilder.toString(), 1);
 
         final IEntityType typeObj = getEntityType(v3, sessionToken, entityObj);
 
@@ -1472,15 +1470,24 @@ public class ExportExecutor implements IExportExecutor
 
         // Properties
 
+        documentBuilder.addHeader("Properties", 2);
         if (entityObj instanceof IPropertiesHolder && typeObj != null)
         {
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
+                // Sorting property assignments by group, so that the assignments from the same group are together. Nulls go first.
+                propertyAssignments.sort(ExportExecutor::comparePropertyAssignments);
+
                 final Map<String, Serializable> properties = getMergedProperties((IPropertiesHolder) entityObj);
+                String currentSection = null;
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
-                    System.out.println(selectedExportFields);
+                    if (propertyAssignment.getSection() != null && !propertyAssignment.getSection().equals(currentSection))
+                    {
+                        currentSection = propertyAssignment.getSection();
+                        documentBuilder.addHeader(currentSection, 3);
+                    }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
                     final String propertyTypeCode = propertyType.getCode();
@@ -1542,7 +1549,7 @@ public class ExportExecutor implements IExportExecutor
             final String description = ((IDescriptionHolder) entityObj).getDescription();
             if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
-                documentBuilder.addHeader("Description");
+                documentBuilder.addHeader("Description", 2);
                 documentBuilder.addParagraph(encodeImages(description));
             }
         }
@@ -1554,7 +1561,7 @@ public class ExportExecutor implements IExportExecutor
             final IParentChildrenHolder<?> parentChildrenHolder = (IParentChildrenHolder<?>) entityObj;
             if (allowsValue(selectedExportAttributes, Attribute.PARENTS.name()))
             {
-                documentBuilder.addHeader("Parents");
+                documentBuilder.addHeader("Parents", 2);
                 final List<?> parents = parentChildrenHolder.getParents();
                 for (final Object parent : parents)
                 {
@@ -1566,7 +1573,7 @@ public class ExportExecutor implements IExportExecutor
 
             if (allowsValue(selectedExportAttributes, Attribute.CHILDREN.name()))
             {
-                documentBuilder.addHeader("Children");
+                documentBuilder.addHeader("Children", 2);
                 final List<?> children = parentChildrenHolder.getChildren();
                 for (final Object child : children)
                 {
@@ -1579,7 +1586,7 @@ public class ExportExecutor implements IExportExecutor
 
         // Identification Info
 
-        documentBuilder.addHeader("Identification Info");
+        documentBuilder.addHeader("Identification Info", 2);
 
         if (entityObj instanceof Experiment)
         {
@@ -1654,6 +1661,25 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return documentBuilder.getHtml();
+    }
+
+    private static int comparePropertyAssignments(final PropertyAssignment o1, final PropertyAssignment o2)
+    {
+        final String s1 = o1.getSection();
+        final String s2 = o2.getSection();
+        if (s1 != null && s2 != null)
+        {
+            return s1.compareTo(s2);
+        } else if (s1 == null && s2 != null)
+        {
+            return -1;
+        } else if (s1 == null)
+        {
+            return 0;
+        } else
+        {
+            return 1;
+        }
     }
 
     private String encodeImages(final String initialPropertyValue) throws IOException
