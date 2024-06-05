@@ -247,7 +247,9 @@ class EntitiesFinder
 
     private static void configureFetchOptions(final DataSetFetchOptions dataSetFetchOptions)
     {
-        dataSetFetchOptions.withExperiment().withProject().withSpace();
+        final ExperimentFetchOptions experimentFetchOptions = dataSetFetchOptions.withExperiment();
+        experimentFetchOptions.withProperties();
+        experimentFetchOptions.withProject().withSpace();
         dataSetFetchOptions.withType().withPropertyAssignments().withPropertyType();
         dataSetFetchOptions.withProperties();
         dataSetFetchOptions.withRegistrator();
