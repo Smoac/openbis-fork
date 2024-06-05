@@ -1476,17 +1476,16 @@ public class ExportExecutor implements IExportExecutor
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
-                // Sorting property assignments by group, so that the assignments from the same group are together. Nulls go first.
-                propertyAssignments.sort(ExportExecutor::comparePropertyAssignments);
+                propertyAssignments.sort(Comparator.comparingInt(PropertyAssignment::getOrdinal));
 
-                final Map<String, Serializable> properties = getMergedProperties((IPropertiesHolder) entityObj);
+                final Map<String, Serializable> properties = includeSampleProperties((IPropertiesHolder) entityObj);
                 String currentSection = null;
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
-                    if (propertyAssignment.getSection() != null && !propertyAssignment.getSection().equals(currentSection))
+                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || propertyAssignment.getOrdinal() == 1)
                     {
                         currentSection = propertyAssignment.getSection();
-                        documentBuilder.addHeader(currentSection, 3);
+                        documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
                     }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
@@ -1661,25 +1660,6 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return documentBuilder.getHtml();
-    }
-
-    private static int comparePropertyAssignments(final PropertyAssignment o1, final PropertyAssignment o2)
-    {
-        final String s1 = o1.getSection();
-        final String s2 = o2.getSection();
-        if (s1 != null && s2 != null)
-        {
-            return s1.compareTo(s2);
-        } else if (s1 == null && s2 != null)
-        {
-            return -1;
-        } else if (s1 == null)
-        {
-            return 0;
-        } else
-        {
-            return 1;
-        }
     }
 
     private String encodeImages(final String initialPropertyValue) throws IOException
@@ -2006,7 +1986,7 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static Map<String, Serializable> getMergedProperties(final IPropertiesHolder entity)
+    private static Map<String, Serializable> includeSampleProperties(final IPropertiesHolder entity)
     {
         final Map<String, Sample[]> sampleProperties;
         if (entity instanceof Sample)
