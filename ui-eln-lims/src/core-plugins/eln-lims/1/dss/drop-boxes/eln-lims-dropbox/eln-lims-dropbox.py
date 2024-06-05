@@ -32,8 +32,14 @@ def process(transaction):
     incoming = transaction.getIncoming();
     folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
+    discardHiddenFiles = transaction.getGlobalState().getThreadParameters().discardHiddenFiles()
 
     try:
+        if discardHiddenFiles:
+            hiddenFiles = getHiddenFiles(incoming)
+            for filePath in hiddenFiles:
+                deleteFiles(filePath)
+
         if not folderName.startswith('.'):
             datasetInfo = folderName.split("+");
             entityKind = None;
@@ -89,7 +95,7 @@ def process(transaction):
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 
                 hiddenFiles = getHiddenFiles(incoming)
-                if hiddenFiles:
+                if hiddenFiles and not discardHiddenFiles:
                     reportIssue(HIDDEN_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE + ":\n" + pathListToStr(hiddenFiles))
 
                 illegalFiles = getIllegalFiles(incoming)
@@ -126,7 +132,7 @@ def process(transaction):
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
 
                 hiddenFiles = getHiddenFiles(incoming)
-                if hiddenFiles:
+                if hiddenFiles and not discardHiddenFiles:
                     reportIssue(HIDDEN_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE + ":\n" + pathListToStr(hiddenFiles))
 
                 illegalFiles = getIllegalFiles(incoming)
@@ -188,7 +194,7 @@ def process(transaction):
                 try:
                     for inputFile in filesInFolder:
                         Files.move(inputFile.toPath(), Paths.get(tmpPath, inputFile.getName()),
-                                   StandardCopyOption.ATOMIC_MOVE);
+                                    StandardCopyOption.ATOMIC_MOVE);
                     transaction.moveFile(tmpDir.getAbsolutePath(), dataSet);
                 finally:
                     if tmpDir is not None:
@@ -250,6 +256,17 @@ def getHiddenFiles(folder):
             result.extend(getHiddenFiles(f))
 
     return result
+
+
+def deleteFiles(stringPath):
+    file = File(stringPath)
+    if not file.exists():
+        return
+    listFiles = file.listFiles()
+    if not listFiles is None:
+        for child in listFiles:
+            deleteFiles(str(child.getAbsolutePath()))
+    Files.delete(Paths.get(stringPath))
 
 
 def getIllegalFiles(folder):
