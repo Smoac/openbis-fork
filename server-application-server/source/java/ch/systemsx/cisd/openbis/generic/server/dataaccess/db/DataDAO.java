@@ -83,7 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Implementation of {@link IDataDAO} for databases.
- * 
+ *
  * @author Christian Ribeaud
  */
 final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> implements IDataDAO
@@ -799,6 +799,32 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         sqls.selectAttributes = createQueryAttributesHistorySQL();
 
         executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason, sqls);
+    }
+
+    @Override public void deleteAfsDataSetsForExperimentsDeletion(final Long deletionId) throws DataAccessException
+    {
+        SQLQuery externalDataQuery =
+                currentSession().createSQLQuery("delete from external_data where id in (select id from data_all where expe_id in (select id from experiments_all where del_id = :deletionId) and afs_data = 't')");
+        externalDataQuery.setParameter("deletionId", deletionId);
+        externalDataQuery.executeUpdate();
+
+        SQLQuery dataAllQuery =
+                currentSession().createSQLQuery("delete from data_all where expe_id in (select id from experiments_all where del_id = :deletionId) and afs_data = 't'");
+        dataAllQuery.setParameter("deletionId", deletionId);
+        dataAllQuery.executeUpdate();
+    }
+
+    @Override public void deleteAfsDataSetsForSamplesDeletion(final Long deletionId) throws DataAccessException
+    {
+        SQLQuery externalDataQuery =
+                currentSession().createSQLQuery("delete from external_data where id in (select id from data_all where samp_id in (select id from samples_all where del_id = :deletionId) and afs_data = 't')");
+        externalDataQuery.setParameter("deletionId", deletionId);
+        externalDataQuery.executeUpdate();
+
+        SQLQuery dataAllQuery =
+                currentSession().createSQLQuery("delete from data_all where samp_id in (select id from samples_all where del_id = :deletionId) and afs_data = 't'");
+        dataAllQuery.setParameter("deletionId", deletionId);
+        dataAllQuery.executeUpdate();
     }
 
     private static final class StatusUpdater implements HibernateCallback

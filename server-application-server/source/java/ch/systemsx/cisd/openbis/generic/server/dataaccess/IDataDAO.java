@@ -182,6 +182,10 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     void delete(List<TechId> dataIds, PersonPE registrator, String reason)
             throws DataAccessException;
 
+    void deleteAfsDataSetsForExperimentsDeletion(final Long deletionId) throws DataAccessException;
+
+    void deleteAfsDataSetsForSamplesDeletion(final Long deletionId) throws DataAccessException;
+
     /**
      * Confirms a storage for the specified data set. It confirms the storage even if the data set is in the trash.
      * 

@@ -224,6 +224,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
         try
         {
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+            daoFactory.getDataDAO().deleteAfsDataSetsForSamplesDeletion(deletion.getId());
             sampleDAO.deletePermanently(deletion, context.getSession().tryGetPerson());
         } catch (DataAccessException e)
         {
@@ -242,6 +243,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
             List<TechId> deletionTechIds = Collections.singletonList(new TechId(deletion.getId()));
             List<TechId> experimentTechIds = deletionDAO.findTrashedExperimentIds(deletionTechIds);
 
+            daoFactory.getDataDAO().deleteAfsDataSetsForExperimentsDeletion(deletion.getId());
             experimentBO.deleteByTechIds(experimentTechIds, deletion.getReason());
         } catch (DataAccessException e)
         {

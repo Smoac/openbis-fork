@@ -25,6 +25,7 @@ import java.util.List;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -146,23 +147,55 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     }
 
     @Test
+    public void testDeleteExperimentWithAfsDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentPermId = createCisdExperiment();
+
+        DataSetCreation afsDataSetCreation = physicalDataSetCreation();
+        afsDataSetCreation.setExperimentId(experimentPermId);
+        afsDataSetCreation.setAfsData(true);
+
+        DataSetCreation nonAfsDataSetCreation = physicalDataSetCreation();
+        nonAfsDataSetCreation.setExperimentId(experimentPermId);
+
+        final List<DataSetPermId> dataSetPermIds = v3api.createDataSets(sessionToken, List.of(afsDataSetCreation, nonAfsDataSetCreation));
+        assertEquals(dataSetPermIds.size(), 2);
+
+        ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertExperimentExists(experimentPermId);
+
+        IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentPermId), options);
+        Assert.assertNotNull(deletionId);
+
+        v3api.confirmDeletions(sessionToken, List.of(deletionId));
+
+        assertExperimentDoesNotExist(experimentPermId);
+        assertDataSetDoesNotExist(dataSetPermIds.get(0));
+        assertDataSetDoesNotExist(dataSetPermIds.get(1));
+    }
+
+    @Test
     public void testDeleteExperimentWithUnauthorizedExperiment()
     {
         final ExperimentPermId permId = createCisdExperiment();
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+                String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-                    ExperimentDeletionOptions options = new ExperimentDeletionOptions();
-                    options.setReason("It is just a test");
+                ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+                options.setReason("It is just a test");
 
-                    v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
-                }
-            }, permId);
+                v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
+            }
+        }, permId);
     }
 
     @Test
@@ -171,18 +204,18 @@ public class DeleteExperimentTest extends AbstractDeletionTest
         final ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
-                    ExperimentDeletionOptions options = new ExperimentDeletionOptions();
-                    options.setReason("It is just a test");
+                ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+                options.setReason("It is just a test");
 
-                    v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
-                }
-            }, permId);
+                v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
+            }
+        }, permId);
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
@@ -208,13 +241,13 @@ public class DeleteExperimentTest extends AbstractDeletionTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.deleteExperiments(sessionToken, permIds, options);
-                    }
-                });
+                    v3api.deleteExperiments(sessionToken, permIds, options);
+                }
+            });
         } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             IDeletionId deletionId = v3api.deleteExperiments(sessionToken, permIds, options);
@@ -223,13 +256,13 @@ public class DeleteExperimentTest extends AbstractDeletionTest
         } else
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.deleteExperiments(sessionToken, permIds, options);
-                    }
-                }, permIds.get(0));
+                    v3api.deleteExperiments(sessionToken, permIds, options);
+                }
+            }, permIds.get(0));
         }
     }
 

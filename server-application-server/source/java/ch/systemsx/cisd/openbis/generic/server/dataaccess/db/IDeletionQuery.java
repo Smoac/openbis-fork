@@ -40,12 +40,12 @@ public interface IDeletionQuery extends BaseQuery
     public List<Long> getSampleDeletionsOfContainerDeletions(LongSet deletionIds);
 
     @Select(sql = "select distinct del_id from data_all where expe_id in "
-            + "(select id from experiments_all where del_id = any(?{1}))",
+            + "(select id from experiments_all where del_id = any(?{1})) and afs_data = 'f'",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<Long> getDataSetDeletionsOfExperimentDeletions(LongSet deletionIds);
 
     @Select(sql = "select distinct del_id from data_all where samp_id in "
-            + "(select id from samples_all where del_id = any(?{1}))",
+            + "(select id from samples_all where del_id = any(?{1})) and afs_data = 'f'",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<Long> getDataSetDeletionsOfSampleDeletions(LongSet deletionIds);
 
