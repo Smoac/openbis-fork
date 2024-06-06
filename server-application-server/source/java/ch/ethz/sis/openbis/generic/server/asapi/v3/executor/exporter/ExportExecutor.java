@@ -1486,6 +1486,9 @@ public class ExportExecutor implements IExportExecutor
                     {
                         currentSection = propertyAssignment.getSection();
                         documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
+                    } else
+                    {
+                        System.out.printf("Skipping property assignment: %s. Current section: %s.%n", propertyAssignment, currentSection);
                     }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
