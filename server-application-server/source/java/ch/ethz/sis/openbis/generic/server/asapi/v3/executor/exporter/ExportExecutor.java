@@ -1479,16 +1479,15 @@ public class ExportExecutor implements IExportExecutor
                 propertyAssignments.sort(Comparator.comparingInt(PropertyAssignment::getOrdinal));
 
                 final Map<String, Serializable> properties = includeSampleProperties((IPropertiesHolder) entityObj);
+                boolean firstAssignment = true;
                 String currentSection = null;
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
-                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || propertyAssignment.getOrdinal() == 1)
+                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || firstAssignment)
                     {
                         currentSection = propertyAssignment.getSection();
                         documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
-                    } else
-                    {
-                        System.out.printf("Skipping property assignment: %s. Current section: %s.%n", propertyAssignment, currentSection);
+                        firstAssignment = false;
                     }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
