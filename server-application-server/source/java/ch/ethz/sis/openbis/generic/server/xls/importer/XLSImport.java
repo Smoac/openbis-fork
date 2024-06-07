@@ -64,6 +64,8 @@ public class XLSImport
 {
     private static final String PATH_SEPARATOR = "/";
 
+    private static final String XLSX_FOLDER_NAME = "xlsx" + PATH_SEPARATOR;
+
     private static final String SCRIPTS_FOLDER_NAME = "scripts" + PATH_SEPARATOR;
 
     private static final String DATA_FOLDER_NAME = "data" + PATH_SEPARATOR;
@@ -178,10 +180,13 @@ public class XLSImport
                     ZipEntry entry;
                     while ((entry = zip.getNextEntry()) != null)
                     {
-                        final String entryName = entry.getName();
+                        final String entryName = entry.getName().startsWith(XLSX_FOLDER_NAME) ? entry.getName().substring(XLSX_FOLDER_NAME.length())
+                                : entry.getName();
                         if (entry.isDirectory())
                         {
-                            if (!SCRIPTS_FOLDER_NAME.equals(entryName) && !DATA_FOLDER_NAME.equals(entryName) &&
+                            if (!entryName.isEmpty() &&
+                                    !SCRIPTS_FOLDER_NAME.equals(entryName) &&
+                                    !DATA_FOLDER_NAME.equals(entryName) &&
                                     !entryName.startsWith(MISCELLANEOUS_FOLDER_NAME))
                             {
                                 throw UserFailureException.fromTemplate("Illegal directory '%s' is found inside the imported file.", entryName);
@@ -210,7 +215,7 @@ public class XLSImport
                             {
                                 throw UserFailureException.fromTemplate(
                                         "Entry '%s' is not allowed. Only one root XLS file is allowed and files inside the '%s' or '%s' folder",
-                                        entryName, SCRIPTS_FOLDER_NAME, DATA_FOLDER_NAME);
+                                        entry.getName(), SCRIPTS_FOLDER_NAME, DATA_FOLDER_NAME);
                             }
                         }
                     }
