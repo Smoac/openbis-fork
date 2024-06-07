@@ -19,6 +19,7 @@ import ch.ethz.sis.afsserver.http.HttpServer;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.log.LogFactory;
@@ -42,12 +43,10 @@ public final class Server<CONNECTION, API> {
     private boolean shutdown;
     private ServerObserver<CONNECTION> observer;
 
-    public Server(Configuration configuration,
-                  @NonNull ServerObserver<CONNECTION> serverObserver,
-                  @NonNull APIServerObserver apiServerObserver) throws Exception {
+    public Server(Configuration configuration) throws Exception {
         //1. Load logging plugin, Initializing LogManager
         shutdown = false;
-        observer = serverObserver;
+
         LogFactoryFactory logFactoryFactory = new LogFactoryFactory();
         LogFactory logFactory = logFactoryFactory.create(configuration.getStringProperty(AtomicFileSystemServerParameter.logFactoryClass));
         logFactory.configure(configuration.getStringProperty(AtomicFileSystemServerParameter.logConfigFile));
@@ -70,11 +69,14 @@ public final class Server<CONNECTION, API> {
         logger.info("Creating server workers");
         int poolSize = configuration.getIntegerProperty(AtomicFileSystemServerParameter.poolSize);
 
-
         connectionsPool = new Pool<>(poolSize, configuration, connectionFactory);
         workersPool = new Pool<>(poolSize, configuration, workerFactory);
 
         // 2.3 Init API Server observer
+        APIServerObserver<CONNECTION> apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
+        if(apiServerObserver == null) {
+            apiServerObserver = new DummyServerObserver<>();
+        }
         apiServerObserver.init(configuration);
 
         // 2.4 Creating API Server
@@ -99,6 +101,10 @@ public final class Server<CONNECTION, API> {
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
         // 2.7 Init observer
+        observer = configuration.getInstance(AtomicFileSystemServerParameter.serverObserver);
+        if(observer == null) {
+            observer = new DummyServerObserver<>();
+        }
         observer.init(apiServer, configuration);
         observer.beforeStartup();
 

@@ -19,32 +19,19 @@ import java.io.File;
 import java.util.List;
 
 import ch.ethz.sis.afsserver.server.Server;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.shared.startup.Configuration;
 
 public class Main
 {
-
-    public static List getParameterClasses()
-    {
-        return List.of(AtomicFileSystemServerParameter.class);
-    }
 
     public static void main(String[] args) throws Exception
     {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
         System.out.println("Configuration Location: " + (new File(args[0])).getCanonicalPath());
 
-        Configuration configuration = new Configuration(getParameterClasses(), args[0]);
+        Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class), args[0]);
 
-        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
-        if (apiServerObserver == null)
-        {
-            apiServerObserver = new DummyServerObserver();
-        }
-
-        Server server = new Server(configuration, new DummyServerObserver(), apiServerObserver);
+        Server server = new Server(configuration);
         Thread.currentThread().join();
     }
 }

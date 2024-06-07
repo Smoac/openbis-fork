@@ -21,6 +21,7 @@ public enum AtomicFileSystemServerParameter {
     //
     logFactoryClass,
     logConfigFile,
+    serverObserver,
     //
     // Parameters from the AFS Library
     //

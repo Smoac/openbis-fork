@@ -33,6 +33,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.AfsFacade;
+import ch.ethz.sis.openbis.generic.server.AfsFacadeFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -48,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -60,15 +65,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
 {
     private static final Comparator<IDeletionId> DELETION_ID_COMPARATOR = new Comparator<IDeletionId>()
+    {
+        @Override
+        public int compare(IDeletionId o1, IDeletionId o2)
         {
-            @Override
-            public int compare(IDeletionId o1, IDeletionId o2)
-            {
-                long id1 = ((DeletionTechId) o1).getTechId();
-                long id2 = ((DeletionTechId) o2).getTechId();
-                return id1 < id2 ? -1 : (id1 > id2 ? 1 : 0);
-            }
-        };
+            long id1 = ((DeletionTechId) o1).getTechId();
+            long id2 = ((DeletionTechId) o2).getTechId();
+            return id1 < id2 ? -1 : (id1 > id2 ? 1 : 0);
+        }
+    };
 
     @Autowired
     private IMapDeletionByIdExecutor mapDeletionByIdExecutor;
@@ -79,11 +84,17 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
     @Autowired
     private IDeletionAuthorizationExecutor authorizationExecutor;
 
+    @Autowired
+    private AfsFacadeFactory afsFacadeFactory;
+
+    @Autowired
+    private IApplicationServerInternalApi applicationServerInternalApi;
+
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     ICommonBusinessObjectFactory businessObjectFactory;
 
     @Override
-    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds, boolean forceDeletion, 
+    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds, boolean forceDeletion,
             boolean forceDeletionOfDependentDeletions)
     {
         if (context == null)
@@ -195,7 +206,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
                 throw new UserFailureException("Unsupported type of deletion id: " + deletionId.getClass());
             }
         }
-        
+
         return daoFactory.getDeletionDAO().listAllDependentDeletions(techIds);
     }
 
@@ -224,12 +235,34 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
         try
         {
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-            daoFactory.getDataDAO().deleteAfsDataSetsForSamplesDeletion(deletion.getId());
+
+            final List<IIdAndCodeHolder> afsDataSets = daoFactory.getDataDAO().listAfsDataSetIdsBySampleDeletionId(deletion.getId());
+
+            if (!afsDataSets.isEmpty())
+            {
+                daoFactory.getDataDAO().delete(TechId.createList(afsDataSets), deletion.getRegistrator(), deletion.getReason());
+            }
+
             sampleDAO.deletePermanently(deletion, context.getSession().tryGetPerson());
+
+            if (!afsDataSets.isEmpty())
+            {
+                String systemSessionToken = applicationServerInternalApi.loginAsSystem();
+                try
+                {
+                    final AfsFacade afsFacade = afsFacadeFactory.createAfsFacade(systemSessionToken);
+                    afsFacade.delete(afsDataSets.stream().map(ICodeHolder::getCode).collect(Collectors.toList()));
+                } finally
+                {
+                    if (systemSessionToken != null)
+                    {
+                        applicationServerInternalApi.logout(systemSessionToken);
+                    }
+                }
+            }
         } catch (DataAccessException e)
         {
             DataAccessExceptionTranslator.throwException(e, "sample", EntityKind.SAMPLE);
-            return;
         }
     }
 
@@ -243,12 +276,33 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
             List<TechId> deletionTechIds = Collections.singletonList(new TechId(deletion.getId()));
             List<TechId> experimentTechIds = deletionDAO.findTrashedExperimentIds(deletionTechIds);
 
-            daoFactory.getDataDAO().deleteAfsDataSetsForExperimentsDeletion(deletion.getId());
+            final List<IIdAndCodeHolder> afsDataSets = daoFactory.getDataDAO().listAfsDataSetIdsByExperimentDeletionId(deletion.getId());
+
+            if (!afsDataSets.isEmpty())
+            {
+                daoFactory.getDataDAO().delete(TechId.createList(afsDataSets), deletion.getRegistrator(), deletion.getReason());
+            }
+
             experimentBO.deleteByTechIds(experimentTechIds, deletion.getReason());
+
+            if (!afsDataSets.isEmpty())
+            {
+                String systemSessionToken = applicationServerInternalApi.loginAsSystem();
+                try
+                {
+                    final AfsFacade afsFacade = afsFacadeFactory.createAfsFacade(systemSessionToken);
+                    afsFacade.delete(afsDataSets.stream().map(ICodeHolder::getCode).collect(Collectors.toList()));
+                } finally
+                {
+                    if (systemSessionToken != null)
+                    {
+                        applicationServerInternalApi.logout(systemSessionToken);
+                    }
+                }
+            }
         } catch (DataAccessException e)
         {
             DataAccessExceptionTranslator.throwException(e, "experiment", EntityKind.EXPERIMENT);
-            return;
         }
     }
 }

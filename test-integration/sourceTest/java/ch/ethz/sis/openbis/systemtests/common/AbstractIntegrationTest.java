@@ -62,9 +62,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -157,6 +157,10 @@ public abstract class AbstractIntegrationTest
 
         String storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         cleanupFolderSafely(storageRoot);
+
+        String storageIncomingShareId = configuration.getStringProperty(AtomicFileSystemServerParameter.storageIncomingShareId);
+
+        new File(storageRoot, storageIncomingShareId).mkdirs();
     }
 
     private void cleanupFolderSafely(String folderPath) throws Exception
@@ -286,9 +290,7 @@ public abstract class AbstractIntegrationTest
     {
         log("Starting afs server.");
         Configuration configuration = getAfsServerConfiguration();
-        DummyServerObserver dummyServerObserver = new DummyServerObserver();
-
-        AbstractIntegrationTest.afsServer = new ch.ethz.sis.afsserver.server.Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        AbstractIntegrationTest.afsServer = new ch.ethz.sis.afsserver.server.Server<>(configuration);
         log("Started afs server.");
     }
 
@@ -409,14 +411,13 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty("database.create-from-scratch", String.valueOf(createDatabase));
         configuration.setProperty("database.kind", "integration");
         configuration.setProperty("script-folder", "../server-application-server/source");
+        configuration.setProperty("afs-server.url", TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
+        configuration.setProperty("afs-server.interactive-session-key", TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(TransactionConfiguration.COORDINATOR_KEY_PROPERTY_NAME, TEST_TRANSACTION_COORDINATOR_KEY);
-        configuration.setProperty(TransactionConfiguration.INTERACTIVE_SESSION_KEY_PROPERTY_NAME, TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(TransactionConfiguration.TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME, "./targets/transaction-logs");
         configuration.setProperty(TransactionConfiguration.TRANSACTION_TIMEOUT_PROPERTY_NAME, "5");
         configuration.setProperty(TransactionConfiguration.FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, "1");
         configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
-        configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
-                TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
         return configuration;
     }
 
@@ -431,6 +432,8 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerPort, String.valueOf(TestInstanceHostUtils.getAFSPort()));
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerUri, TestInstanceHostUtils.getAFSPath());
+        configuration.setProperty(AtomicFileSystemServerParameter.openBISUrl,
+                TestInstanceHostUtils.getOpenBISProxyUrl() + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL);
         return configuration;
     }
 
