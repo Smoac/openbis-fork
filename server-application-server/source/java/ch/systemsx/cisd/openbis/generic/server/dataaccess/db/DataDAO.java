@@ -801,32 +801,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason, sqls);
     }
 
-    @Override public void deleteAfsDataSetsForExperimentsDeletion(final Long deletionId) throws DataAccessException
-    {
-        SQLQuery externalDataQuery =
-                currentSession().createSQLQuery("delete from external_data where id in (select id from data_all where expe_id in (select id from experiments_all where del_id = :deletionId) and afs_data = 't')");
-        externalDataQuery.setParameter("deletionId", deletionId);
-        externalDataQuery.executeUpdate();
-
-        SQLQuery dataAllQuery =
-                currentSession().createSQLQuery("delete from data_all where expe_id in (select id from experiments_all where del_id = :deletionId) and afs_data = 't'");
-        dataAllQuery.setParameter("deletionId", deletionId);
-        dataAllQuery.executeUpdate();
-    }
-
-    @Override public void deleteAfsDataSetsForSamplesDeletion(final Long deletionId) throws DataAccessException
-    {
-        SQLQuery externalDataQuery =
-                currentSession().createSQLQuery("delete from external_data where id in (select id from data_all where samp_id in (select id from samples_all where del_id = :deletionId) and afs_data = 't')");
-        externalDataQuery.setParameter("deletionId", deletionId);
-        externalDataQuery.executeUpdate();
-
-        SQLQuery dataAllQuery =
-                currentSession().createSQLQuery("delete from data_all where samp_id in (select id from samples_all where del_id = :deletionId) and afs_data = 't'");
-        dataAllQuery.setParameter("deletionId", deletionId);
-        dataAllQuery.executeUpdate();
-    }
-
     private static final class StatusUpdater implements HibernateCallback
     {
         private final boolean presentInArchive;
@@ -1475,6 +1449,38 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     results.size()));
         }
         return transformNumbers2TechIdList(results);
+    }
+
+    @Override public List<TechId> listAfsDataSetIdsBySampleDeletionId(final Long deletionId) throws DataAccessException
+    {
+        SQLQuery query =
+                currentSession().createSQLQuery("select id from data_all where samp_id in (select id from samples_all where del_id = :deletionId) and afs_data = 't'");
+        query.setParameter("deletionId", deletionId);
+        return transformNumbers2TechIdList(query.list());
+    }
+
+    @Override public List<TechId> listAfsDataSetIdsByExperimentDeletionId(final Long deletionId) throws DataAccessException
+    {
+        SQLQuery query =
+                currentSession().createSQLQuery("select id from data_all where expe_id in (select id from experiments_all where del_id = :deletionId) and afs_data = 't'");
+        query.setParameter("deletionId", deletionId);
+        return transformNumbers2TechIdList(query.list());
+    }
+
+    @Override public List<TechId> listAfsDataSetIdsBySampleIds(final Collection<TechId> sampleIds) throws DataAccessException
+    {
+        SQLQuery query =
+                currentSession().createSQLQuery("select id from data_all where samp_id in (:sampleIds) and afs_data = 't'");
+        query.setParameter("sampleIds", TechId.asLongs(sampleIds));
+        return transformNumbers2TechIdList(query.list());
+    }
+
+    @Override public List<TechId> listAfsDataSetIdsByExperimentIds(final Collection<TechId> experimentIds) throws DataAccessException
+    {
+        SQLQuery query =
+                currentSession().createSQLQuery("select id from data_all where expe_id in (:experimentIds) and afs_data = 't'");
+        query.setParameter("experimentIds", TechId.asLongs(experimentIds));
+        return transformNumbers2TechIdList(query.list());
     }
 
     @Override

@@ -224,7 +224,14 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
         try
         {
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-            daoFactory.getDataDAO().deleteAfsDataSetsForSamplesDeletion(deletion.getId());
+
+            final List<TechId> afsDataSets = daoFactory.getDataDAO().listAfsDataSetIdsBySampleDeletionId(deletion.getId());
+
+            if (!afsDataSets.isEmpty())
+            {
+                daoFactory.getDataDAO().delete(afsDataSets, deletion.getRegistrator(), deletion.getReason());
+            }
+
             sampleDAO.deletePermanently(deletion, context.getSession().tryGetPerson());
         } catch (DataAccessException e)
         {
@@ -243,7 +250,13 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
             List<TechId> deletionTechIds = Collections.singletonList(new TechId(deletion.getId()));
             List<TechId> experimentTechIds = deletionDAO.findTrashedExperimentIds(deletionTechIds);
 
-            daoFactory.getDataDAO().deleteAfsDataSetsForExperimentsDeletion(deletion.getId());
+            final List<TechId> afsDataSets = daoFactory.getDataDAO().listAfsDataSetIdsByExperimentDeletionId(deletion.getId());
+
+            if (!afsDataSets.isEmpty())
+            {
+                daoFactory.getDataDAO().delete(afsDataSets, deletion.getRegistrator(), deletion.getReason());
+            }
+
             experimentBO.deleteByTechIds(experimentTechIds, deletion.getReason());
         } catch (DataAccessException e)
         {

@@ -38,11 +38,24 @@ import javax.sql.DataSource;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -155,6 +168,9 @@ public class CommonServerTest extends SystemTestCase
 
     private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
+    @Autowired
+    private IApplicationServerApi applicationServerApi;
+
     @DataProvider
     private Object[][] providerTestRegisterPropertyTypeAuthorization()
     {
@@ -183,16 +199,16 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.registerPropertyType(session.getSessionToken(), propertyType);
+                commonServer.registerPropertyType(session.getSessionToken(), propertyType);
 
-                    PropertyTypePE propertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
-                    assertNotNull(propertyTypePE);
-                }
-            }, expectedError);
+                PropertyTypePE propertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
+                assertNotNull(propertyTypePE);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -247,17 +263,17 @@ public class CommonServerTest extends SystemTestCase
         propertyTypeUpdate.setModificationDate(propertyTypePE.getModificationDate());
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.updatePropertyType(updaterSession.getSessionToken(), propertyTypeUpdate);
+                commonServer.updatePropertyType(updaterSession.getSessionToken(), propertyTypeUpdate);
 
-                    PropertyTypePE updatedPropertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
-                    assertNotNull(updatedPropertyTypePE);
-                    assertEquals(updatedPropertyTypePE.getDescription(), "New description");
-                }
-            }, expectedError);
+                PropertyTypePE updatedPropertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
+                assertNotNull(updatedPropertyTypePE);
+                assertEquals(updatedPropertyTypePE.getDescription(), "New description");
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -303,16 +319,16 @@ public class CommonServerTest extends SystemTestCase
         assertNotNull(propertyTypePE);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.deletePropertyTypes(deleterSession.getSessionToken(), TechId.createList(propertyTypePE.getId()), "testing");
+                commonServer.deletePropertyTypes(deleterSession.getSessionToken(), TechId.createList(propertyTypePE.getId()), "testing");
 
-                    PropertyTypePE deletedPropertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
-                    assertNull(deletedPropertyTypePE);
-                }
-            }, expectedError);
+                PropertyTypePE deletedPropertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
+                assertNull(deletedPropertyTypePE);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -358,17 +374,17 @@ public class CommonServerTest extends SystemTestCase
         assignment.setPropertyTypeCode(propertyTypeCode);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.assignPropertyType(registratorSession.getSessionToken(), assignment);
+                commonServer.assignPropertyType(registratorSession.getSessionToken(), assignment);
 
-                    EntityTypePropertyTypePE createdAssignment =
-                            findPropertyAssignment(EntityKind.SAMPLE, sampleType.getCode(), propertyType.getCode());
-                    assertNotNull(createdAssignment);
-                }
-            }, expectedError);
+                EntityTypePropertyTypePE createdAssignment =
+                        findPropertyAssignment(EntityKind.SAMPLE, sampleType.getCode(), propertyType.getCode());
+                assertNotNull(createdAssignment);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -468,27 +484,27 @@ public class CommonServerTest extends SystemTestCase
         }
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
+                commonServer.updatePropertyTypeAssignment(updaterSession.getSessionToken(), assignmentUpdate);
+
+                EntityTypePropertyTypePE updatedAssignment =
+                        findPropertyAssignment(EntityKind.SAMPLE, sampleType.getCode(), propertyType.getCode());
+                assertNotNull(updatedAssignment);
+
+                if (updateLayoutFieldsOnly)
                 {
-                    commonServer.updatePropertyTypeAssignment(updaterSession.getSessionToken(), assignmentUpdate);
-
-                    EntityTypePropertyTypePE updatedAssignment =
-                            findPropertyAssignment(EntityKind.SAMPLE, sampleType.getCode(), propertyType.getCode());
-                    assertNotNull(updatedAssignment);
-
-                    if (updateLayoutFieldsOnly)
-                    {
-                        assertEquals(updatedAssignment.getSection(), "Updated section");
-                        assertEquals((Boolean) updatedAssignment.isMandatory(), Boolean.valueOf(false));
-                    } else
-                    {
-                        assertEquals(updatedAssignment.getSection(), "Test section");
-                        assertEquals((Boolean) updatedAssignment.isMandatory(), Boolean.valueOf(true));
-                    }
+                    assertEquals(updatedAssignment.getSection(), "Updated section");
+                    assertEquals((Boolean) updatedAssignment.isMandatory(), Boolean.valueOf(false));
+                } else
+                {
+                    assertEquals(updatedAssignment.getSection(), "Test section");
+                    assertEquals((Boolean) updatedAssignment.isMandatory(), Boolean.valueOf(true));
                 }
-            }, expectedError);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -550,17 +566,17 @@ public class CommonServerTest extends SystemTestCase
         commonServer.assignPropertyType(registratorSession.getSessionToken(), assignment);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.unassignPropertyType(deleterSession.getSessionToken(), EntityKind.SAMPLE, propertyTypeCode, sampleType.getCode());
+                commonServer.unassignPropertyType(deleterSession.getSessionToken(), EntityKind.SAMPLE, propertyTypeCode, sampleType.getCode());
 
-                    EntityTypePropertyTypePE deletedAssignment =
-                            findPropertyAssignment(EntityKind.SAMPLE, sampleType.getCode(), propertyType.getCode());
-                    assertNull(deletedAssignment);
-                }
-            }, expectedError);
+                EntityTypePropertyTypePE deletedAssignment =
+                        findPropertyAssignment(EntityKind.SAMPLE, sampleType.getCode(), propertyType.getCode());
+                assertNull(deletedAssignment);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -604,13 +620,13 @@ public class CommonServerTest extends SystemTestCase
         }
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.registerVocabulary(session.getSessionToken(), newVocabulary);
-                }
-            }, expectedError);
+                commonServer.registerVocabulary(session.getSessionToken(), newVocabulary);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -650,22 +666,22 @@ public class CommonServerTest extends SystemTestCase
         update.setModificationDate(vocabulary.getModificationDate());
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.updateVocabulary(updaterSession.getSessionToken(), update);
-                }
-            }, expectedError);
+                commonServer.updateVocabulary(updaterSession.getSessionToken(), update);
+            }
+        }, expectedError);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.deleteVocabularies(updaterSession.getSessionToken(), TechId.createList(vocabulary.getId()), "testing");
-                }
-            }, expectedError);
+                commonServer.deleteVocabularies(updaterSession.getSessionToken(), TechId.createList(vocabulary.getId()), "testing");
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -695,14 +711,14 @@ public class CommonServerTest extends SystemTestCase
         term.setCode("NEW_TERM");
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    // this methods adds only official terms (internally sets official flag to true)
-                    commonServer.addVocabularyTerms(session.getSessionToken(), new TechId(vocabulary.getId()), Arrays.asList(term), null);
-                }
-            }, expectedError);
+                // this methods adds only official terms (internally sets official flag to true)
+                commonServer.addVocabularyTerms(session.getSessionToken(), new TechId(vocabulary.getId()), Arrays.asList(term), null);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -727,15 +743,15 @@ public class CommonServerTest extends SystemTestCase
         VocabularyPE vocabulary = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    // this methods adds only unofficial terms (internally sets official flag to false)
-                    commonServer.addUnofficialVocabularyTerm(session.getSessionToken(), new TechId(vocabulary.getId()), "NEW_TERM", "New label",
-                            "New description", null, false);
-                }
-            }, expectedError);
+                // this methods adds only unofficial terms (internally sets official flag to false)
+                commonServer.addUnofficialVocabularyTerm(session.getSessionToken(), new TechId(vocabulary.getId()), "NEW_TERM", "New label",
+                        "New description", null, false);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -817,33 +833,33 @@ public class CommonServerTest extends SystemTestCase
         UpdatedVocabularyTerm update = new UpdatedVocabularyTerm(updateTerm, updateDetails);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
 
-                    commonServer.updateVocabularyTerm(sessionUpdater.getSessionToken(), update);
-                }
-            }, expectedError);
+                commonServer.updateVocabularyTerm(sessionUpdater.getSessionToken(), update);
+            }
+        }, expectedError);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.updateVocabularyTerms(sessionUpdater.getSessionToken(), new TechId(vocabulary.getId()),
-                            Arrays.asList(update));
-                }
-            }, expectedError);
+                commonServer.updateVocabularyTerms(sessionUpdater.getSessionToken(), new TechId(vocabulary.getId()),
+                        Arrays.asList(update));
+            }
+        }, expectedError);
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.deleteVocabularyTerms(sessionUpdater.getSessionToken(), new TechId(vocabulary.getId()), Arrays.asList(update),
-                            Arrays.asList());
-                }
-            }, expectedError);
+                commonServer.deleteVocabularyTerms(sessionUpdater.getSessionToken(), new TechId(vocabulary.getId()), Arrays.asList(update),
+                        Arrays.asList());
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -891,29 +907,29 @@ public class CommonServerTest extends SystemTestCase
         duplicatedTerm.setDescription("Updated Description");
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
+                commonServer.addVocabularyTerms(duplicatedTermRegistratorSession.getSessionToken(), new TechId(vocabularyPE.getId()),
+                        Arrays.asList(duplicatedTerm), null);
+
+                VocabularyPE vocabularyPE = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
+                VocabularyTermPE vocabularyTermPE = vocabularyPE.tryGetVocabularyTerm(originalTerm.getCode());
+
+                if (duplicatedTermRegistrator.equals(SYSTEM_USER) && vocabularyPE.isManagedInternally())
                 {
-                    commonServer.addVocabularyTerms(duplicatedTermRegistratorSession.getSessionToken(), new TechId(vocabularyPE.getId()),
-                            Arrays.asList(duplicatedTerm), null);
-
-                    VocabularyPE vocabularyPE = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
-                    VocabularyTermPE vocabularyTermPE = vocabularyPE.tryGetVocabularyTerm(originalTerm.getCode());
-
-                    if (duplicatedTermRegistrator.equals(SYSTEM_USER) && vocabularyPE.isManagedInternally())
-                    {
-                        assertEquals(vocabularyTermPE.getLabel(), "Updated Label");
-                        assertEquals(vocabularyTermPE.getDescription(), "Updated Description");
-                    } else
-                    {
-                        assertEquals(vocabularyTermPE.getLabel(), "Test Label");
-                        assertEquals(vocabularyTermPE.getDescription(), "Test Description");
-                    }
-
-                    assertEquals(vocabularyTermPE.getRegistrator().getUserId(), expectedTermRegistratorAfterCreation);
+                    assertEquals(vocabularyTermPE.getLabel(), "Updated Label");
+                    assertEquals(vocabularyTermPE.getDescription(), "Updated Description");
+                } else
+                {
+                    assertEquals(vocabularyTermPE.getLabel(), "Test Label");
+                    assertEquals(vocabularyTermPE.getDescription(), "Test Description");
                 }
-            }, expectedError);
+
+                assertEquals(vocabularyTermPE.getRegistrator().getUserId(), expectedTermRegistratorAfterCreation);
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -970,19 +986,19 @@ public class CommonServerTest extends SystemTestCase
         UpdatedVocabularyTerm update = new UpdatedVocabularyTerm(updateTerm, updateDetails);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    commonServer.updateVocabularyTerm(termUpdaterSession.getSessionToken(), update);
+                commonServer.updateVocabularyTerm(termUpdaterSession.getSessionToken(), update);
 
-                    VocabularyPE vocabularyPE = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
-                    VocabularyTermPE vocabularyTermPE = vocabularyPE.tryGetVocabularyTerm(term.getCode());
-                    assertEquals(vocabularyTermPE.getLabel(), "Updated Label");
-                    assertEquals(vocabularyTermPE.getDescription(), "Updated Description");
-                    assertEquals(vocabularyTermPE.getRegistrator().getUserId(), expectedTermRegistratorAfterUpdate);
-                }
-            }, expectedError);
+                VocabularyPE vocabularyPE = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
+                VocabularyTermPE vocabularyTermPE = vocabularyPE.tryGetVocabularyTerm(term.getCode());
+                assertEquals(vocabularyTermPE.getLabel(), "Updated Label");
+                assertEquals(vocabularyTermPE.getDescription(), "Updated Description");
+                assertEquals(vocabularyTermPE.getRegistrator().getUserId(), expectedTermRegistratorAfterUpdate);
+            }
+        }, expectedError);
     }
 
     @Test
@@ -1008,14 +1024,14 @@ public class CommonServerTest extends SystemTestCase
     private AuthorizationGroup findAuthorizationGroup(List<AuthorizationGroup> spaces, final String spaceCode)
     {
         return IterableUtils.find(spaces, new Predicate<AuthorizationGroup>()
+        {
+            @Override
+            public boolean evaluate(AuthorizationGroup object)
             {
-                @Override
-                public boolean evaluate(AuthorizationGroup object)
-                {
-                    return object.getCode().equals(spaceCode);
-                }
+                return object.getCode().equals(spaceCode);
+            }
 
-            });
+        });
     }
 
     @Test
@@ -1137,7 +1153,7 @@ public class CommonServerTest extends SystemTestCase
             List<Sample> samples = commonServer.listSamples(session.getSessionToken(), criteria);
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
-                    + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1181,16 +1197,16 @@ public class CommonServerTest extends SystemTestCase
             {
                 assertEntities(
                         "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
-                        + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                        + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                                + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                                + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                         samples);
                 assertEquals(samples.size(), 7);
             } else if (user.isTestProjectUser())
             {
                 assertEntities(
                         "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
-                        + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                        + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                                + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                                + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                         samples);
                 assertEquals(samples.size(), 6);
             } else
@@ -1212,8 +1228,8 @@ public class CommonServerTest extends SystemTestCase
         {
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
-                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                            + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1239,17 +1255,17 @@ public class CommonServerTest extends SystemTestCase
             assertEquals(samples.size(), 7);
             assertEntities(
                     "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, "
-                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
-                    + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
+                            + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, "
+                            + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
             assertEquals(samples.size(), 6);
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
-                    + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
+                            + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
                     samples);
         } else
         {
@@ -1581,7 +1597,7 @@ public class CommonServerTest extends SystemTestCase
 
         ProjectUpdatesDTO updates = new ProjectUpdatesDTO();
         updates.setTechId(new TechId(5L)); // /TEST-SPACE/TEST-PROJECT
-        updates.setAttachments(Collections.<NewAttachment> emptyList());
+        updates.setAttachments(Collections.<NewAttachment>emptyList());
         updates.setDescription(String.valueOf(System.currentTimeMillis()));
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
@@ -1784,7 +1800,7 @@ public class CommonServerTest extends SystemTestCase
         if (user.isInstanceUser() || user.isTestSpaceUser())
         {
             commonServer.registerProject(session.getSessionToken(), projectIdentifier, "testDescription", user.getUserId(),
-                    Arrays.<NewAttachment> asList());
+                    Arrays.<NewAttachment>asList());
 
             Project projectInfo = commonServer.getProjectInfo(session.getSessionToken(), projectIdentifier);
             assertEquals(projectInfo.getIdentifier(), projectIdentifier.toString());
@@ -1793,7 +1809,7 @@ public class CommonServerTest extends SystemTestCase
             try
             {
                 commonServer.registerProject(session.getSessionToken(), projectIdentifier, "testDescription", user.getUserId(),
-                        Arrays.<NewAttachment> asList());
+                        Arrays.<NewAttachment>asList());
                 fail();
             } catch (AuthorizationFailureException e)
             {
@@ -2590,8 +2606,8 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setCode("COMMENT");
         property.setPropertyType(propertyType);
 
-        SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }), 
-                ExperimentIdentifierFactory.parse("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"), 
+        SampleUpdatesDTO updates = new SampleUpdatesDTO(new TechId(1055L), Arrays.asList(new IEntityProperty[] { property }),
+                ExperimentIdentifierFactory.parse("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"),
                 null, new ArrayList<NewAttachment>(), 0, null, null, null); // /TEST-SPACE/TEST-PROJECT/EV-TEST
         updates.setUpdateExperimentLink(false);
 
@@ -2847,7 +2863,8 @@ public class CommonServerTest extends SystemTestCase
     {
         SessionContextDTO session = commonServer.tryAuthenticate(user.getUserId(), PASSWORD);
 
-        BasicEntityInformationHolder experiment = new BasicEntityInformationHolder(EntityKind.EXPERIMENT, null, null, 23L, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+        BasicEntityInformationHolder experiment =
+                new BasicEntityInformationHolder(EntityKind.EXPERIMENT, null, null, 23L, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
         DataSetRelatedEntities related = new DataSetRelatedEntities(Arrays.asList(experiment));
 
         if (user.isDisabledProjectUser())
@@ -2879,7 +2896,8 @@ public class CommonServerTest extends SystemTestCase
     {
         SessionContextDTO session = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
 
-        BasicEntityInformationHolder experiment = new BasicEntityInformationHolder(EntityKind.EXPERIMENT, null, null, 23L, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
+        BasicEntityInformationHolder experiment =
+                new BasicEntityInformationHolder(EntityKind.EXPERIMENT, null, null, 23L, null); // /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST
         DataSetRelatedEntities related = new DataSetRelatedEntities(Arrays.asList(experiment));
 
         List<AbstractExternalData> dataSets =
@@ -3800,13 +3818,13 @@ public class CommonServerTest extends SystemTestCase
             List<Experiment> experiments = assignments.getExperiments();
 
             Collections.sort(experiments, new Comparator<Experiment>()
+            {
+                @Override
+                public int compare(Experiment o1, Experiment o2)
                 {
-                    @Override
-                    public int compare(Experiment o1, Experiment o2)
-                    {
-                        return o1.getPermId().compareTo(o2.getPermId());
-                    }
-                });
+                    return o1.getPermId().compareTo(o2.getPermId());
+                }
+            });
 
             if (user.isInstanceUser())
             {
@@ -3878,13 +3896,13 @@ public class CommonServerTest extends SystemTestCase
             List<EntityHistory> history = commonServer.listEntityHistory(session.getSessionToken(), entityKind, entityId);
 
             Collections.sort(history, new Comparator<EntityHistory>()
+            {
+                @Override
+                public int compare(EntityHistory o1, EntityHistory o2)
                 {
-                    @Override
-                    public int compare(EntityHistory o1, EntityHistory o2)
-                    {
-                        return o1.tryGetRelatedProject().getIdentifier().compareTo(o2.tryGetRelatedProject().getIdentifier());
-                    }
-                });
+                    return o1.tryGetRelatedProject().getIdentifier().compareTo(o2.tryGetRelatedProject().getIdentifier());
+                }
+            });
 
             if (user.isInstanceUser() || user.isTestSpaceUser())
             {
@@ -4332,6 +4350,78 @@ public class CommonServerTest extends SystemTestCase
         }
     }
 
+    @Test
+    public void testDeleteExperimentWithAfsDataSet()
+    {
+        SessionContextDTO testSession = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
+
+        IEntityProperty property = new EntityProperty();
+        property.setValue("test description");
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode("DESCRIPTION");
+        property.setPropertyType(propertyType);
+
+        NewExperiment newExperiment = new NewExperiment("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST-2", "SIRNA_HCS");
+        newExperiment.setProperties(new IEntityProperty[] { property });
+
+        Experiment experiment = genericServer.registerExperiment(testSession.getSessionToken(), newExperiment, Collections.emptyList());
+
+        DataSetCreation afsDataSetCreation = physicalDataSetCreation();
+        afsDataSetCreation.setExperimentId(new ExperimentPermId(experiment.getPermId()));
+        afsDataSetCreation.setAfsData(true);
+
+        applicationServerApi.createDataSets(testSession.getSessionToken(), List.of(afsDataSetCreation));
+
+        Experiment before =
+                commonServer.getExperimentInfo(testSession.getSessionToken(),
+                        new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST-2"));
+
+        assertNotNull(before);
+
+        commonServer.deleteExperiments(testSession.getSessionToken(), List.of(new TechId(experiment.getId())), "test-reason", DeletionType.PERMANENT);
+
+        try
+        {
+            commonServer.getExperimentInfo(testSession.getSessionToken(),
+                    new ExperimentIdentifier("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST-2"));
+            fail();
+        } catch (UserFailureException e)
+        {
+            assertEquals(e.getMessage(), "Unkown experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST-2");
+        }
+    }
+
+    @Test
+    public void testDeleteSampleWithAfsDataSet()
+    {
+        SessionContextDTO testSession = commonServer.tryAuthenticate(TEST_USER, PASSWORD);
+
+        TechId sampleId = new TechId(1055L); // /TEST-SPACE/EV-TEST
+        SamplePermId samplePermId = new SamplePermId("201206191219327-1055");
+
+        DataSetCreation afsDataSetCreation = physicalDataSetCreation();
+        afsDataSetCreation.setSampleId(samplePermId);
+        afsDataSetCreation.setAfsData(true);
+
+        applicationServerApi.createDataSets(testSession.getSessionToken(), List.of(afsDataSetCreation));
+
+        SampleParentWithDerived before = commonServer.getSampleInfo(testSession.getSessionToken(), sampleId);
+
+        assertNotNull(before);
+        assertEquals(before.getParent().getPermId(), samplePermId.getPermId());
+
+        commonServer.deleteSamples(testSession.getSessionToken(), List.of(sampleId), "test-reason", DeletionType.PERMANENT);
+
+        try
+        {
+            commonServer.getSampleInfo(testSession.getSessionToken(), sampleId);
+            fail();
+        } catch (UserFailureException e)
+        {
+            assertEquals(e.getMessage(), "Sample with ID '1055' does not exist.");
+        }
+    }
+
     private static class SetPanelSizeRunnable implements Runnable
     {
         private ICommonServer server;
@@ -4354,19 +4444,19 @@ public class CommonServerTest extends SystemTestCase
         public void run()
         {
             IDisplaySettingsUpdate update = new IDisplaySettingsUpdate()
+            {
+
+                private static final long serialVersionUID = 1L;
+
+                @SuppressWarnings("deprecation")
+                @Override
+                public DisplaySettings update(DisplaySettings displaySettings)
                 {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @SuppressWarnings("deprecation")
-                    @Override
-                    public DisplaySettings update(DisplaySettings displaySettings)
-                    {
-                        Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
-                        panelSizeSettings.put(panelId, value);
-                        return displaySettings;
-                    }
-                };
+                    Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
+                    panelSizeSettings.put(panelId, value);
+                    return displaySettings;
+                }
+            };
             server.updateDisplaySettings(sessionToken, update);
         }
     }
@@ -4397,32 +4487,32 @@ public class CommonServerTest extends SystemTestCase
         public void run()
         {
             IDisplaySettingsUpdate update = new IDisplaySettingsUpdate()
+            {
+
+                private static final long serialVersionUID = 1L;
+
+                @SuppressWarnings("deprecation")
+                @Override
+                public DisplaySettings update(DisplaySettings displaySettings)
                 {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @SuppressWarnings("deprecation")
-                    @Override
-                    public DisplaySettings update(DisplaySettings displaySettings)
+                    Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
+                    Integer panelSize = panelSizeSettings.get(panelId);
+                    if (panelSize == null)
                     {
-                        Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
-                        Integer panelSize = panelSizeSettings.get(panelId);
-                        if (panelSize == null)
-                        {
-                            panelSize = 0;
-                        }
-                        try
-                        {
-                            // increase probability of race condition
-                            Thread.sleep(5);
-                        } catch (Exception e)
-                        {
-
-                        }
-                        panelSizeSettings.put(panelId, panelSize + 1);
-                        return displaySettings;
+                        panelSize = 0;
                     }
-                };
+                    try
+                    {
+                        // increase probability of race condition
+                        Thread.sleep(5);
+                    } catch (Exception e)
+                    {
+
+                    }
+                    panelSizeSettings.put(panelId, panelSize + 1);
+                    return displaySettings;
+                }
+            };
 
             for (int value = 0; value < count; value++)
             {
@@ -4508,6 +4598,27 @@ public class CommonServerTest extends SystemTestCase
         PropertyTypePE propertyType = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
 
         return daoFactory.getEntityPropertyTypeDAO(entityKindConverted).tryFindAssignment(entityType, propertyType);
+    }
+
+    protected DataSetCreation physicalDataSetCreation()
+    {
+        String code = UUID.randomUUID().toString();
+
+        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setLocation("test/location/" + code);
+        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode(code);
+        creation.setDataSetKind(DataSetKind.PHYSICAL);
+        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setPhysicalData(physicalCreation);
+        creation.setCreationId(new CreationId(code));
+
+        return creation;
     }
 
 }

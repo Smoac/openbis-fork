@@ -2223,6 +2223,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session, timeStamp);
                 ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
+
+                final List<TechId> afsDataSets = getDAOFactory().getDataDAO().listAfsDataSetIdsBySampleIds(sampleIds);
+
+                if (!afsDataSets.isEmpty())
+                {
+                    getDAOFactory().getDataDAO().delete(afsDataSets, session.tryGetPerson(), reason);
+                }
+
                 sampleTableBO.deleteByTechIds(sampleIds, reason);
                 break;
             case TRASH:
@@ -2248,6 +2256,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
                 Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
+
+                final List<TechId> afsDataSets = getDAOFactory().getDataDAO().listAfsDataSetIdsByExperimentIds(experimentIds);
+
+                if (!afsDataSets.isEmpty())
+                {
+                    getDAOFactory().getDataDAO().delete(afsDataSets, session.tryGetPerson(), reason);
+                }
+
                 experimentBO.deleteByTechIds(experimentIds, reason);
                 break;
             case TRASH:
