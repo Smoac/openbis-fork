@@ -984,6 +984,15 @@ public class DelayedExecutionDecorator
     {
         List<IObjectId> dependencies = new ArrayList<>();
 
+        //TODO
+        //  IF PROPERTY TYPE EXISTS - DUE TO DE DELAY IN EXECUTION OF A CYCLICAL DEPENDENCY
+        //      IGNORE CREATION, ALL CREATIONS LOOK THE SAME AND ALREADY HAPPENED, IT WILL BE ASSIGNED AS NEXT STEP
+        //
+        if (getPropertyType(new PropertyTypePermId(newPropertyType.getCode()), new PropertyTypeFetchOptions()) != null)
+        {
+            return;
+        }
+
         // check sample type
         if (newPropertyType.getDataType().equals(DataType.SAMPLE))
         {
