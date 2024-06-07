@@ -17,6 +17,8 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -129,7 +131,7 @@ public class ImportUtils
         }
     }
 
-    public static String getScriptName(String code, String pathToScript)
+    private static String getScriptName(String pathToScript)
     {
         if (pathToScript.contains("/"))
         {
@@ -139,6 +141,23 @@ public class ImportUtils
         {
             pathToScript = pathToScript.substring(0, pathToScript.lastIndexOf("."));
         }
-        return code + "." + pathToScript;
+        return pathToScript;
+    }
+
+    public static PluginPermId getScriptId(String script, Plugin existingPlugin)
+    {
+        if (script != null && !script.isEmpty())
+        {
+            if (script.equals("--DELETE--") || script.equals("__DELETE__"))
+            {
+                return null;
+            } else {
+                return new PluginPermId(ImportUtils.getScriptName(script));
+            }
+        } else if (existingPlugin != null){
+            return existingPlugin.getPermId();
+        }
+
+        return null;
     }
 }

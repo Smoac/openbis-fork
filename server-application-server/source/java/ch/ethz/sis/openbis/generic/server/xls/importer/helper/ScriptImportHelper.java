@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
@@ -30,6 +31,11 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ScriptTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
+
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType.DYNAMIC_PROPERTY;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType.ENTITY_VALIDATION;
+import static ch.ethz.sis.openbis.generic.server.xls.importer.enums.ScriptTypes.DYNAMIC_SCRIPT;
+import static ch.ethz.sis.openbis.generic.server.xls.importer.enums.ScriptTypes.VALIDATION_SCRIPT;
 
 public class ScriptImportHelper extends BasicImportHelper
 {
@@ -53,25 +59,19 @@ public class ScriptImportHelper extends BasicImportHelper
         return ImportTypes.SCRIPT;
     }
 
-    private String getScriptName(Map<String, Integer> header, List<String> values)
+    private PluginPermId getScriptId(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, OWNER_CODE);
         String script = getValueByColumnName(header, values, scriptType.getColumnName());
-        if (script == null || script.isEmpty())
-        {
-            return null;
-        }
-        return ImportUtils.getScriptName(code, script);
+        return ImportUtils.getScriptId(script, null);
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String scriptName = getScriptName(header, values);
+        PluginPermId script = getScriptId(header, values);
 
-        if (scriptName != null && !scriptName.isEmpty())
+        if (script != null)
         {
-            PluginPermId permId = new PluginPermId(scriptName);
-            return delayedExecutor.getPlugin(permId, new PluginFetchOptions()) != null;
+            return delayedExecutor.getPlugin(script, new PluginFetchOptions()) != null;
         }
 
         return false;
@@ -87,15 +87,15 @@ public class ScriptImportHelper extends BasicImportHelper
             if (script != null)
             {
                 PluginCreation creation = new PluginCreation();
-                creation.setName(getScriptName(header, values));
+                creation.setName(getScriptId(header, values).getPermId());
                 creation.setScript(script);
                 switch (scriptType)
                 {
                     case VALIDATION_SCRIPT:
-                        creation.setPluginType(PluginType.ENTITY_VALIDATION);
+                        creation.setPluginType(ENTITY_VALIDATION);
                         break;
                     case DYNAMIC_SCRIPT:
-                        creation.setPluginType(PluginType.DYNAMIC_PROPERTY);
+                        creation.setPluginType(DYNAMIC_PROPERTY);
                         break;
                 }
                 delayedExecutor.createPlugin(creation);
@@ -112,8 +112,7 @@ public class ScriptImportHelper extends BasicImportHelper
             if (script != null)
             {
                 PluginUpdate update = new PluginUpdate();
-                PluginPermId permId = new PluginPermId(getScriptName(header, values));
-                update.setPluginId(permId);
+                update.setPluginId(getScriptId(header, values));
                 update.setScript(script);
                 delayedExecutor.updatePlugin(update);
             }

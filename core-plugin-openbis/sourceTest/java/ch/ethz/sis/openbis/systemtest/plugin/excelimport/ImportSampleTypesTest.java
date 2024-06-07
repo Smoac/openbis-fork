@@ -185,7 +185,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
         // GIVEN
         final String[] sessionWorkspaceFilePaths = uploadToAsSessionWorkspace(sessionToken,
-                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_DYNAMIC_SCRIPT), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT));
+                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_DYNAMIC_SCRIPT), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT), FilenameUtils.concat(FILES_DIR, VALIDATION_SCRIPT));
         TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePaths[0]));
 
         // WHEN
@@ -194,7 +194,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
         // THEN
         final Plugin dynamicScript = antibody.getPropertyAssignments().get(0).getPlugin();
         assertNotNull(dynamicScript);
-        assertEquals(dynamicScript.getName().toUpperCase(), "$NAME.DYNAMIC");
+        assertEquals(dynamicScript.getName().toUpperCase(), "DYNAMIC");
         assertEquals(dynamicScript.getScript(), "def calculate():\n    return 1");
         assertEquals(dynamicScript.getPluginType(), PluginType.DYNAMIC_PROPERTY);
     }
@@ -214,7 +214,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
         // THEN
         Plugin validationScript = antibody.getValidationPlugin();
         assertNotNull(validationScript);
-        assertEquals(validationScript.getName().toUpperCase(), "ANTIBODY.VALID");
+        assertEquals(validationScript.getName().toUpperCase(), "VALID");
         assertEquals(validationScript.getScript(), "def validate(entity, isNew):\n  if isNew:\n    return");
         assertEquals(validationScript.getPluginType(), PluginType.ENTITY_VALIDATION);
     }
