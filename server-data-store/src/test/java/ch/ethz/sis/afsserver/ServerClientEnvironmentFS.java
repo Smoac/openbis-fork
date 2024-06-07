@@ -51,11 +51,12 @@ public class ServerClientEnvironmentFS {
     }
 
     public Server start() throws Exception {
-        return new Server(getDefaultServerConfiguration());
+        DummyServerObserver observer = new DummyServerObserver();
+        return new Server(getDefaultServerConfiguration(), observer, observer);
     }
 
-    public <E extends ServerObserver & APIServerObserver> Server start(Configuration configuration) throws Exception {
-        return new Server(configuration);
+    public <E extends ServerObserver & APIServerObserver> Server start(Configuration configuration, E serverObserver) throws Exception {
+        return new Server(configuration, serverObserver, serverObserver);
     }
 
     public void stop(Server server, boolean gracefully) throws Exception {

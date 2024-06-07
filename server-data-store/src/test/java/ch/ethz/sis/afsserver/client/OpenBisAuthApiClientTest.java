@@ -120,6 +120,14 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         final Configuration configuration =
                 new Configuration(List.of(AtomicFileSystemServerParameter.class),
                         "src/test/resources/test-server-with-auth-config.properties");
+        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
+
+        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
+        if (apiServerObserver == null)
+        {
+            apiServerObserver = new DummyServerObserver();
+        }
+
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
@@ -132,7 +140,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         IOUtils.createDirectories(storageRoot + "/" + SHARE_2);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_3);
 
-        afsServer = new Server<>(configuration);
+        afsServer = new Server<>(configuration, dummyServerObserver, apiServerObserver);
     }
 
     @Before

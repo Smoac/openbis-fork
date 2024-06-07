@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.validation.*;
 
@@ -54,14 +53,13 @@ import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * Abstract super class of all <i>Hibernate</i> DAOs.
- *
+ * 
  * @author Christian Ribeaud
  */
 public abstract class AbstractDAO extends HibernateDaoSupport
@@ -80,7 +78,6 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     /*
      * private static Map<Class<?>, ClassValidator<?>> validators = new HashMap<Class<?>, ClassValidator<?>>();
      */
-
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link Validator}.
      */
@@ -124,8 +121,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
 
     /**
      * Ensures that given {@link List} contains one and only one entity.
-     *
-     * @throws EmptyResultDataAccessException         if given <var>entities</var> are <code>null</code> or empty.
+     * 
+     * @throws EmptyResultDataAccessException if given <var>entities</var> are <code>null</code> or empty.
      * @throws IncorrectResultSizeDataAccessException if more than one entity is found in given {@link List}.
      */
     @SuppressWarnings("unchecked")
@@ -136,7 +133,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
 
     /**
      * Casts given <var>entity</var> to specified type.
-     *
+     * 
      * @throws EmptyResultDataAccessException if given <var>entity</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
@@ -161,7 +158,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
 
     /**
      * Checks given <var>entities</var> and throws a {@link IncorrectResultSizeDataAccessException} if it contains more than one item.
-     *
+     * 
      * @return <code>null</code> or the entity found at index <code>0</code>.
      */
     protected final static <T> T tryFindEntity(final List<T> entities, final String entitiesName,
@@ -196,40 +193,40 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected final void executeUpdate(final String sql, final Serializable... parameters)
     {
         getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            //
-            // HibernateCallback
-            //
-
-            @Override
-            public final Object doInHibernate(final Session session) throws HibernateException
             {
-                final SQLQuery sqlQuery = session.createSQLQuery(sql);
-                for (int i = 0; i < parameters.length; i++)
+
+                //
+                // HibernateCallback
+                //
+
+                @Override
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
-                    Serializable parameter = parameters[i];
-                    if (parameter instanceof Long)
+                    final SQLQuery sqlQuery = session.createSQLQuery(sql);
+                    for (int i = 0; i < parameters.length; i++)
                     {
-                        sqlQuery.setLong(i, (Long) parameter);
-                    } else if (parameter instanceof Integer)
-                    {
-                        sqlQuery.setInteger(i, (Integer) parameter);
-                    } else if (parameter instanceof Character)
-                    {
-                        sqlQuery.setCharacter(i, (Character) parameter);
-                    } else if (parameter instanceof Date)
-                    {
-                        sqlQuery.setDate(i, (Date) parameter);
-                    } else
-                    {
-                        sqlQuery.setSerializable(i, parameter);
+                        Serializable parameter = parameters[i];
+                        if (parameter instanceof Long)
+                        {
+                            sqlQuery.setLong(i, (Long) parameter);
+                        } else if (parameter instanceof Integer)
+                        {
+                            sqlQuery.setInteger(i, (Integer) parameter);
+                        } else if (parameter instanceof Character)
+                        {
+                            sqlQuery.setCharacter(i, (Character) parameter);
+                        } else if (parameter instanceof Date)
+                        {
+                            sqlQuery.setDate(i, (Date) parameter);
+                        } else
+                        {
+                            sqlQuery.setSerializable(i, parameter);
+                        }
                     }
+                    sqlQuery.executeUpdate();
+                    return null;
                 }
-                sqlQuery.executeUpdate();
-                return null;
-            }
-        });
+            });
     }
 
     /**
@@ -239,18 +236,18 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected final <T> T getUniqueResult(final String sql, final Object... parameters)
     {
         return (T) getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            //
-            // HibernateCallback
-            //
-
-            @Override
-            public final Object doInHibernate(final Session session)
             {
-                return session.createSQLQuery(String.format(sql, parameters)).uniqueResult();
-            }
-        });
+
+                //
+                // HibernateCallback
+                //
+
+                @Override
+                public final Object doInHibernate(final Session session)
+                {
+                    return session.createSQLQuery(String.format(sql, parameters)).uniqueResult();
+                }
+            });
     }
 
     protected final static Object[] toArray(final Object... objects)
@@ -261,15 +258,15 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected final long getNextSequenceId(final String sequenceName)
     {
         final Object result = getHibernateTemplate().execute(new HibernateCallback()
-        {
-            @Override
-            public Object doInHibernate(Session sess) throws HibernateException
             {
-                SQLQuery sqlQuery =
-                        sess.createSQLQuery("select nextval('" + sequenceName + "')");
-                return sqlQuery.uniqueResult();
-            }
-        });
+                @Override
+                public Object doInHibernate(Session sess) throws HibernateException
+                {
+                    SQLQuery sqlQuery =
+                            sess.createSQLQuery("select nextval('" + sequenceName + "')");
+                    return sqlQuery.uniqueResult();
+                }
+            });
 
         Long toReturn;
         if (result instanceof BigInteger)
@@ -286,28 +283,28 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     {
         assert action != null;
         return getHibernateTemplate().execute(new HibernateCallback<Object>()
-        {
-            @Override
-            public final Object doInHibernate(final Session session) throws HibernateException
             {
-                return session.doReturningWork(new ReturningWork<Object>()
+                @Override
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
-                    @Override
-                    public Object execute(Connection connection) throws SQLException
-                    {
-                        StatelessSessionImpl sls = null;
-                        try
+                    return session.doReturningWork(new ReturningWork<Object>()
                         {
-                            sls = (StatelessSessionImpl) getSessionFactory().openStatelessSession(connection);
-                            return action.doInStatelessSession(sls);
-                        } catch (HibernateException ex)
-                        {
-                            throw SessionFactoryUtils.convertHibernateAccessException(ex);
-                        }
-                    }
-                });
-            }
-        });
+                            @Override
+                            public Object execute(Connection connection) throws SQLException
+                            {
+                                StatelessSessionImpl sls = null;
+                                try
+                                {
+                                    sls = (StatelessSessionImpl) getSessionFactory().openStatelessSession(connection);
+                                    return action.doInStatelessSession(sls);
+                                } catch (HibernateException ex)
+                                {
+                                    throw SessionFactoryUtils.convertHibernateAccessException(ex);
+                                }
+                            }
+                        });
+                }
+            });
     }
 
     /*
@@ -362,7 +359,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         } catch (UncategorizedSQLException e)
         {
             translateUncategorizedSQLException(e);
-        } catch (ConstraintViolationException e)
+        } catch(ConstraintViolationException e)
         {
             translateConstraintViolationException(e);
         }
@@ -372,7 +369,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     {
         StringBuilder builder = new StringBuilder();
         builder.append("Insert/Update failed - ");
-        for (ConstraintViolation<?> violation : exception.getConstraintViolations())
+        for(ConstraintViolation<?> violation : exception.getConstraintViolations())
         {
             builder.append(violation.getMessage());
             builder.append("\n");
@@ -424,23 +421,6 @@ public abstract class AbstractDAO extends HibernateDaoSupport
             result.add(entity.getId());
         }
         return result;
-    }
-
-    protected static List<IIdAndCodeHolder> transform2IdCodeHolder(List<Object[]> list)
-    {
-        return list.stream().map(item ->
-                new IIdAndCodeHolder()
-                {
-                    @Override public Long getId()
-                    {
-                        return ((Number) item[0]).longValue();
-                    }
-
-                    @Override public String getCode()
-                    {
-                        return (String) item[1];
-                    }
-                }).collect(Collectors.toList());
     }
 
     protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluationWithIds(

@@ -147,6 +147,38 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     }
 
     @Test
+    public void testDeleteExperimentWithAfsDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentPermId = createCisdExperiment();
+
+        DataSetCreation afsDataSetCreation = physicalDataSetCreation();
+        afsDataSetCreation.setExperimentId(experimentPermId);
+        afsDataSetCreation.setAfsData(true);
+
+        DataSetCreation nonAfsDataSetCreation = physicalDataSetCreation();
+        nonAfsDataSetCreation.setExperimentId(experimentPermId);
+
+        final List<DataSetPermId> dataSetPermIds = v3api.createDataSets(sessionToken, List.of(afsDataSetCreation, nonAfsDataSetCreation));
+        assertEquals(dataSetPermIds.size(), 2);
+
+        ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertExperimentExists(experimentPermId);
+
+        IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentPermId), options);
+        Assert.assertNotNull(deletionId);
+
+        v3api.confirmDeletions(sessionToken, List.of(deletionId));
+
+        assertExperimentDoesNotExist(experimentPermId);
+        assertDataSetDoesNotExist(dataSetPermIds.get(0));
+        assertDataSetDoesNotExist(dataSetPermIds.get(1));
+    }
+
+    @Test
     public void testDeleteExperimentWithUnauthorizedExperiment()
     {
         final ExperimentPermId permId = createCisdExperiment();

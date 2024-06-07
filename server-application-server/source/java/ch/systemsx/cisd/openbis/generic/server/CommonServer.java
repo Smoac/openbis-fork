@@ -2223,16 +2223,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session, timeStamp);
                 ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
-
-                final List<TechId> afsDataSetIds = getDAOFactory().getDataDAO().listAfsDataSetIdsBySampleIds(sampleIds);
-                if (!afsDataSetIds.isEmpty())
-                {
-                    getDAOFactory().getDataDAO().delete(afsDataSetIds, session.tryGetPerson(), reason);
-                }
-
                 sampleTableBO.deleteByTechIds(sampleIds, reason);
-
-                // TODO delete files from AFS
                 break;
             case TRASH:
                 ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
@@ -2257,16 +2248,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
                 Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
-
-                final List<TechId> afsDataSetIds = getDAOFactory().getDataDAO().listAfsDataSetIdsByExperimentIds(experimentIds);
-                if (!afsDataSetIds.isEmpty())
-                {
-                    getDAOFactory().getDataDAO().delete(afsDataSetIds, session.tryGetPerson(), reason);
-                }
-
                 experimentBO.deleteByTechIds(experimentIds, reason);
-
-                // TODO delete files from AFS
                 break;
             case TRASH:
                 ITrashBO trashBO = businessObjectFactory.createTrashBO(session);

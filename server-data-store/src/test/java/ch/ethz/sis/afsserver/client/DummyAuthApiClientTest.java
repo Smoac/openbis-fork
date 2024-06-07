@@ -40,7 +40,8 @@ public final class DummyAuthApiClientTest extends BaseApiClientTest
         final Configuration configuration =
                 new Configuration(List.of(AtomicFileSystemServerParameter.class),
                         "src/test/resources/test-server-config.properties");
-        afsServer = new Server<>(configuration);
+        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
+        afsServer = new Server<>(configuration, dummyServerObserver, dummyServerObserver);
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =

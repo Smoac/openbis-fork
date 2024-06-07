@@ -25,7 +25,7 @@ import ch.ethz.sis.shared.startup.Configuration;
 
 import java.util.Map;
 
-public class DummyServerObserver<CONNECTION> implements ServerObserver<CONNECTION>, APIServerObserver<CONNECTION>
+public class DummyServerObserver implements ServerObserver<TransactionConnection>, APIServerObserver<TransactionConnection>
 {
 
     @Override
@@ -35,19 +35,19 @@ public class DummyServerObserver<CONNECTION> implements ServerObserver<CONNECTIO
     }
 
     @Override
-    public void beforeAPICall(Worker<CONNECTION> worker, Request request) throws Exception
+    public void beforeAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
     {
 
     }
 
     @Override
-    public void afterAPICall(Worker<CONNECTION> worker, Request request) throws Exception
+    public void afterAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
     {
 
     }
 
     @Override
-    public void init(APIServer<CONNECTION, ?, ?, ?> apiServer, Configuration configuration) throws Exception
+    public void init(APIServer<TransactionConnection, ?, ?, ?> apiServer, Configuration configuration) throws Exception
     {
 
     }

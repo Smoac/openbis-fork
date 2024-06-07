@@ -116,7 +116,8 @@ public class JsTestCommonSelenium extends SeleniumTest
     {
         Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
                 "../afs-server/etc/service.properties");
-        new Server<>(configuration);
+        DummyServerObserver dummyServerObserver = new DummyServerObserver();
+        new Server<>(configuration, dummyServerObserver, dummyServerObserver);
     }
 
     @BeforeTest

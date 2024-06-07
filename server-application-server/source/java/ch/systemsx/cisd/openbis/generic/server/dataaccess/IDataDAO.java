@@ -23,7 +23,6 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -177,23 +176,15 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     /** Returns ids of data sets connected with experiments specified by given ids. */
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
 
-    /** Returns ids of AFS data sets that are connected with samples deleted in a given deletionId */
-    List<IIdAndCodeHolder> listAfsDataSetIdsBySampleDeletionId(final Long deletionId) throws DataAccessException;
-
-    /** Returns ids of AFS data sets that are connected with experiments deleted in a given deletionId */
-    List<IIdAndCodeHolder> listAfsDataSetIdsByExperimentDeletionId(final Long deletionId) throws DataAccessException;
-
-    /** Returns ids of AFS data sets that are connected with samples with given ids */
-    List<TechId> listAfsDataSetIdsBySampleIds(final Collection<TechId> sampleIds) throws DataAccessException;
-
-    /** Returns ids of AFS data sets that are connected with experiments with given ids */
-    List<TechId> listAfsDataSetIdsByExperimentIds(final Collection<TechId> experimentIds) throws DataAccessException;
-
     /**
      * Delete data sets with given ids by specified registrator with specified reason.
      */
     void delete(List<TechId> dataIds, PersonPE registrator, String reason)
             throws DataAccessException;
+
+    void deleteAfsDataSetsForExperimentsDeletion(final Long deletionId) throws DataAccessException;
+
+    void deleteAfsDataSetsForSamplesDeletion(final Long deletionId) throws DataAccessException;
 
     /**
      * Confirms a storage for the specified data set. It confirms the storage even if the data set is in the trash.

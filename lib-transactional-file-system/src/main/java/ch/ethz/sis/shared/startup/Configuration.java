@@ -72,7 +72,7 @@ public class Configuration {
         I sharable = (I) sharables.get(parameter);
         if (sharable == null) {
             String value = getProperty(parameter);
-            if (value != null && !value.isBlank()) {
+            if (value != null) {
                 sharable = (I) Class.forName(value).newInstance();
                 sharables.put(parameter, sharable);
             }
@@ -82,7 +82,7 @@ public class Configuration {
 
     public <E extends Enum<E>, I> I getInstance(E parameter) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         String value = getProperty(parameter);
-        if (value != null && !value.isBlank()) {
+        if (value != null) {
             return (I) Class.forName(value).newInstance();
         } else {
             return null;
@@ -91,7 +91,7 @@ public class Configuration {
 
     public <E extends Enum<E>> Class<?> getInterfaceClass(E parameter) throws ClassNotFoundException {
         String value = getProperty(parameter);
-        if (value != null && !value.isBlank()) {
+        if (value != null) {
             return Class.forName(value);
         } else {
             return null;
