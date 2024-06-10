@@ -127,7 +127,7 @@ public final class UploadServiceServlet extends AbstractController
     //
 
     @Override
-    @RequestMapping({ "/upload", "/openbis/upload" })
+    @RequestMapping({ "/upload", "/openbis/upload", "/openbis/openbis/upload" })
     protected ModelAndView handleRequestInternal(final HttpServletRequest request,
             final HttpServletResponse response) throws Exception
     {

@@ -66,7 +66,7 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void canCreate(IOperationContext context, @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
     {
-        if (dataSet instanceof ExternalDataPE == false)
+        if (dataSet instanceof ExternalDataPE == false || dataSet.isAfsData())
         {
             return;
         }

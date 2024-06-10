@@ -285,6 +285,7 @@ public class XLSExportExtendedService
                     case EXPERIMENT:
                         ExperimentFetchOptions experimentFetchOptions =
                                 new ExperimentFetchOptions();
+                        experimentFetchOptions.withSampleProperties();
                         experimentFetchOptions.withSamples();
                         experimentFetchOptions.withDataSets().withSample();
                         if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
@@ -299,6 +300,7 @@ public class XLSExportExtendedService
                         }
                         for (Experiment experiment : experiments.values())
                         {
+                            addObjectProperties(todo, experiment.getSampleProperties());
                             for (Sample sample : experiment.getSamples())
                             {
                                 ExportablePermId next = new ExportablePermId(ExportableKind.SAMPLE,
@@ -318,6 +320,7 @@ public class XLSExportExtendedService
                         break;
                     case SAMPLE:
                         SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+                        sampleFetchOptions.withSampleProperties();
                         sampleFetchOptions.withChildren();
                         sampleFetchOptions.withDataSets();
                         if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
@@ -337,6 +340,7 @@ public class XLSExportExtendedService
                         }
                         for (Sample sample : samples.values())
                         {
+                            addObjectProperties(todo, sample.getSampleProperties());
                             // TODO This optimization can lead to over-include samples. Having shared samples and spaces with the same codes will lead to include samples on the space with the same code as the shared sample.
                             String sampleSpaceCode =
                                     sample.getIdentifier().getIdentifier().split("/")[1];
@@ -380,6 +384,7 @@ public class XLSExportExtendedService
                         break;
                     case DATASET:
                         DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
+                        dataSetFetchOptions.withSampleProperties();
                         dataSetFetchOptions.withSample();
                         dataSetFetchOptions.withExperiment();
                         final DataSetFetchOptions childrenDataSetFetchOptions =
@@ -405,6 +410,7 @@ public class XLSExportExtendedService
                         }
                         for (DataSet dataset : dataSets.values())
                         {
+                            addObjectProperties(todo, dataset.getSampleProperties());
                             String datasetSpaceCode =
                                     dataset.getExperiment().getIdentifier().getIdentifier()
                                             .split("/")[1];
@@ -517,6 +523,25 @@ public class XLSExportExtendedService
 
             collectedLevelsAbove.add(new ExportablePermId(ExportableKind.PROJECT,
                     project.getPermId().getPermId()));
+        }
+    }
+
+    private static void addObjectProperties(Deque<ExportablePermId> todo,
+            Map<String, Sample[]> sampleProperties)
+    {
+        for (Sample[] samples: safe(sampleProperties).values()) {
+            for (Sample sample:samples) {
+                todo.add(new ExportablePermId(ExportableKind.SAMPLE,
+                        sample.getPermId().getPermId()));
+            }
+        }
+    }
+
+    private static <K, V> Map<K, V> safe(Map<K, V> mapOrNull) {
+        if (mapOrNull == null) {
+            return Map.of();
+        } else {
+            return mapOrNull;
         }
     }
 }

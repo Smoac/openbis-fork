@@ -77,6 +77,13 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     private Date modificationDate;
 
     private boolean unique;
+    private boolean managedInternallyNamespace;
+
+    private String pattern;
+
+    private String patternType;
+
+    private String patternRegex;
 
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
@@ -195,6 +202,18 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         this.managedInternally = managedInternally;
     }
 
+    @NotNull
+    @Column(name = ColumnNames.IS_MANAGED_INTERNALLY_NAMESPACE)
+    public boolean isManagedInternallyNamespace()
+    {
+        return managedInternallyNamespace;
+    }
+
+    public void setManagedInternallyNamespace(final boolean managedInternallyNamespace)
+    {
+        this.managedInternallyNamespace = managedInternallyNamespace;
+    }
+
     @Column(name = ColumnNames.ORDINAL_COLUMN)
     @NotNull(message = ValidationMessages.ORDINAL_NOT_NULL_MESSAGE)
     public Long getOrdinal()
@@ -224,6 +243,39 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     public void setUnique(final boolean unique)
     {
         this.unique = unique;
+    }
+
+    @Column(name = ColumnNames.PATTERN)
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    @Column(name = ColumnNames.PATTERN_TYPE)
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
+    }
+
+    @Column(name = ColumnNames.PATTERN_REGEX)
+    public String getPatternRegex()
+    {
+        return patternRegex;
+    }
+
+    public void setPatternRegex(String patternRegex)
+    {
+        this.patternRegex = patternRegex;
     }
 
     public void setSection(String section)

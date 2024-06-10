@@ -120,73 +120,76 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         final List<DataPE> dataSets = new LinkedList<DataPE>();
 
         new CollectionBatchProcessor<DataSetCreation>(context, batch)
+        {
+            @Override
+            public void process(DataSetCreation creation)
             {
-                @Override
-                public void process(DataSetCreation creation)
+                DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
+
+                // Create code if is not present
+                if (StringUtils.isEmpty(creation.getCode()))
                 {
-                    DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
-
-                    // Create code if is not present
-                    if (StringUtils.isEmpty(creation.getCode()))
-                    {
-                        creation.setCode(codeGenerator.createPermId());
-                    }
-
-                    DataSetKind kind = determineDataSetKind(creation);
-                    DataPE dataSet = null;
-
-                    if (DataSetKind.PHYSICAL.equals(kind))
-                    {
-                        dataSet = new ExternalDataPE();
-                    } else if (DataSetKind.CONTAINER.equals(kind))
-                    {
-                        dataSet = new DataPE();
-                    } else if (DataSetKind.LINK.equals(kind))
-                    {
-                        dataSet = new LinkDataPE();
-                    }
-
-                    dataSet.setCode(creation.getCode());
-                    dataSet.setDataSetKind(kind.name());
-                    dataSet.setDataSetType(type);
-                    dataSet.setDerived(false == creation.isMeasured());
-                    dataSet.setDataProducerCode(creation.getDataProducer());
-                    dataSet.setProductionDate(creation.getDataProductionDate());
-                    dataSet.setMetaData(creation.getMetaData());
-
-                    PersonPE person = context.getSession().tryGetPerson();
-                    dataSet.setRegistrator(person);
-                    Date timeStamp = daoFactory.getTransactionTimestamp();
-                    RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
-
-                    dataSets.add(dataSet);
+                    creation.setCode(codeGenerator.createPermId());
                 }
 
-                /**
-                 * Historically, the dataset kind was part of the data set type. Old clients might still not set the kind.
-                 * In that case we make a guess. If linkedData is set, we assume LINK. Otherwise we assume PHYSICAL since it is the 
-                 * most likely option.
-                 */
-                private DataSetKind determineDataSetKind(DataSetCreation creation)
-				{
-                	if (creation.getDataSetKind() != null)
-                	{
-                		return creation.getDataSetKind();
-                	} else if (creation.getLinkedData() != null)
-                	{
-                		return DataSetKind.LINK;
-                	} else
-                	{
-                		return DataSetKind.PHYSICAL;
-                	}
-				}
+                DataSetKind kind = determineDataSetKind(creation);
+                DataPE dataSet = null;
 
-				@Override
-                public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+                if (DataSetKind.PHYSICAL.equals(kind))
                 {
-                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                    dataSet = new ExternalDataPE();
+                } else if (DataSetKind.CONTAINER.equals(kind))
+                {
+                    dataSet = new DataPE();
+                } else if (DataSetKind.LINK.equals(kind))
+                {
+                    dataSet = new LinkDataPE();
                 }
-            };
+
+                dataSet.setCode(creation.getCode());
+                dataSet.setDataSetKind(kind.name());
+                dataSet.setDataSetType(type);
+                dataSet.setDerived(false == creation.isMeasured());
+                dataSet.setDataProducerCode(creation.getDataProducer());
+                dataSet.setProductionDate(creation.getDataProductionDate());
+                dataSet.setMetaData(creation.getMetaData());
+
+                // set afs_data flag here for checkAccess to work properly
+                dataSet.setAfsData(creation.isAfsData());
+
+                PersonPE person = context.getSession().tryGetPerson();
+                dataSet.setRegistrator(person);
+                Date timeStamp = daoFactory.getTransactionTimestamp();
+                RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
+
+                dataSets.add(dataSet);
+            }
+
+            /**
+             * Historically, the dataset kind was part of the data set type. Old clients might still not set the kind.
+             * In that case we make a guess. If linkedData is set, we assume LINK. Otherwise we assume PHYSICAL since it is the
+             * most likely option.
+             */
+            private DataSetKind determineDataSetKind(DataSetCreation creation)
+            {
+                if (creation.getDataSetKind() != null)
+                {
+                    return creation.getDataSetKind();
+                } else if (creation.getLinkedData() != null)
+                {
+                    return DataSetKind.LINK;
+                } else
+                {
+                    return DataSetKind.PHYSICAL;
+                }
+            }
+
+            @Override
+            public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+            {
+                return new CreateProgress(object, objectIndex, totalObjectCount);
+            }
+        };
 
         return dataSets;
     }
@@ -207,30 +210,30 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
             final Map<IEntityTypeId, EntityTypePE> types)
     {
         new CollectionBatchProcessor<DataSetCreation>(context, batch)
+        {
+            @Override
+            public void process(DataSetCreation creation)
             {
-                @Override
-                public void process(DataSetCreation creation)
-                {
-                    EntityTypePE type = types.get(creation.getTypeId());
+                EntityTypePE type = types.get(creation.getTypeId());
 
-                    if (type == null)
-                    {
-                        throw new ObjectNotFoundException(creation.getTypeId());
-                    } else if (StringUtils.isEmpty(creation.getCode()) && false == creation.isAutoGeneratedCode())
-                    {
-                        throw new UserFailureException("Code cannot be empty for a non auto generated code.");
-                    } else if (false == StringUtils.isEmpty(creation.getCode()) && creation.isAutoGeneratedCode())
-                    {
-                        throw new UserFailureException("Code should be empty when auto generated code is selected.");
-                    }
-                }
-
-                @Override
-                public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+                if (type == null)
                 {
-                    return new CheckDataProgress(object, objectIndex, totalObjectCount);
+                    throw new ObjectNotFoundException(creation.getTypeId());
+                } else if (StringUtils.isEmpty(creation.getCode()) && false == creation.isAutoGeneratedCode())
+                {
+                    throw new UserFailureException("Code cannot be empty for a non auto generated code.");
+                } else if (false == StringUtils.isEmpty(creation.getCode()) && creation.isAutoGeneratedCode())
+                {
+                    throw new UserFailureException("Code should be empty when auto generated code is selected.");
                 }
-            };
+            }
+
+            @Override
+            public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+            {
+                return new CheckDataProgress(object, objectIndex, totalObjectCount);
+            }
+        };
     }
 
     @Override
@@ -283,6 +286,16 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         {
             DataSetCreation creation = entry.getKey();
             DataPE entity = entry.getValue();
+
+            if (creation.isAfsData())
+            {
+                // Update the afs_data flag here i.e. once a row in the data_all table has been already inserted.
+                // Inserting the row with this flag set from the beginning would make Hibernate fail.
+                // Hibernate would try to fetch the inserted row to get the generated PK value,
+                // but it wouldn't be to do so as the database view filters out rows with afs_data = 'T'.
+                entity.setAfsData(true);
+            }
+
             tagMap.put(entity, creation.getTagIds());
         }
 
@@ -303,6 +316,12 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void save(IOperationContext context, List<DataPE> entities, boolean clearCache)
     {
+        for (DataPE entity : entities)
+        {
+            // clear the afs_data flag (it will be set later)
+            entity.setAfsData(false);
+        }
+
         daoFactory.getDataDAO().createDataSets(entities, context.getSession().tryGetPerson());
     }
 

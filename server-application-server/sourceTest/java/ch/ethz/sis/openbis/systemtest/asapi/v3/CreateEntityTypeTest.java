@@ -16,10 +16,15 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
@@ -262,6 +267,54 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
     }
 
     @Test
+    public void testCreateWithPropertyAssignmentsWithOnlyPatternTypeFilled_throwsException()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPatternType("PATTERN");
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_ENITTY_TYPE");
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation));
+            }
+        }, "Pattern and Pattern Type must be both either empty or non-empty!");
+
+    }
+
+    @Test
+    public void testCreateWithPropertyAssignmentsWithOnlyPatternFilled_throwsException()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPattern("SomePattern");
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_ENITTY_TYPE");
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation));
+            }
+        }, "Pattern and Pattern Type must be both either empty or non-empty!");
+
+    }
+
+    @Test
     public void testCreateWithPropertyAssignmentsWithIncorrectOrdinal()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -474,14 +527,142 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
     @Test
     public void testCreateWithSpaceAdmin()
     {
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     testCreateWithUser(TEST_SPACE_USER);
                 }
-            });
+            }, null);
+    }
+
+    @Test
+    public void testCreateInternalTypeByUser_failDueToAuthorization() {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final CREATION type = newTypeCreation();
+        type.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        type.setManagedInternally(true);
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(type));
+            }
+        }, "Authorization failure: Internal entity types can be managed only by the system user.");
+
+    }
+
+    @Test
+    public void testCreateInternalTypeBySystem() {
+        String sessionToken = v3api.loginAsSystem();
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        typeCreation.setManagedInternally(true);
+
+        createTypes(sessionToken, Arrays.asList(typeCreation));
+        TYPE type = getType(sessionToken, "$" + typeCreation.getCode());
+
+        assertNotNull(type);
+    }
+
+    @Test
+    public void testCreateInternalTypeWithInternalAssignment() {
+        String sessionToken = v3api.loginAsSystem();
+
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setManagedInternally(true);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("internal property type");
+        propertyTypeCreation.setDescription("internal property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        typeCreation.setManagedInternally(true);
+
+        PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setManagedInternally(true);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreationInternal, assignmentCreation));
+
+        createTypes(sessionToken, Arrays.asList(typeCreation));
+        TYPE type = getType(sessionToken, "$" + typeCreation.getCode());
+
+        assertNotNull(type);
+        assertNotNull(type.getPropertyAssignments());
+        assertEquals(type.getPropertyAssignments().size(), 2);
+    }
+
+    @Test
+    public void testCreateTypeWithInternalAssignment_fail() {
+        String sessionToken = v3api.loginAsSystem();
+
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setManagedInternally(true);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("internal property type");
+        propertyTypeCreation.setDescription("internal property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_NON_INTERNAL_ENTITY_TYPE");
+        typeCreation.setManagedInternally(false);
+
+        PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setManagedInternally(true);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreationInternal, assignmentCreation));
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation));
+            }
+        }, "Only internal entity types can have internal property assignments!");
+    }
+
+
+    @Test
+    public void testCreateMultipleTypesBySystem_failBecauseExists() {
+        String sessionToken = v3api.loginAsSystem();
+
+        final String typeCode = "TEST_NEW_ENTITY_TYPE";
+        final CREATION typeCreation1 = newTypeCreation();
+        typeCreation1.setCode(typeCode);
+        typeCreation1.setManagedInternally(true);
+        typeCreation1.setDescription("internal");
+
+        final CREATION typeCreation2 = newTypeCreation();
+        typeCreation2.setCode(typeCode);
+        typeCreation2.setDescription("non-internal");
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation1, typeCreation2));
+            }
+        }, "Entity type 'TEST_NEW_ENTITY_TYPE'  already exists in the database and needs to be unique.");
     }
 
     private void testCreateWithUser(String userId)
@@ -503,6 +684,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         creation.setDescription("test description");
         creation.setValidationPluginId(new PluginPermId("validateOK"));
         creation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+        creation.setManagedInternally(false);
         fillTypeSpecificFields(creation);
 
         createTypes(sessionToken, Arrays.asList(creation));

@@ -2,15 +2,12 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames as ComponentNames
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider as CommonServiceProvider
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportExtendedService as XLSExportExtendedService
 import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureException
-import base64
 import json
 import re
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator as AttributeValidator
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
 import ch.systemsx.cisd.common.logging.LogCategory as LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory as LogFactory;
-from java.nio.file import Files
-from java.io import File
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -79,8 +76,6 @@ def process(context, parameters):
         result = getUserManagementMaintenanceTaskReport(context, parameters)
     elif method == "removeUserManagementMaintenanceTaskReport":
         result = removeUserManagementMaintenanceTaskReport(context, parameters)
-    elif method == "importSamples":
-        result = importSamples(context, parameters)
     elif method == "getSamplesImportTemplate":
         result = getSamplesImportTemplate(context, parameters)
     elif method == "createSpace":
@@ -343,21 +338,6 @@ def _create_cell(row, cell_index, style, value):
     cell.setCellValue(value)
     return cell_index + 1
 
-def importSamples(context, parameters):
-    sessionKey = parameters.get("sessionKey")
-    allowedSampleTypes = parameters.get("allowedSampleTypes")
-    experimentsByType = parameters.get("experimentsByType", {})
-    spacesByType = parameters.get("spacesByType", {})
-    mode = parameters.get("mode")
-    barcodeValidationInfo = json.loads(parameters.get("barcodeValidationInfo"))
-    sessionManager = CommonServiceProvider.getApplicationContext().getBean("session-manager")
-    sessionWorkspaceProvider = CommonServiceProvider.getApplicationContext().getBean("session-workspace-provider")
-    workspaceFolder = sessionWorkspaceProvider.getSessionWorkspace(context.getSessionToken())
-    uploadedFile = File(workspaceFolder, sessionKey)
-    bytes = Files.readAllBytes(uploadedFile.toPath())
-    results = importData(context, bytes, sessionKey, experimentsByType, spacesByType, mode, False)
-    return results
-
 def validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space):
     if experiment is None and space is None and not mode.startswith("UPDATE"):
         exp = properties.get("experiment")
@@ -379,29 +359,6 @@ def validateBarcode(row_number, properties, barcodeValidationInfo):
         if pattern.match(barcode) is None:
             raise UserFailureException("Error in row %s: custom barcode %s does not match "
                                        "the regular expression '%s'." % (row_number, barcode, pattern.pattern))
-
-def importData(context, bytes, file_name, experimentsByType, spacesByType, mode, definitionsOnly):
-    from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
-    from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
-    from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
-
-    sessionToken = context.getSessionToken()
-    api = context.getApplicationService()
-    props = CustomASServiceExecutionOptions().withParameter('xls', [bytes])
-    props.withParameter('method', 'import')
-    props.withParameter('zip', False)
-    props.withParameter('xls_name', 'DEFAULT')
-    props.withParameter('update_mode', mode)
-    props.withParameter('disallow_creations', mode == 'UPDATE_IF_EXISTS')
-    props.withParameter('render_result', False)
-    props.withParameter('ignore_versioning', True)
-    if definitionsOnly:
-        props.withParameter('definitions_only', True)
-    if experimentsByType is not None:
-        props.withParameter('experiments_by_type', experimentsByType)
-    if spacesByType is not None:
-        props.withParameter('spaces_by_type', spacesByType)
-    return api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
 
 def getUserManagementMaintenanceTaskConfig(context, parameters):
     from ch.systemsx.cisd.common.filesystem import FileUtilities

@@ -7,6 +7,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		this.description = new FieldUpdateValue();
 		this.previousTermId = new FieldUpdateValue();
 		this.official = new FieldUpdateValue();
+		this.managedInternally = new FieldUpdateValue();
 	};
 	stjs.extend(VocabularyTermUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.vocabulary.update.VocabularyTermUpdate';
@@ -16,6 +17,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		prototype.description = null;
 		prototype.previousTermId = null;
 		prototype.official = null;
+		prototype.managedInternally = null;
 
 		prototype.getObjectId = function() {
 			return this.getVocabularyTermId();
@@ -50,6 +52,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		prototype.setOfficial = function(official) {
 			this.official.setValue(official);
 		};
+		prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally.setValue(managedInternally);
+        };
 	}, {
 		vocabularyTermId : "IVocabularyTermId",
 		previousTermId : {
@@ -65,6 +73,10 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			arguments: ["String"]
 		},
 		official: {
+			name: "FieldUpdateValue",
+			arguments: ["Boolean"]
+		},
+		managedInternally: {
 			name: "FieldUpdateValue",
 			arguments: ["Boolean"]
 		}

@@ -43,11 +43,15 @@ public interface IXLSExportHelper<ENTITY_TYPE extends IEntityType>
 
         private final Map<String, String> valueFiles;
 
-        public AdditionResult(final int rowNumber, final Collection<String> warnings, final Map<String, String> valueFiles)
+        private final Map<String, byte[]> miscellaneousFiles;
+
+        public AdditionResult(final int rowNumber, final Collection<String> warnings, final Map<String, String> valueFiles,
+                final Map<String, byte[]> miscellaneousFiles)
         {
             this.rowNumber = rowNumber;
             this.warnings = warnings;
             this.valueFiles = valueFiles;
+            this.miscellaneousFiles = miscellaneousFiles;
         }
 
         public int getRowNumber()
@@ -63,6 +67,11 @@ public interface IXLSExportHelper<ENTITY_TYPE extends IEntityType>
         public Map<String, String> getValueFiles()
         {
             return valueFiles;
+        }
+
+        public Map<String, byte[]> getMiscellaneousFiles()
+        {
+            return miscellaneousFiles;
         }
     }
 

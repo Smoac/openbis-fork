@@ -294,7 +294,17 @@ DataStoreServer.prototype.fillCommonParameters = function(params) {
 	return params;
 }
 
-const encodeParams = p =>  Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
+const encodeParams = (params) => {
+	return Object.entries(params)
+		.map(kv => {
+			const key = kv[0]
+			const value =  kv[1]
+			const encodedValue = (key === "data" || key === "md5Hash")
+				? value : encodeURIComponent(value)
+			return `${encodeURIComponent(key)}=${encodedValue}`
+		})
+		.join("&")
+};
 
 /**
  * Log into DSS.
@@ -455,8 +465,9 @@ DataStoreServer.prototype.write = function(owner, source, offset, data){
 		"owner" : owner,
 		"source": source,
 		"offset": offset,
-		"data":  btoa(data),
-		"md5Hash":  btoa(hex2a(md5(data))),
+		// use base64 url version of encoding that produces url safe characters only (default version of base64 produces "+" and "/" which need to be further converted by encodeURIComponent to "%2B" and "%2F" and therefore they unnecessarily increase the request size)
+		"data":  base64URLEncode(data),
+		"md5Hash":  base64URLEncode(hex2a(md5(data))),
 	});
 
 	return this._internal.sendHttpRequest(
@@ -702,6 +713,11 @@ var hex2a = function(hexx) {
     for (var i = 0; i < hex.length; i += 2)
         str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     return str;
+}
+
+function base64URLEncode(str) {
+	const base64Encoded = btoa(str);
+	return base64Encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 var md5 = (function(){

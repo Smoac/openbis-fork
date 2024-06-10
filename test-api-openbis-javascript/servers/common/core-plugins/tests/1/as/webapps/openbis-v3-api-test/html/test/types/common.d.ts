@@ -22,6 +22,7 @@ export namespace common {
             gitCommitHash: string,
             gitRepositoryId: string
         ): jquery.Promise<openbis.DataSetPermId>
+        createDataSet(facade: openbis.openbis, dataSetType, data): Promise<openbis.DataSetPermId>
         createDataSet(facade: openbis.openbis, dataSetType): Promise<openbis.DataSetPermId>
         waitUntilEmailWith(facade: openbis.openbis, textSnippet, timeout): jquery.JQueryPromise<any>
         waitUntilIndexed(facade: openbis.openbis, dataSetCode, timeout): jquery.JQueryPromise<unknown>
@@ -151,5 +152,6 @@ export namespace common {
         ok(msg?): void
         section(msg): void
         fail(msg?): void
+        base64ToBlob(b64Data: string, contentType: string='', sliceSize: number=512): Blob
     }
 }

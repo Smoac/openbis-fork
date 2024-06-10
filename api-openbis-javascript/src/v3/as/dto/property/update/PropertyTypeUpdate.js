@@ -5,8 +5,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		this.schema = new FieldUpdateValue();
 		this.transformation = new FieldUpdateValue();
 		this.metaData = new ListUpdateMapValues();
-		this.pattern = new FieldUpdateValue();
-		this.patternType = new FieldUpdateValue();
 	};
 	stjs.extend(PropertyTypeUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.property.update.PropertyTypeUpdate';
@@ -18,8 +16,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.schema = null;
 		prototype.transformation = null;
 		prototype.metaData = null;
-		prototype.pattern = null;
-		prototype.patternType = null;
 
 		prototype.getObjectId = function() {
 			return this.getTypeId();
@@ -66,18 +62,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setMetaDataActions = function(actions) {
 			this.metaData.setActions(actions);
 		};
-		prototype.getPattern = function() {
-            return this.pattern;
-        };
-        prototype.setPattern = function(pattern) {
-            this.pattern.setValue(pattern);
-        };
-        prototype.getPatternType = function() {
-            return this.patternType;
-        };
-        prototype.setPatternType = function(patternType) {
-            this.patternType.setValue(patternType);
-        };
 	}, {
 		typeId : "IPropertyTypeId",
 		label: {
@@ -97,15 +81,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 			arguments: ["String"]
 		},
 		dataType : "DataType",
-		metaData : "ListUpdateMapValues",
-		pattern: {
-            name: "FieldUpdateValue",
-            arguments: ["String"]
-        },
-        patternType: {
-            name: "FieldUpdateValue",
-            arguments: ["String"]
-        }
+		metaData : "ListUpdateMapValues"
 	});
 	return PropertyTypeUpdate;
 })

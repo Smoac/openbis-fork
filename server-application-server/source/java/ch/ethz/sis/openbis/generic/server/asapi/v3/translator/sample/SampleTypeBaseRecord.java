@@ -47,4 +47,6 @@ public class SampleTypeBaseRecord extends ObjectBaseRecord
 
     public String metaData;
 
+    public boolean managedInternally;
+
 }

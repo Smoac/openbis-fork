@@ -52,7 +52,6 @@ class Toolbar extends React.Component {
       showInfo,
       onShowInfoChange,
       multiselectedFiles,
-      datastoreServer,
       sessionToken,
       owner,
       path,
@@ -63,7 +62,6 @@ class Toolbar extends React.Component {
         <LeftToolbar
           buttonSize={buttonSize}
           multiselectedFiles={multiselectedFiles}
-          datastoreServer={datastoreServer}
           sessionToken={sessionToken}
           owner={owner}
           path={path}

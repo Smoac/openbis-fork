@@ -15,15 +15,13 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.*;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * Persistence Entity representing the type of file format.
@@ -39,6 +37,8 @@ public final class FileFormatTypePE extends AbstractTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    private String simpleCode;
+
     @Override
     @SequenceGenerator(name = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, sequenceName = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, allocationSize = 1)
     @Id
@@ -46,6 +46,32 @@ public final class FileFormatTypePE extends AbstractTypePE
     public final Long getId()
     {
         return id;
+    }
+
+    public void setSimpleCode(final String simpleCode)
+    {
+        this.simpleCode = simpleCode.toUpperCase();
+    }
+
+    @Column(name = ColumnNames.CODE_COLUMN)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    public String getSimpleCode()
+    {
+        return simpleCode;
+    }
+
+    public void setCode(final String fullCode)
+    {
+        setSimpleCode(fullCode);
+    }
+
+    @Override
+    @Transient
+    public String getCode()
+    {
+        return getSimpleCode();
     }
 
     public FileFormatTypePE()

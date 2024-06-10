@@ -3,11 +3,13 @@ Additional Functionalities
  
 ## Print PDF 
 
-For every entity in openBIS it is possible to generate a pdf using the **Print PDF** option from the **More..** dropdown menu.
+For every entity in openBIS it is possible to generate a pdf using the **Print PDF** option from the **More..** dropdown menu. 
+
+The generated pdf file can be printed or downloaded from the browser. 
 
 An example for a Space is shown in the picture below.
 
-![image info](img/print-pdf.png)
+![image info](img/print-pdf-2.png)
 
 
 ## Visualise Relationships

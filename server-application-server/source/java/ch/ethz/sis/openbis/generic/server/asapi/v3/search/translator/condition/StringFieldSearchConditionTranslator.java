@@ -122,7 +122,8 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             final Map<String, JoinInformation> aliases, final Map<String, String> dataTypeByPropertyCode,
             final AbstractStringValue value, final String fullPropertyName)
     {
-        final String propertyTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
+        final JoinInformation joinInformation = aliases.get(tableMapper.getValuesTable());
+        final String propertyTableAlias = joinInformation.getSubTableAlias();
         TranslatorUtils.appendPropertiesExist(sqlBuilder, propertyTableAlias);
 
         if (fullPropertyName == null)

@@ -15,61 +15,246 @@
  */
 package ch.ethz.sis.afsserver.worker.providers.impl;
 
-import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import ch.ethz.sis.afs.exception.AFSExceptions;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
+import ch.ethz.sis.afsserver.worker.WorkerContext;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.fetchoptions.RightsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.FilePermission;
+import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvider
+{
 
-public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvider {
+    private String storageRoot;
 
-    private IApplicationServerApi v3 = null;
+    private String storageUuid;
+
+    private String[] storageShares;
+
+    private String storageIncomingShareId;
+
+    private IApplicationServerApi applicationServerApi;
 
     @Override
-    public void init(Configuration initParameter) throws Exception {
-        String openBISUrl = initParameter.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
-        int openBISTimeout = initParameter.getIntegerProperty(AtomicFileSystemServerParameter.openBISTimeout);
-        v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl, openBISTimeout);
+    public void init(Configuration initParameter) throws Exception
+    {
+        storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(initParameter);
+        storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
+        storageShares = IOUtils.getShares(storageRoot);
+        if (storageShares.length == 0)
+        {
+            throw AFSExceptions.NoSharesFound.getInstance();
+        }
+        storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(initParameter);
+        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
     }
 
     @Override
-    public boolean doesSessionHaveRights(String sessionToken, String owner, Set<FilePermission> permissions) {
-        Set<FilePermission> found = new HashSet<>();
+    public boolean doesSessionHaveRights(WorkerContext workerContext, String owner, Set<FilePermission> permissions)
+    {
+        String ownerShare = null;
+        ObjectPermId ownerPermId = null;
+        Set<FilePermission> ownerSupportedPermissions = null;
 
-        ISampleId identifier = null;
-        if (owner.contains("/")) { // Is Identifier
-            identifier = new SampleIdentifier(owner);
-        } else { // Is permId
-            identifier = new SamplePermId(owner);
-        }
-        Map<ISampleId, Sample> samples = v3.getSamples(sessionToken, List.of(identifier), new SampleFetchOptions());
-        if (!samples.isEmpty()) {
-            found.add(FilePermission.Read);
-        }
-        Rights rights = v3.getRights(sessionToken, List.of(identifier), new RightsFetchOptions()).get(identifier);
-        if (rights.getRights().contains(Right.UPDATE)) {
-            found.add(FilePermission.Write);
+        Experiment foundExperiment = findExperiment(workerContext.getSessionToken(), owner);
+
+        if (foundExperiment != null)
+        {
+            ownerPermId = foundExperiment.getPermId();
+
+            if (foundExperiment.isFrozen())
+            {
+                ownerSupportedPermissions = Set.of(FilePermission.Read);
+            } else
+            {
+                ownerSupportedPermissions = Set.of(FilePermission.Read, FilePermission.Write);
+            }
+        } else
+        {
+            Sample foundSample = findSample(workerContext.getSessionToken(), owner);
+
+            if (foundSample != null)
+            {
+                ownerPermId = foundSample.getPermId();
+
+                if (foundSample.isFrozen())
+                {
+                    ownerSupportedPermissions = Set.of(FilePermission.Read);
+                } else
+                {
+                    ownerSupportedPermissions = Set.of(FilePermission.Read, FilePermission.Write);
+                }
+            } else
+            {
+                DataSet foundDataSet = findDataSet(workerContext.getSessionToken(), owner);
+
+                if (foundDataSet != null)
+                {
+                    ownerPermId = foundDataSet.getPermId();
+                    ownerShare = foundDataSet.getPhysicalData().getShareId();
+                    ownerSupportedPermissions = Set.of(FilePermission.Read);
+                }
+            }
         }
 
-        for (FilePermission permission:permissions) {
-            if (!found.contains(permission)) {
+        if (ownerPermId == null)
+        {
+            return false;
+        }
+
+        if (hasPermissions(workerContext, ownerPermId, ownerSupportedPermissions, permissions))
+        {
+            String ownerPath = findOwnerPath(ownerPermId, ownerShare);
+            workerContext.getOwnerPathMap().put(owner, ownerPath);
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    private boolean hasPermissions(WorkerContext workerContext, ObjectPermId ownerPermId, Set<FilePermission> ownerSupportedPermissions,
+            Set<FilePermission> requestedPermissions)
+    {
+        for (FilePermission requestPermission : requestedPermissions)
+        {
+            if (!ownerSupportedPermissions.contains(requestPermission))
+            {
                 return false;
             }
         }
+
+        Set<FilePermission> foundPermissions = new HashSet<>();
+        foundPermissions.add(FilePermission.Read);
+
+        if (requestedPermissions.equals(foundPermissions))
+        {
+            return true;
+        }
+
+        Rights rights =
+                applicationServerApi.getRights(workerContext.getSessionToken(), List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
+
+        if (rights.getRights().contains(Right.UPDATE))
+        {
+            foundPermissions.add(FilePermission.Write);
+        }
+
+        for (FilePermission requestedPermission : requestedPermissions)
+        {
+            if (!foundPermissions.contains(requestedPermission))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
+
+    private Experiment findExperiment(String sessionToken, String experimentPermId)
+    {
+        Map<IExperimentId, Experiment> experiments =
+                applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
+
+        if (!experiments.isEmpty())
+        {
+            return experiments.values().iterator().next();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private Sample findSample(String sessionToken, String samplePermId)
+    {
+        Map<ISampleId, Sample> samples =
+                applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
+
+        if (!samples.isEmpty())
+        {
+            return samples.values().iterator().next();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private DataSet findDataSet(String sessionToken, String dataSetPermId)
+    {
+        IDataSetId dataSetId = new DataSetPermId(dataSetPermId);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        Map<IDataSetId, DataSet> dataSets = applicationServerApi.getDataSets(sessionToken, List.of(dataSetId), fo);
+
+        if (!dataSets.isEmpty())
+        {
+            return dataSets.values().iterator().next();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private String findOwnerPath(ObjectPermId ownerPermId, String ownerShare)
+    {
+        final String[] shards = IOUtils.getShards(ownerPermId.getPermId());
+
+        if (ownerShare != null)
+        {
+            return createOwnerPath(ownerShare, storageUuid, shards, ownerPermId.getPermId());
+        } else
+        {
+            for (String share : storageShares)
+            {
+                String potentialOwnerPath = createOwnerPath(share, storageUuid, shards, ownerPermId.getPermId());
+
+                if (Files.exists(Paths.get(storageRoot, potentialOwnerPath)))
+                {
+                    return potentialOwnerPath;
+                }
+            }
+
+            return createOwnerPath(storageIncomingShareId, storageUuid, shards, ownerPermId.getPermId());
+        }
+    }
+
+    private String createOwnerPath(String shareId, String storageUuid, String[] shards, String ownerFolder)
+    {
+        List<String> elements = new LinkedList<>();
+        elements.add(shareId);
+        elements.add(storageUuid);
+        elements.addAll(Arrays.asList(shards));
+        elements.add(ownerFolder);
+        return IOUtils.getPath("", elements.toArray(new String[] {}));
+    }
+
 }

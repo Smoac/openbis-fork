@@ -89,6 +89,8 @@ public class DataSetCreation extends AbstractEntityCreation
 
     private Map<String, String> metaData;
 
+    private boolean afsData;
+
     public IEntityTypeId getTypeId()
     {
         return typeId;
@@ -257,6 +259,16 @@ public class DataSetCreation extends AbstractEntityCreation
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    public boolean isAfsData()
+    {
+        return afsData;
+    }
+
+    public void setAfsData(final boolean afsData)
+    {
+        this.afsData = afsData;
     }
 
     @Override

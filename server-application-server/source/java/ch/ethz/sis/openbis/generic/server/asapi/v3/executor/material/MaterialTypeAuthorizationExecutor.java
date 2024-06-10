@@ -15,6 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialTypeUpdate;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -36,8 +42,13 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_MATERIAL_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
-    public void canCreate(IOperationContext context)
+    public void canCreate(IOperationContext context, MaterialTypePE materialTypePE)
     {
+        if (materialTypePE.isManagedInternally() && isSystemUser(context.getSession()) == false)
+        {
+            throw new AuthorizationFailureException(
+                    "Internal entity types can be managed only by the system user.");
+        }
     }
 
     @Override
@@ -58,8 +69,18 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UPDATE_MATERIAL_TYPE")
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL_TYPE)
-    public void canUpdate(IOperationContext context)
+    public void canUpdate(IOperationContext context, MaterialTypePE materialTypePE, MaterialTypeUpdate update)
     {
+        if (materialTypePE.isManagedInternally() && isSystemUser(context.getSession()) == false)
+        {
+            boolean isModified =
+                    isFieldUpdated(update.getDescription(), materialTypePE.getDescription());
+            if(isModified)
+            {
+                throw new AuthorizationFailureException(
+                        "Internal entity type fields can be managed only by the system user.");
+            }
+        }
     }
 
     @Override
@@ -68,6 +89,35 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
     public void canDelete(IOperationContext context)
     {
+    }
+
+    private boolean isSystemUser(Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException(
+                    "Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
+    }
+
+    private boolean isFieldUpdated(FieldUpdateValue<?> field, Object currentValue)
+    {
+        if (field != null && field.isModified())
+        {
+            if (currentValue != null)
+            {
+                return !currentValue.equals(field.getValue());
+            } else
+            {
+                return field.getValue() != null;
+            }
+        }
+        return false;
     }
 
 }

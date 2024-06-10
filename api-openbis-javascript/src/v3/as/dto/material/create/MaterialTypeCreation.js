@@ -11,6 +11,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.description = null;
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
+		prototype.managedInternally = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -36,6 +37,12 @@ define([ "stjs" ], function(stjs) {
 		prototype.setPropertyAssignments = function(propertyAssignments) {
 			this.propertyAssignments = propertyAssignments;
 		};
+		prototype.isManagedInternally = function() {
+          return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+          this.managedInternally = managedInternally;
+        };
 
 	}, {
 		validationPluginId : "IPluginId",

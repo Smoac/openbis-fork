@@ -52,7 +52,7 @@ public abstract class AbstractSearchManager<OBJECT>
         return collection != null && !collection.isEmpty();
     }
 
-    public Set<Long> filterIDsByUserRights(final Long userId, final AuthorisationInformation authorisationInformation, final Set<Long> ids)
+    public Set<Long> filterIDsByUserRights(final AuthorisationInformation authorisationInformation, final Set<Long> ids)
     {
         if (authorisationInformation.isInstanceRole())
         {
@@ -83,35 +83,6 @@ public abstract class AbstractSearchManager<OBJECT>
                 : Collections.emptyList();
     }
 
-    protected static <E> Set<E> mergeResults(final SearchOperator operator,
-            final Collection<Set<E>>... intermediateResultsToMerge)
-    {
-        final Collection<Set<E>> intermediateResults = Arrays.stream(intermediateResultsToMerge).reduce(new ArrayList<>(), (sets, sets2) ->
-                {
-                    if (sets2 != null)
-                    {
-                        sets.addAll(sets2);
-                    }
-                    return sets;
-                });
-
-        switch (operator)
-        {
-            case AND:
-            {
-                return intersection(intermediateResults);
-            }
-            case OR:
-            {
-                return union(intermediateResults);
-            }
-            default:
-            {
-                throw new IllegalArgumentException("Unexpected value for search operator: " + operator);
-            }
-        }
-    }
-
     protected static <E> Set<E> intersection(final Collection<Set<E>> sets)
     {
         return !sets.isEmpty() ? sets.stream().reduce(new HashSet<>(sets.iterator().next()), (set1, set2) ->
@@ -134,28 +105,6 @@ public abstract class AbstractSearchManager<OBJECT>
                     }
                     return set1;
                 });
-    }
-
-    /**
-     * Find the smallest set.
-     *
-     * @param candidates collection of sets to search in.
-     * @param <E> types of parameters of the sets.
-     * @return the set with the smallest number of items.
-     */
-    protected static <E> Set<E> getSmallestSet(final Collection<Set<E>> candidates)
-    {
-        final Set<E> smallestSet = candidates.stream().min((o1, o2) ->
-                {
-                    if (o1 == null)
-                    {
-                        return (o2 == null) ? 0 : 1;
-                    } else
-                    {
-                        return (o2 == null) ? -1 : o1.size() - o2.size();
-                    }
-                }).orElse(null);
-        return smallestSet;
     }
 
     protected ISQLSearchDAO getSearchDAO()
@@ -193,7 +142,7 @@ public abstract class AbstractSearchManager<OBJECT>
         final Set<Long> resultBeforeFiltering =
                 containsValues(mainCriteriaIntermediateResults) ? mainCriteriaIntermediateResults : Collections.emptySet();
 
-        return filterIDsByUserRights(userId, authorisationInformation, resultBeforeFiltering);
+        return filterIDsByUserRights(authorisationInformation, resultBeforeFiltering);
     }
 
     protected Set<Long> searchForIDsByCriteriaCollection(final Long userId, final AuthorisationInformation authorisationInformation,
@@ -205,7 +154,7 @@ public abstract class AbstractSearchManager<OBJECT>
             final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
             final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId, containerCriterion, tableMapper,
                     idsColumnName, authorisationInformation);
-            return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
+            return filterIDsByUserRights(authorisationInformation, mainCriteriaNotFilteredResults);
         } else
         {
             return Collections.emptySet();

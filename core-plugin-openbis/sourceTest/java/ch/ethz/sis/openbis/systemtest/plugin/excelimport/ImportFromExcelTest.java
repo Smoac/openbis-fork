@@ -21,7 +21,6 @@ import static org.testng.Assert.assertNotNull;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -34,6 +33,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
@@ -53,21 +53,23 @@ public class ImportFromExcelTest extends AbstractImportTest
         FILES_DIR = f.substring(0, f.length() - ImportExperimentTypesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "(?s).*Content found after a double blank row that should mark the end of a page\\..*")
     @DirtiesContext
     public void testFileWithManyBlankRowsWasParsed() throws Exception
     {
         // the Excel contains internally managed property types which can be only manipulated by the system user
         sessionToken = v3api.loginAsSystem();
 
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, WITH_BLANKS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, WITH_BLANKS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
 
         ExperimentType propertyType = TestUtils.getExperimentType(v3api, sessionToken, "COLLECTION");
         assertNotNull(propertyType); // the last line on the first sheet was read
         assertEquals(propertyType.getPropertyAssignments().size(), 2);
         assertEquals(propertyType.getPropertyAssignments().get(1).getPropertyType().getCode(), "LAST_ROW_EXP_TYPE");
 
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "LAST_SAMPLE", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "LAST_SAMPLE");
         assertNotNull(sample); // the last line on the second sheet was read
     }
 }

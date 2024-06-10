@@ -19,6 +19,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrationDate = null;
 		prototype.plugin = null;
 		prototype.unique = null;
+		prototype.managedInternally = null;
+		prototype.pattern = null;
+        prototype.patternType = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -133,6 +136,24 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         };
 		prototype.isUnique = function() {
             return this.unique;
+        };
+        prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally = managedInternally;
+        };
+        prototype.getPattern = function() {
+            return this.pattern;
+        };
+        prototype.setPattern = function(pattern) {
+            this.pattern = pattern;
+        };
+        prototype.getPatternType = function() {
+            return this.patternType;
+        };
+        prototype.setPatternType = function(patternType) {
+            this.patternType = patternType;
         };
 	}, {
 		fetchOptions : "PropertyAssignmentFetchOptions",

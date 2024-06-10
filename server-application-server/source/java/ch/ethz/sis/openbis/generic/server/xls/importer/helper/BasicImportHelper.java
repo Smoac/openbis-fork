@@ -87,7 +87,10 @@ public abstract class BasicImportHelper extends AbstractImportHelper
                         switch (mode)
                         {
                             case FAIL_IF_EXISTS:
-                                throw new UserFailureException("Mode FAIL_IF_EXISTS - Found existing " + getTypeName());
+                                if (!(this instanceof SemanticAnnotationImportHelper))
+                                {
+                                    throw new UserFailureException("Mode FAIL_IF_EXISTS - Found existing " + getTypeName());
+                                }
                             case UPDATE_IF_EXISTS:
                                 updateObject(header, page.get(lineIndex), pageIndex, lineIndex);
                                 updateVersion(header, page.get(lineIndex));

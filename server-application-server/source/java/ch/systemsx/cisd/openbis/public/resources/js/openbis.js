@@ -1188,7 +1188,7 @@ openbis.prototype.addUnofficialVocabularyTerm = function(vocabularyId, term, act
 	this._internal.ajaxRequest({
 		url: this._internal.generalInfoChangingServiceUrl,
 		data: { "method" : "addUnofficialVocabularyTerm",
-				"params" : [ this.getSession(), vocabularyId, term ] 
+				"params" : [ this.getSession(), vocabularyId, term, false ]
 			  },
 		success: action
 	});

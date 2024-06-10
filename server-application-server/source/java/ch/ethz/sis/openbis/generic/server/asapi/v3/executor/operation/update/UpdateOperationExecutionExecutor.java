@@ -82,7 +82,7 @@ public class UpdateOperationExecutionExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IOperationExecutionId id, OperationExecutionPE entity)
+    protected void checkAccess(IOperationContext context, IOperationExecutionId id, OperationExecutionPE entity, OperationExecutionUpdate update)
     {
         try
         {

@@ -687,6 +687,9 @@ function MainController(profile) {
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
 					var argsArray = arg ? arg : [null, null];
+					if(typeof(argsArray) === 'string') {
+					    argsArray = [argsArray, false];
+					}
 					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
@@ -1148,7 +1151,7 @@ function MainController(profile) {
 	
 	this._showBlancPage = function() {
 		var content = this._getBackwardsCompatibleMainContainer();
-		content.append("Welcome to openBIS ELN-LIMS.");
+		content.load("./etc/welcome.html");
 		this.currentView = {
 		    content : content
 		}

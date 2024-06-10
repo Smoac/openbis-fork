@@ -75,7 +75,7 @@ public class UpdateVocabularyExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IVocabularyId id, VocabularyPE entity)
+    protected void checkAccess(IOperationContext context, IVocabularyId id, VocabularyPE entity, VocabularyUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

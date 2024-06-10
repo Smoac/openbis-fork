@@ -66,8 +66,6 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     private transient Long id;
 
-    private String code;
-
     private String label;
 
     private String description;
@@ -80,22 +78,52 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     private Date modificationDate;
 
+    private String simpleCode;
+
+    private boolean managedInternally;
+
     public VocabularyTermPE()
     {
     }
 
-    @Override
+    public void setSimpleCode(final String simpleCode)
+    {
+        this.simpleCode = CodeConverter.tryToDatabase(simpleCode);
+    }
+
+    @Column(name = ColumnNames.CODE_COLUMN)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 50, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.TERM_CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.TERM_CODE_PATTERN_MESSAGE)
+    public String getSimpleCode()
+    {
+        return simpleCode;
+    }
+
+
+    @Override
+    @Transient
     public String getCode()
     {
-        return code;
+        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isManagedInternally());
     }
 
     public void setCode(final String code)
     {
-        this.code = CodeConverter.tryToDatabase(code);
+        setManagedInternally(CodeConverter.isInternalNamespace(code));
+        setSimpleCode(code);
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IS_MANAGED_INTERNALLY)
+    public boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(final boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     @Version

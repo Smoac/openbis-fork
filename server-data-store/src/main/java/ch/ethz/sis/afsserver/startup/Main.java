@@ -15,12 +15,13 @@
  */
 package ch.ethz.sis.afsserver.startup;
 
-import ch.ethz.sis.afsserver.server.Server;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
-import ch.ethz.sis.shared.startup.Configuration;
-
 import java.io.File;
 import java.util.List;
+
+import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.shared.startup.Configuration;
 
 public class Main
 {
@@ -33,10 +34,17 @@ public class Main
     public static void main(String[] args) throws Exception
     {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
-        Configuration configuration = new Configuration(getParameterClasses(),
-                "../server-data-store/src/main/resources/server-data-store-config.properties");
-        DummyServerObserver dummyServerObserver = new DummyServerObserver();
-        Server server = new Server(configuration, dummyServerObserver, dummyServerObserver);
+        System.out.println("Configuration Location: " + (new File(args[0])).getCanonicalPath());
+
+        Configuration configuration = new Configuration(getParameterClasses(), args[0]);
+
+        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
+        if (apiServerObserver == null)
+        {
+            apiServerObserver = new DummyServerObserver();
+        }
+
+        Server server = new Server(configuration, new DummyServerObserver(), apiServerObserver);
         Thread.currentThread().join();
     }
 }

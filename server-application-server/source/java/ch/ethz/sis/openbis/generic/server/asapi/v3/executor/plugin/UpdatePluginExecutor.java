@@ -92,7 +92,7 @@ public class UpdatePluginExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IPluginId id, ScriptPE entity)
+    protected void checkAccess(IOperationContext context, IPluginId id, ScriptPE entity, PluginUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

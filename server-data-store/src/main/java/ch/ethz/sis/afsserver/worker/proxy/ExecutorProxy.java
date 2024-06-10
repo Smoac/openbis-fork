@@ -15,20 +15,28 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.shared.io.IOUtils;
+import ch.ethz.sis.shared.startup.Configuration;
 import lombok.NonNull;
 
-public class ExecutorProxy extends AbstractProxy {
+public class ExecutorProxy extends AbstractProxy
+{
 
-    public ExecutorProxy() {
+    private final String storageRoot;
+
+    public ExecutorProxy(final Configuration configuration)
+    {
         super(null);
+        storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
     }
 
     //
@@ -36,28 +44,33 @@ public class ExecutorProxy extends AbstractProxy {
     //
 
     @Override
-    public void begin(UUID transactionId) throws Exception {
+    public void begin(UUID transactionId) throws Exception
+    {
         workerContext.setTransactionId(transactionId);
         workerContext.getConnection().begin(transactionId);
     }
 
     @Override
-    public Boolean prepare() throws Exception {
+    public Boolean prepare() throws Exception
+    {
         return workerContext.getConnection().prepare();
     }
 
     @Override
-    public void commit() throws Exception {
+    public void commit() throws Exception
+    {
         workerContext.getConnection().commit();
     }
 
     @Override
-    public void rollback() throws Exception {
+    public void rollback() throws Exception
+    {
         workerContext.getConnection().rollback();
     }
 
     @Override
-    public List<UUID> recover() throws Exception {
+    public List<UUID> recover() throws Exception
+    {
         return workerContext.getConnection().recover();
     }
 
@@ -65,59 +78,95 @@ public class ExecutorProxy extends AbstractProxy {
     // File System Operations
     //
 
-    public String getPath(String owner, String source) {
-        return String.join(""+IOUtils.PATH_SEPARATOR, "", owner.toString(), source);
+    private String getOwnerPath(String owner)
+    {
+        if (workerContext.getOwnerPathMap().containsKey(owner))
+        {
+            return workerContext.getOwnerPathMap().get(owner);
+        } else
+        {
+            return IOUtils.getPath("", owner);
+        }
+    }
+
+    private String getSourcePath(String owner, String source)
+    {
+        return IOUtils.getPath(getOwnerPath(owner), source);
     }
 
     @Override
-    public List<File> list(String owner, String source, Boolean recursively) throws Exception {
-        return workerContext.getConnection().list(getPath(owner, source), recursively)
+    public List<File> list(String owner, String source, Boolean recursively) throws Exception
+    {
+        return workerContext.getConnection().list(getSourcePath(owner, source), recursively)
                 .stream()
                 .map(file -> convertToFile(owner, file))
                 .collect(Collectors.toList());
     }
 
-    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file) {
-        return new File(owner, file.getPath().substring(owner.length() + 1), file.getName(), file.getDirectory(), file.getSize(),
-                file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
+    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file)
+    {
+        try
+        {
+            String ownerFullPath = new java.io.File(IOUtils.getPath(this.storageRoot, getOwnerPath(owner))).getCanonicalPath();
+            String fileFullPath;
+
+            if (file.getPath().startsWith(this.storageRoot))
+            {
+                fileFullPath = new java.io.File(file.getPath()).getCanonicalPath();
+            } else
+            {
+                fileFullPath = new java.io.File(IOUtils.getPath(this.storageRoot, file.getPath())).getCanonicalPath();
+            }
+
+            return new File(owner, fileFullPath.substring(ownerFullPath.length()), file.getName(), file.getDirectory(), file.getSize(),
+                    file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public byte[] read(String owner, String source, Long offset, Integer limit) throws Exception {
-        return workerContext.getConnection().read(getPath(owner, source), offset, limit);
+    public byte[] read(String owner, String source, Long offset, Integer limit) throws Exception
+    {
+        return workerContext.getConnection().read(getSourcePath(owner, source), offset, limit);
     }
 
     @Override
-    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception {
-        return workerContext.getConnection().write(getPath(owner, source), offset, data, md5Hash);
+    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception
+    {
+        return workerContext.getConnection().write(getSourcePath(owner, source), offset, data, md5Hash);
     }
 
     @Override
-    public Boolean delete(String owner, String source) throws Exception {
-        return workerContext.getConnection().delete(getPath(owner, source));
+    public Boolean delete(String owner, String source) throws Exception
+    {
+        return workerContext.getConnection().delete(getSourcePath(owner, source));
     }
 
     @Override
-    public Boolean copy(String sourceOwner, String source, String targetOwner, String target) throws Exception {
-        return workerContext.getConnection().copy(getPath(sourceOwner, source), getPath(targetOwner, target));
+    public Boolean copy(String sourceOwner, String source, String targetOwner, String target) throws Exception
+    {
+        return workerContext.getConnection().copy(getSourcePath(sourceOwner, source), getSourcePath(targetOwner, target));
     }
 
     @Override
-    public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception {
-        return workerContext.getConnection().move(getPath(sourceOwner, source), getPath(targetOwner, target));
+    public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception
+    {
+        return workerContext.getConnection().move(getSourcePath(sourceOwner, source), getSourcePath(targetOwner, target));
     }
 
     @Override
     public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
             throws Exception
     {
-        return workerContext.getConnection().create(getPath(owner, source), directory);
+        return workerContext.getConnection().create(getSourcePath(owner, source), directory);
     }
 
     @Override
     public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
-        final ch.ethz.sis.afs.api.dto.Space space = workerContext.getConnection().free(getPath(owner, source));
+        final ch.ethz.sis.afs.api.dto.Space space = workerContext.getConnection().free(getSourcePath(owner, source));
         return new FreeSpace(space.getTotal(), space.getFree());
     }
 

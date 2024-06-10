@@ -37,4 +37,8 @@ public interface Worker<CONNECTION> extends PublicAPI {
 
     boolean isTransactionManagerMode();
 
+    void setInteractiveSessionMode(boolean interactiveSessionMode);
+
+    boolean isInteractiveSessionMode();
+
 }

@@ -1473,7 +1473,7 @@ public final class CommonClientService extends AbstractClientService implements
 
         final String sessionToken = getSessionToken();
         commonServer.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label,
-                description, previousTermOrdinal);
+                description, previousTermOrdinal, false);
     }
 
     @Override

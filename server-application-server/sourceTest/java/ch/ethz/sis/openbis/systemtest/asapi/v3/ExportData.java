@@ -52,13 +52,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 class ExportData
 {
     static final String RICH_TEXT_PROPERTY_NAME = "MULTILINE";
+
     static final String RICH_TEXT_WITH_IMAGE_PROPERTY_NAME = "MULTILINE_WITH_IMAGE";
 
     static final String RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME = "MULTILINE_WITH_SPREADSHEET";
 
-    static final String BIG_CELL_PROPERTY_NAME = "BIG_CELL";
-
-    static final Object[][] EXPORT_DATA = {
+        static final Object[][] EXPORT_DATA = {
             // XLS: All fields
             {
                     // Non-existing sample
@@ -148,17 +147,6 @@ class ExportData
                     false, // withImportCompatibility
                     true
             },
-//            {
-//                    // Sample: /MP:A03
-//                    "export-sample-contained-xlsx.zip",
-//                    EnumSet.of(ExportFormat.XLSX),
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
-//                    new AllFields(),
-//                    XlsTextFormat.RICH,
-//                    false, // withReferredTypes
-//                    false, // withImportCompatibility
-//                    true
-//            },
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-xlsx.zip",
@@ -405,17 +393,6 @@ class ExportData
                     false, // withImportCompatibility
                     true
             },
-//            {
-//                    // Sample: /MP:A03
-//                    "export-sample-contained-html.zip",
-//                    EnumSet.of(ExportFormat.HTML),
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
-//                    new AllFields(),
-//                    XlsTextFormat.RICH,
-//                    false, // withReferredTypes
-//                    false, // withImportCompatibility
-//                    true
-//            },
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-html.zip",

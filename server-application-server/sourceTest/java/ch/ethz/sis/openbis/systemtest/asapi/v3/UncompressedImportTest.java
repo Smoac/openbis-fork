@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.junit.Assert.assertNotNull;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -28,11 +28,14 @@ import java.util.stream.Collectors;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportScript;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
@@ -48,15 +51,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class UncompressedImportTest extends AbstractImportTest
 {
 
     @Test
-    public void testDataImport()
+    public void testDataImport() throws Exception
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null, null);
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import.xlsx");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -78,10 +84,11 @@ public class UncompressedImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testLargeDataImport()
+    public void testLargeDataImport() throws Exception
     {
-        final UncompressedImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import_large_cell.xlsx"), null,
-                List.of(new ImportValue("value-M20.txt", new String(getFileContent("data/value-M20.txt")))));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import_large_cell.xlsx", "data/value-M20.txt");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0]);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -103,9 +110,11 @@ public class UncompressedImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testImportOptionsUpdateIfExists()
+    public void testImportOptionsUpdateIfExists() throws Exception
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null, null);
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.xlsx");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -130,9 +139,11 @@ public class UncompressedImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testImportOptionsIgnoreExisting()
+    public void testImportOptionsIgnoreExisting() throws Exception
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null, null);
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.xlsx");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -157,21 +168,23 @@ public class UncompressedImportTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*FAIL_IF_EXISTS.*")
-    public void testImportOptionsFailIfExists()
+    public void testImportOptionsFailIfExists() throws Exception
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null, null);
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.xlsx");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
     }
 
     @Test
-    public void testWithValidationScript()
+    public void testWithValidationScript() throws Exception
     {
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
-                List.of(new ImportScript(name, source)), null);
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "validation_script.xls", "scripts/" + name);
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0]);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -191,17 +204,17 @@ public class UncompressedImportTest extends AbstractImportTest
         final Plugin validationPlugin = sampleType.getValidationPlugin();
         final String validationPluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(validationPlugin.getName(), sampleType.getCode() + "." + validationPluginBareName);
+        assertEquals(validationPlugin.getName(), validationPluginBareName);
         assertEquals(validationPlugin.getScript(), source);
     }
 
     @Test
-    public void testWithDynamicScript()
+    public void testWithDynamicScript() throws Exception
     {
         final String name = "dynamic.py";
         final String source = "1+1";
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
-                List.of(new ImportScript(name, source)), null);
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "dynamic_script.xls", "scripts/" + name);
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0]);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -226,8 +239,74 @@ public class UncompressedImportTest extends AbstractImportTest
 
         final String pluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
+        assertEquals(plugin.getName(), pluginBareName);
         assertEquals(plugin.getScript(), source);
+    }
+
+    @Test
+    public void testInternalTypes_failForNormalUser() throws Exception
+    {
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import_internal_type.xlsx");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        assertUserFailureException(new IDelegatedAction()
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.executeImport(sessionToken, importData, importOptions);
+                                       }
+                                   },
+                "Authorization failure: Internal entity types can be managed only by the system user.");
+    }
+
+    @Test
+    public void testInternalTypes() throws Exception
+    {
+        final String systemSessionToken = v3api.loginAsSystem();
+
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(systemSessionToken, "import_internal_type.xlsx");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(systemSessionToken, importData, importOptions);
+
+        final DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        dataSetTypeSearchCriteria.withCode().thatEquals("$INTERNAL_DATASET_TYPE");
+
+        final DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+
+        SearchResult<DataSetType> dataSetTypeSearchResult =
+                v3api.searchDataSetTypes(sessionToken, dataSetTypeSearchCriteria, dataSetTypeFetchOptions);
+
+        assertEquals(dataSetTypeSearchResult.getTotalCount(), 1);
+        assertEquals(dataSetTypeSearchResult.getObjects().get(0).getDescription(), "Internal Dataset Type");
+
+        final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        sampleTypeSearchCriteria.withPermId().thatEquals("$INTERNAL_SAMPLE_TYPE");
+
+        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+
+        SearchResult<SampleType> sampleTypeSearchResult =
+                v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+
+        assertEquals(sampleTypeSearchResult.getTotalCount(), 1);
+        assertEquals(sampleTypeSearchResult.getObjects().get(0).getDescription(), "Internal Sample Type");
+
+
+        final ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
+        experimentTypeSearchCriteria.withCode().thatEquals("$INTERNAL_EXPERIMENT_TYPE");
+
+        final ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+
+        SearchResult<ExperimentType> experimentTypeSearchResult =
+                v3api.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, experimentTypeFetchOptions);
+
+        assertEquals(experimentTypeSearchResult.getTotalCount(), 1);
+        assertEquals(experimentTypeSearchResult.getObjects().get(0).getDescription(), "Internal Experiment Type");
     }
 
 }

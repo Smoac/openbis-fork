@@ -19,14 +19,13 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentsOperation;
@@ -35,20 +34,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialsOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperationResult;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetsOperationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentsOperationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialsOperationExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSamplesOperationExecutor;
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.EntityKindConverter;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -139,12 +135,97 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         {
             throw new IllegalArgumentException("Entity type cannot be null");
         }
+        if(typePE.isManagedInternally() && !isSystemUser(context.getSession()))
+        {
+            //TODO property assignment validation should be introduced during intern assignment implementation
+//            validateInternalEntityTypeChanges(typePE, updates);
+        }
 
         if (updates != null && updates.hasActions())
         {
             remove(context, typePE, updates);
             add(context, typePE, updates);
             set(context, typePE, updates);
+        }
+    }
+
+    /**
+     * Business logic to validate changes made to internal entity type assignments.
+     * @param typePE internal entity type
+     * @param updates to be performed
+     */
+    private void validateInternalEntityTypeChanges(TYPE_PE typePE, PropertyAssignmentListUpdateValue updates)
+    {
+        for (ListUpdateAction<Object> updateAction : updates.getActions())
+        {
+            // Remove assignment action
+            if (updateAction instanceof ListUpdateActionRemove<?>)
+            {
+                Map<IPropertyAssignmentId, EntityTypePropertyTypePE> assignments = new HashMap<>();
+                for(EntityTypePropertyTypePE etptPE : typePE.getEntityTypePropertyTypes())
+                {
+                    EntityTypePermId entityTypePermId = new EntityTypePermId(typePE.getPermId(), EntityKindConverter.convert(typePE.getEntityKind()));
+                    PropertyTypePermId propertyTypePermId = new PropertyTypePermId(etptPE.getPropertyType().getPermId());
+                    PropertyAssignmentPermId pa = new PropertyAssignmentPermId(entityTypePermId, propertyTypePermId);
+                    assignments.put(pa, etptPE);
+                }
+                Collection<IPropertyAssignmentId> items = (Collection<IPropertyAssignmentId>) updateAction.getItems();
+                for(IPropertyAssignmentId item : items) {
+                    EntityTypePropertyTypePE etptPE = assignments.getOrDefault(item, null);
+                    if(etptPE != null && etptPE.getRegistrator().isSystemUser() && etptPE.getPropertyType().isManagedInternally())
+                    {
+                        throw new UserFailureException("Only system user can delete initial internal property assignments from internal entity types");
+                    }
+                }
+            } else if(updateAction instanceof ListUpdateActionSet<?>)
+            {
+                // set and add actions
+                Map<IPropertyTypeId, EntityTypePropertyTypePE> propertyTypes = new HashMap<>();
+                for(EntityTypePropertyTypePE etptPE : typePE.getEntityTypePropertyTypes())
+                {
+                    PropertyTypePermId propertyTypePermId = new PropertyTypePermId(etptPE.getPropertyType().getPermId());
+                    propertyTypes.put(propertyTypePermId, etptPE);
+                }
+                Collection<PropertyAssignmentCreation> items = (Collection<PropertyAssignmentCreation>) updateAction.getItems();
+                for(PropertyAssignmentCreation creation : items)
+                {
+                    IPropertyTypeId propertyTypeId = creation.getPropertyTypeId();
+                    EntityTypePropertyTypePE etpt = propertyTypes.getOrDefault(propertyTypeId, null);
+                    if(etpt != null)
+                    {
+                        // modify existing
+                        if(!etpt.isMandatory() && creation.isMandatory()) {
+                            throw new UserFailureException("Only system user can make properties mandatory for internal entity types! Property:" + creation.getPropertyTypeId());
+                        }
+                        if(!etpt.isScriptable() && creation.getPluginId() != null)
+                        {
+                            throw new UserFailureException("Only system user can make properties scriptable for internal entity types! Property:" + creation.getPropertyTypeId());
+                        }
+                    } else {
+                        // add new property assignment
+                        if(creation.isMandatory()) {
+                            throw new UserFailureException("Only system user can make properties mandatory for internal entity types! Property:" + creation.getPropertyTypeId());
+                        }
+                        if(creation.getPluginId() != null) {
+                            throw new UserFailureException("Only system user can make properties scriptable for internal entity types! Property:" + creation.getPropertyTypeId());
+                        }
+                    }
+                }
+            } else if(updateAction instanceof ListUpdateActionAdd<?>) {
+                // add new property assignment action
+                Collection<PropertyAssignmentCreation> items = (Collection<PropertyAssignmentCreation>) updateAction.getItems();
+                for(PropertyAssignmentCreation creation : items)
+                {
+                    if(creation.isMandatory())
+                    {
+                        throw new UserFailureException("Only system user can make properties mandatory for internal entity types! Property:" + creation.getPropertyTypeId());
+                    }
+                    if(creation.getPluginId() != null)
+                    {
+                        throw new UserFailureException("Only system user can make properties scriptable for internal entity types! Property:" + creation.getPropertyTypeId());
+                    }
+                }
+            }
         }
     }
 
@@ -332,6 +413,19 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                         + "To force removal call getPropertyAssignments().setForceRemovingAssignments(true) "
                         + "on the entity update object.");
             }
+        }
+    }
+
+    private boolean isSystemUser(Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException("Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
         }
     }
 

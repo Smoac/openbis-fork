@@ -27,6 +27,7 @@ define(['stjs', "util/Exceptions"], function (stjs, exceptions) {
       prototype.semanticAnnotations = null
       prototype.validationPlugin = null
       prototype.metaData = null;
+      prototype.managedInternally = null;
       prototype.getPropertyAssignments = function () {
         if (
           this.getFetchOptions() &&
@@ -149,6 +150,12 @@ define(['stjs', "util/Exceptions"], function (stjs, exceptions) {
       };
       prototype.setMetaData = function(metaData) {
         this.metaData = metaData;
+      };
+      prototype.isManagedInternally = function() {
+        return this.managedInternally;
+      };
+      prototype.setManagedInternally = function(managedInternally) {
+        this.managedInternally = managedInternally;
       };
       prototype.toString = function () {
         return this.getCode()

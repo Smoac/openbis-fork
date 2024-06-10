@@ -1588,7 +1588,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_UNOFFICIAL_VOCABULARY_TERM")
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
-            String label, String description, Long previousTermOrdinal)
+            String label, String description, Long previousTermOrdinal, boolean managedInternally)
     {
         assert sessionToken != null : "Unspecified session token";
         assert vocabularyId != null : "Unspecified vocabulary id";
@@ -1597,7 +1597,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(vocabularyId);
-        vocabularyBO.addNewUnofficialTerm(code, label, description, previousTermOrdinal);
+        vocabularyBO.addNewUnofficialTerm(code, label, description, previousTermOrdinal, managedInternally);
         vocabularyBO.save();
     }
 

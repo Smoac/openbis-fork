@@ -4,6 +4,7 @@ import messages from '@src/js/common/messages.js'
 const CODE_PATTERN = /^[A-Z0-9_\-.]+$/i
 const INTERNAL_CODE_PATTERN = /^\$[A-Z0-9_\-.]+$/i
 const TERM_CODE_PATTERN = /^[A-Z0-9_\-.:]+$/i
+const INTERNAL_TERM_CODE_PATTERN = /^\$[A-Z0-9_\-.:]+$/i
 const USER_CODE_PATTERN = /^[A-Z0-9_\-.@]+$/i
 
 class FormValidator {
@@ -119,6 +120,15 @@ class FormValidator {
       name,
       messages.get(messages.VALIDATION_TERM_CODE_PATTERN, label),
       TERM_CODE_PATTERN
+    )
+  }
+
+  validateInternalTermCode(object, name, label) {
+    this.validatePattern(
+      object,
+      name,
+      messages.get(messages.VALIDATION_INTERNAL_TERM_CODE_PATTERN, label),
+      INTERNAL_TERM_CODE_PATTERN
     )
   }
 

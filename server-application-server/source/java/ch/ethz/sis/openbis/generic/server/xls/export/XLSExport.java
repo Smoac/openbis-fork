@@ -25,7 +25,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -75,19 +74,6 @@ public class XLSExport
     private XLSExport()
     {
         throw new UnsupportedOperationException("Instantiation of a utility class.");
-    }
-
-    private static File createDirectory(final File parentDirectory, final String directoryName) throws IOException
-    {
-        final File scriptsDirectory = new File(parentDirectory, directoryName);
-        final boolean directoryCreated = scriptsDirectory.mkdir();
-
-        if (!directoryCreated)
-        {
-            throw new IOException(String.format("Failed create directory %s.", scriptsDirectory.getAbsolutePath()));
-        }
-
-        return scriptsDirectory;
     }
 
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
@@ -175,6 +161,7 @@ public class XLSExport
         final Map<String, String> scripts = new HashMap<>();
         final Collection<String> warnings = new ArrayList<>();
         final Map<String, String> valueFiles = new HashMap<>();
+        final Map<String, byte[]> miscellaneousFiles = new HashMap<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
@@ -188,8 +175,9 @@ public class XLSExport
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
-            valueFiles.putAll(additionResult.getValueFiles());
             warnings.addAll(additionResult.getWarnings());
+            valueFiles.putAll(additionResult.getValueFiles());
+            miscellaneousFiles.putAll(additionResult.getMiscellaneousFiles());
 
             final IEntityType entityType = exportReferredMasterData ? helper.getEntityType(api, sessionToken,
                     exportablePermId.getPermId().getPermId()) : null;
@@ -212,7 +200,7 @@ public class XLSExport
             }
         }
 
-        return new PrepareWorkbookResult(wb, scripts, warnings, valueFiles);
+        return new PrepareWorkbookResult(wb, scripts, warnings, valueFiles, miscellaneousFiles);
     }
 
     private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
@@ -434,13 +422,16 @@ public class XLSExport
 
         private final Map<String, String> valueFiles;
 
+        private final Map<String, byte[]> miscellaneousFiles;
+
         public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts,
-                final Collection<String> warnings, final Map<String, String> valueFiles)
+                final Collection<String> warnings, final Map<String, String> valueFiles, final Map<String, byte[]> miscellaneousFiles)
         {
             this.workbook = workbook;
             this.scripts = scripts;
             this.warnings = warnings;
             this.valueFiles = valueFiles;
+            this.miscellaneousFiles = miscellaneousFiles;
         }
 
         public Workbook getWorkbook()
@@ -463,6 +454,10 @@ public class XLSExport
             return valueFiles;
         }
 
+        public Map<String, byte[]> getMiscellaneousFiles()
+        {
+            return miscellaneousFiles;
+        }
     }
 
     public enum TextFormatting

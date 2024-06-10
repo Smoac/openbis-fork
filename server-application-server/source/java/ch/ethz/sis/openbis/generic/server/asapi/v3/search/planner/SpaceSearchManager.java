@@ -68,7 +68,7 @@ public class SpaceSearchManager extends AbstractLocalSearchManager<SpaceSearchCr
         // If we don't have results and criteria are not empty, there are no results.
         final Set<Long> resultBeforeFiltering = containsValues(mainCriteriaIntermediateResults) ? mainCriteriaIntermediateResults : Collections.emptySet();
 
-        return filterIDsByUserRights(userId, authorisationInformation, resultBeforeFiltering);
+        return filterIDsByUserRights(authorisationInformation, resultBeforeFiltering);
     }
 
     @Override

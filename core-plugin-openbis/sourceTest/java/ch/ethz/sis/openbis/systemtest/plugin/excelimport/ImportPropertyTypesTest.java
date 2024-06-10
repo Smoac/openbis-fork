@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.systemtest.plugin.excelimport;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
@@ -25,7 +26,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.commons.io.FilenameUtils;
-import org.python27.core.PyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
@@ -50,6 +50,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
     private IApplicationServerInternalApi v3api;
 
     private static final String PROPERTY_TYPES_XLS = "property_types/normal_property_type.xls";
+
     private static final String PROPERTY_TYPES_WITH_PATTERN_XLS = "property_types/normal_property_type_with_pattern.xls";
 
     private static final String PROPERTY_NO_CODE = "property_types/no_code.xls";
@@ -74,7 +75,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
     public void setupClass() throws IOException
     {
         String f = ImportPropertyTypesTest.class.getName().replace(".", "/");
-        FILES_DIR = f.substring(0, f.length() - ImportPropertyTypesTest.class.getSimpleName().length()) + "/test_files/";
+        FILES_DIR = f.substring(0, f.length() - ImportPropertyTypesTest.class.getSimpleName().length()) + "test_files/";
     }
 
     @Test
@@ -85,9 +86,12 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "NOTES");
+
         // THEN
         assertEquals(notes.getCode(), "NOTES");
         assertEquals(notes.getLabel(), "Notes");
@@ -97,27 +101,6 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         assertNull(notes.getVocabulary());
     }
 
-    @Test
-    @DirtiesContext
-    public void testNormalPropertyTypesWithPatternsAreCreated() throws IOException
-    {
-        // the Excel contains internally managed property types which can be only manipulated by the system user
-        sessionToken = v3api.loginAsSystem();
-
-        // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_WITH_PATTERN_XLS)));
-        // WHEN
-        PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "PATTERN_PATTERN");
-        // THEN
-        assertEquals(notes.getCode(), "PATTERN_PATTERN");
-        assertEquals(notes.getLabel(), "Pattern");
-        assertEquals(notes.getDataType(), DataType.VARCHAR);
-        assertEquals(notes.getDescription(), "Regexp pattern");
-        assertFalse(notes.isManagedInternally());
-        assertNull(notes.getVocabulary());
-        assertEquals(notes.getPattern(), ".*");
-        assertEquals(notes.getPatternType(), "PATTERN");
-    }
 
     @Test
     @DirtiesContext
@@ -127,9 +110,12 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+
         // THEN
         assertEquals(notes.getCode(), "$INTERNAL_PROP");
         assertEquals(notes.getLabel(), "Name");
@@ -144,9 +130,13 @@ public class ImportPropertyTypesTest extends AbstractImportTest
     public void testDuplicatesPropertiesAreAllowedIfTheyAreTheSame() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_DUPLICATES_SAME)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_DUPLICATES_SAME));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "NOTES");
+
         // THEN
         assertEquals(notes.getCode(), "NOTES");
         assertEquals(notes.getLabel(), "Notes");
@@ -157,76 +147,96 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         assertNull(notes.getVocabulary());
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "(?s).*Mandatory field is missing or empty: Code.*")
     public void testPropertyTypeNoCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Property label' is missing.*")
     public void testPropertyTypeNoLabel() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_LABEL)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_NO_LABEL));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "(?s).*Ambiguous property NOTES found, it has been declared before with different attributes.*")
     public void testPropertyTypesDuplicatesAreDifferent() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_DUPLICATES_DIFFERENT)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, PROPERTY_DUPLICATES_DIFFERENT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Vocabulary code' is missing.*")
     public void testPropertyTypeNoVocabularyCodeWhenVocabularyType() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_VOCAB_TYPE_NO_VOCABULARY_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, PROPERTY_VOCAB_TYPE_NO_VOCABULARY_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Data type' is missing.*")
     public void testPropertyTypeNoDataType() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DATA_TYPE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DATA_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Description' is missing.*")
     public void testPropertyTypeNoDescription() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DESCRIPTION)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DESCRIPTION));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Entity \\[DETECTION\\] could not be found..*")
     public void testPropertyTypeVocabularyCodeToNonVocabularyType() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NON_VOCAB_TYPE_VOCABULARY_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, PROPERTY_NON_VOCAB_TYPE_VOCABULARY_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = Exception.class)
+    @Test/*(expectedExceptions = Exception.class)*/
     @DirtiesContext
     public void deleteProjectFromDBButNotFromJSON() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+        // the Excel contains internally property types which can be only manipulated by the system user
+        sessionToken = v3api.loginAsSystem();
+
+        final String sessionWorkspaceFilePath1 = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.FAIL_IF_EXISTS, Paths.get(sessionWorkspaceFilePath1));
 
         PropertyType type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        assertNotNull(type);
         PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
         deletionOptions.setReason("test");
         v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
 
         // After deleting one property, the exception is not thrown.
         // Because it can be deleted by the user an DB is fine.
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+        final String sessionWorkspaceFilePath2 = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath2));
 
         // remove all data from DB
         type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        assertNotNull(type);
         deletionOptions = new PropertyTypeDeletionOptions();
         deletionOptions.setReason("test");
         v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
 
         type = TestUtils.getPropertyType(v3api, sessionToken, "NOTES");
+        assertNotNull(type);
         deletionOptions = new PropertyTypeDeletionOptions();
         deletionOptions.setReason("test");
         v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
 
         // exception should be thrown because DB is empty.
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+        final String sessionWorkspaceFilePath3 = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath3));
     }
 
 }

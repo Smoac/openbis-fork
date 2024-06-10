@@ -119,8 +119,9 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
         {this.renderLabel(property)}
         {this.renderDescription(property)}
         {this.renderDynamicPlugin(property)}
-        {this.renderPattern(property)}
         {this.renderPatternType(property)}
+        {this.renderPattern(property)}
+        {this.renderPatternInfoBox(property)}
         {this.renderInternal(property)}
         {this.renderVisible(property)}
         {this.renderMandatory(property)}
@@ -782,6 +783,43 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       />
     </div>
     )
+  }
+
+  renderPatternInfoBox(property) {
+      const { visible, enabled, error, value } = { ...property.patternType }
+
+      if(!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                           openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                           openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                           openbis.DataType.CONTROLLEDVOCABULARY, openbis.DataType.MATERIAL,
+                           openbis.DataType.SAMPLE,
+                           null].includes(property.dataType.value)) {
+        return null;
+      }
+
+      const { mode, classes } = this.props
+      if(mode != 'edit') {
+        return null;
+      }
+      console.log(this.props);
+      let message = "";
+      if(value == 'PATTERN') {
+          message = messages.get(messages.PROPERTY_TYPE_VALIDATION_PATTERN)
+      } else if(value == 'VALUES') {
+        message = messages.get(messages.PROPERTY_TYPE_VALIDATION_VALUES)
+      } else if(value == 'RANGES') {
+        message = messages.get(messages.PROPERTY_TYPE_VALIDATION_RANGES)
+      } else {
+         return null;
+      }
+      return (
+              <div className={classes.field}>
+                <Message type='info'>
+                  {message}
+                </Message>
+              </div>
+      )
+
   }
 
   renderPatternType(property) {

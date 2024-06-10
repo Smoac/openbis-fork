@@ -465,26 +465,6 @@ public class CreatePropertyTypeTest extends AbstractTest
     }
 
     @Test
-    public void testMissingPatternWithPatternTypeFilled()
-    {
-        PropertyTypeCreation creation = createBasic();
-        creation.setPatternType("PATTERN");
-
-
-        assertUserFailureException(creation, "Pattern and Pattern Type must be both either empty or non-empty!");
-    }
-
-    @Test
-    public void testMissingPatternTypeWithPatternFilled()
-    {
-        PropertyTypeCreation creation = createBasic();
-        creation.setPattern("SomePattern");
-
-
-        assertUserFailureException(creation, "Pattern and Pattern Type must be both either empty or non-empty!");
-    }
-
-    @Test
     public void testVocabularyTypeMissingVocabulary()
     {
         PropertyTypeCreation creation = createBasic();

@@ -369,6 +369,10 @@ configuration.*
 
 ```
 obis upload [sample_id] [data_set_type] [OPTIONS]
+
+Options:
+  -f, --file     TEXT        File to be used for the upload. Can be used multiple times.
+  -p, --property KEY=VALUE   Key-value pair to be set in dataset properties. Can be used multiple times.
 ```
 
 With `upload` command, a new data set of type `data_set_type` will be created under
@@ -394,7 +398,8 @@ obis object search -space TESTID -type BACTERIA
 obis object search -space TESTID -type BACTERIA -save results.csv
 obis object search -space TESTID -save results_space.csv
 # upload files to an existing object as type RAW_DATA
-obis upload 20230228133001314-59 RAW_DATA -f results.csv -f results_space.csv
+obis upload 20230228133001314-59 RAW_DATA -f results.csv -f results_space.csv -p \$name='some dataset'
+obis upload 20230228133001314-59 RAW_DATA -f results.csv -f results_space.csv -p '$name'='another dataset'
 ```
 
 **download datasets of an object and check properties**

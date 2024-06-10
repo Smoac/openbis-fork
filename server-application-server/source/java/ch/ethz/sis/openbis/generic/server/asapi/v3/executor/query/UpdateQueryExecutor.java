@@ -100,7 +100,7 @@ public class UpdateQueryExecutor extends AbstractUpdateEntityExecutor<QueryUpdat
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IQueryId id, QueryPE entity)
+    protected void checkAccess(IOperationContext context, IQueryId id, QueryPE entity, QueryUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

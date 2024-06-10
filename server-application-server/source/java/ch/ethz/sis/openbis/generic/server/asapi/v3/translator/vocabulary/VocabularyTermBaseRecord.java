@@ -29,7 +29,7 @@ public class VocabularyTermBaseRecord extends ObjectBaseRecord
 
     public String vocabularyCode;
 
-    public boolean isManagedInternally;
+    public boolean isManagedInternallyVocabulary;
 
     public String label;
 
@@ -40,5 +40,7 @@ public class VocabularyTermBaseRecord extends ObjectBaseRecord
     public Boolean isOfficial;
 
     public Date registrationDate;
+
+    public boolean isManagedInternally;
 
 }

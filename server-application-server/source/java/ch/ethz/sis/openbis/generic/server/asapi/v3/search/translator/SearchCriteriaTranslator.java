@@ -15,7 +15,26 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.DISTINCT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FALSE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IS_NOT_NULL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LEFT_JOIN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NOT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ON;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.OR;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SELECT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.TRUE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.UNNEST;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.METAPROJECT_ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.METAPROJECTS_TABLE;
@@ -25,12 +44,27 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AnyPropertySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AnyStringValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.LongDateFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NormalDateFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ShortDateFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -87,7 +121,7 @@ public class SearchCriteriaTranslator
 
     private static String buildSelect(final TranslationContext translationContext)
     {
-        return SELECT + SP + (translationContext.getParentCriterion().isNegated() ? "" : DISTINCT) + SP +
+        return SELECT + SP + DISTINCT + SP +
                 MAIN_TABLE_ALIAS + PERIOD + translationContext.getIdColumnName();
     }
 
@@ -100,6 +134,7 @@ public class SearchCriteriaTranslator
         sqlBuilder.append(FROM).append(SP).append(entitiesTableName).append(SP).append(MAIN_TABLE_ALIAS);
 
         final AtomicInteger indexCounter = new AtomicInteger(1);
+        final Set<JoinInformation> usedJoinInformationSet = new HashSet<>();
         translationContext.getCriteria().forEach(criterion ->
         {
             if (!(CriteriaMapper.getCriteriaToManagerMap().containsKey(criterion.getClass()) || criterion instanceof EntityTypeSearchCriteria))
@@ -107,15 +142,46 @@ public class SearchCriteriaTranslator
                 final IConditionTranslator conditionTranslator = CriteriaMapper.getCriteriaToConditionTranslatorMap().get(criterion.getClass());
                 if (conditionTranslator != null)
                 {
-                    @SuppressWarnings("unchecked")
-                    final Map<String, JoinInformation> joinInformationMap = conditionTranslator.getJoinInformationMap(criterion,
-                            tableMapper, () -> TranslatorUtils.getAlias(indexCounter));
-
-                    if (joinInformationMap != null)
+                    if (!translationContext.getAliases().containsKey(criterion))
                     {
-                        joinInformationMap.values().forEach((joinInformation) ->
-                                TranslatorUtils.appendJoin(sqlBuilder, joinInformation));
-                        translationContext.getAliases().put(criterion, joinInformationMap);
+                        @SuppressWarnings("unchecked") final Map<String, JoinInformation> joinInformationMap =
+                                conditionTranslator.getJoinInformationMap(criterion,
+                                        tableMapper, () -> TranslatorUtils.getAlias(indexCounter));
+
+                        if (joinInformationMap != null)
+                        {
+                            // Removing repeated joins (if any)
+                            final Set<JoinInformation> filteredJoinInformationSet = new LinkedHashSet<>(joinInformationMap.values());
+                            filteredJoinInformationSet.removeAll(usedJoinInformationSet);
+
+                            final Map<String, JoinInformation> existingJoinInformationMap = joinInformationMap.entrySet().stream().flatMap(entry ->
+                                    {
+                                        if (usedJoinInformationSet.contains(entry.getValue()))
+                                        {
+                                            // We use contains because we want the original value to be in the new list not the one with the
+                                            // new alias. This is so because the equals() and hashCode() methods do not include aliases.
+                                            return usedJoinInformationSet.stream()
+                                                    .filter(joinInformation -> joinInformation.equals(entry.getValue()))
+                                                    .findFirst().map(joinInformation -> new Object[] {entry.getKey(), joinInformation}).stream();
+                                        } else
+                                        {
+                                            return Stream.of();
+                                        }
+                                    }).collect(Collectors.toMap(entry -> (String) entry[0], entry -> (JoinInformation) entry[1],
+                                            (entry1, entry2) -> entry2, LinkedHashMap::new));
+
+                            if (!filteredJoinInformationSet.isEmpty())
+                            {
+                                filteredJoinInformationSet.forEach(
+                                        (joinInformation) -> TranslatorUtils.appendJoin(sqlBuilder, joinInformation));
+                                usedJoinInformationSet.addAll(filteredJoinInformationSet);
+
+                                translationContext.getAliases().put(criterion, joinInformationMap);
+                            } else
+                            {
+                                translationContext.getAliases().put(criterion, existingJoinInformationMap);
+                            }
+                        }
                     }
                 } else
                 {
@@ -137,7 +203,7 @@ public class SearchCriteriaTranslator
             final StringBuilder resultSqlBuilder = new StringBuilder(WHERE + SP);
             final TableMapper tableMapper = translationContext.getTableMapper();
             final Map<String, JoinInformation> joinInformationMap =
-                    translationContext.getAliases().get(translationContext.getCriteria().iterator().next());
+                    findCriterionInAliases(translationContext, translationContext.getCriteria().iterator().next());
 
             TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, tableMapper, joinInformationMap);
             resultSqlBuilder.append(SP).append(IS_NOT_NULL);
@@ -242,7 +308,7 @@ public class SearchCriteriaTranslator
                 if (conditionTranslator != null)
                 {
                     conditionTranslator.translate(criterion, tableMapper, translationContext.getArgs(), sqlBuilder,
-                            translationContext.getAliases().get(criterion),
+                            findCriterionInAliases(translationContext, criterion),
                             translationContext.getDataTypeByPropertyCode());
                 } else
                 {
@@ -253,6 +319,21 @@ public class SearchCriteriaTranslator
         {
             sqlBuilder.append(FALSE);
         }
+    }
+
+    private static Map<String, JoinInformation> findCriterionInAliases(final TranslationContext translationContext, final ISearchCriteria criterion)
+    {
+        // More sophisticated search is performed here because we don't want to modify equals and hashcode of criteria
+        final Set<Map.Entry<Object, Map<String, JoinInformation>>> aliasEntries = translationContext.getAliases().entrySet();
+        return aliasEntries.stream().filter(mapEntry ->
+        {
+            final Object searchCriteria = mapEntry.getKey();
+            return ((criterion instanceof AbstractFieldSearchCriteria) && (searchCriteria instanceof AbstractFieldSearchCriteria) &&
+                    ((AbstractFieldSearchCriteria<?>) searchCriteria).getFieldType() == ((AbstractFieldSearchCriteria<?>) criterion).getFieldType() &&
+                    ((AbstractFieldSearchCriteria<?>) searchCriteria).getFieldValue() == ((AbstractFieldSearchCriteria<?>) criterion).getFieldValue())
+                    || !(criterion instanceof AbstractFieldSearchCriteria) && !(searchCriteria instanceof AbstractFieldSearchCriteria) &&
+                    Objects.equals(criterion, searchCriteria);
+        }).map(Map.Entry::getValue).findFirst().orElse(Map.of());
     }
 
     private static ISearchCriteria convertCriterionIfNeeded(final ISearchCriteria criterion, final EntityKind entityKind)

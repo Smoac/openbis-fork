@@ -62,6 +62,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,10 +77,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-
-import com.openhtmltopdf.extend.FSSupplier;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -92,11 +90,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -175,15 +176,15 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String EXPORT_FILE_PREFIX = "export";
 
-    public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
-
     public static final String XLSX_DIRECTORY = "xlsx";
 
-    public static final String PDF_DIRECTORY = "pdf";
+    public static final String PDF_DIRECTORY = "hierarchy";
 
     public static final String DATA_DIRECTORY = "data";
 
-    public static final String META_FILE_NAME = "meta.json";
+    public static final String MISCELLANEOUS_DIRECTORY = "miscellaneous";
+
+    public static final String FILE_SERVICE_SUBDIRECTORY = "file-service";
 
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 
@@ -192,6 +193,10 @@ public class ExportExecutor implements IExportExecutor
     public static final String PDF_EXTENSION = ".pdf";
 
     public static final String JSON_EXTENSION = ".json";
+
+    public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
+
+    public static final String METADATA_JSON_FILE_NAME = "metadata" + JSON_EXTENSION;
 
     static final String NAME_PROPERTY_NAME = "$NAME";
 
@@ -253,26 +258,13 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
-    /** Used to replace possible illegal characters in the HTML. */
-    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
-
-    private static final String UNPRINTABLE_CHARACTER_REFERENCES_REGEXP = "&#x[0-1]?[0-9A-Fa-f];";
-
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
-    private ObjectWriter objectWriter;
-
     private long dataLimit = -1;
-
-    @PostConstruct
-    private void postConstruct()
-    {
-        objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
-    }
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -467,6 +459,13 @@ public class ExportExecutor implements IExportExecutor
             exportFiles(valueFiles, new File(xlsxDirectory, DATA_DIRECTORY), Function.identity());
         }
 
+        final Map<String, byte[]> miscellaneousFiles = xlsExportResult.getMiscellaneousFiles();
+        if (!miscellaneousFiles.isEmpty())
+        {
+            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY + '/' + FILE_SERVICE_SUBDIRECTORY),
+                    Function.identity());
+        }
+
         try (
                 final Workbook wb = xlsExportResult.getWorkbook();
                 final BufferedOutputStream bos = new BufferedOutputStream(
@@ -483,12 +482,28 @@ public class ExportExecutor implements IExportExecutor
             final Function<String, String> fileNameTransformer) throws IOException
     {
         mkdirs(directory);
-        for (final Map.Entry<String, String> fileName : fileNameToContentsMap.entrySet())
+        for (final Map.Entry<String, String> fileNameToContentsEntry : fileNameToContentsMap.entrySet())
         {
-            final File scriptFile = new File(directory, fileNameTransformer.apply(fileName.getKey()));
+            final File scriptFile = new File(directory, fileNameTransformer.apply(fileNameToContentsEntry.getKey()));
             try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
             {
-                bos.write(fileName.getValue().getBytes());
+                bos.write(fileNameToContentsEntry.getValue().getBytes());
+                bos.flush();
+            }
+        }
+    }
+
+    private static void exportBinaryFiles(final Map<String, byte[]> fileNameToContentsMap, final File directory,
+            final Function<String, String> fileNameTransformer) throws IOException
+    {
+        mkdirs(directory);
+        for (final Map.Entry<String, byte[]> fileEntry : fileNameToContentsMap.entrySet())
+        {
+            final File file = new File(directory, fileNameTransformer.apply(fileEntry.getKey()));
+            mkdirs(file.getParentFile());
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE))
+            {
+                bos.write(fileEntry.getValue());
                 bos.flush();
             }
         }
@@ -567,8 +582,6 @@ public class ExportExecutor implements IExportExecutor
             final String projectCode = getProjectCode(codeHolder);
             final char prefix = codeHolder instanceof Sample ? 'O' : 'E';
 
-            final String codeHolderJson = objectWriter.writeValueAsString(codeHolder);
-
             final File parentDataDirectory = compatibleWithImport
                     ? exportWorkspaceDirectory
                     : createDirectoriesForSampleOrExperiment(prefix, new File(exportWorkspaceDirectory, PDF_DIRECTORY), codeHolder);
@@ -577,10 +590,12 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetCode = dataSet.getCode();
             final String dataSetTypeCode = dataSet.getType().getCode();
             final String dataSetName = getEntityName(dataSet);
+            final String dataDirectorySuffix = "#" + UUID.randomUUID();
 
-            final File metadataJsonFile = createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
-                    dataSetTypeCode, dataSetCode, dataSetName, codeHolderJson, compatibleWithImport);
-            createDocFilesForDataSet(sessionToken, metadataJsonFile.getParentFile(), null, dataSet, EnumSet.of(ExportFormat.PDF));
+            final String datasetJson = datasetToJson(dataSet);
+
+            createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
+                    dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, datasetJson, compatibleWithImport);
 
             if (dataSet.getKind() != DataSetKind.LINK)
             {
@@ -604,7 +619,7 @@ public class ExportExecutor implements IExportExecutor
                     while ((file = reader.read()) != null)
                     {
                         createNextDataFile(parentDataDirectory, prefix, spaceCode, projectCode,
-                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, file, compatibleWithImport);
+                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, file, compatibleWithImport);
                     }
                 }
             } else
@@ -612,6 +627,17 @@ public class ExportExecutor implements IExportExecutor
                 OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
             }
         }
+    }
+
+    private String datasetToJson(final DataSet dataSet) throws JsonProcessingException
+    {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        final ObjectNode propertiesNode = objectMapper.createObjectNode();
+        propertiesNode.set("properties", objectMapper.valueToTree(dataSet.getProperties()));
+
+        return objectMapper.writeValueAsString(propertiesNode);
     }
 
     private static File createDirectoriesForSampleOrExperiment(final char prefix, final File documentDirectory, final ICodeHolder codeHolder)
@@ -628,33 +654,34 @@ public class ExportExecutor implements IExportExecutor
 
     private static File createMetadataJsonFile(final File parentDataDirectory, final char prefix,
             final String spaceCode, final String projectCode, final String containerCode, final String code, final String dataSetTypeCode,
-            final String dataSetCode, final String dataSetName, final String codeHolderJson, final boolean compatibleWithImport) throws IOException
+            final String dataSetCode, final String dataSetName, final String dataDirectorySuffix, final String codeHolderJson,
+            final boolean compatibleWithImport) throws IOException
     {
-        final File metadataFile;
+        final File metadataJsonFile;
 
         if (compatibleWithImport)
         {
             final File dataDirectory = new File(parentDataDirectory, DATA_DIRECTORY + '/');
             mkdirs(dataDirectory);
-            metadataFile = new File(dataDirectory,
-                    getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode, dataSetName,
-                            META_FILE_NAME));
+            metadataJsonFile = new File(dataDirectory,
+                    getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode,
+                            dataDirectorySuffix, METADATA_JSON_FILE_NAME));
         } else
         {
             final File dataDirectory = new File(parentDataDirectory, getFullEntityName(dataSetCode, dataSetName));
             mkdirs(dataDirectory);
-            metadataFile = new File(new File(dataDirectory, DATA_DIRECTORY), META_FILE_NAME);
+            metadataJsonFile = new File(new File(dataDirectory, DATA_DIRECTORY), METADATA_JSON_FILE_NAME);
         }
 
-        final File dataSubdirectory = metadataFile.getParentFile();
+        final File dataSubdirectory = metadataJsonFile.getParentFile();
         mkdirs(dataSubdirectory);
 
-        try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(metadataFile)))
+        try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(metadataJsonFile)))
         {
             writeInChunks(os, codeHolderJson.getBytes(StandardCharsets.UTF_8));
         }
 
-        return metadataFile;
+        return metadataJsonFile;
     }
 
     private void exportSpacesDoc(final String sessionToken, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
@@ -1090,12 +1117,11 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void createDocFilesForDataSet(final String sessionToken, final File docDirectory,
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final DataSet dataSet, final Set<ExportFormat> exportFormats) throws IOException
     {
         final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
         final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-        final String html = getHtml(sessionToken, dataSet, entityTypeExportFieldsMap);
+        final String html = getHtml(sessionToken, dataSet, null);
         final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
 
         if (hasHtmlFormat)
@@ -1145,7 +1171,6 @@ public class ExportExecutor implements IExportExecutor
                 }
             }, "NotoEmoji");
 
-            //String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             String replacedHtml = ExportPDFUtils.addStyleHeader(html);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
             replacedHtml = ExportPDFUtils.insertPagePagebreak(replacedHtml, "<h2>Identification Info</h2>");
@@ -1232,10 +1257,11 @@ public class ExportExecutor implements IExportExecutor
 
     private static void createNextDataFile(final File parentDataDirectory, final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
-            final String dataSetName, final DataSetFileDownload dataSetFileDownload, final boolean compatibleWithImport) throws IOException
+            final String dataSetName, final String dataDirectorySuffix, final DataSetFileDownload dataSetFileDownload,
+            final boolean compatibleWithImport) throws IOException
     {
         final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
-        final String filePath = dataSetFile.getPath();
+        final String filePath = fixFilePath(dataSetFile);
         final boolean isDirectory = dataSetFile.isDirectory();
 
         final File dataSetFsEntry;
@@ -1244,7 +1270,7 @@ public class ExportExecutor implements IExportExecutor
             final File dataDirectory = new File(parentDataDirectory, DATA_DIRECTORY + '/');
             mkdirs(dataDirectory);
             dataSetFsEntry = new File(dataDirectory, getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode,
-                    dataSetTypeCode, dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : ""));
+                    dataSetTypeCode, dataDirectorySuffix, filePath) + (isDirectory ? "/" : ""));
         } else
         {
             final File datasetDirectory = new File(parentDataDirectory, getFullEntityName(dataSetCode, dataSetName));
@@ -1270,9 +1296,28 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
+    /**
+     * Replaces "original" with "default" directory name.
+     *
+     * @param dataSetFile the file object that contains the path information.
+     * @return <code>dataSetFile.getPath()</code> as is or with "original" replaced with "default".
+     */
+    private static String fixFilePath(final DataSetFile dataSetFile)
+    {
+        final String originalPath = dataSetFile.getPath();
+        if (dataSetFile.isDirectory() && Objects.equals(originalPath, "original"))
+        {
+            return "default";
+        } else if (originalPath.startsWith("original/")) {
+            return "default" + originalPath.substring("original".length());
+        } else {
+            return originalPath;
+        }
+    }
+
     static String getDataDirectoryName(final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode,
-            final String dataSetCode, final String dataSetName, final String fileName)
+            final String dataDirectorySuffix, final String fileName)
     {
         if (prefix != 'O' && prefix != 'E')
         {
@@ -1322,13 +1367,9 @@ public class ExportExecutor implements IExportExecutor
             throw new IllegalArgumentException("Data set type code is mandatory");
         }
 
-        if (dataSetCode != null)
+        if (dataDirectorySuffix != null)
         {
-            entryBuilder.append('+');
-            addFullEntityName(entryBuilder, null, dataSetCode, dataSetName);
-        } else
-        {
-            throw new IllegalArgumentException("Data set code is mandatory");
+            entryBuilder.append(dataDirectorySuffix);
         }
 
         if (fileName != null)
@@ -1419,7 +1460,7 @@ public class ExportExecutor implements IExportExecutor
             titleStringBuilder.append(entityObj.getCode());
         }
 
-        documentBuilder.addTitle(titleStringBuilder.toString());
+        documentBuilder.addHeader(titleStringBuilder.toString(), 1);
 
         final IEntityType typeObj = getEntityType(v3, sessionToken, entityObj);
 
@@ -1429,15 +1470,25 @@ public class ExportExecutor implements IExportExecutor
 
         // Properties
 
+        documentBuilder.addHeader("Properties", 2);
         if (entityObj instanceof IPropertiesHolder && typeObj != null)
         {
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
-                final Map<String, Serializable> properties = ((IPropertiesHolder) entityObj).getProperties();
+                propertyAssignments.sort(Comparator.comparingInt(PropertyAssignment::getOrdinal));
+
+                final Map<String, Serializable> properties = includeSampleProperties((IPropertiesHolder) entityObj);
+                boolean firstAssignment = true;
+                String currentSection = null;
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
-                    System.out.println(selectedExportFields);
+                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || firstAssignment)
+                    {
+                        currentSection = propertyAssignment.getSection();
+                        documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
+                        firstAssignment = false;
+                    }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
                     final String propertyTypeCode = propertyType.getCode();
@@ -1445,10 +1496,25 @@ public class ExportExecutor implements IExportExecutor
 
                     if (rawPropertyValue != null && allowsValue(selectedExportProperties, propertyTypeCode))
                     {
-                        final String initialPropertyValue = String.valueOf(rawPropertyValue);
+                        final String initialPropertyValue = String.valueOf(rawPropertyValue instanceof Sample
+                                ? ((Sample) rawPropertyValue).getIdentifier().getIdentifier()
+                                : rawPropertyValue);
                         final String propertyValue;
 
-                        if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
+                        if (propertyType.getDataType() == DataType.SAMPLE)
+                        {
+                            if (rawPropertyValue instanceof Sample[])
+                            {
+                                propertyValue = Arrays.stream(((Sample[]) rawPropertyValue)).map(sample -> sample.getIdentifier().getIdentifier())
+                                        .collect(Collectors.joining(", "));
+                            } else if (rawPropertyValue instanceof Sample)
+                            {
+                                propertyValue = ((Sample) rawPropertyValue).getIdentifier().getIdentifier();
+                            } else
+                            {
+                                throw new IllegalArgumentException("Sample property value is not of type Sample or Sample[].");
+                            }
+                        } else if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
                             propertyValue = encodeImages(initialPropertyValue);
@@ -1484,7 +1550,7 @@ public class ExportExecutor implements IExportExecutor
             final String description = ((IDescriptionHolder) entityObj).getDescription();
             if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
-                documentBuilder.addHeader("Description");
+                documentBuilder.addHeader("Description", 2);
                 documentBuilder.addParagraph(encodeImages(description));
             }
         }
@@ -1496,7 +1562,7 @@ public class ExportExecutor implements IExportExecutor
             final IParentChildrenHolder<?> parentChildrenHolder = (IParentChildrenHolder<?>) entityObj;
             if (allowsValue(selectedExportAttributes, Attribute.PARENTS.name()))
             {
-                documentBuilder.addHeader("Parents");
+                documentBuilder.addHeader("Parents", 2);
                 final List<?> parents = parentChildrenHolder.getParents();
                 for (final Object parent : parents)
                 {
@@ -1508,7 +1574,7 @@ public class ExportExecutor implements IExportExecutor
 
             if (allowsValue(selectedExportAttributes, Attribute.CHILDREN.name()))
             {
-                documentBuilder.addHeader("Children");
+                documentBuilder.addHeader("Children", 2);
                 final List<?> children = parentChildrenHolder.getChildren();
                 for (final Object child : children)
                 {
@@ -1521,7 +1587,7 @@ public class ExportExecutor implements IExportExecutor
 
         // Identification Info
 
-        documentBuilder.addHeader("Identification Info");
+        documentBuilder.addHeader("Identification Info", 2);
 
         if (entityObj instanceof Experiment)
         {
@@ -1766,7 +1832,12 @@ public class ExportExecutor implements IExportExecutor
 
     private static String convertJsonToHtml(final TreeNode node) throws IOException
     {
-        final TreeNode data = node.get("data");
+
+        TreeNode data = node.get("values");
+        if(data == null) {
+            // backwards compatibility
+            data = node.get("data");
+        }
         final TreeNode styles = node.get("style");
 
         final StringBuilder tableBody = new StringBuilder();
@@ -1915,6 +1986,32 @@ public class ExportExecutor implements IExportExecutor
         } catch (final MalformedURLException e) {
             return false;
         }
+    }
+
+    private static Map<String, Serializable> includeSampleProperties(final IPropertiesHolder entity)
+    {
+        final Map<String, Sample[]> sampleProperties;
+        if (entity instanceof Sample)
+        {
+            sampleProperties = ((Sample) entity).getSampleProperties();
+        } else if (entity instanceof Experiment)
+        {
+            sampleProperties = ((Experiment) entity).getSampleProperties();
+        } else if (entity instanceof DataSet)
+        {
+            sampleProperties = ((DataSet) entity).getSampleProperties();
+        } else
+        {
+            sampleProperties = null;
+        }
+
+        final Map<String, Serializable> properties = new HashMap<>(entity.getProperties());
+        if (sampleProperties != null)
+        {
+            properties.putAll(sampleProperties);
+        }
+
+        return properties;
     }
 
     private static class EntitiesVo

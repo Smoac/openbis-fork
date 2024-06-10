@@ -15,6 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.delay;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
@@ -26,7 +38,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -94,10 +105,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Stream;
-
 public class DelayedExecutionDecorator
 {
     private String sessionToken;
@@ -123,7 +130,7 @@ public class DelayedExecutionDecorator
         this.v3 = v3;
         this.ids = new LinkedHashSet<>();
         this.resolvedVariables = new HashMap<>();
-        this.delayedExecutions = new HashMap<>();
+        this.delayedExecutions = new LinkedHashMap<>(); // The only reason this is a linked Hash Map is so the list of error messages is on the same order as the delayed executions are added.
         this.propertyTypeCache = new HashMap<>();
     }
 
@@ -173,7 +180,7 @@ public class DelayedExecutionDecorator
         if (!delayedExecutions.isEmpty())
         {
             List<String> errors = new ArrayList<>();
-            Set<DelayedExecution> delayedExecutionsAsList = new HashSet<>();
+            Set<DelayedExecution> delayedExecutionsAsList = new LinkedHashSet<>(); // The only reason this is a linked Hash Set is so the list of error messages is on the same order as the delayed executions are added.
             for (List<DelayedExecution> valueList : delayedExecutions.values())
             {
                 delayedExecutionsAsList.addAll(valueList);
@@ -480,6 +487,11 @@ public class DelayedExecutionDecorator
     public void createSample(String variable, SampleCreation sampleCreation, int page, int line)
     {
         ISampleId sampleId = ImportUtils.buildSampleIdentifier(variable, sampleCreation);
+        if (sampleId instanceof IdentifierVariable && variable == null)
+        {
+            variable = ((IdentifierVariable) sampleId).getVariable();
+        }
+
         List<IObjectId> dependencies = new ArrayList<>();
 
         ISpaceId spaceId = sampleCreation.getSpaceId();
@@ -971,6 +983,15 @@ public class DelayedExecutionDecorator
     public void createPropertyType(PropertyTypeCreation newPropertyType, int page, int line)
     {
         List<IObjectId> dependencies = new ArrayList<>();
+
+        //TODO
+        //  IF PROPERTY TYPE EXISTS - DUE TO DE DELAY IN EXECUTION OF A CYCLICAL DEPENDENCY
+        //      IGNORE CREATION, ALL CREATIONS LOOK THE SAME AND ALREADY HAPPENED, IT WILL BE ASSIGNED AS NEXT STEP
+        //
+        if (getPropertyType(new PropertyTypePermId(newPropertyType.getCode()), new PropertyTypeFetchOptions()) != null)
+        {
+            return;
+        }
 
         // check sample type
         if (newPropertyType.getDataType().equals(DataType.SAMPLE))

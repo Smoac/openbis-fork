@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -83,6 +84,11 @@ public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityToOneRelati
     @Override
     protected void check(IOperationContext context, DataPE entity, ISampleId relatedId, SamplePE related)
     {
+        if (entity.isAfsData())
+        {
+            throw new UserFailureException("Sample of AFS data cannot be changed");
+        }
+
         SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
         validator.init(new AuthorizationDataProvider(daoFactory));
 

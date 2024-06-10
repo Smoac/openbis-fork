@@ -102,7 +102,7 @@ public class TagSearchManager extends AbstractLocalSearchManager<TagSearchCriter
             return Collections.emptySet();
         }
 
-        return filterIDsByUserRights(userId, authorisationInformation, resultAfterFiltering);
+        return filterIDsByUserRights(authorisationInformation, resultAfterFiltering);
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.afsserver.worker.providers.impl;
 
+import ch.ethz.sis.afsserver.worker.WorkerContext;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.shared.io.FilePermission;
 import ch.ethz.sis.shared.startup.Configuration;
@@ -28,7 +29,7 @@ public class DummyAuthorizationInfoProvider implements AuthorizationInfoProvider
     }
 
     @Override
-    public boolean doesSessionHaveRights(String sessionToken, String owner, Set<FilePermission> permissions) {
+    public boolean doesSessionHaveRights(WorkerContext workerContext, String owner, Set<FilePermission> permissions) {
         return true;
     }
 }

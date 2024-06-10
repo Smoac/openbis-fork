@@ -56,3 +56,8 @@ cp $ROOT/datastore_server/etc/datastore_server.conf $CONF/datastore_server.conf
 # not always present
 copyIfExists $ROOT/datastore_server/etc/openBIS.keystore $CONF/.keystore
 copyIfExists $ROOT/datastore_server/ext-lib $CONF
+
+# -- AFS
+copyFileIfExists $ROOT/afs-server/etc/afs_server.conf $CONF/afs_server.conf
+copyFileIfExists $ROOT/afs-server/etc/log.xml $CONF/afs-log.xml
+copyFileIfExists $ROOT/afs-server/etc/service.properties $CONF/afs-service.properties

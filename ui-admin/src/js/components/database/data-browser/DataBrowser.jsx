@@ -12,8 +12,11 @@ import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
+import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
+import ErrorDialog from '@src/js/components/common/error/ErrorDialog.jsx'
 
-const HTTP_SERVER_URI = '/data-store-server'
+// 2GB limit for total download size
+const sizeLimit = 2147483648
 
 const styles = theme => ({
   columnFlexContainer: {
@@ -251,11 +254,6 @@ class DataBrowser extends React.Component {
 
     this.controller = controller || new DataBrowserController(id)
     this.controller.attach(this)
-    this.datastoreServer = new DataStoreServer(
-      'http://localhost:8085',
-      HTTP_SERVER_URI
-    )
-    this.controller.setSessionToken(sessionToken)
 
     this.state = {
       viewType: props.viewType,
@@ -265,7 +263,10 @@ class DataBrowser extends React.Component {
       showInfo: false,
       path: '/',
       freeSpace: -1,
-      totalSpace: -1
+      totalSpace: -1,
+      loading: false,
+      progress: 0,
+      errorMessage: null
     }
     this.zip = new JSZip()
   }
@@ -317,9 +318,27 @@ class DataBrowser extends React.Component {
   async downloadFiles() {
     const { multiselectedFiles } = this.state
     const { id } = this.props
-    const zipBlob = await this.prepareZipBlob(multiselectedFiles)
-    this.downloadBlob(zipBlob, id)
-    this.zip = new JSZip()
+
+    if ((await this.calculateTotalSize(multiselectedFiles)) <= sizeLimit) {
+      const zipBlob = await this.prepareZipBlob(multiselectedFiles)
+      this.downloadBlob(zipBlob, id)
+      this.zip = new JSZip()
+    } else {
+      this.showDownloadErrorDialog()
+    }
+  }
+
+  async calculateTotalSize(files) {
+    let size = 0
+    for (let file of files) {
+      if (!file.directory) {
+        size += file.size
+      } else {
+        const nestedFiles = await this.controller.listFiles(file.path)
+        size += await this.calculateTotalSize(nestedFiles)
+      }
+    }
+    return size
   }
 
   async prepareZipBlob(files) {
@@ -340,13 +359,25 @@ class DataBrowser extends React.Component {
   }
 
   async downloadFile(file) {
-    try {
-      this.setState({ loading: true })
-      const blob = await this.fileToBlob(file)
-      this.downloadBlob(blob, file.name)
-    } finally {
-      this.setState({ loading: false })
+    if (file.size <= sizeLimit) {
+      try {
+        this.setState({ loading: true, progress: 0 })
+        const blob = await this.fileToBlob(file)
+        this.downloadBlob(blob, file.name)
+      } finally {
+        this.setState({ loading: false, progress: 0 })
+      }
+    } else {
+      this.showDownloadErrorDialog()
     }
+  }
+
+  showDownloadErrorDialog() {
+    this.openErrorDialog(messages.get(messages.CANNOT_DOWNLOAD, sizeLimit))
+  }
+
+  updateProgress(progress) {
+    this.setState({ progress })
   }
 
   downloadBlob(blob, fileName) {
@@ -436,6 +467,14 @@ class DataBrowser extends React.Component {
     this.fetchSpaceStatus()
   }
 
+  openErrorDialog(errorMessage) {
+    this.setState({ errorMessage })
+  }
+
+  closeErrorDialog() {
+    this.setState({ errorMessage: null })
+  }
+
   render() {
     const { classes, sessionToken, id } = this.props
     const {
@@ -446,10 +485,13 @@ class DataBrowser extends React.Component {
       showInfo,
       path,
       freeSpace,
-      totalSpace
+      totalSpace,
+      loading,
+      progress,
+      errorMessage
     } = this.state
 
-    return (
+    return [
       <div
         className={[classes.boundary, classes.columnFlexContainer].join(' ')}
       >
@@ -461,7 +503,6 @@ class DataBrowser extends React.Component {
           onDownload={this.handleDownload}
           showInfo={showInfo}
           multiselectedFiles={multiselectedFiles}
-          datastoreServer={this.datastoreServer}
           sessionToken={sessionToken}
           owner={id}
           path={path}
@@ -581,8 +622,19 @@ class DataBrowser extends React.Component {
             />
           )}
         </div>
-      </div>
-    )
+      </div>,
+      <LoadingDialog
+        key='data-browser-loaging-dialog'
+        variant='determinate'
+        value={progress}
+        loading={loading}
+      />,
+      <ErrorDialog
+        open={!!errorMessage}
+        error={errorMessage}
+        onClose={this.closeErrorDialog}
+      />
+    ]
   }
 }
 

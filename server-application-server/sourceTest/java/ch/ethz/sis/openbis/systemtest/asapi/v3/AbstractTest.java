@@ -20,6 +20,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -161,6 +164,8 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -983,8 +988,8 @@ public class AbstractTest extends SystemTestCase
         PropertyHistoryEntry relationEntry = (PropertyHistoryEntry) entry;
         assertEquals(relationEntry.getPropertyName(), propertyName);
         assertEquals(relationEntry.getPropertyValue(), propertyValue);
-        assertEquals(relationEntry.getValidFrom(), validFrom);
-        assertEquals(relationEntry.getValidTo(), validTo);
+        assertEqualsDate(relationEntry.getValidFrom(), validFrom);
+        assertEqualsDate(relationEntry.getValidTo(), validTo);
     }
 
     protected void assertRelationshipHistory(HistoryEntry entry, IObjectId id, IRelationType type)
@@ -999,8 +1004,8 @@ public class AbstractTest extends SystemTestCase
         RelationHistoryEntry relationEntry = (RelationHistoryEntry) entry;
         assertEquals(relationEntry.getRelatedObjectId(), id);
         assertEquals(relationEntry.getRelationType(), type);
-        assertEquals(relationEntry.getValidFrom(), validFrom);
-        assertEquals(relationEntry.getValidTo(), validTo);
+        assertEqualsDate(relationEntry.getValidFrom(), validFrom);
+        assertEqualsDate(relationEntry.getValidTo(), validTo);
     }
 
     protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)
@@ -1045,7 +1050,13 @@ public class AbstractTest extends SystemTestCase
 
     protected void assertEqualsDate(Date actualDate, Date expectedDate)
     {
-        assertEquals(createTimestampFormat().format(actualDate), createTimestampFormat().format(expectedDate));
+        if (actualDate != null && expectedDate != null)
+        {
+            assertEquals(createTimestampFormat().format(actualDate), createTimestampFormat().format(expectedDate));
+        } else
+        {
+            assertEquals(actualDate, expectedDate);
+        }
     }
 
     private SimpleDateFormat createTimestampFormat()
@@ -1845,7 +1856,7 @@ public class AbstractTest extends SystemTestCase
         return map.get(tokenId);
     }
 
-    @DataProvider
+    @DataProvider (name = USER_ROLES_PROVIDER)
     protected Object[][] provideUserRoles()
     {
         return createProvider(RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_OBSERVER, RoleWithHierarchy.SPACE_ADMIN,

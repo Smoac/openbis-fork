@@ -20,6 +20,7 @@ import ch.ethz.sis.afs.api.dto.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
@@ -47,6 +48,7 @@ import java.security.MessageDigest;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class IOUtils {
 
@@ -628,6 +630,57 @@ public class IOUtils {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public static String[] getShares(String folder){
+        try
+        {
+            return Files.list(Paths.get(folder)).filter(file ->
+            {
+                if (!Files.isDirectory(file))
+                {
+                    return false;
+                }
+                try
+                {
+                    Integer.parseInt(file.getFileName().toString());
+                    return true;
+                } catch (NumberFormatException e)
+                {
+                    return false;
+                }
+            }).map(file -> Integer.parseInt(file.getFileName().toString())).sorted().map(Object::toString).toArray(String[]::new);
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String[] getShards(String str) {
+        byte[] md5 = getMD5(str.getBytes(StandardCharsets.UTF_8));
+        String hex = asHex(md5);
+        return new String[]{
+            hex.substring(0, 2),
+            hex.substring(2,4),
+            hex.substring(4,6)
+        };
+    }
+
+    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
+
+    public static String asHex(byte[] bytes) {
+        char[] hex = new char[bytes.length * 2];
+
+        int bytesIndex = 0;
+        int hexIndex = 0;
+
+        while(bytesIndex < bytes.length) {
+            hex[hexIndex++] = HEX_ARRAY[bytes[bytesIndex] >>> 4 & 0x0F];
+            hex[hexIndex++] = HEX_ARRAY[bytes[bytesIndex] & 0x0F];
+            bytesIndex++;
+        }
+
+        return new String(hex);
     }
 
     public static String encodeBase64(byte[] input) {

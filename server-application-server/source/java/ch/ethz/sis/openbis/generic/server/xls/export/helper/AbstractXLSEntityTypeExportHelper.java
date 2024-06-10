@@ -157,10 +157,10 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             warnings.addAll(additionResult.getWarnings());
             rowNumber = additionResult.getRowNumber();
 
-            return new AdditionResult(rowNumber + 1, warnings, valueFiles);
+            return new AdditionResult(rowNumber + 1, warnings, valueFiles, Map.of());
         } else
         {
-            return new AdditionResult(rowNumber, warnings, valueFiles);
+            return new AdditionResult(rowNumber, warnings, valueFiles, Map.of());
         }
     }
 
@@ -190,12 +190,13 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "",
                     String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase(),
                     String.valueOf(propertyAssignment.isUnique() != null && propertyAssignment.isUnique()).toUpperCase(),
-                    String.valueOf(propertyType.getPattern() != null ? propertyType.getPattern() : ""),
-                    String.valueOf(propertyType.getPatternType() != null ? propertyType.getPatternType() : "")
+                    String.valueOf(propertyAssignment.getPattern() != null ? propertyAssignment.getPattern() : ""),
+                    String.valueOf(propertyAssignment.getPatternType() != null ? propertyAssignment.getPatternType() : ""),
+                    String.valueOf(propertyAssignment.isManagedInternally() != null && propertyAssignment.isManagedInternally()).toUpperCase()
             };
             addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
         }
-        return new AdditionResult(rowNumber, warnings, valueFiles);
+        return new AdditionResult(rowNumber, warnings, valueFiles, Map.of());
     }
 
     private String getFullDataTypeString(final PropertyType propertyType)

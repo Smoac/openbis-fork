@@ -62,6 +62,7 @@ public class DataSetTypeTranslator
         result.setValidationScript(ScriptTranslator.translate(entityTypeOrNull
                 .getValidationScript()));
         result.setMetaData(entityTypeOrNull.getMetaData());
+        result.setManagedInternally(entityTypeOrNull.isManagedInternally());
         return result;
     }
 

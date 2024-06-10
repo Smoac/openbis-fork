@@ -96,6 +96,9 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
     @JsonProperty
     private Map<String, String> metaData;
 
+    @JsonProperty
+    private Boolean managedInternally;
+
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -323,6 +326,17 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(Boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
 

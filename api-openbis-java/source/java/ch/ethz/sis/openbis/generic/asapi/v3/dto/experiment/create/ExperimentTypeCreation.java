@@ -43,6 +43,8 @@ public class ExperimentTypeCreation implements IEntityTypeCreation
 
     private Map<String, String> metaData;
 
+    private boolean managedInternally;
+
     @Override
     public String getCode()
     {
@@ -89,6 +91,18 @@ public class ExperimentTypeCreation implements IEntityTypeCreation
     public void setPropertyAssignments(List<PropertyAssignmentCreation> propertyAssignments)
     {
         this.propertyAssignments = propertyAssignments;
+    }
+
+    @Override
+    public boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    @Override
+    public void setManagedInternally(boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     public Map<String, String> getMetaData()

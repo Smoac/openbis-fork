@@ -131,6 +131,8 @@ public final class ThreadParameters
 
     private static final String H5AR_FOLDERS = "h5ar-folders";
 
+    public static final String DISCARD_HIDDEN_FILES = "discard-hidden-files";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side. The directory where data to be processed by the ETL
      * server become available.
@@ -183,6 +185,8 @@ public final class ThreadParameters
 
     private final boolean h5arFolders;
 
+    private final boolean discardHiddenFiles;
+
     /**
      * @param threadProperties parameters for one processing thread together with general parameters.
      */
@@ -191,6 +195,7 @@ public final class ThreadParameters
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties, threadName);
         this.h5Folders = PropertyUtils.getBoolean(threadProperties, H5_FOLDERS, false);
         this.h5arFolders = PropertyUtils.getBoolean(threadProperties, H5AR_FOLDERS, true);
+        this.discardHiddenFiles = PropertyUtils.getBoolean(threadProperties, DISCARD_HIDDEN_FILES, true);
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, true);
         this.threadProperties = threadProperties;
@@ -566,6 +571,11 @@ public final class ThreadParameters
     public boolean hasH5AsFolders()
     {
         return h5Folders;
+    }
+
+    public boolean discardHiddenFiles()
+    {
+        return discardHiddenFiles;
     }
 
     public boolean hasH5ArAsFolders()

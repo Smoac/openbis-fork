@@ -225,48 +225,6 @@ public class UpdatePropertyTypesTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    @Test
-    public void testPattern()
-    {
-        // Given
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PropertyTypePermId id = new PropertyTypePermId("COMMENT");
-        PropertyTypeUpdate update = new PropertyTypeUpdate();
-        update.setTypeId(id);
-        update.getPattern().setValue("SOME_PATTERN");
-        update.getPatternType().setValue("PATTERN");
-
-        // When
-        v3api.updatePropertyTypes(sessionToken, Arrays.asList(update));
-
-        // Then
-        PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
-        PropertyType propertyType = v3api.getPropertyTypes(sessionToken, Arrays.asList(id), fetchOptions).get(id);
-        assertEquals(propertyType.getDescription(), "Any other comments");
-        assertEquals(propertyType.getLabel(), "Comment");
-        assertEquals(propertyType.isManagedInternally().booleanValue(), false);
-        assertEquals(propertyType.getPattern(), "SOME_PATTERN");
-        assertEquals(propertyType.getPatternType(), "PATTERN");
-
-        update.getPattern().setValue("1-3");
-        update.getPatternType().setValue("RANGES");
-        v3api.updatePropertyTypes(sessionToken, Arrays.asList(update));
-        fetchOptions = new PropertyTypeFetchOptions();
-        propertyType = v3api.getPropertyTypes(sessionToken, Arrays.asList(id), fetchOptions).get(id);
-        assertEquals(propertyType.getPattern(), "1-3");
-        assertEquals(propertyType.getPatternType(), "RANGES");
-
-        update.getPattern().setValue("\"a\",\"b\",\"c\"");
-        update.getPatternType().setValue("VALUES");
-        v3api.updatePropertyTypes(sessionToken, Arrays.asList(update));
-        fetchOptions = new PropertyTypeFetchOptions();
-        propertyType = v3api.getPropertyTypes(sessionToken, Arrays.asList(id), fetchOptions).get(id);
-        assertEquals(propertyType.getPattern(), "\"a\",\"b\",\"c\"");
-        assertEquals(propertyType.getPatternType(), "VALUES");
-
-        v3api.logout(sessionToken);
-    }
-
     @DataProvider
     Object[][] dataTypeConversion()
     {

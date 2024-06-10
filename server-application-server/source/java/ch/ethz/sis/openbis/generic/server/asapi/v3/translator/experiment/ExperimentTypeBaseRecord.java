@@ -33,4 +33,6 @@ public class ExperimentTypeBaseRecord extends ObjectBaseRecord
 
     public String metaData;
 
+    public boolean managedInternally;
+
 }

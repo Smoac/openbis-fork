@@ -66,6 +66,9 @@ public class ExperimentType implements Serializable, ICodeHolder, IDescriptionHo
     @JsonProperty
     private Map<String, String> metaData;
 
+    @JsonProperty
+    private Boolean managedInternally;
+
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -184,6 +187,17 @@ public class ExperimentType implements Serializable, ICodeHolder, IDescriptionHo
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(Boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
 

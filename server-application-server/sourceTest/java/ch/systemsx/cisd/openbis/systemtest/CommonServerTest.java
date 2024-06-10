@@ -733,7 +733,7 @@ public class CommonServerTest extends SystemTestCase
                 {
                     // this methods adds only unofficial terms (internally sets official flag to false)
                     commonServer.addUnofficialVocabularyTerm(session.getSessionToken(), new TechId(vocabulary.getId()), "NEW_TERM", "New label",
-                            "New description", null);
+                            "New description", null, false);
                 }
             }, expectedError);
     }
@@ -742,39 +742,39 @@ public class CommonServerTest extends SystemTestCase
     private Object[][] providerTestUpdateAndDeleteVocabularyTermAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, true, false, null },
+                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, false, false, null },
 
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, true, false, null },
+                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, false, false, null },
 
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, true,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, false,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
+                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, true, true,
+                        "Internal vocabulary terms can be managed only by the system user." },
+                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, false, true,
+                        "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, false, null },
+                { "$NEW_INTERNAL", TEST_USER, TEST_USER, true, false, null },
+                { "$NEW_INTERNAL", TEST_USER, TEST_USER, false, false, null },
 
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, TEST_USER, false, null },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false,
+                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAndDeleteVocabularyTermAuthorization")
     public void testUpdateAndDeleteVocabularyTermAuthorization(String vocabularyCode, String termRegistrator, String termUpdater,
-            boolean termOfficial,
+            boolean termOfficial, boolean managedInternally,
             String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
@@ -796,14 +796,16 @@ public class CommonServerTest extends SystemTestCase
         {
             VocabularyTerm term = new VocabularyTerm();
             term.setCode("NEW_TERM");
+            term.setManagedInternally(managedInternally);
             commonServer.addVocabularyTerms(sessionRegistrator.getSessionToken(), new TechId(vocabulary.getId()), Arrays.asList(term), null);
         } else
         {
             commonServer.addUnofficialVocabularyTerm(sessionRegistrator.getSessionToken(), new TechId(vocabulary.getId()), "NEW_TERM", "New label",
-                    "New description", null);
+                    "New description", null, managedInternally);
         }
 
-        VocabularyTermPE term = vocabulary.tryGetVocabularyTerm("NEW_TERM");
+        String prefix = managedInternally ? "$" : "";
+        VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(prefix + "NEW_TERM");
 
         VocabularyTerm updateTerm = new VocabularyTerm();
         updateTerm.setId(term.getId());
@@ -918,24 +920,24 @@ public class CommonServerTest extends SystemTestCase
     private Object[][] providerTestUpdateAndTakeOverExistingVocabularyTerm()
     {
         return new Object[][] {
-                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "ORGANISM", SYSTEM_USER, TEST_USER, SYSTEM_USER, null },
+                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "ORGANISM", SYSTEM_USER, TEST_USER, SYSTEM_USER, false, null },
 
-                { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, null },
-                { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, null },
+                { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, false, null },
+                { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, false, null },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, true,
+                        "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, null },
+                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, false, null },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAndTakeOverExistingVocabularyTerm")
     public void testUpdateAndTakeOverExistingVocabularyTerm(String vocabularyCode, String termRegistrator, String termUpdater,
-            String expectedTermRegistratorAfterUpdate, String expectedError)
+            String expectedTermRegistratorAfterUpdate, boolean managedInternally, String expectedError)
     {
         SessionContextDTO termRegistratorSession =
                 termRegistrator.equals(SYSTEM_USER) ? commonServer.tryToAuthenticateAsSystem()
@@ -950,10 +952,12 @@ public class CommonServerTest extends SystemTestCase
         term.setCode("TERM-TO-TAKE-OVER");
         term.setLabel("Test Label");
         term.setDescription("Test Description");
+        term.setManagedInternally(managedInternally);
         commonServer.addVocabularyTerms(termRegistratorSession.getSessionToken(), new TechId(vocabularyPE.getId()), Arrays.asList(term),
                 null);
 
-        VocabularyTermPE termPE = vocabularyPE.tryGetVocabularyTerm(term.getCode());
+        String prefix = managedInternally ? "$" : "";
+        VocabularyTermPE termPE = vocabularyPE.tryGetVocabularyTerm(prefix + term.getCode());
 
         VocabularyTerm updateTerm = new VocabularyTerm();
         updateTerm.setId(termPE.getId());

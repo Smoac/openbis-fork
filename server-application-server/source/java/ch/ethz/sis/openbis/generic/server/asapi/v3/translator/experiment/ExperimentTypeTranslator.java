@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -83,11 +84,14 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
         TranslationResults relations = (TranslationResults) objectRelations;
         ExperimentTypeBaseRecord baseRecord = relations.get(IExperimentTypeBaseTranslator.class, typeId);
 
-        result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.EXPERIMENT));
-        result.setCode(baseRecord.code);
+        String businessCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.managedInternally);
+
+        result.setPermId(new EntityTypePermId(businessCode, EntityKind.EXPERIMENT));
+        result.setCode(businessCode);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
         result.setMetaData(CommonUtils.asMap(baseRecord.metaData));
+        result.setManagedInternally(baseRecord.managedInternally);
 
         if (fetchOptions.hasPropertyAssignments())
         {

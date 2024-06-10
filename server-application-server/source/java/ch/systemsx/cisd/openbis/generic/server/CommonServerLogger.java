@@ -664,11 +664,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
-            String label, String description, Long previousTermOrdinal)
+            String label, String description, Long previousTermOrdinal, boolean managedInternally)
     {
         logTracking(sessionToken, "add_unofficial_vocabulary_terms",
                 "ID(%s) CODE(%s), LABEL(%s), DESCRIPTION(%s), PREVIOUS_ORDINAL(%s)", vocabularyId,
-                code, label, description, previousTermOrdinal);
+                code, label, description, previousTermOrdinal, managedInternally);
     }
 
     @Override

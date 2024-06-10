@@ -73,13 +73,16 @@ public class ImportExperimentTypesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         ExperimentType collection = TestUtils.getExperimentType(v3api, sessionToken, "COLLECTION");
         List<String> propertyNames = Arrays.asList("$NAME", "DEFAULT_OBJECT_TYPE");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(collection, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment defaultObjectTypeProperty = propertyAssignments.get(1);
+
         // THEN
         assertEquals(collection.getCode(), "COLLECTION");
         assertEquals(collection.getPropertyAssignments().size(), 2);
@@ -108,15 +111,19 @@ public class ImportExperimentTypesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
-        TestUtils.createFrom(v3api, sessionToken, TestUtils.getDynamicPluginMap(), UpdateMode.UPDATE_IF_EXISTS,
-                Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_UPDATE)));
+        final String[] updateSessionWorkspaceFilePaths = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_UPDATE), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(updateSessionWorkspaceFilePaths[0]));
         ExperimentType collection = TestUtils.getExperimentType(v3api, sessionToken, "COLLECTION");
         List<String> propertyNames = Arrays.asList("$NAME", "DEFAULT_OBJECT_TYPE");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(collection, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment defaultObjectTypeProperty = propertyAssignments.get(1);
+
         // THEN
         // Property Assignment updates are not supported, no change here between updates.
         assertTrue(nameProperty.isMandatory());
@@ -141,18 +148,22 @@ public class ImportExperimentTypesTest extends AbstractImportTest
     public void testExperimentTypesWithValidationScript() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, TestUtils.getValidationPluginMap(),
-                Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_WITH_VALIDATION_SCRIPT)));
+        final String[] sessionWorkspaceFilePaths = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_WITH_VALIDATION_SCRIPT), FilenameUtils.concat(FILES_DIR, VALIDATION_SCRIPT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePaths[0]));
+
         // WHEN
         ExperimentType collection = TestUtils.getExperimentType(v3api, sessionToken, "COLLECTION");
+
         // THEN
-        assertEquals(collection.getValidationPlugin().getName().toUpperCase(), "COLLECTION.VALID");
+        assertEquals(collection.getValidationPlugin().getName().toUpperCase(), "VALID");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Mandatory field is missing or empty: Code.*")
     public void shouldThrowExceptionIfNoSampleCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
 }

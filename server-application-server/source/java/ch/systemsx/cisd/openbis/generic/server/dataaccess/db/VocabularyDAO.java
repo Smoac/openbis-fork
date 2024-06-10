@@ -122,7 +122,7 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
         assert code != null : "Unspecified code.";
 
         final Criteria criteria = currentSession().createCriteria(VocabularyTermPE.class);
-        criteria.add(Restrictions.eq("code", code));
+        criteria.add(Restrictions.eq("simpleCode", code));
         criteria.add(Restrictions.eq("vocabularyInternal", vocabulary));
         final VocabularyTermPE result = tryGetEntity(criteria.uniqueResult());
         if (operationLog.isDebugEnabled())

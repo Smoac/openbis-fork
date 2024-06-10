@@ -106,6 +106,10 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
             result.setShowRawValue(etptPE.getShowRawValue());
         }
         result.setScript(script);
+        result.setManagedInternallyNamespace(etptPE.isManagedInternallyNamespace());
+        result.setPattern(etptPE.getPattern());
+        result.setPatternType(etptPE.getPatternType());
+        result.setPatternRegex(etptPE.getPatternRegex());
         return result;
     }
 

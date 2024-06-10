@@ -319,7 +319,7 @@ public class DataSetPropertiesPanel extends JPanel
             } else if (formField instanceof VocabularyTermsComboBoxPanel)
             {
                 VocabularyTermsComboBoxPanel comboBox = (VocabularyTermsComboBoxPanel) formField;
-                if(propertyValue.getClass().isArray()){
+                if(propertyValue != null && propertyValue.getClass().isArray()){
                     Serializable[] values = (Serializable[]) propertyValue;
                     for(Serializable val : values) {
                         setVocabToComboBox(comboBox, (String) val);

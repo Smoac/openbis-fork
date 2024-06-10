@@ -102,9 +102,7 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
       'label',
       'description',
       'schema',
-      'transformation',
-      'pattern',
-      'patternType'
+      'transformation'
     ])
   }
 
@@ -135,11 +133,6 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     creation.setSchema(property.schema.value)
     creation.setTransformation(property.transformation.value)
     creation.setMultiValue(property.isMultiValue.value)
-    if(property.patternType.value != 'NONE')
-    {
-        creation.setPattern(property.pattern.value)
-        creation.setPatternType(property.patternType.value)
-    }
 
 
     if (
@@ -185,15 +178,6 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     update.setSchema(property.schema.value)
     update.setTransformation(property.transformation.value)
     update.convertToDataType(property.dataType.value)
-    console.log(property)
-    if(property.patternType.value != 'NONE')
-    {
-        update.setPattern(property.pattern.value)
-        update.setPatternType(property.patternType.value)
-    } else {
-        update.setPattern(null)
-        update.setPatternType(null)
-    }
     return new openbis.UpdatePropertyTypesOperation([update])
   }
 
@@ -249,6 +233,12 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     creation.setShowRawValueInForms(property.showRawValueInForms.value)
     creation.setSection(property.section)
     creation.setUnique(property.unique.value);
+    creation.setManagedInternally(property.assignmentInternal.value);
+    if(property.patternType.value != 'NONE')
+    {
+        creation.setPattern(property.pattern.value)
+        creation.setPatternType(property.patternType.value)
+    }
 
     if (property.code.value) {
       creation.setPropertyTypeId(

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shuts down openBIS and DSS
+# Shuts down openBIS, DSS and AFS
 
 if [ -n "$(readlink $0)" ]; then
    # handle symbolic links
@@ -16,5 +16,7 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
+$BASE/afsdown.sh
 $BASE/dssdown.sh
 $BASE/bisdown.sh
+

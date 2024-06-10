@@ -177,6 +177,66 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
     }
 
     @Test
+    public void testCreateInternalTerms_asNormalUser_fail()
+    {
+        VocabularyTermCreation creation = termCreation();
+        creation.setCode("MY_CODE");
+        creation.setOfficial(true);
+        creation.setManagedInternally(true);
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
+            }
+        }, "Internal vocabulary terms can be managed only by the system user.");
+    }
+
+    @Test
+    public void testCreateInternalTermsInRegularVocabulary_asSystemUser_fail()
+    {
+        VocabularyTermCreation creation = termCreation();
+        creation.setCode("MY_CODE");
+        creation.setOfficial(true);
+        creation.setManagedInternally(true);
+
+        String sessionToken = v3api.loginAsSystem();
+
+        assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
+            }
+        }, "Internal vocabulary terms can be part of internal vocabularies only.");
+
+    }
+
+
+    @Test
+    public void testCreateInternalTerms_asSystemUser()
+    {
+        VocabularyTermCreation creation = termCreation();
+        creation.setVocabularyId(new VocabularyPermId("$PLATE_GEOMETRY"));
+        creation.setCode("MY_CODE");
+        creation.setOfficial(true);
+        creation.setManagedInternally(true);
+
+        String sessionToken = v3api.loginAsSystem();
+
+        List<VocabularyTermPermId> result =
+                v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
+
+        List<VocabularyTerm> termsAfter = listTerms(creation.getVocabularyId());
+        assertTerms(termsAfter, "96_WELLS_8X12", "384_WELLS_16X24", "1536_WELLS_32X48", "$MY_CODE");
+    }
+
+    @Test
     public void testCreateWithOfficialTermAndPreviousTermNotNull()
     {
         VocabularyTermCreation creation = termCreation();
@@ -297,7 +357,11 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
     private List<VocabularyTerm> createTerms(String user, String password, VocabularyTermCreation... creations)
     {
         String sessionToken = v3api.login(user, password);
+        return createVocabularyTerms(user, sessionToken, creations);
+    }
 
+    private List<VocabularyTerm> createVocabularyTerms(String user, String sessionToken, VocabularyTermCreation... creations)
+    {
         // build criteria
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
         criteria.withOrOperator();

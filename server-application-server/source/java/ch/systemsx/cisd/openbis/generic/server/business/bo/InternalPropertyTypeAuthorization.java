@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -41,7 +42,20 @@ public class InternalPropertyTypeAuthorization
 
     public void canCreatePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
-        // do not check anything - allow new assignments to be created even for internally managed property types
+        if(propertyAssignment.isManagedInternallyNamespace())
+        {
+            if(propertyType.isManagedInternally())
+            {
+                if(isSystemUser(session) == false)
+                {
+                    throw new AuthorizationFailureException(
+                            "Internal property assignments can be managed only by the system user.");
+                }
+            } else {
+                throw new UserFailureException(
+                        "Internal property assignments can be added only to internal property types.");
+            }
+        }
     }
 
     public void canUpdatePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)

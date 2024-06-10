@@ -74,14 +74,15 @@ public class PatternValueValidatorTest
         pt.setCode("TEST_CODE");
 
         EntityTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
+        etpt.setId(1L);
         etpt.setPropertyType(pt);
+        etpt.setPattern(pattern);
+        etpt.setPatternType(patternType);
 
         EntityPropertyPE propertyPE = new SamplePropertyPE();
         propertyPE.setEntityTypePropertyType(etpt);
 
         propertyPE.setValue(value);
-        pt.setPattern(pattern);
-        pt.setPatternType(patternType);
 
         return propertyPE;
     }

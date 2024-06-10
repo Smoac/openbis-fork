@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -35,7 +35,7 @@ public class ImportOperation implements Serializable, IOperation
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private IImportData importData;
+    private ImportData importData;
 
     @JsonProperty
     private ImportOptions importOptions;
@@ -45,7 +45,7 @@ public class ImportOperation implements Serializable, IOperation
     {
     }
 
-    public ImportOperation(final IImportData importData, final ImportOptions importOptions)
+    public ImportOperation(final ImportData importData, final ImportOptions importOptions)
     {
         this.importData = importData;
         this.importOptions = importOptions;
@@ -58,13 +58,13 @@ public class ImportOperation implements Serializable, IOperation
     }
 
     @JsonIgnore
-    public IImportData getImportData()
+    public ImportData getImportData()
     {
         return importData;
     }
 
     @JsonIgnore
-    public void setImportData(final IImportData importData)
+    public void setImportData(final ImportData importData)
     {
         this.importData = importData;
     }

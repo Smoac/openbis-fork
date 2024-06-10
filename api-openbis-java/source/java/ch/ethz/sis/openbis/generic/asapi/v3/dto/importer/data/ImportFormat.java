@@ -22,6 +22,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum ImportFormat
 {
 
-    XLS
+    EXCEL
 
 }

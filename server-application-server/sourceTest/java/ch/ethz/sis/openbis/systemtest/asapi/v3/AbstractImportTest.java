@@ -18,12 +18,17 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Arrays;
+import java.util.UUID;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
+
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 public class AbstractImportTest extends AbstractTest
 {
@@ -59,20 +64,26 @@ public class AbstractImportTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    protected static byte[] getFileContent(final String fileName)
+    protected static String[] uploadToAsSessionWorkspace(final String sessionToken, final String... relativeFilePaths) throws IOException
     {
-        try (final InputStream is = AbstractImportTest.class.getResourceAsStream("test_files/import/" + fileName))
-        {
-            if (is == null)
-            {
-                throw new RuntimeException();
-            }
+        final String[] canonicalFilePaths = getFilePaths(relativeFilePaths);
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final String uploadId = UUID.randomUUID().toString();
+        final String[] destinations = new String[canonicalFilePaths.length];
 
-            return is.readAllBytes();
-        } catch (final IOException e)
+        for (int i = 0; i < canonicalFilePaths.length; i++)
         {
-            throw new RuntimeException(e);
+            destinations[i] = uploadId + "/" + relativeFilePaths[i];
+            sessionWorkspaceProvider.write(sessionToken, destinations[i], new FileInputStream(canonicalFilePaths[i]));
         }
+
+        return destinations;
+    }
+
+    private static String[] getFilePaths(final String... fileNames)
+    {
+        return Arrays.stream(fileNames).map(fileName -> AbstractImportTest.class.getResource("test_files/import/" + fileName).getPath())
+                .toArray(String[]::new);
     }
 
 }

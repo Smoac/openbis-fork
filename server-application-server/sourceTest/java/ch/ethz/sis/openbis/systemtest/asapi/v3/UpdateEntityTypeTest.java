@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -676,6 +677,146 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
     }
 
     @Test
+    public void testUpdateInternalEntityTypeAsUser_fail()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        CREATION entityTypeCreation = newTypeCreation();
+        entityTypeCreation.setManagedInternally(true);
+        entityTypeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        entityTypeCreation.setDescription("Initial description");
+        List<EntityTypePermId> entityTypeIds = createTypes(sessionToken, Arrays.asList(entityTypeCreation));
+
+        EntityTypePermId typeId = entityTypeIds.get(0);
+
+
+        // Given
+        String regularSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("Some description that will fail");
+        assertUserFailureException(new IDelegatedAction()
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           // When
+                                           updateTypes(regularSessionToken, Arrays.asList(update));
+                                       }
+                                   },
+                "Internal entity type fields can be managed only by the system user.");
+    }
+
+    @Test
+    public void testUpdateInternalEntityTypeAsSystemUser()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        CREATION entityTypeCreation = newTypeCreation();
+        entityTypeCreation.setManagedInternally(true);
+        entityTypeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        entityTypeCreation.setDescription("Initial description");
+        List<EntityTypePermId> entityTypeIds = createTypes(sessionToken, Arrays.asList(entityTypeCreation));
+
+        EntityTypePermId typeId = entityTypeIds.get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "Initial description");
+
+        // Given
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+        updateTypes(sessionToken, Arrays.asList(update));
+
+        type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "New description");
+    }
+
+    @Test
+    public void testUpdateInternalEntityTypeAssignment_addInternalAssignment()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setManagedInternally(true);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("internal property type");
+        propertyTypeCreation.setDescription("internal property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        typeCreation.setManagedInternally(true);
+
+
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+
+        // When
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+
+        PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setManagedInternally(true);
+        update.getPropertyAssignments().add(assignmentCreationInternal);
+
+        updateTypes(sessionToken, Arrays.asList(update));
+
+        type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "New description");
+        assertEquals(type.getPropertyAssignments().size(), 2);
+    }
+
+    @Test
+    public void testUpdateEntityTypeAssignment_addInternalAssignment_shouldFail()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        UPDATE update = newTypeUpdate();
+        EntityTypePermId typeId = getTypeId();
+        update.setTypeId(typeId);
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setManagedInternally(true);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("internal property type");
+        propertyTypeCreation.setDescription("internal property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setManagedInternally(true);
+        update.getPropertyAssignments().add(assignmentCreationInternal);
+
+        assertUserFailureException(new IDelegatedAction()
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           // When
+                                           updateTypes(sessionToken, Arrays.asList(update));
+                                       }
+                                   },
+                "Internal property assignments can be used for internal entity types");
+    }
+
+    @Test
     public void testSetPropertyTypeAssignment()
     {
         // Given
@@ -791,6 +932,57 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
                     updateTypes(sessionToken, Arrays.asList(update));
                 }
             }, typeId, patternContains("checking access"));
+    }
+
+    @Test
+    public void testUpdatePatternForEntity()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("PATTERN_ASSIGNMENT_TYPE_TEST");
+        propertyTypeCreation.setManagedInternally(false);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("some property type");
+        propertyTypeCreation.setDescription("some property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("PATTERN_ASSIGNMENT_ENTITY_TYPE");
+        typeCreation.setManagedInternally(false);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPatternType("PATTERN");
+        assignmentCreation.setPattern(".*");
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+        assertEquals(type.getPropertyAssignments().size(), 1);
+        assertEquals(type.getPropertyAssignments().get(0).getPatternType(), "PATTERN");
+        assertEquals(type.getPropertyAssignments().get(0).getPattern(), ".*");
+
+        // When
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+
+        assignmentCreation.setPatternType("RANGES");
+        assignmentCreation.setPattern("(-3)-(-1), 1-10, 100-200");
+        update.getPropertyAssignments().set(assignmentCreation);
+
+        updateTypes(sessionToken, Arrays.asList(update));
+
+        type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "New description");
+        assertEquals(type.getPropertyAssignments().size(), 1);
+        assertEquals(type.getPropertyAssignments().get(0).getPatternType(), "RANGES");
+        assertEquals(type.getPropertyAssignments().get(0).getPattern(), "(-3)-(-1), 1-10, 100-200");
     }
 
     @DataProvider

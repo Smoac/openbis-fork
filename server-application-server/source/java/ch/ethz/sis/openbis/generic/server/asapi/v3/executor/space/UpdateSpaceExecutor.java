@@ -80,7 +80,7 @@ public class UpdateSpaceExecutor extends AbstractUpdateEntityExecutor<SpaceUpdat
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, ISpaceId id, SpacePE entity)
+    protected void checkAccess(IOperationContext context, ISpaceId id, SpacePE entity, SpaceUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

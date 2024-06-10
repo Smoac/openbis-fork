@@ -40,7 +40,7 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
 
     transient protected Long id;
 
-    private String code;
+    protected String code;
 
     private String description;
 
@@ -48,14 +48,14 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     @Transient
     public String getPermId()
     {
-        return code;
+        return getCode();
     }
 
     @Override
     @Transient
     public String getIdentifier()
     {
-        return code;
+        return getCode();
     }
 
     public void setId(final Long id)
@@ -63,10 +63,7 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
         this.id = id;
     }
 
-    public void setCode(final String code)
-    {
-        this.code = code;
-    }
+    public abstract void setCode(final String code);
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @org.hibernate.validator.constraints.Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
@@ -85,14 +82,8 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     //
 
     @Override
-    @Column(name = ColumnNames.CODE_COLUMN)
-    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
-    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    public String getCode()
-    {
-        return code;
-    }
+    @Column(name = ColumnNames.CODE_COLUMN, insertable = false, updatable = false)
+    public abstract String getCode();
 
     @Override
     ToStringBuilder createStringBuilder()

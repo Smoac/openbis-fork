@@ -99,7 +99,7 @@ public class LinkedDataSetKindSearchManager extends AbstractLocalSearchManager<L
         final Set<Long> resultBeforeFiltering =
                 containsValues(mainCriteriaIntermediateResults) ? mainCriteriaIntermediateResults : Collections.emptySet();
 
-        return filterIDsByUserRights(userId, authorisationInformation, resultBeforeFiltering);
+        return filterIDsByUserRights(authorisationInformation, resultBeforeFiltering);
     }
 
 }

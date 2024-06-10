@@ -120,19 +120,16 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, barcodeValidationInfo, sessionKey, callback) {
-        this.customELNASAPI({
-            "method" : "importSamples",
-            "allowedSampleTypes" : allowedSampleTypes,
-            "experimentsByType" : experimentsByType,
-            "spacesByType" : spacesByType,
-            "barcodeValidationInfo" : barcodeValidationInfo,
-            "mode" : "FAIL_IF_EXISTS",
-            "sessionKey" : sessionKey
-        }, function(result) {
-            callback(result)
-        }, true);
-    }
+		this.importSamples = function(mode, sessionKey, allowedSampleTypes, experimentsByType, spacesByType, callback) {
+				this.customASService({
+					"method" : "import",
+					"mode" : mode,
+					"fileName" : sessionKey,
+					"allowedSampleTypes" : allowedSampleTypes,
+					"experimentsByType" : experimentsByType,
+					"spacesByType" : spacesByType,
+				}, callback, "xls-import", null, true);
+		}
 
     this.deleteSpace = function(code, reason, callback) {
         this.customELNASAPI({
@@ -142,18 +139,6 @@ function ServerFacade(openbisServer) {
         }, function(result) {
             callback(result);
         });
-    }
-
-    this.updateSamples = function(allowedSampleTypes, barcodeValidationInfo, sessionKey, callback) {
-        this.customELNASAPI({
-            "method" : "importSamples",
-            "allowedSampleTypes" : allowedSampleTypes,
-            "barcodeValidationInfo" : barcodeValidationInfo,
-            "mode" : "UPDATE_IF_EXISTS",
-            "sessionKey" : sessionKey
-        }, function(result) {
-            callback(result)
-        }, true);
     }
 
     this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {

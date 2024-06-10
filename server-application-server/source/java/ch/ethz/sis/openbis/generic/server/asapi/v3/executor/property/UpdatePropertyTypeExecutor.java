@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IPatternCompiler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -100,15 +100,10 @@ public class UpdatePropertyTypeExecutor
         {
             throw new UserFailureException("Description cannot be empty.");
         }
-        if(update.getPattern().isModified() && update.getPatternType().isModified() && ((StringUtils.isEmpty(update.getPattern().getValue()) && !StringUtils.isEmpty(update.getPatternType().getValue()))
-        || (!StringUtils.isEmpty(update.getPattern().getValue()) && StringUtils.isEmpty(update.getPatternType().getValue()))))
-        {
-            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
-        }
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IPropertyTypeId id, PropertyTypePE entity)
+    protected void checkAccess(IOperationContext context, IPropertyTypeId id, PropertyTypePE entity, PropertyTypeUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }
@@ -143,11 +138,6 @@ public class UpdatePropertyTypeExecutor
                     CreatePropertyTypeExecutor.validateTransformationAndDataType(dataType, update.getTransformation().getValue());
                     propertyType.setTransformation(getNewValue(update.getTransformation(), propertyType.getTransformation()));
                     updateMetaData(propertyType, update);
-                    propertyType.setPattern(getNewValue(update.getPattern(), propertyType.getPattern()));
-                    propertyType.setPatternType(getNewValue(update.getPatternType(), propertyType.getPatternType()));
-
-                    Pattern updateRegex = patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType());
-                    propertyType.setPatternRegex(updateRegex == null ? null : updateRegex.pattern());
 
                 }
 

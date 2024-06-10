@@ -134,6 +134,14 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
+    public File getCanonicalFile(String sessionToken, String relativePathToFile) throws IOException
+    {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        return targetFile.getCanonicalFile();
+    }
+
+    @Override
     public void deleteSessionWorkspace(String sessionTokenOrPAT)
     {
         try
@@ -156,6 +164,7 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     public void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException {
         File sessionWorkspace = getSessionWorkspace(sessionToken);
         File targetFile = new File(sessionWorkspace, relativePathToFile);
+        targetFile.getParentFile().mkdirs();
         Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -170,6 +179,13 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
         File sessionWorkspace = getSessionWorkspace(sessionToken);
         File targetFile = new File(sessionWorkspace, relativePathToFile);
         return Files.newInputStream(targetFile.toPath());
+    }
+
+    @Override
+    public byte[] readAllBytes(String sessionToken, String relativePathToFile) throws IOException {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        return Files.readAllBytes(targetFile.toPath());
     }
 
     @Override

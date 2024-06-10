@@ -125,6 +125,30 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
             };
     }
 
+    private void checkBusinessRules(final IOperationContext context, MapBatch<UPDATE, PE> batch)
+    {
+        new MapBatchProcessor<UPDATE, PE>(context, batch)
+        {
+            @Override
+            public void process(UPDATE update, PE entity)
+            {
+                ID id = getId(update);
+                checkBusinessRules(context, id, entity, update);
+            }
+
+            @Override
+            public IProgress createProgress(UPDATE update, PE entity, int objectIndex, int totalObjectCount)
+            {
+                return new CheckDataProgress(update, objectIndex, totalObjectCount);
+            }
+        };
+    }
+
+    protected void checkBusinessRules(IOperationContext context, ID id, PE entity, UPDATE update)
+    {
+        // overwrite in child class if special business rules are to be applied
+    }
+
     private void checkAccess(final IOperationContext context, MapBatch<UPDATE, PE> batch)
     {
         new MapBatchProcessor<UPDATE, PE>(context, batch)
@@ -135,10 +159,10 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
                     ID id = getId(update);
                     try
                     {
-                        checkAccess(context, id, entity);
+                        checkAccess(context, id, entity, update);
                     } catch (AuthorizationFailureException ex)
                     {
-                        throw new UnauthorizedObjectAccessException(id);
+                        throw new UnauthorizedObjectAccessException(id, ex.getMessage());
                     }
                 }
 
@@ -197,6 +221,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
                 updateToEntityMap, batch.getTotalObjectCount());
 
         checkAccess(context, mapBatch);
+        checkBusinessRules(context, mapBatch);
         updateBatch(context, mapBatch);
 
         save(context, new ArrayList<PE>(updateToEntityMap.values()), false);
@@ -240,7 +265,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
 
     protected abstract void checkData(IOperationContext context, UPDATE update);
 
-    protected abstract void checkAccess(IOperationContext context, ID id, PE entity);
+    protected abstract void checkAccess(IOperationContext context, ID id, PE entity, UPDATE update);
 
     protected abstract void updateBatch(IOperationContext context, MapBatch<UPDATE, PE> batch);
 

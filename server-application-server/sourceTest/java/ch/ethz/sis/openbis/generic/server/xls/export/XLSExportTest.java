@@ -27,6 +27,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
@@ -313,6 +314,45 @@ public class XLSExportTest
         final Map.Entry<String, String> entry = valueFiles.entrySet().iterator().next();
         assertEquals(entry.getKey(), "value-M5.txt");
         assertTrue(entry.getValue().length() > Short.MAX_VALUE);
+    }
+
+    /**
+     * Tests export of cells that contain references to images.
+     */
+    @Test
+    public void testImageReferencesExport() throws IOException
+    {
+        final Expectations expectations = new SampleCellWithImageReferencesExpectations(api, false);
+        mockery.checking(expectations);
+
+        final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
+                api, SESSION_TOKEN, List.of(new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001"))),
+                false, null, XLSExport.TextFormatting.RICH, false);
+        assertTrue(actualResult.getScripts().isEmpty());
+        assertTrue(actualResult.getWarnings().isEmpty());
+
+        final InputStream stream = getClass().getClassLoader().getResourceAsStream(
+                "ch/ethz/sis/openbis/generic/server/xls/export/resources/export-sample-cell-with-images.xlsx");
+        if (stream == null)
+        {
+            throw new IllegalArgumentException("File not found.");
+        }
+        final Workbook expectedResult = new XSSFWorkbook(stream);
+
+        assertWorkbooksEqual(actualResult.getWorkbook(), expectedResult);
+
+        final Map<String, byte[]> miscellaneousFiles = actualResult.getMiscellaneousFiles();
+        assertEquals(miscellaneousFiles.size(), 2);
+
+        final byte[] bytes1 = miscellaneousFiles.get(
+                "/eln-lims/c1/b2/91/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c.jpg");
+        assertNotNull(bytes1);
+        assertTrue(bytes1.length > 0);
+
+        final byte[] bytes2 = miscellaneousFiles.get(
+                "/eln-lims/46/63/05/466305f0-4842-441f-b21c-777ea82079b4/466305f0-4842-441f-b21c-777ea82079b4.jpg");
+        assertNotNull(bytes2);
+        assertTrue(bytes2.length > 0);
     }
 
     public static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)

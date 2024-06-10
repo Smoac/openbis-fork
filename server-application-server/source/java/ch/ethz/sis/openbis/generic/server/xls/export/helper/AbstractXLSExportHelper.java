@@ -15,14 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -39,10 +43,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.FileServerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> implements IXLSExportHelper<ENTITY_TYPE>
@@ -50,7 +56,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
-            "Metadata", "Dynamic script", "Multivalued", "Unique", "Pattern", "Pattern Type" };
+            "Metadata", "Dynamic script", "Multivalued", "Unique", "Pattern", "Pattern Type", "Internal Assignment" };
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 
@@ -160,41 +166,93 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         return null;
     }
 
-    protected static Function<PropertyType, String> getPropertiesMappingFunction(
-            final XLSExport.TextFormatting textFormatting, final Map<String, Serializable> properties)
+    protected static Function<PropertyType, PropertyValue> getPropertiesMappingFunction(
+            final XLSExport.TextFormatting textFormatting, final Map<String, Serializable> properties, final Collection<String> warnings)
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
-                ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
-                        ? getProperty(properties, propertyType) != null
-                                ? ((String)properties.get(propertyType.getCode())).replaceAll("<[^>]+>", "")
-                                : null
-                        : getProperty(properties, propertyType)
-                : propertyType -> getProperty(properties, propertyType);
+                ? propertyType ->
+                        propertyType.getDataType() == DataType.MULTILINE_VARCHAR
+                                ? getPlainMultilineVarcharProperty(properties, propertyType)
+                                : getProperty(properties, propertyType)
+                : propertyType ->
+                        propertyType.getDataType() == DataType.MULTILINE_VARCHAR
+                                ? getRichMultilineVarcharProperty(properties, propertyType, warnings)
+                                : getProperty(properties, propertyType);
     }
 
-    private static String getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
+    private static PropertyValue getPlainMultilineVarcharProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
     {
-        Serializable propertyValue = properties.get(propertyType.getCode());
-        if(propertyValue == null)
+        return getProperty(properties, propertyType) != null
+                ? new PropertyValue(((String) properties.get(propertyType.getCode())).replaceAll("<[^>]+>", ""), Map.of())
+                : null;
+    }
+
+    private static PropertyValue getRichMultilineVarcharProperty(final Map<String, Serializable> properties, final PropertyType propertyType,
+            final Collection<String> warnings)
+    {
+        if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR && propertyType.getMetaData() != null &&
+                Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
+        {
+            final String value = (String) properties.get(propertyType.getCode());
+            final Map<String, byte[]> imageFiles = findImageFiles(value, warnings);
+            return new PropertyValue(value, imageFiles);
+        } else
+        {
+            return getProperty(properties, propertyType);
+        }
+    }
+
+    public static Map<String, byte[]> findImageFiles(final String input, final Collection<String> warnings)
+    {
+        if (input == null)
         {
             return null;
         }
-        if(propertyValue.getClass().isArray())
+
+        // Regular expression to match <img src='/openbis/openbis/file-service/...' or <img src="/openbis/openbis/file-service/..."
+        final String regex = "<img\\s+src=[\"'](http)?.*?(/openbis/openbis/file-service)(/[^\"']*?)[\"']";
+        final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(input);
+        final Map<String, byte[]> imageFiles = new HashMap<>();
+
+        while (matcher.find())
+        {
+            final String filePath = matcher.group(3);
+            try
+            {
+                imageFiles.put(filePath, FileServerUtils.readAllBytes(filePath));
+            } catch (final IOException e)
+            {
+                warnings.add(String.format("Could not read the file at path '%s'.", filePath));
+            }
+        }
+
+        return imageFiles;
+    }
+
+    private static PropertyValue getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
+    {
+        Serializable propertyValue = properties.get(propertyType.getCode());
+        if (propertyValue == null)
+        {
+            return null;
+        }
+        if (propertyValue.getClass().isArray())
         {
             StringBuilder sb = new StringBuilder();
             Serializable[] values = (Serializable[]) propertyValue;
-            for(Serializable value : values)
+            for (Serializable value : values)
             {
-                if(sb.length() > 0)
+                if (sb.length() > 0)
                 {
                     sb.append(", ");
                 }
-                sb.append(value);
+                sb.append(value instanceof Sample ? ((Sample) value).getIdentifier().getIdentifier() : value);
             }
-            return sb.toString();
+            return new PropertyValue(sb.toString(), Map.of());
         } else
         {
-            return propertyValue.toString();
+            return new PropertyValue(propertyValue.toString(), Map.of());
         }
     }
 
@@ -222,6 +280,33 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
             return valueFiles;
         }
 
+    }
+
+    /**
+     * Property value, which may contain not only String but also files for MULTILINE_VARCHAR properties with HTML image references in them.
+     */
+    public static class PropertyValue
+    {
+        private final String value;
+
+        /** File name to content map. */
+        private final Map<String, byte[]> miscellaneousFiles;
+
+        protected PropertyValue(final String value, final Map<String, byte[]> miscellaneousFiles)
+        {
+            this.value = value;
+            this.miscellaneousFiles = miscellaneousFiles;
+        }
+
+        public String getValue()
+        {
+            return value;
+        }
+
+        public Map<String, byte[]> getMiscellaneousFiles()
+        {
+            return miscellaneousFiles;
+        }
     }
 
 }

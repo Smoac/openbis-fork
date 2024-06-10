@@ -115,7 +115,7 @@ public class JsTestCommonSelenium extends SeleniumTest
     protected void startAfsServer() throws Exception
     {
         Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
-                "../afs-server/etc/server-data-store-config.properties");
+                "../afs-server/etc/service.properties");
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
         new Server<>(configuration, dummyServerObserver, dummyServerObserver);
     }

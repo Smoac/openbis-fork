@@ -172,7 +172,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         List<SamplePropertyPE> properties1 =
                 cast(getHibernateTemplate().find(queryPropertySimpleValue, arguments));
 
-        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.code");
+        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.simpleCode");
         List<SamplePropertyPE> properties2 =
                 cast(getHibernateTemplate().find(queryPropertyVocabularyTerm, arguments));
 

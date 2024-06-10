@@ -34,8 +34,8 @@ import UploadButton from '@src/js/components/database/data-browser/UploadButton.
 import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderIcon from '@material-ui/icons/FolderOpen'
 import logger from '@src/js/common/logger.js'
-import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
-import FileExistsDialog from "@src/js/components/common/dialog/FileExistsDialog.jsx";
+import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
+import FileExistsDialog from '@src/js/components/common/dialog/FileExistsDialog.jsx'
 
 const color = 'default'
 const uploadButtonsColor = 'secondary'

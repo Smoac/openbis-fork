@@ -709,7 +709,7 @@ define([], function() {
 
         this.executeImport = function (importData, importOptions) {
             return this._executeOperation(new dtos.ImportOperation(importData, importOptions)).then(function (results) {
-                return results.getResults()[0]
+                return results.getResults()[0].getImportResult()
             })
         }
 
@@ -718,6 +718,8 @@ define([], function() {
                 return results.getResults()[0].getExportResult()
             })
         }
+
+        this.uploadToSessionWorkspace = facade.uploadToSessionWorkspace;
     }
 
 	return executeOperationsFacade;

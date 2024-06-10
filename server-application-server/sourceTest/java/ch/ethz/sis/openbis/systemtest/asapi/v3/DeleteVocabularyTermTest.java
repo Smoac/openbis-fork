@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -56,38 +57,38 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
     private Object[][] providerTestDeleteAuthorization()
     {
         return new Object[][] {
-                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "ORGANISM", SYSTEM_USER, TEST_USER, true, null },
-                { "ORGANISM", SYSTEM_USER, TEST_USER, false, null },
+                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "ORGANISM", SYSTEM_USER, TEST_USER, true, false, null },
+                { "ORGANISM", SYSTEM_USER, TEST_USER, false, false, null },
 
-                { "ORGANISM", TEST_USER, TEST_USER, true, null },
-                { "ORGANISM", TEST_USER, TEST_USER, false, null },
+                { "ORGANISM", TEST_USER, TEST_USER, true, false, null },
+                { "ORGANISM", TEST_USER, TEST_USER, false, false, null },
 
-                { "ORGANISM", TEST_POWER_USER_CISD, SYSTEM_USER, false, null },
-                { "ORGANISM", TEST_POWER_USER_CISD, TEST_USER, false, null },
-                { "ORGANISM", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false,
+                { "ORGANISM", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "ORGANISM", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "ORGANISM", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "Access denied to object with VocabularyTermPermId = [TEST-CODE (ORGANISM)]" },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
+                        "Only system user can delete internal vocabulary terms!" },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
+                        "Only system user can delete internal vocabulary terms!" },
 
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, null },
+                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
+                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },
 
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false,
+                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "Access denied to object with VocabularyTermPermId = [TEST-CODE ($PLATE_GEOMETRY)]" },
         };
     }
 
     @Test(dataProvider = "providerTestDeleteAuthorization")
-    public void testDeleteAuthorization(String vocabularyCode, String termRegistrator, String termDeleter, boolean termOfficial,
+    public void testDeleteAuthorization(String vocabularyCode, String termRegistrator, String termDeleter, boolean termOfficial, boolean managedInternally,
             String expectedError)
     {
         String sessionTokenRegistrator = termRegistrator.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(termRegistrator, PASSWORD);
@@ -96,6 +97,7 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
         creation.setCode("TEST-CODE");
         creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
         creation.setOfficial(termOfficial);
+        creation.setManagedInternally(managedInternally);
 
         List<VocabularyTermPermId> permIds = v3api.createVocabularyTerms(sessionTokenRegistrator, Arrays.asList(creation));
 
@@ -527,6 +529,40 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
         assertVocabularyTermPermIds(terms, termIdRat, termIdDog, termIdHuman, termIdGorilla);
 
         assertMaterialsExists(new MaterialPermId(materialCode, materialTypeCode));
+    }
+
+    @Test
+    public void testDeleteInternalTermWithNonSystemUser_fail()
+    {
+        String vocabularyCode = "$PLATE_GEOMETRY";
+
+        VocabularyTermCreation creation = new VocabularyTermCreation();
+        creation.setCode("MY_INTERNAL_CODE");
+        creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
+        creation.setLabel("Original Label");
+        creation.setDescription("Original Description");
+        creation.setManagedInternally(true);
+
+        String systemSessionToken = v3api.loginAsSystem();
+
+        List<VocabularyTermPermId> result =
+                v3api.createVocabularyTerms(systemSessionToken, Arrays.asList(creation));
+
+
+        VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
+        options.setReason("Just for testing");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.deleteVocabularyTerms(sessionToken, result, options);
+            }
+        }, "Only system user can delete internal vocabulary terms!");
+
     }
 
     @Test

@@ -2,7 +2,7 @@
 
 ## Docker Containers
 
-Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md#production):
+Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md):
 1) **openbis-ingress**: Runs a [reverse HTTP Proxy](https://en.wikipedia.org/wiki/Reverse_proxy) for managing and securing HTTP requests in between the client and the application.
 2) **openbis-app**: Runs a [Java Runtime Environment](https://en.wikipedia.org/wiki/Java_virtual_machine), including the openBIS Application Server (AS) and openBIS Data Store Server (DSS).
 3) **openbis-db**: Runs a [PostgreSQL](https://www.postgresql.org/about/) database, to handle all data transactions.
@@ -11,8 +11,8 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 | Container | Image | Port | Description |
 | ----------|------ | ---- | ----------- |
 |`openbis-db`|`postgres15`|`5432/tcp`|PostgreSQL database listens on port 5432 and accepts connection from openbis-app.|
-|`openbis-app`|`openbis-server`|`8080/tcp`|Java Virtual Machine with openBIS Application Server listens on port 8080.| 
-|`openbis-app`|`openbis-server`|`8081/tcp`|Java Virtual Machine with openBIS Data Store Server listens on port 8081.|
+|`openbis-app`|`openbis-app`|`8080/tcp`|Java Virtual Machine with openBIS Application Server listens on port 8080.| 
+|`openbis-app`|`openbis-app`|`8081/tcp`|Java Virtual Machine with openBIS Data Store Server listens on port 8081.|
 |`openbis-ingress`|`apache2`|`443/tcp`|Apache HTTP server listens on port 443 and is configured as reverse proxy to ports 8080 and 8081.|
 
 
@@ -20,11 +20,15 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 
 Docker Compose is a tool for defining and running multi-container applications. It simplifies the control of the entire openBIS service, making it easy to control the application workflow in a single, comprehensible YAML configuration file, allows to create, start and stop all services by issuing a single command.
 
-We are providing a basic [docker-compose.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose.yml), which is ready to use. 
-To run the application navigate to the sub-directory where you've downloaded the `docker-compose.yml` to and then run `docker-compose up -d`. 
-For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress](#ingress).
+We are providing a basic [docker-compose.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose.yml), which is ready to use. 
+To run the application navigate to the sub-directory where you've downloaded the `docker-compose.yml` to and then execute
 
-To ensure that the latest images available on Docker Hub are being pulled prior to starting the application, run `docker-compose pull` prior to `docker-compose up -d`.
+```
+docker-compose pull
+docker-compose up -d
+```
+
+For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress].
 
 The sections below provides a brief description of the individual components used in the proposed multi-container setup.
 
@@ -33,7 +37,11 @@ The sections below provides a brief description of the individual components use
 
 The virtual bridge network `openbis-network` allows all containers deployed with openBIS to connect to each other. The following example creates a network using the bridge network driver, which all running containers will be communicating accross.
 
-To manually create the network, use: `docker network create openbis-network --driver bridge`
+To manually create the network, execute: 
+
+```
+docker network create openbis-network --driver bridge
+```
 
 
 ## Storage Volumes
@@ -53,7 +61,7 @@ The use of Docker volumes is preferred for **persisting data** generated and uti
 The **database container** `openbis-db` provides a relational database through **PostgreSQL server** to guarantee persistence for any data created while running openBIS. This includes user and authorization data, openBIS entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
 
 ```
-$ docker run -d \
+$ docker run --detach \
   --name openbis-db \
   --hostname openbis-db \
   --network openbis-network \
@@ -114,7 +122,7 @@ $ docker run --detach \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
   -e OPENBIS_FQDN="openbis.domain" \
-  openbis/openbis-server:20.10.7;
+  openbis/openbis-app:20.10.7;
 ```
 
 The state of the running application container can be inspected by fetching the container logs:
@@ -167,8 +175,8 @@ An **ingress container** acts as reverse proxy and performs Transport Layer Secu
 ### Nginx
 
 In order to use nginx as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
-- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-nginx.yml)
-- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
+- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose-nginx.yml)
+- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
 
 To run the application, you need to:
 - have docker and docker-compose installed
@@ -178,8 +186,8 @@ To run the application, you need to:
 ### Apache httpd
 
 In order to use apache-httpd as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
-- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-httpd.yml)
-- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
+- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose-httpd.yml)
+- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
 
 To run the application, you need to:
 - have docker and docker-compose installed
@@ -189,8 +197,8 @@ To run the application, you need to:
 ### HAProxy
 
 In order to use haproxy as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
-- [docker-compose-haproxy.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-haproxy.yml)
-- [haproxy config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/haproxy/my-haproxy.conf), to be placed in sub-directory `haproxy`
+- [docker-compose-haproxy.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose-haproxy.yml)
+- [haproxy config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/haproxy/my-haproxy.conf), to be placed in sub-directory `haproxy`
 
 To run the application, you need to:
 - have docker and docker-compose installed

@@ -63,7 +63,7 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
         {
             if (entry.getValue() instanceof byte[])
             {
-                result.put(entry.getKey(), List.of(IOUtils.encodeBase64((byte[]) entry.getValue())));
+                result.put(entry.getKey(), List.of(IOUtils.urlEncodeBase64((byte[]) entry.getValue())));
             } else
             {
                 result.put(entry.getKey(), List.of(String.valueOf(entry.getValue())));

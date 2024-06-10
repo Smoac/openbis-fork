@@ -42,6 +42,8 @@ public class VocabularyTermCreation implements ICreation, IObjectCreation
 
     private IVocabularyTermId previousTermId;
 
+    private boolean managedInternally;
+
     public IVocabularyId getVocabularyId()
     {
         return vocabularyId;
@@ -100,6 +102,16 @@ public class VocabularyTermCreation implements ICreation, IObjectCreation
     public void setPreviousTermId(IVocabularyTermId previousTermId)
     {
         this.previousTermId = previousTermId;
+    }
+
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     @Override

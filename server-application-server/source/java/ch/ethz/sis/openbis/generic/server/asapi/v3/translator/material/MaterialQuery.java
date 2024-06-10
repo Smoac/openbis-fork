@@ -92,7 +92,7 @@ public interface MaterialQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet materialTypeIds);
 
-    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'MATERIAL' as kind_code, mt.id as type_id, mt.code as type_code, mtpt.* from material_type_property_types mtpt, property_types pt, material_types mt where mtpt.id = any(?{1}) and mtpt.prty_id = pt.id and mtpt.maty_id = mt.id", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'MATERIAL' as kind_code, mt.id as type_id, mt.code as type_code, mtpt.is_managed_internally_namespace as is_managed_internally_assignment, mtpt.* from material_type_property_types mtpt, property_types pt, material_types mt where mtpt.id = any(?{1}) and mtpt.prty_id = pt.id and mtpt.maty_id = mt.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet materialTypePropertyTypeIds);
 

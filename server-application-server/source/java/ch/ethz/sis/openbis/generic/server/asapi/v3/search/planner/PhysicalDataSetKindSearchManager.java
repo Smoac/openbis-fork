@@ -98,7 +98,7 @@ public class PhysicalDataSetKindSearchManager extends AbstractLocalSearchManager
         final Set<Long> resultBeforeFiltering =
                 containsValues(mainCriteriaIntermediateResults) ? mainCriteriaIntermediateResults : Collections.emptySet();
 
-        return filterIDsByUserRights(userId, authorisationInformation, resultBeforeFiltering);
+        return filterIDsByUserRights(authorisationInformation, resultBeforeFiltering);
     }
 
 }

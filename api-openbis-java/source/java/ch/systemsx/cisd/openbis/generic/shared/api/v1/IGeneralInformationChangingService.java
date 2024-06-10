@@ -61,13 +61,13 @@ public interface IGeneralInformationChangingService extends IRpcService
      */
     @Deprecated
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
-            String label, String description, Long previousTermOrdinal);
+            String label, String description, Long previousTermOrdinal, boolean managedInternally);
 
     /**
      * Adds new unofficial terms to a vocabulary starting from specified ordinal + 1.
      */
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
-            NewVocabularyTerm term);
+            NewVocabularyTerm term, boolean managedInternally);
 
     /**
      * Returns the persistent settings for a given custom web app.

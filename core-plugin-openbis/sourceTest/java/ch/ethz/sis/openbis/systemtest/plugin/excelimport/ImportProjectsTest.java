@@ -69,9 +69,12 @@ public class ImportProjectsTest extends AbstractImportTest
     public void testProjectsAreCreated() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_XLS));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.FAIL_IF_EXISTS, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Project project = TestUtils.getProject(v3api, sessionToken, "TEST_PROJECT");
+
         // THEN
         assertEquals(project.getCode(), "TEST_PROJECT");
         assertEquals(project.getDescription(), "TEST");
@@ -83,10 +86,14 @@ public class ImportProjectsTest extends AbstractImportTest
     public void testExistProjectIsUpdated() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_XLS));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
-        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_UPDATE)));
+        final String updateSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_UPDATE));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(updateSessionWorkspaceFilePath));
         Project project = TestUtils.getProject(v3api, sessionToken, "TEST_PROJECT", "TEST_SPACE2");
+
         // THEN
         assertEquals(project.getCode(), "TEST_PROJECT");
         assertEquals(project.getDescription(), "UPDATE");
@@ -98,19 +105,23 @@ public class ImportProjectsTest extends AbstractImportTest
     public void testProjectsAreCreatedSecondProject() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Project project = TestUtils.getProject(v3api, sessionToken, "TEST_PROJECT2");
+
         // THEN
         assertEquals(project.getCode(), "TEST_PROJECT2");
         assertEquals(project.getDescription(), "description of another project");
         assertEquals(project.getSpace().getCode(), "TEST_SPACE2");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Code' is missing.*")
     public void shouldThrowExceptionIfNoProjectCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
     @Test
@@ -118,19 +129,23 @@ public class ImportProjectsTest extends AbstractImportTest
     public void testProjectsAreCreatedNoDescription() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_NO_DESCRIPTION)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_NO_DESCRIPTION));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Project project = TestUtils.getProject(v3api, sessionToken, "TEST_PROJECT");
+
         // THEN
         assertEquals(project.getCode(), "TEST_PROJECT");
         assertEquals(project.getDescription(), null);
         assertEquals(project.getSpace().getCode(), "TEST_SPACE");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Space' is missing.*")
     public void shouldThrowExceptionIfNoProjectSpace() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_NO_SPACE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECTS_NO_SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
     @Test
@@ -138,10 +153,16 @@ public class ImportProjectsTest extends AbstractImportTest
     public void testProjectsAreCreatedSpaceOnServer() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECTS_WITH_SPACES_ON_SERVER)));
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACES));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String projectsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, PROJECTS_WITH_SPACES_ON_SERVER));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(projectsSessionWorkspaceFilePath));
+
         // WHEN
         Project project = TestUtils.getProject(v3api, sessionToken, "TEST_PROJECT");
+
         // THEN
         assertEquals(project.getCode(), "TEST_PROJECT");
         assertEquals(project.getDescription(), "TEST");

@@ -690,6 +690,9 @@ var Util = new function() {
 	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
+		if(normalizedCodeParts.length > 0 && normalizedCodeParts[0] && normalizedCodeParts[0].startsWith("$")) {
+		    normalizedCodeParts[0] = normalizedCodeParts[0].substring(1);
+		}
 		var displayName = "";
 		for(var i = 0; i < normalizedCodeParts.length; i++) {
 			if(i > 0) {
@@ -771,6 +774,17 @@ var Util = new function() {
 		} else {
 		    viewData = argsForView;
 		}
+        //
+        if(menuId) {
+            menuId = menuId.replace(/{/g, "%7B");
+            menuId = menuId.replace(/}/g, "%7D");
+        }
+        //
+        if(viewData) {
+            viewData = viewData.replace(/{/g, "%7B");
+            viewData = viewData.replace(/}/g, "%7D");
+        }
+        //
 		return window.location.href.split("?")[0] + "?menuUniqueId=" +  menuId+ "&viewName=" + view + "&viewData=" +
 				viewData;
 	}

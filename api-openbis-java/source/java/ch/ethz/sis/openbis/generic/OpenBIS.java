@@ -34,9 +34,13 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.client.util.MultiPartContentProvider;
+import org.eclipse.jetty.client.util.PathContentProvider;
+import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
 import ch.ethz.sis.afsapi.api.OperationsAPI;
@@ -116,7 +120,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -1241,12 +1246,51 @@ public class OpenBIS
         return asFacadeWithTransactions.createCodes(sessionToken, prefix, entityKind, count);
     }
 
-    public void executeImport(IImportData importData, ImportOptions importOptions) {
-        asFacadeWithTransactions.executeImport(sessionToken, importData, importOptions);
+    public ImportResult executeImport(ImportData importData, ImportOptions importOptions) {
+        return asFacadeWithTransactions.executeImport(sessionToken, importData, importOptions);
     }
 
     public ExportResult executeExport(ExportData exportData, ExportOptions exportOptions) {
         return asFacadeWithTransactions.executeExport(sessionToken, exportData, exportOptions);
+    }
+
+    public String uploadToSessionWorkspace(final Path fileOrFolder)
+    {
+        if (transactionId != null)
+        {
+            throw new IllegalStateException("AS session workspace SHOULD NOT be used during transactions.");
+        }
+
+        String uploadId = UUID.randomUUID().toString() + "/" + fileOrFolder.getFileName().toString();
+
+        try
+        {
+            HttpClient httpClient = JettyHttpClientFactory.getHttpClient();
+
+            MultiPartContentProvider multiPart = new MultiPartContentProvider();
+            multiPart.addFieldPart("sessionKeysNumber", new StringContentProvider("1"), null);
+            multiPart.addFieldPart("sessionKey_0", new StringContentProvider("openbis-file-upload"), null);
+            multiPart.addFilePart("openbis-file-upload", uploadId, new PathContentProvider(fileOrFolder), null);
+            multiPart.addFieldPart("keepOriginalFileName", new StringContentProvider("True"), null);
+            multiPart.addFieldPart("sessionID", new StringContentProvider(this.sessionToken), null);
+            multiPart.close();
+
+            ContentResponse response = httpClient.newRequest(this.asURL + "/upload")
+                    .method(HttpMethod.POST)
+                    .content(multiPart)
+                    .send();
+
+            final int status = response.getStatus();
+            if (status != 200)
+            {
+                throw new IOException(response.getContentAsString());
+            }
+        } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return uploadId;
     }
 
     //
@@ -1624,6 +1668,7 @@ public class OpenBIS
 
     public void setSessionToken(final String sessionToken)
     {
+        checkTransactionDoesNotExist();
         this.sessionToken = sessionToken;
 
         if(afsClientNoTransactions != null)

@@ -90,19 +90,11 @@ class DocumentBuilder
         }
     }
 
-    public void addTitle(final String title)
+    public void addHeader(final String header, final int level)
     {
         if (!closed)
         {
-            doc.append("<h1>").append(title).append("</h1>");
-        }
-    }
-
-    public void addHeader(final String header)
-    {
-        if (!closed)
-        {
-            doc.append("<h2>").append(header).append("</h2>");
+            doc.append("<h").append(level).append(">").append(header).append("</h").append(level).append(">");
         }
     }
 

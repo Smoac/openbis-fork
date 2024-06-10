@@ -145,6 +145,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Map<String, String> metaData;
 
+    private boolean afsData;
+
     @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentDataSet")
     @Fetch(FetchMode.SUBSELECT)
@@ -344,7 +346,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
-    @Generated(GenerationTime.ALWAYS)
+    @Generated(GenerationTime.INSERT)
     public Date getRegistrationDate()
     {
         return HibernateAbstractRegistrationHolder.getDate(registrationDate);
@@ -618,7 +620,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
-    @Generated(GenerationTime.ALWAYS)
+    @Generated(GenerationTime.INSERT)
     public Date getAccessDate()
     {
         return accessDate;
@@ -1055,4 +1057,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.metaData = metaData;
     }
 
+    @Column(name = "afs_data")
+    public boolean isAfsData()
+    {
+        return afsData;
+    }
+
+    public void setAfsData(final boolean afsData)
+    {
+        this.afsData = afsData;
+    }
 }

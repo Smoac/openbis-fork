@@ -53,7 +53,7 @@ public class ImportSpacesTest extends AbstractImportTest
     public void setupClass() throws IOException
     {
         String f = ImportSpacesTest.class.getName().replace(".", "/");
-        FILES_DIR = f.substring(0, f.length() - ImportSpacesTest.class.getSimpleName().length()) + "/test_files/";
+        FILES_DIR = f.substring(0, f.length() - ImportSpacesTest.class.getSimpleName().length()) + "test_files/";
     }
 
     @Test
@@ -61,7 +61,8 @@ public class ImportSpacesTest extends AbstractImportTest
     public void testNormalSpacesAreCreated() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
         // WHEN
         Space rawData = TestUtils.getSpace(v3api, sessionToken, "TEST_SPACE");
         // THEN
@@ -74,7 +75,8 @@ public class ImportSpacesTest extends AbstractImportTest
     public void testNormalSpacesAreCreatedSecondSpace() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
         // WHEN
         Space space = TestUtils.getSpace(v3api, sessionToken, "TEST_SPACE2");
         // THEN
@@ -82,17 +84,19 @@ public class ImportSpacesTest extends AbstractImportTest
         assertEquals(space.getDescription(), "TEST desc");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Code' is missing.*")
     public void shouldThrowExceptionIfNoSpaceCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACES_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header 'Description' is missing.*")
     @DirtiesContext
     public void shouldCreateSpaceWhenNoDescription() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_NO_DESCRIPTION)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACES_NO_DESCRIPTION));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
 }

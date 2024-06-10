@@ -464,6 +464,7 @@ Event Sort Options
 Event Tech Id
 Event Type
 Event Type Search Criteria
+EXCEL
 exec
 execute Aggregation Service
 Execute Aggregation Service Operation
@@ -909,6 +910,7 @@ getIgnoreVersioning
 getImportData
 getImportMode
 getImportOptions
+getImportResult
 getImportValues
 getInitialValueForExistingEntities
 getInputs
@@ -1051,6 +1053,7 @@ getSessionInformation
 GetSessionInformationOperation
 GetSessionInformationOperationResult
 getSessionName
+getSessionWorkspaceFiles
 getSetting
 getShareId
 getSize
@@ -1282,7 +1285,6 @@ IExternalDmsId
 IFileFormatTypeId
 IGNORE_EXISTING
 IIdentifierHolder
-IImportData
 ILocatorTypeId
 ImagingDataSetConfig
 ImagingDataSetControl
@@ -1300,8 +1302,7 @@ ImportModes
 ImportOperation
 ImportOperationResult
 ImportOptions
-ImportScript
-ImportValue
+ImportResult
 indent
 indexOf
 INSTANCE
@@ -2182,6 +2183,7 @@ setIgnoreVersioning
 setImportData
 setImportMode
 setImportOptions
+setImportResult
 setImportValues
 setInitialValueForExistingEntities
 setInputs
@@ -2235,6 +2237,7 @@ setNegated
 setNotification
 setNotificationOptions
 setObjectId
+setObjectIds
 setOfficial
 setOpenbis
 setOpenBIS
@@ -2300,6 +2303,7 @@ setSemanticAnnotationId
 setSemanticAnnotations
 setSemanticAnnotationsInherited
 setSessionName
+setSessionWorkspaceFiles
 setShareId
 setShow
 setShowContainer
@@ -2495,7 +2499,6 @@ UNARCHIVE_PENDING
 UnarchiveDataSetsOperation
 UnarchiveDataSetsOperationResult
 UnauthorizedObjectAccessException
-UncompressedImportData
 UNDEFINED
 UNIQUE_SUBCODES
 UNKNOWN
@@ -2903,8 +2906,9 @@ XlsTextFormat
 XLSX
 XML
 YES
-ZipImportData
 I Transaction Coordinator Api
 I Transaction Participant Api
 APPLICATION_SERVER_PARTICIPANT_ID
 AFS_SERVER_PARTICIPANT_ID
+is Afs Data
+set Afs Data

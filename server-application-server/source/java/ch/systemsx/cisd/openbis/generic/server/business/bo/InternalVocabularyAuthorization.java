@@ -64,10 +64,10 @@ public class InternalVocabularyAuthorization
 
     private void checkTerm(Session session, VocabularyPE vocabulary, VocabularyTermPE term)
     {
-        if (vocabulary.isManagedInternally() && isSystemTerm(term) && isSystemUser(session) == false)
+        if (vocabulary.isManagedInternally() && term.isManagedInternally() && isSystemUser(session) == false)
         {
             throw new AuthorizationFailureException(
-                    "Terms created by the system user that belong to internal vocabularies can be managed only by the system user.");
+                    "Internal vocabulary terms can be managed only by the system user.");
         }
     }
 

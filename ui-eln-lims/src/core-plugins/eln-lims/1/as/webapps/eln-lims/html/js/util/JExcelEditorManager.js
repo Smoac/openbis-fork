@@ -20,6 +20,17 @@ var JExcelEditorManager = new function() {
                 // Save Editor
                 var headers = jExcelEditor.getHeaders(true);
                 var data = jExcelEditor.getData();
+                var values = jExcelEditor.getData();
+                // little hack because jExcelEditor.getData(false, true) is not returning processed results
+                for(let rowIndex in values) {
+                    values[rowIndex] = Object.values(values[rowIndex]).map((val, index) => {
+                        if(val.startsWith('=')) {
+                            var row = parseInt(rowIndex)+1;
+                            return jExcelEditor.getValue(headers[index] + row, true);
+                        }
+                        return val;
+                    });
+                }
                 var style = jExcelEditor.getStyle();
                 var meta = jExcelEditor.getMeta();
                 var width = jExcelEditor.getWidth();
@@ -28,7 +39,8 @@ var JExcelEditorManager = new function() {
                     data : data,
                     style : style,
                     meta : meta,
-                    width : width
+                    width : width,
+                    values : values
                 }
                 entity.properties[propertyCode] = "<DATA>" + window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(jExcelEditorValue)))) + "</DATA>";
             }

@@ -16,8 +16,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.transformation = null;
 		prototype.metaData = null;
 		prototype.multiValue = null;
-		prototype.pattern = null;
-		prototype.patternType = null;
+
 
 		prototype.getCode = function() {
 			return this.code;
@@ -97,18 +96,7 @@ define([ "stjs" ], function(stjs) {
         prototype.setMultiValue = function(multiValue) {
             this.multiValue = multiValue;
         };
-        prototype.getPattern = function() {
-            return this.pattern;
-        };
-        prototype.setPattern = function(pattern) {
-            this.pattern = pattern;
-        };
-        prototype.getPatternType = function() {
-            return this.patternType;
-        };
-        prototype.setPatternType = function(patternType) {
-            this.patternType = patternType;
-        };
+
 	}, {
 		dataType : "DataType",
 		vocabularyId : "IVocabularyId",

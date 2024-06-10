@@ -199,7 +199,17 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
           ...newProperty.sampleType,
           enabled: !newExisting
         },
-        assignments: propertyAssignments
+        assignments: propertyAssignments,
+        pattern: {
+          ...newProperty.pattern,
+          enabled:
+            true
+        },
+        patternType: {
+          ...newProperty.patternType,
+          enabled:
+            true
+        },
       })
 
       newProperty.originalGlobal = newExisting ? _.cloneDeep(newProperty) : null

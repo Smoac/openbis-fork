@@ -3345,7 +3345,7 @@ The "two-phase commit" transactions can be used with both Java and JavaScript AP
     OpenBIS openBIS =
             new OpenBIS("http://localhost:8888/openbis/openbis", 
             "http://localhost:8889/datastore_server",
-            "http://localhost:8085/data-store-server",
+            "http://localhost:8085/afs-server",
             3600 * 1000);
 
     try
@@ -3391,7 +3391,7 @@ The "two-phase commit" transactions can be used with both Java and JavaScript AP
 
 IMPORTANT: by default the "two-phase commit" transactions are disabled.
 
-The "two-phase commit" transactions are configured in AS (Application Server) "service.properties" file. If AFS (Atomic File Server) is also to be used within the transactions, then "apiServerInteractiveSessionKey" and "apiServerTransactionManagerKey" properties need to be set in "server-data-store-config.properties" AFS configuration file.
+The "two-phase commit" transactions are configured in AS (Application Server) "service.properties" file. If AFS (Atomic File Server) is also to be used within the transactions, then "apiServerInteractiveSessionKey" and "apiServerTransactionManagerKey" properties need to be set in "service.properties" AFS configuration file.
 
 Basic AS configuration (service.properties):
 
@@ -3428,15 +3428,15 @@ api.v3.transaction.participant.application-server.url = https://localhost:8443
 # A timeout in seconds for the application server operations. Default: 3600
 # api.v3.transaction.participant.application-server.timeout =
 
-# An url of the afs server that participates in the two phase commit (e.g. http://localhost:8085/data-store-server)
-api.v3.transaction.participant.afs-server.url = http://localhost:8085/data-store-server
+# An url of the afs server that participates in the two phase commit (e.g. http://localhost:8085/afs-server)
+api.v3.transaction.participant.afs-server.url = http://localhost:8085/afs-server
 
 # A timeout in seconds for the afs server operations. Default: 3600
 # api.v3.transaction.participant.afs-server.timeout =
 
 ```
 
-Basic AFS configuration (server-data-store-config.properties)
+Basic AFS configuration (service.properties)
 
 ```properties
 

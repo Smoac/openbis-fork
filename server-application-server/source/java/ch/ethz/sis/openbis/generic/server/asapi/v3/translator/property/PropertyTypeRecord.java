@@ -44,10 +44,4 @@ public class PropertyTypeRecord extends ObjectBaseRecord
 
     public Boolean is_multi_value;
 
-    public String pattern;
-
-    public String pattern_type;
-
-    public String pattern_regex;
-
 }

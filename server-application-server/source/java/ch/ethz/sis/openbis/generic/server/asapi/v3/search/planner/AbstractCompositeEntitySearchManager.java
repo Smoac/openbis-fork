@@ -18,8 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.relationship.IGetRelationshipIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
@@ -107,7 +105,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         {
             final Set<Long> finalParentIds = findFinalRelationshipIds(userId, authorisationInformation,
                     finalSearchOperator, parentRelationshipsCriteria, tableMapper);
-            final Set<Long> finalParentIdsFiltered = filterIDsByUserRights(userId, authorisationInformation,
+            final Set<Long> finalParentIdsFiltered = filterIDsByUserRights(authorisationInformation,
                     finalParentIds);
             parentCriteriaIntermediateResults = getChildrenIdsOf(finalParentIdsFiltered, tableMapper,
                     IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD);
@@ -121,7 +119,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         {
             final Set<Long> finalContainerIds = findFinalRelationshipIds(userId, authorisationInformation,
                     finalSearchOperator, containerCriteria, tableMapper);
-            final Set<Long> finalContainerIdsFiltered = filterIDsByUserRights(userId, authorisationInformation,
+            final Set<Long> finalContainerIdsFiltered = filterIDsByUserRights(authorisationInformation,
                     finalContainerIds);
             containerCriteriaIntermediateResults = getChildrenIdsOf(finalContainerIdsFiltered, tableMapper,
                     IGetRelationshipIdExecutor.RelationshipType.CONTAINER_COMPONENT);
@@ -135,7 +133,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         {
             final Set<Long> finalChildrenIds = findFinalRelationshipIds(userId, authorisationInformation,
                     finalSearchOperator, childRelationshipsCriteria, tableMapper);
-            final Set<Long> finalChildrenIdsFiltered = filterIDsByUserRights(userId,
+            final Set<Long> finalChildrenIdsFiltered = filterIDsByUserRights(
                     authorisationInformation, finalChildrenIds);
             childrenCriteriaIntermediateResults = getParentsIdsOf(finalChildrenIdsFiltered, tableMapper,
                     IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD);
@@ -185,7 +183,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
             results = Collections.emptySet();
         }
 
-        return filterIDsByUserRights(userId, authorisationInformation, results);
+        return filterIDsByUserRights(authorisationInformation, results);
     }
 
     /**

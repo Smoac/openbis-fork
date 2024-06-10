@@ -39,4 +39,6 @@ public class DataSetTypeBaseRecord extends ObjectBaseRecord
 
     public String metaData;
 
+    public boolean managedInternally;
+
 }
