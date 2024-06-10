@@ -1,42 +1,56 @@
 package ch.ethz.sis.rdf.main.mappers;
 
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.UnionClass;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
-
-import java.io.FileNotFoundException;
 import java.util.*;
 
-public class ObjectPropertyMapper
-{
-    public static Map<String, List<String>> toObjects(OntModel model){
+/**
+ * Utility class for mapping object properties to their ranges in an ontology model.
+ */
+public class ObjectPropertyMapper {
+
+    /**
+     * Maps object properties to their respective ranges in the given ontology model.
+     *
+     * @param model the ontology model to process
+     * @return a map where keys are URIs of object properties and values are lists of URIs representing the ranges
+     *
+     * Example:
+     *      https://biomedit.ch/rdf/sphn-schema/sphn#hasOriginLocation --> [https://biomedit.ch/rdf/sphn-schema/sphn#Location]
+     *      https://biomedit.ch/rdf/sphn-schema/sphn#hasDrug --> [https://biomedit.ch/rdf/sphn-schema/sphn#Drug]
+     */
+    public static Map<String, List<String>> toObjects(OntModel model) {
         Map<String, List<String>> mappedObjectProperty = new HashMap<>();
+
         model.listObjectProperties().forEachRemaining(property -> {
             if (property.isURIResource()) {
                 Resource range = property.getRange();
                 if (range != null) {
+                    List<String> objectPropertyRange = new ArrayList<>();
+
                     if (range.canAs(UnionClass.class)) {
-                        UnionClass unionRange = range.as(UnionClass.class);
-                        List<String> objectPropertyRange = new ArrayList<>();
-                        // Process each member of the union eg.
+                        // If the range is a union class, process each operand
                         // rdfs:range [ a owl:Class ;
                         //            owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                        UnionClass unionRange = range.as(UnionClass.class);
                         unionRange.listOperands().forEachRemaining(operand -> {
                             if (operand.isURIResource()) {
                                 objectPropertyRange.add(operand.getURI());
                             }
                         });
+                    } else if (range.isURIResource()) {
+                        // If the range is a single URI resource
+                        objectPropertyRange.add(range.getURI());
+                    }
+
+                    if (!objectPropertyRange.isEmpty()) {
                         mappedObjectProperty.put(property.getURI(), objectPropertyRange);
-                        //System.out.println(property.getURI() + " range includes: " + objectPropertyRange);
-                    } else {
-                        mappedObjectProperty.put(property.getURI(), Collections.singletonList(range.getURI()));
-                        //System.out.println(property.getURI() + " range mapped to: " + range.getURI());
                     }
                 }
             }
         });
+
         return mappedObjectProperty;
     }
 }

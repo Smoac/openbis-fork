@@ -3,10 +3,12 @@ package ch.ethz.sis.rdf.main.mappers;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.UnionClass;
+import java.util.*;
 import org.apache.jena.rdf.model.Resource;
 
-import java.util.*;
-
+/**
+ * Utility class for mapping datatype properties to openBIS data types in an ontology model.
+ */
 public class DatatypeMapper {
     private static final Map<String, String> datatypeMappings = new HashMap<>();
 
@@ -18,39 +20,52 @@ public class DatatypeMapper {
         //datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), "MONTH");
         //datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), "YEAR");
         //datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIME");
-        datatypeMappings.put(XSDDatatype.XSDdateTime.getURI(), "TIMESTAMP");
         datatypeMappings.put(XSDDatatype.XSDstring.getURI(), "VARCHAR");
         datatypeMappings.put(XSDDatatype.XSDdouble.getURI(), "REAL");
+        datatypeMappings.put(XSDDatatype.XSDdateTime.getURI(), "TIMESTAMP");
         datatypeMappings.put(XSDDatatype.XSDgDay.getURI(), "INTEGER");
         datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), "INTEGER");
         datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), "INTEGER");
         datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIMESTAMP");
     }
 
-    public static Map<String, List<String>> toOpenBISDataTypes(OntModel model){
+    /**
+     * Maps datatype properties to their respective openBIS data types in the given ontology model.
+     *
+     * @param model the ontology model to process
+     * @return a map where keys are URIs of datatype properties and values are lists of strings representing the openBIS data types
+     *
+     * Example:
+     *      https://biomedit.ch/rdf/sphn-schema/sphn#hasCollectionDateTime --> [TIMESTAMP]
+     *      https://biomedit.ch/rdf/sphn-schema/sphn#hasTemplateIdentifier --> [VARCHAR]
+     *      https://biomedit.ch/rdf/sphn-schema/sphn#hasMonth --> [INTEGER]
+     */
+    public static Map<String, List<String>> toOpenBISDataTypes(OntModel model) {
         Map<String, List<String>> mappedDataTypes = new HashMap<>();
+
         model.listDatatypeProperties().forEachRemaining(property -> {
             if (property.isURIResource()) {
                 Resource range = property.getRange();
                 if (range != null) {
+                    List<String> openBISDataTypeRange = new ArrayList<>();
+
                     if (range.canAs(UnionClass.class)) {
-                        UnionClass unionRange = range.as(UnionClass.class);
-                        List<String> openBISDataTypeRange = new ArrayList<>();
-                        // Process each member of the union eg.
+                        // If the range is a union class, process each operand
                         // rdfs:range [ a rdfs:Datatype ;
                         //            owl:unionOf ( xsd:double xsd:string ) ] ;
+                        UnionClass unionRange = range.as(UnionClass.class);
                         unionRange.listOperands().forEachRemaining(operand -> {
                             if (operand.isURIResource()) {
                                 openBISDataTypeRange.add(datatypeMappings.getOrDefault(operand.getURI(), "UNKNOWN"));
                             }
                         });
+                    } else if (range.isURIResource()) {
+                        // If the range is a single URI resource
+                        openBISDataTypeRange.add(datatypeMappings.getOrDefault(range.getURI(), "UNKNOWN"));
+                    }
+
+                    if (!openBISDataTypeRange.isEmpty()) {
                         mappedDataTypes.put(property.getURI(), openBISDataTypeRange);
-                        //System.out.println(property.getURI() + " range includes: " + openBISDataTypeRange);
-                    } else {
-                        // Map the range URI to a openBIS type, if available
-                        String openBISDataType = datatypeMappings.getOrDefault(range.getURI(), "UNKNOWN");
-                        //System.out.println(property.getURI() + " range mapped to: " + openBISDataType);
-                        mappedDataTypes.put(property.getURI(), Collections.singletonList(openBISDataType));
                     }
                 }
             }
