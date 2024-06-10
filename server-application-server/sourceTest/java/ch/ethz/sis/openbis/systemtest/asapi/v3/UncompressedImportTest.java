@@ -204,7 +204,7 @@ public class UncompressedImportTest extends AbstractImportTest
         final Plugin validationPlugin = sampleType.getValidationPlugin();
         final String validationPluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(validationPlugin.getName(), sampleType.getCode() + "." + validationPluginBareName);
+        assertEquals(validationPlugin.getName(), validationPluginBareName);
         assertEquals(validationPlugin.getScript(), source);
     }
 
@@ -239,7 +239,7 @@ public class UncompressedImportTest extends AbstractImportTest
 
         final String pluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
+        assertEquals(plugin.getName(), pluginBareName);
         assertEquals(plugin.getScript(), source);
     }
 
