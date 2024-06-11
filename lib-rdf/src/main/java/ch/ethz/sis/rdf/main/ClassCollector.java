@@ -1,37 +1,46 @@
 package ch.ethz.sis.rdf.main;
 
-import ch.ethz.sis.rdf.main.mappers.OntClassObject;
+import ch.ethz.sis.rdf.main.entity.OntClassObject;
+import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
 
 public class ClassCollector {
 
     private static void parseRestriction(Restriction restriction, OntClassObject ontClassObject) {
-        if (restriction.isCardinalityRestriction()) {
-            ontClassObject.addRestriction(restriction.getOnProperty(), restriction.asCardinalityRestriction());
-            //System.out.println("   - Cardinality Restriction on " + restriction.getOnProperty().getURI() + " value: " + restriction.asCardinalityRestriction().getCardinality());
-        } else if (restriction.isMinCardinalityRestriction()) {
-            ontClassObject.addRestriction(restriction.getOnProperty(), restriction.asMinCardinalityRestriction());
-            //System.out.println("   - Min Cardinality Restriction on " + restriction.getOnProperty().getURI() + " value: " + restriction.asMinCardinalityRestriction().getMinCardinality());
-        } else if (restriction.isMaxCardinalityRestriction()) {
-            ontClassObject.addRestriction(restriction.getOnProperty(), restriction.asMaxCardinalityRestriction());
-            //System.out.println("   - Max Cardinality Restriction on " + restriction.getOnProperty().getURI() + " value: " + restriction.asMaxCardinalityRestriction().getMaxCardinality());
-        } else if (restriction.isSomeValuesFromRestriction()) {
-            SomeValuesFromRestriction svfRestriction = restriction.asSomeValuesFromRestriction();
-            ontClassObject.addRestriction(restriction.getOnProperty(), restriction.asSomeValuesFromRestriction());
-            //System.out.println("   - SomeValuesFrom Restriction on " + svfRestriction.getOnProperty().getURI());
-            parseSomeValuesFromRestriction(svfRestriction, ontClassObject);
-        } else if (restriction.isHasValueRestriction()) {
-            ontClassObject.addRestriction(restriction.getOnProperty(), restriction.asHasValueRestriction());
-            //System.out.println("   - HasValue Restriction on " + restriction.getOnProperty().getURI() + " with value: " + restriction.asHasValueRestriction().getHasValue());
-        } else if (restriction.isAllValuesFromRestriction()) {
-            ontClassObject.addRestriction(restriction.getOnProperty(), restriction.asAllValuesFromRestriction());
-            //System.out.println("   - AllValuesFrom Restriction on " + restriction.getOnProperty().getURI() + " with value: " + restriction.asAllValuesFromRestriction().getAllValuesFrom());
+        try {
+            if (restriction.isCardinalityRestriction()) {
+                addRestrictionSafely(ontClassObject, restriction.getOnProperty(), restriction.asCardinalityRestriction());
+            } else if (restriction.isMinCardinalityRestriction()) {
+                addRestrictionSafely(ontClassObject, restriction.getOnProperty(), restriction.asMinCardinalityRestriction());
+            } else if (restriction.isMaxCardinalityRestriction()) {
+                addRestrictionSafely(ontClassObject, restriction.getOnProperty(), restriction.asMaxCardinalityRestriction());
+            } else if (restriction.isSomeValuesFromRestriction()) {
+                SomeValuesFromRestriction svfRestriction = restriction.asSomeValuesFromRestriction();
+                addRestrictionSafely(ontClassObject, restriction.getOnProperty(), svfRestriction);
+                parseSomeValuesFromRestriction(svfRestriction, ontClassObject);
+            } else if (restriction.isHasValueRestriction()) {
+                addRestrictionSafely(ontClassObject, restriction.getOnProperty(), restriction.asHasValueRestriction());
+            } else if (restriction.isAllValuesFromRestriction()) {
+                addRestrictionSafely(ontClassObject, restriction.getOnProperty(), restriction.asAllValuesFromRestriction());
+            } else {
+                throw new ConversionException("Unknown restriction type: " + restriction.getClass().getName());
+            }
+        } catch (ConversionException e) {
+            System.err.println("ConversionException: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Exception: " + e.getMessage());
+        }
+    }
+
+    private static void addRestrictionSafely(OntClassObject ontClassObject, Property onProperty, Restriction restriction) {
+        if (onProperty.canAs(OntProperty.class)) {
+            ontClassObject.addRestriction(onProperty.as(OntProperty.class), restriction);
         } else {
-            throw new ConversionException("Unknown restriction type: " + restriction.getClass().getName());
-            //System.out.println("   - Other Restriction: " + restriction);
+            System.err.println("Cannot convert node " + onProperty + " to OntProperty");
         }
     }
 
@@ -116,7 +125,72 @@ public class ClassCollector {
         }
     }
 
-    public static Map<OntClass, OntClassObject> collectClassDetails(OntModel model){
+    private static void collectInstances(OntClass cls, OntClassObject classDetail){
+        cls.listInstances().forEach(instance -> {
+            if (instance.isAnon()) {
+                classDetail.instances.add(instance.getURI());
+            }
+        });
+    }
+
+    private static void collectProperties(OntModel model, OntClass cls, OntClassObject classDetail) {
+        if (!cls.isAnon()) { // Exclude anonymous classes for intersectionOf
+            // Find all properties where the class is the domain
+            StmtIterator propIterator = model.listStatements(null, RDFS.domain, (RDFNode) null);
+            while (propIterator.hasNext()) {
+                Statement stmt = propIterator.nextStatement();
+                Property prop = stmt.getSubject().as(Property.class);
+                Resource domain = stmt.getObject().asResource();
+
+                if (isClassInDomain(cls, domain)) {
+                    // Find the range of the property
+                    StmtIterator rangeIterator = model.listStatements(prop, RDFS.range, (RDFNode) null);
+                    while (rangeIterator.hasNext()) {
+                        Statement rangeStmt = rangeIterator.nextStatement();
+                        Resource range = rangeStmt.getObject().asResource();
+                        if (range.canAs(UnionClass.class)) {
+                            // If the range is a union class, process each operand
+                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "ANY"));
+                            /*// If the range is a union class, process each operand
+                            // To add multi ranged properties like hasCode [CODE] and hasCode [TERMINOLOGY]
+                            UnionClass unionRange = range.as(UnionClass.class);
+                            unionRange.listOperands().forEachRemaining(operand -> {
+                                if (operand.isURIResource()) {
+                                    classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), operand.getLocalName().toUpperCase(Locale.ROOT)));
+                                } else {
+                                    classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "UNKNOWN"));
+                                }
+                            });*/
+                        } else if (range.isURIResource()) {
+                            // If the range is a single URI resource
+                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), range.getLocalName().toUpperCase(Locale.ROOT)));
+                        } else {
+                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "UNKNOWN"));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the given class is included in the domain of a property.
+     *
+     * @param cls the class to check
+     * @param domain the domain of the property
+     * @return true if the class is in the domain, false otherwise
+     */
+    private static boolean isClassInDomain(OntClass cls, Resource domain) {
+        if (domain.equals(cls)) {
+            return true;
+        } else if (domain.canAs(UnionClass.class)) {
+            UnionClass unionClass = domain.as(UnionClass.class);
+            return unionClass.listOperands().toList().contains(cls);
+        }
+        return false;
+    }
+
+    public static Map<String, OntClassObject> collectClassDetails(OntModel model){
         Map<OntClass, OntClassObject> classDetailsMap = new HashMap<>();
 
         model.listClasses().forEachRemaining(cls -> {
@@ -126,20 +200,35 @@ public class ClassCollector {
         });
 
         classDetailsMap.forEach((cls, classDetail) -> {
+            collectProperties(model, cls, classDetail);
+            collectInstances(cls, classDetail);
             //System.out.println("*** Class: " + cls);
-            cls.listSuperClasses().forEachRemaining((superClass)-> {
-                // Check if the superclass is an anonymous class
-                if (superClass.isAnon()) {
-                    // Now, handle different types of anonymous superclasses
-                    parseAnonymousClass(superClass, classDetail);
-                } else {
-                    //System.out.println("* Not-Anon superCLass: " + superClass);
-                    classDetail.setSuperClass(superClass);
+            cls.listSuperClasses().forEachRemaining((superClass) -> {
+                try {
+                    // Check if the superclass is an anonymous class
+                    if (superClass.isAnon()) {
+                        // Now, handle different types of anonymous superclasses
+                        parseAnonymousClass(superClass.as(OntClass.class), classDetail);
+                    } else {
+                        // Check if the superClass can be cast to OntClass
+                        if (superClass.canAs(OntClass.class)) {
+                            OntClass superOntClass = superClass.as(OntClass.class);
+                            //System.out.println("* Not-Anon superClass: " + superOntClass);
+                            classDetail.setSuperClass(superOntClass);
+                        } else {
+                            System.err.println("Cannot convert node " + superClass + " to OntClass");
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error handling superClass " + superClass + ": " + e.getMessage());
                 }
             });
         });
 
-        return classDetailsMap;
+        Map<String, OntClassObject> classDetailsMapS = new HashMap<>();
+        classDetailsMap.forEach((key, value) -> classDetailsMapS.put(key.getURI(), value));
+
+        return classDetailsMapS;
     }
 
    /* private static void processDomain(RDFNode domain, OntProperty property, Map<OntClass, ClassDetails> classDetailsMap, OntModel model) {

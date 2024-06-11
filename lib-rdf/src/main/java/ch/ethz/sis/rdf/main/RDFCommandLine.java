@@ -1,25 +1,25 @@
 package ch.ethz.sis.rdf.main;
 
-import ch.ethz.sis.rdf.main.mappers.OntClassObject;
-import org.apache.commons.cli.*;
-import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
+import ch.ethz.sis.rdf.main.xlsx.ExcelHandler;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
-import java.io.*;
+import java.io.Console;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
-
-import static ch.ethz.sis.rdf.main.ClassCollector.collectClassDetails;
 
 public class RDFCommandLine {
 
-    public static void main(String[] args)
-    {
-        Options options = createOptions();
+    private static final String asURL = "http://localhost:8888/openbis/openbis";
+
+    private static final String dssURL = "http://localhost:8889/datastore_server";
+
+    public static void main(String[] args) {
+        //handleXlsxOutput("TTL", "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/sphn_rdf_schema_with_data.ttl","/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx");
+        handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/sphn_rdf_schema_with_data.ttl",
+                asURL, dssURL, "admin", "changeit");
+        /*Options options = createOptions();
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -43,11 +43,10 @@ public class RDFCommandLine {
             System.exit(1);
         } catch (IOException e) {
             System.out.println(e.getMessage());
-        }
+        }*/
     }
 
-    private static Options createOptions()
-    {
+    private static Options createOptions() {
         Options options = new Options();
 
         Option input = Option.builder("i")
@@ -84,8 +83,7 @@ public class RDFCommandLine {
         return options;
     }
 
-    private static String getPassword(CommandLine cmd)
-    {
+    private static String getPassword(CommandLine cmd) {
         char[] password = null;
         if (cmd.hasOption("password"))
         {
@@ -103,8 +101,7 @@ public class RDFCommandLine {
         return String.valueOf(password);
     }
 
-    private static void validateAndExecute(CommandLine cmd) throws IOException
-    {
+    private static void validateAndExecute(CommandLine cmd) throws IOException {
         String inputFormatValue = cmd.getOptionValue("input");
         String outputFormatValue = cmd.getOptionValue("output");
         String inputFilePath = null;
@@ -165,36 +162,39 @@ public class RDFCommandLine {
         }
     }
 
-    private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath) throws IOException
-    {
+    private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath) {
         System.out.println("Creating Ontology Model...");
 
-        OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+        /*OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
 
         if (inputFormatValue.equals("TTL")) {
             //model.read(inputFilePath, "TURTLE");
             RDFDataMgr.read(model, inputFilePath, Lang.TTL);
         } else {
             throw new IllegalArgumentException("Unsupported input format: " + inputFormatValue);
-        }
+        }*/
 
+        RDFParser rdfParser = new RDFParser(inputFilePath, inputFormatValue);
         // Collect and map all RDF classes in JAVA obj
         System.out.println("Collecting RDF classes...");
-        Map<OntClass, OntClassObject> classDetailsMap = collectClassDetails(model);
+        //Map<OntClass, OntClassObject> classDetailsMap = collectClassDetails(model);
 
         // Write model to an Excel file (apache POI dependency)
         System.out.println("Writing XLSX file...");
-        ExcelWriter.createExcelFile(model, classDetailsMap.values(), outputFilePath);
+        ExcelHandler excelHandler = new ExcelHandler();
+        excelHandler.createExcelFile(rdfParser, outputFilePath);
+
+        //ExcelWriter.createExcelFile(model, rdfParser.classDetailsMap.values(), outputFilePath);
 
         System.out.println("XLSX created successfully!");
     }
 
-    private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String username, String password)
-            throws IOException
-    {
-        //String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
-        Path tempFile = Utils.createTemporaryFile();
-        String tempFileOutput = tempFile.toString();
+    private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String username, String password) {
+        // TODO remove hardcoded path
+        String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
+        Path tempFile = Path.of(tempFileOutput);
+        //Path tempFile = Utils.createTemporaryFile();
+        //String tempFileOutput = tempFile.toString();
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
         handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput);
 
@@ -205,12 +205,12 @@ public class RDFCommandLine {
     }
 
     private static void handleOpenBISDevOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String openBISDSSURL,
-            String username, String password)
-            throws IOException
-    {
-        //String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
-        Path tempFile = Utils.createTemporaryFile();
-        String tempFileOutput = tempFile.toString();
+            String username, String password) {
+        // TODO remove hardcoded path
+        String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
+        Path tempFile = Path.of(tempFileOutput);
+        //Path tempFile = Utils.createTemporaryFile();
+        //String tempFileOutput = tempFile.toString();
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
         handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput);
 
