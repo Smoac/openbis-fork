@@ -33,6 +33,8 @@ public class GlobalInstallationContext
 
     public static final String ETL_SERVER_PASSWORD_VARNAME = "ETLSERVER_PASSWORD";
 
+    public static final String AFS_SERVER_PASSWORD_VARNAME = "AFSSERVER_PASSWORD";
+
     public static final String KEY_STORE_FILE_VARNAME = "KEY_STORE_FILE";
 
     public static final String KEY_STORE_PASSWORD_VARNAME = "KEY_STORE_PASSWORD";
@@ -151,6 +153,8 @@ public class GlobalInstallationContext
     private static void populateFirstTimeInstallVariables(AutomatedInstallData data)
     {
         data.setVariable(ETL_SERVER_PASSWORD_VARNAME,
+                new PasswordGenerator(true).generatePassword());
+        data.setVariable(AFS_SERVER_PASSWORD_VARNAME,
                 new PasswordGenerator(true).generatePassword());
     }
 
