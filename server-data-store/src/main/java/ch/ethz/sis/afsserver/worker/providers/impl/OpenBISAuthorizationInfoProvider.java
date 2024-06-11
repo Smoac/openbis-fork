@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.shared.io.FilePermission;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
@@ -56,29 +57,40 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
 
     private String storageUuid;
 
-    private String[] storageShares;
+    private Integer[] storageShares;
 
-    private String storageIncomingShareId;
+    private Integer storageIncomingShareId;
+
+    private String openBISUser;
 
     private IApplicationServerApi applicationServerApi;
 
     @Override
-    public void init(Configuration initParameter) throws Exception
+    public void init(Configuration configuration) throws Exception
     {
-        storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(initParameter);
-        storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
+        storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
+        storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(configuration);
         storageShares = IOUtils.getShares(storageRoot);
         if (storageShares.length == 0)
         {
             throw AFSExceptions.NoSharesFound.getInstance();
         }
-        storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(initParameter);
-        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
+        storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(configuration);
+        openBISUser = AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration);
+        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(configuration);
     }
 
     @Override
     public boolean doesSessionHaveRights(WorkerContext workerContext, String owner, Set<FilePermission> permissions)
     {
+        final SessionInformation sessionInformation = applicationServerApi.getSessionInformation(workerContext.getSessionToken());
+
+        if (sessionInformation != null && sessionInformation.getPerson().getUserId().equals(openBISUser))
+        {
+            // internal AFS server user has rights to everything
+            return true;
+        }
+
         String ownerShare = null;
         ObjectPermId ownerPermId = null;
         Set<FilePermission> ownerSupportedPermissions = null;
@@ -233,9 +245,9 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             return createOwnerPath(ownerShare, storageUuid, shards, ownerPermId.getPermId());
         } else
         {
-            for (String share : storageShares)
+            for (Integer share : storageShares)
             {
-                String potentialOwnerPath = createOwnerPath(share, storageUuid, shards, ownerPermId.getPermId());
+                String potentialOwnerPath = createOwnerPath(share.toString(), storageUuid, shards, ownerPermId.getPermId());
 
                 if (Files.exists(Paths.get(storageRoot, potentialOwnerPath)))
                 {
@@ -243,7 +255,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
                 }
             }
 
-            return createOwnerPath(storageIncomingShareId, storageUuid, shards, ownerPermId.getPermId());
+            return createOwnerPath(storageIncomingShareId.toString(), storageUuid, shards, ownerPermId.getPermId());
         }
     }
 

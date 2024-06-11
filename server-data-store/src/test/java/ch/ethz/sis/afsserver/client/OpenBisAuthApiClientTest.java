@@ -40,8 +40,6 @@ import ch.ethz.sis.afsapi.dto.ExceptionReason;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.exception.ThrowableReason;
 import ch.ethz.sis.afsserver.server.Server;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
@@ -120,14 +118,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         final Configuration configuration =
                 new Configuration(List.of(AtomicFileSystemServerParameter.class),
                         "src/test/resources/test-server-with-auth-config.properties");
-        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
-
-        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
-        if (apiServerObserver == null)
-        {
-            apiServerObserver = new DummyServerObserver();
-        }
-
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
@@ -140,7 +130,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         IOUtils.createDirectories(storageRoot + "/" + SHARE_2);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_3);
 
-        afsServer = new Server<>(configuration, dummyServerObserver, apiServerObserver);
+        afsServer = new Server<>(configuration);
     }
 
     @Before
@@ -843,6 +833,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                 case "getRights":
                     Object param = ((List<?>) methodArguments[1]).get(0);
                     return Map.of(param, new Rights(Set.of(Right.UPDATE)));
+                case "getSessionInformation":
+                    return null;
             }
 
             throw new UnsupportedOperationException(methodName, methodArguments);

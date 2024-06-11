@@ -1,299 +1,240 @@
 package ch.ethz.sis.afsserver.server.observer.impl;
 
-import java.nio.file.NoSuchFileException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import ch.ethz.sis.afs.dto.operation.CopyOperation;
-import ch.ethz.sis.afs.dto.operation.CreateOperation;
-import ch.ethz.sis.afs.dto.operation.MoveOperation;
-import ch.ethz.sis.afs.dto.operation.Operation;
-import ch.ethz.sis.afs.dto.operation.WriteOperation;
 import ch.ethz.sis.afs.manager.TransactionConnection;
-import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsserver.server.APIServer;
-import ch.ethz.sis.afsserver.server.Request;
-import ch.ethz.sis.afsserver.server.Worker;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
+import ch.ethz.sis.afsserver.server.APIServerException;
+import ch.ethz.sis.afsserver.server.impl.ApiRequest;
+import ch.ethz.sis.afsserver.server.impl.ApiResponse;
+import ch.ethz.sis.afsserver.server.impl.ApiResponseBuilder;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
+import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EventType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.id.EventTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
 import ch.ethz.sis.shared.io.IOUtils;
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import lombok.Value;
 
-public class OpenBISServerObserver implements ServerObserver<TransactionConnection>, APIServerObserver<TransactionConnection>
+public class OpenBISServerObserver implements ServerObserver<TransactionConnection>
 {
 
-    private String storageRoot;
+    private static final Logger logger = LogManager.getLogger(OpenBISServerObserver.class);
 
-    private String storageUuid;
+    private static final String THREAD_NAME = "openbis-server-observer-task";
 
-    private String storageIncomingShareId;
+    private static final int BATCH_SIZE = 1000;
+
+    private String openBISUser;
+
+    private String openBISPassword;
+
+    private String openBISLastSeenDeletionFile;
+
+    private Integer openBISLastSeenDeletionIntervalInSeconds;
 
     private IApplicationServerApi applicationServerApi;
 
-    @Override
-    public void init(Configuration initParameter) throws Exception
-    {
-        storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(initParameter);
-        storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
-        storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(initParameter);
-        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
-    }
+    private APIServer<TransactionConnection, ApiRequest, ApiResponse, ?> apiServer;
+
+    private JsonObjectMapper jsonObjectMapper;
 
     @Override
     public void init(APIServer<TransactionConnection, ?, ?, ?> apiServer, Configuration configuration) throws Exception
     {
-
+        this.openBISUser = AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration);
+        this.openBISPassword = AtomicFileSystemServerParameterUtil.getOpenBISPassword(configuration);
+        this.openBISLastSeenDeletionFile = AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionFile(configuration);
+        this.openBISLastSeenDeletionIntervalInSeconds =
+                AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionIntervalInSeconds(configuration);
+        this.applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(configuration);
+        this.apiServer = (APIServer<TransactionConnection, ApiRequest, ApiResponse, ?>) apiServer;
+        this.jsonObjectMapper = AtomicFileSystemServerParameterUtil.getJsonObjectMapper(configuration);
     }
 
     @Override
     public void beforeStartup() throws Exception
     {
-
+        new Timer(THREAD_NAME, true).schedule(new TimerTask()
+                                              {
+                                                  @Override public void run()
+                                                  {
+                                                      processApplicationServerDeletionEvents();
+                                                  }
+                                              },
+                0,
+                openBISLastSeenDeletionIntervalInSeconds * 1000L);
     }
 
     @Override
     public void beforeShutdown() throws Exception
     {
-
     }
 
-    @Override
-    public void beforeAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
+    private void processApplicationServerDeletionEvents()
     {
-        // handle only transactional calls
-        if (!worker.isInteractiveSessionMode())
+        while (true)
         {
-            return;
-        }
+            String sessionToken = null;
 
-        boolean isOnePhaseTransaction = !worker.isTransactionManagerMode();
-        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
-
-        if ((isOnePhaseTransaction && request.getMethod().equals("commit")) || (isTwoPhaseTransaction && request.getMethod().equals("prepare")))
-        {
-            List<String> paths = new ArrayList<>();
-
-            if (worker.getConnection().getTransaction().getOperations() != null)
-            {
-                for (Operation operation : worker.getConnection().getTransaction().getOperations())
-                {
-                    if (operation instanceof CreateOperation)
-                    {
-                        paths.add(((CreateOperation) operation).getSource());
-                    } else if (operation instanceof WriteOperation)
-                    {
-                        paths.add(((WriteOperation) operation).getSource());
-                    } else if (operation instanceof CopyOperation)
-                    {
-                        paths.add(((CopyOperation) operation).getTarget());
-                    } else if (operation instanceof MoveOperation)
-                    {
-                        paths.add(((MoveOperation) operation).getTarget());
-                    }
-                }
-            }
-
-            List<String> owners = paths.stream().map(this::extractOwnerFromPath).filter(Objects::nonNull).collect(Collectors.toList());
-
-            createDataSets(worker, request, owners);
-        }
-    }
-
-    @Override
-    public void afterAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
-    {
-        // handle only non-transactional calls
-        if (worker.isInteractiveSessionMode())
-        {
-            return;
-        }
-
-        List<String> owners = new ArrayList<>();
-
-        switch (request.getMethod())
-        {
-            case "write":
-            case "create":
-                owners.add((String) request.getParams().get("owner"));
-                break;
-            case "copy":
-            case "move":
-                owners.add((String) request.getParams().get("targetOwner"));
-                break;
-        }
-
-        createDataSets(worker, request, owners);
-    }
-
-    private void createDataSets(Worker<TransactionConnection> worker, Request request, List<String> owners) throws Exception
-    {
-        if (owners == null || owners.isEmpty())
-        {
-            return;
-        }
-
-        List<DataSetCreation> creations = new ArrayList<>();
-
-        for (String owner : owners)
-        {
             try
             {
-                List<File> ownerFiles = worker.list(owner, "", false);
+                sessionToken = applicationServerApi.login(openBISUser, openBISPassword);
 
-                if (!ownerFiles.isEmpty())
+                if (sessionToken == null)
                 {
-                    continue;
+                    throw new RuntimeException(
+                            "Could not login to the AS server. Please check openBIS user and openBIS password in the AFS server configuration.");
                 }
-            } catch (NoSuchFileException e)
+
+                LastSeenEvent lastSeenEvent = loadLastSeenEvent();
+
+                EventSearchCriteria criteria = new EventSearchCriteria();
+                criteria.withEventType().thatEquals(EventType.DELETION);
+                criteria.withEntityType().thatEquals(EntityType.DATA_SET);
+
+                if (lastSeenEvent != null)
+                {
+                    logger.info("Last seen event found with id: " + lastSeenEvent.getId() + " and registration date: "
+                            + lastSeenEvent.getRegistrationDate() + ". Only newer events will be processed.");
+                    criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(lastSeenEvent.getRegistrationDate());
+                } else
+                {
+                    logger.info("No last seen event found. All events will be processed.");
+                }
+
+                EventFetchOptions fo = new EventFetchOptions();
+                fo.sortBy().id().asc();
+                fo.count(BATCH_SIZE);
+
+                SearchResult<Event> searchResult = applicationServerApi.searchEvents(sessionToken, criteria, new EventFetchOptions());
+
+                if (searchResult.getObjects().isEmpty())
+                {
+                    logger.info("No data set deletion events found.");
+                    return;
+                }
+
+                logger.info("Found " + searchResult.getObjects().size()
+                        + " data set deletion event(s)." + (searchResult.getTotalCount() > searchResult.getObjects().size() ?
+                        " Total number of deletion events: " + searchResult.getTotalCount() : ""));
+
+                LastSeenEvent newLastSeenEvent = lastSeenEvent;
+
+                for (Event event : searchResult.getObjects())
+                {
+                    EventTechId eventTechId = (EventTechId) event.getId();
+
+                    if (lastSeenEvent != null && eventTechId.getTechId() <= lastSeenEvent.getId())
+                    {
+                        // there can be multiple events with the same registration date, therefore we need to check the ids as well
+                        continue;
+                    }
+
+                    processApplicationServerDeletionEvent(sessionToken, event);
+
+                    newLastSeenEvent = new LastSeenEvent(eventTechId.getTechId(), event.getRegistrationDate());
+                }
+
+                if (newLastSeenEvent != null)
+                {
+                    storeLastSeenEvent(newLastSeenEvent);
+                }
+
+                if (searchResult.getTotalCount() <= searchResult.getObjects().size())
+                {
+                    logger.info("No more events to process. Existing.");
+                    return;
+                }
+            } catch (Exception e)
             {
-                // good, the folder does not exist yet i.e. we should create a data set
+                logger.throwing(e);
+                return;
+            } finally
+            {
+                if (sessionToken != null)
+                {
+                    applicationServerApi.logout(sessionToken);
+                }
             }
+        }
+    }
 
-            Experiment foundExperiment = findExperiment(request.getSessionToken(), owner);
+    private void processApplicationServerDeletionEvent(String sessionToken, Event event)
+    {
+        try
+        {
+            logger.info("Deleting '" + event.getIdentifier() + "' data set from the AFS server. The data set was deleted at the AS server on "
+                    + event.getRegistrationDate() + " in event " + event.getId());
 
-            if (foundExperiment != null)
+            ApiRequest apiRequest =
+                    new ApiRequest("1", "delete", Map.of("owner", event.getIdentifier(), "source", ""), sessionToken,
+                            null, null);
+
+            apiServer.processOperation(apiRequest, new ApiResponseBuilder(), new PerformanceAuditor());
+        } catch (APIServerException e)
+        {
+            logger.throwing(e);
+        }
+    }
+
+    private LastSeenEvent loadLastSeenEvent() throws Exception
+    {
+        try
+        {
+            if (IOUtils.exists(openBISLastSeenDeletionFile))
             {
-                creations.add(createDataSetCreation(request.getSessionToken(), owner, null));
+                byte[] bytes = IOUtils.readFully(openBISLastSeenDeletionFile);
+                return jsonObjectMapper.readValue(new ByteArrayInputStream(bytes), LastSeenEvent.class);
             } else
             {
-                Sample foundSample = findSample(request.getSessionToken(), owner);
-
-                if (foundSample != null)
-                {
-                    creations.add(createDataSetCreation(request.getSessionToken(), null, owner));
-                }
+                return null;
             }
-        }
-
-        if (!creations.isEmpty())
+        } catch (Exception e)
         {
-            for (DataSetCreation creation : creations)
+            throw new RuntimeException("Could not load the last seen event from file " + openBISLastSeenDeletionFile, e);
+        }
+    }
+
+    private void storeLastSeenEvent(LastSeenEvent lastSeenEvent)
+    {
+        try
+        {
+            String tempFile = openBISLastSeenDeletionFile + ".tmp";
+            if (IOUtils.exists(tempFile))
             {
-                try
-                {
-                    applicationServerApi.createDataSets(request.getSessionToken(), List.of(creation));
-                } catch (UserFailureException e)
-                {
-                    if (e.getMessage() == null || !e.getMessage().contains("DataSet already exists in the database and needs to be unique"))
-                    {
-                        throw e;
-                    }
-                }
-
+                IOUtils.delete(tempFile);
             }
+            IOUtils.createFile(tempFile);
+            byte[] bytes = jsonObjectMapper.writeValue(lastSeenEvent);
+            IOUtils.write(tempFile, 0, bytes);
+            IOUtils.move(tempFile, openBISLastSeenDeletionFile);
+        } catch (Exception e)
+        {
+            throw new RuntimeException("Could not store the last seen event in file " + openBISLastSeenDeletionFile, e);
         }
     }
 
-    private DataSetCreation createDataSetCreation(String sessionToken, String experimentPermId, String samplePermId)
+    @Value
+    private static class LastSeenEvent
     {
-        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-        physicalCreation.setShareId(storageIncomingShareId);
-        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
-        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
-        physicalCreation.setH5arFolders(false);
-        physicalCreation.setH5Folders(false);
+        Long id;
 
-        DataSetCreation creation = new DataSetCreation();
-        creation.setAfsData(true);
-        creation.setDataStoreId(new DataStorePermId("AFS"));
-        creation.setDataSetKind(DataSetKind.PHYSICAL);
-        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        creation.setPhysicalData(physicalCreation);
-
-        if (experimentPermId != null)
-        {
-            creation.setCode(experimentPermId);
-            creation.setExperimentId(new ExperimentPermId(experimentPermId));
-            physicalCreation.setLocation(createDataSetLocation(experimentPermId));
-        } else if (samplePermId != null)
-        {
-            creation.setCode(samplePermId);
-            creation.setSampleId(new SamplePermId(samplePermId));
-            physicalCreation.setLocation(createDataSetLocation(samplePermId));
-        }
-
-        return creation;
-    }
-
-    private String createDataSetLocation(String dataSetCode)
-    {
-        List<String> elements = new LinkedList<>(Arrays.asList(IOUtils.getShards(dataSetCode)));
-        elements.add(dataSetCode);
-        return IOUtils.getPath(storageUuid, elements.toArray(new String[] {}));
-    }
-
-    private Experiment findExperiment(String sessionToken, String experimentPermId)
-    {
-        Map<IExperimentId, Experiment> experiments =
-                applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
-
-        if (!experiments.isEmpty())
-        {
-            return experiments.values().iterator().next();
-        } else
-        {
-            return null;
-        }
-    }
-
-    private Sample findSample(String sessionToken, String samplePermId)
-    {
-        Map<ISampleId, Sample> samples =
-                applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
-
-        if (!samples.isEmpty())
-        {
-            return samples.values().iterator().next();
-        } else
-        {
-            return null;
-        }
-    }
-
-    private String extractOwnerFromPath(String ownerPath)
-    {
-        if (ownerPath.startsWith(storageRoot))
-        {
-            ownerPath = ownerPath.substring(storageRoot.length());
-        }
-
-        Pattern compile = Pattern.compile("/\\d+/.+/../../../(.+)/.*");
-        Matcher matcher = compile.matcher(ownerPath);
-
-        if (matcher.matches())
-        {
-            return matcher.group(1);
-        } else
-        {
-            return null;
-        }
+        Date registrationDate;
     }
 
 }

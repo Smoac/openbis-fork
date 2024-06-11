@@ -157,6 +157,10 @@ public abstract class AbstractIntegrationTest
 
         String storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         cleanupFolderSafely(storageRoot);
+
+        String storageIncomingShareId = configuration.getStringProperty(AtomicFileSystemServerParameter.storageIncomingShareId);
+
+        new File(storageRoot, storageIncomingShareId).mkdirs();
     }
 
     private void cleanupFolderSafely(String folderPath) throws Exception
@@ -286,9 +290,7 @@ public abstract class AbstractIntegrationTest
     {
         log("Starting afs server.");
         Configuration configuration = getAfsServerConfiguration();
-        DummyServerObserver dummyServerObserver = new DummyServerObserver();
-
-        AbstractIntegrationTest.afsServer = new ch.ethz.sis.afsserver.server.Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        AbstractIntegrationTest.afsServer = new ch.ethz.sis.afsserver.server.Server<>(configuration);
         log("Started afs server.");
     }
 
