@@ -3,7 +3,11 @@ package ch.ethz.sis.rdf.main.mappers;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.UnionClass;
 import org.apache.jena.rdf.model.Resource;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for mapping object properties to their ranges in an ontology model.

@@ -3,8 +3,12 @@ package ch.ethz.sis.rdf.main.mappers;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.UnionClass;
-import java.util.*;
 import org.apache.jena.rdf.model.Resource;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for mapping datatype properties to openBIS data types in an ontology model.
