@@ -260,7 +260,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         {
             Event deletion = searchResult.getObjects().get(0);
 
-            if (deletion.getDescription() != null && deletion.getDescription().startsWith("/" + OpenBISUtils.AFS_DATASTORE_CODE))
+            if (deletion.getDescription() != null && deletion.getDescription().startsWith("/" + OpenBISUtils.AFS_DATA_STORE_CODE))
             {
                 return deletion;
             }
