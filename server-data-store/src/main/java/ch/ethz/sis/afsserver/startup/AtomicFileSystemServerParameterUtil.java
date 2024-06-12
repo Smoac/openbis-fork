@@ -34,6 +34,11 @@ public class AtomicFileSystemServerParameterUtil
         return getStringParameter(configuration, AtomicFileSystemServerParameter.openBISLastSeenDeletionFile, true);
     }
 
+    public static Integer getOpenBISLastSeenDeletionBatchSize(Configuration configuration)
+    {
+        return getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISLastSeenDeletionBatchSize, true);
+    }
+
     public static Integer getOpenBISLastSeenDeletionIntervalInSeconds(Configuration configuration)
     {
         return getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISLastSeenDeletionIntervalInSeconds, true);

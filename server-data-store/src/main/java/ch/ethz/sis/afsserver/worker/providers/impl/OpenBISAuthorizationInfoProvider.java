@@ -25,15 +25,22 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.ethz.sis.afs.exception.AFSExceptions;
+import ch.ethz.sis.afsserver.server.observer.impl.OpenBISUtils;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.afsserver.worker.WorkerContext;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EventType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -83,14 +90,6 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
     @Override
     public boolean doesSessionHaveRights(WorkerContext workerContext, String owner, Set<FilePermission> permissions)
     {
-        final SessionInformation sessionInformation = applicationServerApi.getSessionInformation(workerContext.getSessionToken());
-
-        if (sessionInformation != null && sessionInformation.getPerson().getUserId().equals(openBISUser))
-        {
-            // internal AFS server user has rights to everything
-            return true;
-        }
-
         String ownerShare = null;
         ObjectPermId ownerPermId = null;
         Set<FilePermission> ownerSupportedPermissions = null;
@@ -136,20 +135,32 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             }
         }
 
-        if (ownerPermId == null)
+        if (ownerPermId != null)
         {
-            return false;
-        }
-
-        if (hasPermissions(workerContext, ownerPermId, ownerSupportedPermissions, permissions))
-        {
-            String ownerPath = findOwnerPath(ownerPermId, ownerShare);
-            workerContext.getOwnerPathMap().put(owner, ownerPath);
-            return true;
+            if (hasPermissions(workerContext, ownerPermId, ownerSupportedPermissions, permissions))
+            {
+                String ownerPath = findOwnerPath(ownerPermId.getPermId(), ownerShare);
+                workerContext.getOwnerPathMap().put(owner, ownerPath);
+                return true;
+            }
         } else
         {
-            return false;
+            SessionInformation sessionInformation = applicationServerApi.getSessionInformation(workerContext.getSessionToken());
+
+            if (sessionInformation != null && sessionInformation.getPerson().getUserId().equals(openBISUser))
+            {
+                Event deletion = findAfsDataSetDeletion(workerContext.getSessionToken(), owner);
+
+                if (deletion != null)
+                {
+                    String ownerPath = findOwnerPath(deletion.getIdentifier(), null);
+                    workerContext.getOwnerPathMap().put(owner, ownerPath);
+                    return true;
+                }
+            }
         }
+
+        return false;
     }
 
     private boolean hasPermissions(WorkerContext workerContext, ObjectPermId ownerPermId, Set<FilePermission> ownerSupportedPermissions,
@@ -236,18 +247,40 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    private String findOwnerPath(ObjectPermId ownerPermId, String ownerShare)
+    private Event findAfsDataSetDeletion(String sessionToken, String identifier)
     {
-        final String[] shards = IOUtils.getShards(ownerPermId.getPermId());
+        EventSearchCriteria criteria = new EventSearchCriteria();
+        criteria.withEventType().thatEquals(EventType.DELETION);
+        criteria.withEntityType().thatEquals(EntityType.DATA_SET);
+        criteria.withIdentifier().thatEquals(identifier);
+
+        SearchResult<Event> searchResult = applicationServerApi.searchEvents(sessionToken, criteria, new EventFetchOptions());
+
+        if (!searchResult.getObjects().isEmpty())
+        {
+            Event deletion = searchResult.getObjects().get(0);
+
+            if (deletion.getDescription() != null && deletion.getDescription().startsWith("/" + OpenBISUtils.AFS_DATASTORE_CODE))
+            {
+                return deletion;
+            }
+        }
+
+        return null;
+    }
+
+    private String findOwnerPath(String ownerPermId, String ownerShare)
+    {
+        final String[] shards = IOUtils.getShards(ownerPermId);
 
         if (ownerShare != null)
         {
-            return createOwnerPath(ownerShare, storageUuid, shards, ownerPermId.getPermId());
+            return createOwnerPath(ownerShare, storageUuid, shards, ownerPermId);
         } else
         {
             for (Integer share : storageShares)
             {
-                String potentialOwnerPath = createOwnerPath(share.toString(), storageUuid, shards, ownerPermId.getPermId());
+                String potentialOwnerPath = createOwnerPath(share.toString(), storageUuid, shards, ownerPermId);
 
                 if (Files.exists(Paths.get(storageRoot, potentialOwnerPath)))
                 {
@@ -255,7 +288,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
                 }
             }
 
-            return createOwnerPath(storageIncomingShareId.toString(), storageUuid, shards, ownerPermId.getPermId());
+            return createOwnerPath(storageIncomingShareId.toString(), storageUuid, shards, ownerPermId);
         }
     }
 

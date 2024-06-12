@@ -60,5 +60,6 @@ public enum AtomicFileSystemServerParameter
     openBISUser,
     openBISPassword,
     openBISLastSeenDeletionFile,
+    openBISLastSeenDeletionBatchSize,
     openBISLastSeenDeletionIntervalInSeconds
 }

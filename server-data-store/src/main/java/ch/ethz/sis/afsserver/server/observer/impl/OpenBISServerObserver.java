@@ -1,10 +1,13 @@
 package ch.ethz.sis.afsserver.server.observer.impl;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.NoSuchFileException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
@@ -37,13 +40,13 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
     private static final String THREAD_NAME = "openbis-server-observer-task";
 
-    private static final int BATCH_SIZE = 1000;
-
     private String openBISUser;
 
     private String openBISPassword;
 
     private String openBISLastSeenDeletionFile;
+
+    private Integer openBISLastSeenDeletionBatchSize;
 
     private Integer openBISLastSeenDeletionIntervalInSeconds;
 
@@ -59,6 +62,8 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
         this.openBISUser = AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration);
         this.openBISPassword = AtomicFileSystemServerParameterUtil.getOpenBISPassword(configuration);
         this.openBISLastSeenDeletionFile = AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionFile(configuration);
+        this.openBISLastSeenDeletionBatchSize =
+                AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionBatchSize(configuration);
         this.openBISLastSeenDeletionIntervalInSeconds =
                 AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionIntervalInSeconds(configuration);
         this.applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(configuration);
@@ -101,64 +106,83 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
                             "Could not login to the AS server. Please check openBIS user and openBIS password in the AFS server configuration.");
                 }
 
-                LastSeenEvent lastSeenEvent = loadLastSeenEvent();
+                final LastSeenEvent lastSeenEvent = loadLastSeenEvent();
+                LastSeenEvent newLastSeenEvent = null;
 
                 EventSearchCriteria criteria = new EventSearchCriteria();
                 criteria.withEventType().thatEquals(EventType.DELETION);
                 criteria.withEntityType().thatEquals(EntityType.DATA_SET);
 
+                EventFetchOptions fo = new EventFetchOptions();
+                fo.sortBy().id().asc();
+                fo.count(openBISLastSeenDeletionBatchSize);
+
                 if (lastSeenEvent != null)
                 {
-                    logger.info("Last seen event found with id: " + lastSeenEvent.getId() + " and registration date: "
-                            + lastSeenEvent.getRegistrationDate() + ". Only newer events will be processed.");
+                    logger.info("Last seen event file found with id: " + lastSeenEvent.getId() + " and registration date: "
+                            + lastSeenEvent.getRegistrationDate() + ". Only newer deletion events will be processed.");
                     criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(lastSeenEvent.getRegistrationDate());
                 } else
                 {
-                    logger.info("No last seen event found. All events will be processed.");
+                    logger.info("No last seen event file found. All deletion events will be processed.");
                 }
 
-                EventFetchOptions fo = new EventFetchOptions();
-                fo.sortBy().id().asc();
-                fo.count(BATCH_SIZE);
+                SearchResult<Event> foundEvents = applicationServerApi.searchEvents(sessionToken, criteria, fo);
 
-                SearchResult<Event> searchResult = applicationServerApi.searchEvents(sessionToken, criteria, new EventFetchOptions());
-
-                if (searchResult.getObjects().isEmpty())
+                if (foundEvents.getObjects().isEmpty())
                 {
-                    logger.info("No data set deletion events found.");
+                    logger.info("No new deletion events found. Exiting.");
                     return;
                 }
 
-                logger.info("Found " + searchResult.getObjects().size()
-                        + " data set deletion event(s)." + (searchResult.getTotalCount() > searchResult.getObjects().size() ?
-                        " Total number of deletion events: " + searchResult.getTotalCount() : ""));
-
-                LastSeenEvent newLastSeenEvent = lastSeenEvent;
-
-                for (Event event : searchResult.getObjects())
+                List<Event> newEvents = foundEvents.getObjects().stream().filter(event ->
                 {
-                    EventTechId eventTechId = (EventTechId) event.getId();
+                    EventTechId eventId = (EventTechId) event.getId();
+                    return lastSeenEvent == null || eventId.getTechId() > lastSeenEvent.getId();
+                }).collect(Collectors.toList());
 
-                    if (lastSeenEvent != null && eventTechId.getTechId() <= lastSeenEvent.getId())
+                if (newEvents.isEmpty())
+                {
+                    Event lastEvent = foundEvents.getObjects().get(foundEvents.getObjects().size() - 1);
+                    newLastSeenEvent = new LastSeenEvent(((EventTechId) lastEvent.getId()).getTechId(), lastEvent.getRegistrationDate());
+                } else
+                {
+                    logger.info("Found " + newEvents.size() + " new deletion event(s).");
+
+                    Event lastEvent = null;
+
+                    try
                     {
-                        // there can be multiple events with the same registration date, therefore we need to check the ids as well
-                        continue;
+                        for (Event event : newEvents)
+                        {
+                            processEvent(sessionToken, event);
+                            lastEvent = event;
+                        }
+                    } finally
+                    {
+                        if (lastEvent != null)
+                        {
+                            newLastSeenEvent =
+                                    new LastSeenEvent(((EventTechId) lastEvent.getId()).getTechId(), lastEvent.getRegistrationDate());
+                        }
                     }
-
-                    processApplicationServerDeletionEvent(sessionToken, event);
-
-                    newLastSeenEvent = new LastSeenEvent(eventTechId.getTechId(), event.getRegistrationDate());
                 }
 
-                if (newLastSeenEvent != null)
-                {
-                    storeLastSeenEvent(newLastSeenEvent);
-                }
+                storeLastSeenEvent(newLastSeenEvent);
 
-                if (searchResult.getTotalCount() <= searchResult.getObjects().size())
+                if (foundEvents.getTotalCount() <= foundEvents.getObjects().size())
                 {
-                    logger.info("No more events to process. Existing.");
+                    logger.info("No new deletion events found. Exiting.");
                     return;
+                } else
+                {
+                    if (lastSeenEvent != null && lastSeenEvent.getRegistrationDate().equals(newLastSeenEvent.getRegistrationDate()))
+                    {
+                        throw new RuntimeException(
+                                "The processing of deletion events could not progress from last seen id: " + lastSeenEvent.getId()
+                                        + " and registration date: " + lastSeenEvent.getRegistrationDate()
+                                        + ". Try increasing the batch size to a higher value than " + openBISLastSeenDeletionBatchSize + ".");
+                    }
                 }
             } catch (Exception e)
             {
@@ -174,21 +198,26 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
         }
     }
 
-    private void processApplicationServerDeletionEvent(String sessionToken, Event event)
+    private void processEvent(String sessionToken, Event event) throws APIServerException
     {
         try
         {
-            logger.info("Deleting '" + event.getIdentifier() + "' data set from the AFS server. The data set was deleted at the AS server on "
-                    + event.getRegistrationDate() + " in event " + event.getId());
-
             ApiRequest apiRequest =
                     new ApiRequest("1", "delete", Map.of("owner", event.getIdentifier(), "source", ""), sessionToken,
                             null, null);
 
             apiServer.processOperation(apiRequest, new ApiResponseBuilder(), new PerformanceAuditor());
+
+            logger.info("Data set " + event.getIdentifier() + " has been successfully deleted from the store.");
         } catch (APIServerException e)
         {
-            logger.throwing(e);
+            if (e.getMessage().contains(NoSuchFileException.class.getSimpleName()))
+            {
+                logger.info("Data set " + event.getIdentifier() + " does not exist in the store. Nothing to delete.");
+            } else
+            {
+                throw new RuntimeException("Deletion of data set " + event.getIdentifier() + " has failed.", e);
+            }
         }
     }
 

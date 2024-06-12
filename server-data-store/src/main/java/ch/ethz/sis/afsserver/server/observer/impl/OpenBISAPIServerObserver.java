@@ -202,7 +202,7 @@ public class OpenBISAPIServerObserver implements APIServerObserver<TransactionCo
 
         DataSetCreation creation = new DataSetCreation();
         creation.setAfsData(true);
-        creation.setDataStoreId(new DataStorePermId("AFS"));
+        creation.setDataStoreId(new DataStorePermId(OpenBISUtils.AFS_DATASTORE_CODE));
         creation.setDataSetKind(DataSetKind.PHYSICAL);
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setPhysicalData(physicalCreation);
