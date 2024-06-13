@@ -8,9 +8,15 @@ from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
 from java.io import File
 from java.nio.file import Files, Paths, StandardCopyOption
-from java.util import List
+from java.util import List, Map
+from java.util.concurrent import ConcurrentHashMap
+from java.util.regex import Pattern, PatternSyntaxException
 from org.apache.commons.io import FileUtils
 from org.json import JSONObject
+
+# import java.util.concurrent.ConcurrentHashMap;
+# import java.util.regex.Pattern;
+# import java.util.regex.PatternSyntaxException;
 
 INVALID_FORMAT_ERROR_MESSAGE = "Invalid format for the folder name, should follow the pattern <ENTITY_KIND>+<SPACE_CODE>+<PROJECT_CODE>+[<EXPERIMENT_CODE>|<SAMPLE_CODE>]+<OPTIONAL_DATASET_TYPE>+<OPTIONAL_NAME>";
 ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE = "Directory or its content contain illegal characters: \"', ~, $, %\"";
@@ -25,6 +31,7 @@ EMAIL_SUBJECT = "ELN LIMS Dropbox Error";
 ILLEGAL_FILES = ["desktop.ini", "IconCache.db", "thumbs.db"];
 ILLEGAL_FILES_ERROR_MESSAGE = "Directory contains illegal files: " + str(ILLEGAL_FILES);
 HIDDEN_FILES_ERROR_MESSAGE = "Directory contains hidden files: files starting with '.'";
+INVALID_PATTERN_ERROR_MESSAGE = "Provided pattern could not be compiled"
 
 errorMessages = []
 
@@ -33,12 +40,32 @@ def process(transaction):
     folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
     discardHiddenFiles = transaction.getGlobalState().getThreadParameters().discardHiddenFiles()
+    allowHiddenFiles = transaction.getGlobalState().getThreadParameters().allowHiddenFiles()
+    discardFilesPatterns = transaction.getGlobalState().getThreadParameters().discardFilesPatterns()
+    stringToPatternMap = transaction.getGlobalState().getThreadParameters().discardFilesPatternsCache()
 
     try:
         if discardHiddenFiles:
             hiddenFiles = getHiddenFiles(incoming)
             for filePath in hiddenFiles:
                 deleteFiles(filePath)
+        if discardFilesPatterns != "":
+            stringPatterns = discardFilesPatterns.split(",")
+            patterns = []
+            try:
+                for stringPattern in stringPatterns:
+                    pattern = None
+                    if stringToPatternMap.containsKey(stringPattern):
+                        pattern = stringToPatternMap.get(stringPattern)
+                    else:
+                        pattern = Pattern.compile(stringPattern)
+                        stringToPatternMap.put(stringPattern, pattern)
+                    patterns.append(pattern)
+            except PatternSyntaxException as err:
+                reportIssue(str(err))
+                raise UserFailureException(INVALID_PATTERN_ERROR_MESSAGE)
+            deleteFilesMatchingPattern(incoming.getAbsolutePath(), patterns)
+
 
         if not folderName.startswith('.'):
             datasetInfo = folderName.split("+");
@@ -95,7 +122,7 @@ def process(transaction):
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 
                 hiddenFiles = getHiddenFiles(incoming)
-                if hiddenFiles and not discardHiddenFiles:
+                if hiddenFiles and not allowHiddenFiles:
                     reportIssue(HIDDEN_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE + ":\n" + pathListToStr(hiddenFiles))
 
                 illegalFiles = getIllegalFiles(incoming)
@@ -132,7 +159,7 @@ def process(transaction):
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
 
                 hiddenFiles = getHiddenFiles(incoming)
-                if hiddenFiles and not discardHiddenFiles:
+                if hiddenFiles and not allowHiddenFiles:
                     reportIssue(HIDDEN_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE + ":\n" + pathListToStr(hiddenFiles))
 
                 illegalFiles = getIllegalFiles(incoming)
@@ -267,6 +294,20 @@ def deleteFiles(stringPath):
         for child in listFiles:
             deleteFiles(str(child.getAbsolutePath()))
     Files.delete(Paths.get(stringPath))
+
+
+def deleteFilesMatchingPattern(stringPath, patterns):
+    file = File(stringPath)
+    if not file.exists():
+        return
+    for pattern in patterns:
+        if pattern.matcher(file.getName()).matches():
+            deleteFiles(str(file.getAbsolutePath()))
+            return
+    listFiles = file.listFiles()
+    if not listFiles is None:
+        for child in listFiles:
+            deleteFilesMatchingPattern(str(child.getAbsolutePath()), patterns)
 
 
 def getIllegalFiles(folder):
