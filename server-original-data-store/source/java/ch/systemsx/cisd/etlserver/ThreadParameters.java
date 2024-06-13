@@ -16,9 +16,9 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -133,6 +133,10 @@ public final class ThreadParameters
 
     public static final String DISCARD_HIDDEN_FILES = "discard-hidden-files";
 
+    public static final String ALLOW_HIDDEN_FILES = "allow-hidden-files";
+
+    public static final String DISCARD_FILES_PATTERNS = "discard-files-patterns";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side. The directory where data to be processed by the ETL
      * server become available.
@@ -187,6 +191,12 @@ public final class ThreadParameters
 
     private final boolean discardHiddenFiles;
 
+    private final boolean allowHiddenFiles;
+
+    private final String discardFilesPatterns;
+    private final Map<String, Pattern> discardFilesPatternsCache = new ConcurrentHashMap<>();
+
+
     /**
      * @param threadProperties parameters for one processing thread together with general parameters.
      */
@@ -196,6 +206,7 @@ public final class ThreadParameters
         this.h5Folders = PropertyUtils.getBoolean(threadProperties, H5_FOLDERS, false);
         this.h5arFolders = PropertyUtils.getBoolean(threadProperties, H5AR_FOLDERS, true);
         this.discardHiddenFiles = PropertyUtils.getBoolean(threadProperties, DISCARD_HIDDEN_FILES, true);
+        this.allowHiddenFiles = PropertyUtils.getBoolean(threadProperties, ALLOW_HIDDEN_FILES, true);
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, true);
         this.threadProperties = threadProperties;
@@ -275,7 +286,7 @@ public final class ThreadParameters
                     ON_ERROR_DECISION_KEY + ".class", ex.getMessage());
         }
         this.onErrorDecisionClassOrNull = onErrorClass;
-
+        this.discardFilesPatterns = PropertyUtils.getProperty(threadProperties, DISCARD_FILES_PATTERNS, "");
     }
 
     private DataSetRegistrationPreStagingBehavior getOriginalnputDataSetBehaviour(
@@ -576,6 +587,21 @@ public final class ThreadParameters
     public boolean discardHiddenFiles()
     {
         return discardHiddenFiles;
+    }
+
+    public boolean allowHiddenFiles()
+    {
+        return allowHiddenFiles;
+    }
+
+    public String discardFilesPatterns()
+    {
+        return discardFilesPatterns;
+    }
+
+    public Map<String, Pattern> discardFilesPatternsCache()
+    {
+        return discardFilesPatternsCache;
     }
 
     public boolean hasH5ArAsFolders()
