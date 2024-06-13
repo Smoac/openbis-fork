@@ -15,7 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore;
 
+import static ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DataStoreDAO.AFS_DATA_STORE_CODE;
+
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +31,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKindSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
@@ -56,7 +63,22 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
     @Override
     protected List<DataStorePE> listAll()
     {
-        return daoFactory.getDataStoreDAO().listDataStores();
+        return daoFactory.getDataStoreDAO().listDataStores(true, true);
+    }
+
+    @Override
+    protected List<DataStorePE> getMatching(final IOperationContext context, final List<DataStorePE> dataStorePES,
+            final DataStoreSearchCriteria criteria)
+    {
+        if (criteria.getCriteria() == null || criteria.getCriteria().isEmpty())
+        {
+            // For backwards compatibility, by default, AFS should be filtered out
+            return dataStorePES.stream().filter(dataStorePE -> !Objects.equals(dataStorePE.getCode(), AFS_DATA_STORE_CODE))
+                    .collect(Collectors.toList());
+        } else
+        {
+            return super.getMatching(context, dataStorePES, criteria);
+        }
     }
 
     @Override
@@ -71,10 +93,40 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
         } else if (criteria instanceof CodesSearchCriteria)
         {
             return new CodesMatcher<DataStorePE>();
+        } else if (criteria instanceof DataStoreKindSearchCriteria)
+        {
+            return new DataStoreKindMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
+    }
+
+    private static class DataStoreKindMatcher extends Matcher<DataStorePE>
+    {
+
+        @Override
+        public List<DataStorePE> getMatching(final IOperationContext context, final List<DataStorePE> dataStorePES,
+                final ISearchCriteria criteria)
+        {
+            if (criteria instanceof DataStoreKindSearchCriteria)
+            {
+                final DataStoreKindSearchCriteria dataStoreKindSearchCriteria = (DataStoreKindSearchCriteria) criteria;
+                final Set<DataStoreKind> dataStoreKinds = dataStoreKindSearchCriteria.getDataStoreKinds();
+
+                return dataStorePES.stream().filter(dataStorePE ->
+                {
+                    final String code = dataStorePE.getCode();
+                    return Objects.equals(code, AFS_DATA_STORE_CODE) ?
+                            dataStoreKinds != null && dataStoreKinds.contains(DataStoreKind.AFS) :
+                            dataStoreKinds == null || dataStoreKinds.contains(DataStoreKind.DSS);
+                }).collect(Collectors.toList());
+            } else
+            {
+                throw new IllegalArgumentException("No accepted search criteria: " + criteria.getClass());
+            }
+        }
+
     }
 
     private class IdMatcher extends SimpleFieldMatcher<DataStorePE>

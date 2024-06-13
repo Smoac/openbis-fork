@@ -20,11 +20,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeS
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetChildrenSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.dao.ISQLSearchDAO;
@@ -134,7 +137,47 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
                 newChildrenCriteria, newContainerCriteria, nestedCriteria, criteria.getOperator(),
                 criteria.isNegated());
 
-        return super.doSearchForIDs(userId, criteriaVo, idsColumnName, TableMapper.DATA_SET, authorisationInformation);
+        return super.doSearchForIDs(userId, criteriaVo, idsColumnName, TableMapper.DATA_SET, authorisationInformation, parentCriteria);
+    }
+
+    @Override
+    protected Set<Long> getMainCriteriaIntermediateResults(final Long userId, final String idsColumnName, final TableMapper tableMapper,
+            final AuthorisationInformation authorisationInformation, final boolean negated, final SearchOperator finalSearchOperator,
+            final Collection<ISearchCriteria> mainCriteria, final AbstractCompositeSearchCriteria parentCriteria)
+    {
+        final boolean parentHasDataStoreCriterion = parentCriteria != null && parentCriteria.getCriteria().stream().anyMatch(
+                criterion -> criterion instanceof DataStoreSearchCriteria);
+        final boolean hasDataStoreCriterion = mainCriteria.stream().anyMatch(criterion -> criterion instanceof DataStoreSearchCriteria);
+
+        final Set<Long> mainCriteriaIntermediateResults;
+        final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria(negated);
+
+        if (parentHasDataStoreCriterion || hasDataStoreCriterion)
+        {
+            addCriteriaToContainer(finalSearchOperator, mainCriteria, containerCriterion);
+        } else
+        {
+            containerCriterion.withOperator(SearchOperator.AND);
+
+            final DataSetSearchCriteria nestedContainerCriterion = createEmptyCriteria(false);
+            addCriteriaToContainer(finalSearchOperator, mainCriteria, nestedContainerCriterion);
+
+            final DataStoreSearchCriteria dataStoreSearchCriteria = new DataStoreSearchCriteria();
+            dataStoreSearchCriteria.withKind().thatIn(DataStoreKind.DSS);
+
+            containerCriterion.setCriteria(List.of(nestedContainerCriterion, dataStoreSearchCriteria));
+        }
+
+        mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
+                containerCriterion, tableMapper, idsColumnName, authorisationInformation);
+        return mainCriteriaIntermediateResults;
+    }
+
+    private static void addCriteriaToContainer(final SearchOperator finalSearchOperator, final Collection<ISearchCriteria> mainCriteria,
+            final AbstractCompositeSearchCriteria containerCriterion)
+    {
+        containerCriterion.withOperator(finalSearchOperator);
+        containerCriterion.setCriteria(mainCriteria);
     }
 
     @Override

@@ -2,8 +2,8 @@
  * @author pkupczyk
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/CodeSearchCriteria", 
-		"as/dto/common/search/CodesSearchCriteria", "as/dto/common/search/PermIdSearchCriteria" ], function(require, stjs,
-		AbstractObjectSearchCriteria) {
+		"as/dto/common/search/CodesSearchCriteria", "as/dto/datastore/search/DataStoreKindSearchCriteria",
+	  "as/dto/common/search/PermIdSearchCriteria" ], function(require, stjs, AbstractObjectSearchCriteria) {
 	var DataStoreSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
@@ -17,6 +17,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 		prototype.withCodes = function() {
 			var CodesSearchCriteria = require("as/dto/common/search/CodesSearchCriteria");
 			return this.addCriteria(new CodesSearchCriteria());
+		};
+		prototype.withKind = function() {
+			var DataStoreKindSearchCriteria = require("as/dto/datastore/search/DataStoreKindSearchCriteria");
+			return this.addCriteria(new DataStoreKindSearchCriteria());
 		};
 		prototype.withPermId = function() {
 			var PermIdSearchCriteria = require("as/dto/common/search/PermIdSearchCriteria");

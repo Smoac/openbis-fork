@@ -21,11 +21,11 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DatePropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
@@ -36,11 +36,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
@@ -153,26 +164,6 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criteria.withModificationDate().thatIsLaterThanOrEqualTo("2011-05-01");
         criteria.withContainer().withCode().thatContains("2");
         testSearch(TEST_USER, criteria, "20110509092359990-11", "COMPONENT_2A", "20110509092359990-12");
-    }
-
-    @Test
-    public void test()
-    {
-        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        //        criteria.withContainer();
-
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withContainers();
-        List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
-
-        dataSets.stream().filter(dataSet -> dataSet.getContainers() != null && !dataSet.getContainers().isEmpty()).forEach(dataSet ->
-                System.out.printf("Code: %s. PermId: %s. Containers permId: %s\n", dataSet.getCode(), dataSet.getPermId(),
-                        dataSet.getContainers().stream().map(DataSet::getPermId).map(ObjectPermId::getPermId).collect(Collectors.joining(", ")))
-        );
-
-//        System.out.println(dataSets);
-        v3api.logout(sessionToken);
     }
 
     @Test
@@ -1033,22 +1024,22 @@ public class SearchDataSetTest extends AbstractDataSetTest
         final EntityTypePermId dataSetType = createADataSetType(sessionToken, false, propertyType1,
                 propertyType2, propertyType3);
 
-        final DataSetCreation dataSetCreation1 = createDataSet("DS-1", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", "T2", null);
-        final DataSetCreation dataSetCreation2 = createDataSet("DS-2", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P3");
-        final DataSetCreation dataSetCreation3 = createDataSet("DS-3", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Very simple test", "T1", "P2");
-        final DataSetCreation dataSetCreation4 = createDataSet("DS-4", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P2");
-        final DataSetCreation dataSetCreation5 = createDataSet("DS-5", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", null, "P2");
-        final DataSetCreation dataSetCreation6 = createDataSet("DS-6", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", null, "P3");
-        final DataSetCreation dataSetCreation7 = createDataSet("DS-7", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", "T2", "P4");
-        final DataSetCreation dataSetCreation8 = createDataSet("DS-8", dataSetType,
-                propertyType1, propertyType2, propertyType3, "Simple test", null, null);
+        final DataSetCreation dataSetCreation1 = createExperimentDataSet("DS-1", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", null, false);
+        final DataSetCreation dataSetCreation2 = createExperimentDataSet("DS-2", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P3", false);
+        final DataSetCreation dataSetCreation3 = createExperimentDataSet("DS-3", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Very simple test", "T1", "P2", false);
+        final DataSetCreation dataSetCreation4 = createExperimentDataSet("DS-4", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P2", false);
+        final DataSetCreation dataSetCreation5 = createExperimentDataSet("DS-5", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P2", false);
+        final DataSetCreation dataSetCreation6 = createExperimentDataSet("DS-6", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P3", false);
+        final DataSetCreation dataSetCreation7 = createExperimentDataSet("DS-7", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", "P4", false);
+        final DataSetCreation dataSetCreation8 = createExperimentDataSet("DS-8", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, null, false);
 
         v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation1, dataSetCreation2,
                 dataSetCreation3, dataSetCreation4, dataSetCreation5, dataSetCreation6, dataSetCreation7,
@@ -1073,18 +1064,44 @@ public class SearchDataSetTest extends AbstractDataSetTest
         assertEquals(dataSets.get(7).getCode(), "DS-3");
     }
 
-    private DataSetCreation createDataSet(final String code, final EntityTypePermId experimentType,
+    private DataSetCreation createExperimentDataSet(final String code, final EntityTypePermId dataSetType,
             final PropertyTypePermId propertyType1, final PropertyTypePermId propertyType2,
             final PropertyTypePermId propertyType3, final String propertyValue1, final String propertyValue2,
-            final String propertyValue3)
+            final String propertyValue3, final boolean afsData)
     {
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setCode(code);
-        creation.setTypeId(experimentType);
+        creation.setTypeId(dataSetType);
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setProperty(propertyType1.getPermId(), propertyValue1);
         creation.setProperty(propertyType2.getPermId(), propertyValue2);
         creation.setProperty(propertyType3.getPermId(), propertyValue3);
+        creation.setAfsData(afsData);
+        return creation;
+    }
+
+    private DataSetCreation createExperimentDataSet(final String code, final EntityTypePermId dataSetType, final IExperimentId experimentId,
+            final boolean afsData)
+    {
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(dataSetType);
+        creation.setExperimentId(experimentId);
+        creation.setDataStoreId(new DataStorePermId(afsData ? "AFS" : "STANDARD"));
+        creation.setAfsData(afsData);
+        return creation;
+    }
+
+    private DataSetCreation createSampleDataSet(final String code, final EntityTypePermId dataSetType, final IExperimentId experimentId,
+            final ISampleId sampleId, final boolean afsData)
+    {
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(dataSetType);
+        creation.setExperimentId(experimentId);
+        creation.setSampleId(sampleId);
+        creation.setDataStoreId(new DataStorePermId(afsData ? "AFS" : "STANDARD"));
+        creation.setAfsData(afsData);
         return creation;
     }
 
@@ -1913,6 +1930,123 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criteria.withSubcriteria().negate().withAnyProperty().thatStartsWith("co ");
         criteria.withSubcriteria().negate().withAnyProperty().thatStartsWith("no ");
         testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
+    }
+
+    @Test
+    public void testSearchWithAfsAndDssDatasets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        prepareAfsAndDssDatasets(sessionToken);
+
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        criteria.withDataStore().withKind().thatIn(DataStoreKind.AFS, DataStoreKind.DSS);
+        criteria.withCode().thatStartsWith("DS-");
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
+        assertEquals(dataSetCodes, Set.of("DS-1", "DS-2", "DS-3", "DS-4", "DS-5", "DS-6"));
+    }
+
+    @Test
+    public void testSearchWithDssDatasets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        prepareAfsAndDssDatasets(sessionToken);
+
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        criteria.withDataStore().withKind().thatIn(DataStoreKind.DSS);
+        criteria.withCode().thatStartsWith("DS-");
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
+        assertEquals(dataSetCodes, Set.of("DS-1", "DS-4"));
+    }
+
+    @Test
+    public void testImplicitSearchWithDssDatasets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        prepareAfsAndDssDatasets(sessionToken);
+
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        criteria.withCode().thatStartsWith("DS-");
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
+        assertEquals(dataSetCodes, Set.of("DS-1", "DS-4"));
+    }
+
+    @Test
+    public void testSearchWithAfsDatasets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        prepareAfsAndDssDatasets(sessionToken);
+
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withDataStore().withKind().thatIn(DataStoreKind.AFS);
+        criteria.withCode().thatStartsWith("DS-");
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
+        assertEquals(dataSetCodes, Set.of("DS-2", "DS-3", "DS-5", "DS-6"));
+    }
+
+    private void prepareAfsAndDssDatasets(final String sessionToken)
+    {
+        final EntityTypePermId dataSetType = createADataSetType(sessionToken, false);
+        final EntityTypePermId sampleType = createASampleType(sessionToken, false);
+        final EntityTypePermId experimentType = createAnExperimentType(sessionToken, false);
+
+        final SpacePermId spacePermId = new SpacePermId("CISD");
+        final ProjectIdentifier projectIdentifier = new ProjectIdentifier("/CISD/NEMO");
+        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+        final ExperimentIdentifier sampleExperimentIdentifier = new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1");
+        final SampleIdentifier sampleIdentifier = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
+
+        final ExperimentPermId frozenDataExperimentIdentifier = createExperiment(sessionToken, "EXP_FROZEN_DATA", projectIdentifier, experimentType);
+        final SamplePermId frozenDataSampleIdentifier = createSample(sessionToken, "SAMP_FROZEN_DATA", spacePermId, sampleExperimentIdentifier,
+                sampleType);
+
+        final DataSetCreation dataSetCreation1 = createExperimentDataSet("DS-1", dataSetType, experimentIdentifier, false);
+        final DataSetCreation dataSetCreation2 = createExperimentDataSet("DS-2", dataSetType, experimentIdentifier, true);
+        final DataSetCreation dataSetCreation3 = createExperimentDataSet("DS-3", dataSetType, frozenDataExperimentIdentifier, true);
+        final DataSetCreation dataSetCreation4 = createSampleDataSet("DS-4", dataSetType, sampleExperimentIdentifier, sampleIdentifier, false);
+        final DataSetCreation dataSetCreation5 = createSampleDataSet("DS-5", dataSetType, sampleExperimentIdentifier, sampleIdentifier, true);
+        final DataSetCreation dataSetCreation6 = createSampleDataSet("DS-6", dataSetType, sampleExperimentIdentifier, frozenDataSampleIdentifier,
+                true);
+
+        v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation1, dataSetCreation2,
+                dataSetCreation3, dataSetCreation4, dataSetCreation5, dataSetCreation6));
+
+        freezeDataForSample(sessionToken, frozenDataSampleIdentifier);
+        freezeDataForExperiment(sessionToken, frozenDataExperimentIdentifier);
+    }
+
+    private void freezeDataForSample(final String sessionToken, final SamplePermId samplePermId)
+    {
+        final SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(samplePermId);
+        sampleUpdate.freezeForDataSets();
+        v3api.updateSamples(sessionToken, List.of(sampleUpdate));
+    }
+
+    private void freezeDataForExperiment(final String sessionToken, final ExperimentPermId experimentPermId)
+    {
+        final ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experimentPermId);
+        experimentUpdate.freezeForDataSets();
+        v3api.updateExperiments(sessionToken, List.of(experimentUpdate));
     }
 
     private List<DataSet> search(final String sessionToken, final DataSetSearchCriteria criteria,

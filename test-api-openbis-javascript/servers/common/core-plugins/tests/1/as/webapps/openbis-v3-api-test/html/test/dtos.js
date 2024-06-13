@@ -348,6 +348,8 @@ var fullTypes = [
 "as/dto/project/create/CreateProjectsOperation",
 "as/dto/datastore/fetchoptions/DataStoreSortOptions",
 "as/dto/datastore/fetchoptions/DataStoreFetchOptions",
+"as/dto/datastore/search/DataStoreKind",
+"as/dto/datastore/search/DataStoreKindSearchCriteria",
 "as/dto/datastore/search/DataStoreSearchCriteria",
 "as/dto/datastore/search/SearchDataStoresOperationResult",
 "as/dto/datastore/search/SearchDataStoresOperation",

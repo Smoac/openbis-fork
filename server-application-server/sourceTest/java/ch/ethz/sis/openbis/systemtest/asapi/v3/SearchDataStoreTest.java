@@ -17,14 +17,23 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
  * @author pkupczyk
@@ -215,17 +224,55 @@ public class SearchDataStoreTest extends AbstractTest
     {
         DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
         criteria.withOrOperator();
+        criteria.withKind().thatIn();
         criteria.withPermId().thatEquals("STANDARD");
         criteria.withPermId().thatEquals("ABC");
         testSearch(TEST_USER, criteria, "STANDARD");
 
         DataStoreSearchCriteria criteriaNonMatching = new DataStoreSearchCriteria();
         criteriaNonMatching.withOrOperator();
+        criteriaNonMatching.withKind().thatIn();
         criteriaNonMatching.withPermId().thatEquals("ABC");
         criteriaNonMatching.withPermId().thatEquals("DEF");
         testSearch(TEST_USER, criteriaNonMatching);
     }
-    
+
+    @Test
+    public void testSearchWithKindNone()
+    {
+        final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
+        criteria.withKind().thatIn();
+
+        testSearch(TEST_USER, criteria);
+    }
+
+    @Test
+    public void testSearchWithKindDss()
+    {
+        final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
+        criteria.withKind().thatIn(DataStoreKind.DSS);
+
+        testSearch(TEST_USER, criteria, "STANDARD");
+    }
+
+    @Test
+    public void testSearchWithKindAfs()
+    {
+        final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
+        criteria.withKind().thatIn(DataStoreKind.AFS);
+
+        testSearch(TEST_USER, criteria, "AFS");
+    }
+
+    @Test
+    public void testSearchWithKindAfsAndDss()
+    {
+        final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
+        criteria.withKind().thatIn(DataStoreKind.AFS, DataStoreKind.DSS);
+
+        testSearch(TEST_USER, criteria, "AFS", "STANDARD");
+    }
+
     @Test
     public void testLogging()
     {

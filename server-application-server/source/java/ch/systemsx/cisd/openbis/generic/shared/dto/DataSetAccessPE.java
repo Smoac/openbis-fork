@@ -72,7 +72,7 @@ public class DataSetAccessPE
             + " sps on sp.space_id = sps.id ";
 
     public final static String DATASET_ACCESS_BY_TECH_IDS_QUERY =
-            DATASET_ACCESS_QUERY_PART_1 + TableNames.DATA_VIEW + DATASET_ACCESS_QUERY_PART_2 + "WHERE d.id in (:ids)";
+            DATASET_ACCESS_QUERY_PART_1 + TableNames.DATA_ALL_TABLE + DATASET_ACCESS_QUERY_PART_2 + "WHERE d.id in (:ids)";
 
     public final static String DATASET_ACCESS_BY_CODES_QUERY =
             DATASET_ACCESS_QUERY_PART_1 + TableNames.DATA_VIEW + DATASET_ACCESS_QUERY_PART_2 + "WHERE d.code in (:codes)";

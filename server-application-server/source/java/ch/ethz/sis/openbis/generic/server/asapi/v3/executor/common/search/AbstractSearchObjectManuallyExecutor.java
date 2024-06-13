@@ -68,7 +68,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERIA extends Abst
     }
     
 
-    private List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, CRITERIA criteria)
+    protected List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, CRITERIA criteria)
     {
         if (criteria.getCriteria() == null || criteria.getCriteria().isEmpty())
         {

@@ -15,12 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
 
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AND;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.DISTINCT;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FALSE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IS_NOT_NULL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IS_NULL;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LEFT_JOIN;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NL;
@@ -35,6 +37,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.TRUE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.UNNEST;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DELETION_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.METAPROJECT_ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.METAPROJECTS_TABLE;
@@ -64,8 +67,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.LongDateFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NormalDateFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ShortDateFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKindSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
@@ -195,13 +203,13 @@ public class SearchCriteriaTranslator
     private static String buildWhere(final TranslationContext translationContext)
     {
         final Collection<ISearchCriteria> criteria = translationContext.getCriteria();
+        final TableMapper tableMapper = translationContext.getTableMapper();
         if (isSearchAllCriteria(criteria))
         {
-            return WHERE + SP + TRUE;
+            return tableMapper.hasDeletionFlag() ? WHERE + SP + MAIN_TABLE_ALIAS + PERIOD + DELETION_COLUMN + SP + IS_NULL : WHERE + SP + TRUE;
         } else if (isSearchAnyPropertyCriteria(criteria))
         {
             final StringBuilder resultSqlBuilder = new StringBuilder(WHERE + SP);
-            final TableMapper tableMapper = translationContext.getTableMapper();
             final Map<String, JoinInformation> joinInformationMap =
                     findCriterionInAliases(translationContext, translationContext.getCriteria().iterator().next());
 
@@ -223,7 +231,7 @@ public class SearchCriteriaTranslator
             final String logicalOperator = translationContext.getOperator().toString();
             final String separator = SP + logicalOperator + SP;
 
-            final StringBuilder resultSqlBuilder = criteria.stream().collect(
+            final StringBuilder conditionSqlBuilder = criteria.stream().collect(
                     StringBuilder::new,
                     (sqlBuilder, criterion) ->
                     {
@@ -235,9 +243,15 @@ public class SearchCriteriaTranslator
                     StringBuilder::append
             );
 
+            conditionSqlBuilder.delete(0, separator.length());
 
-            final String condition = resultSqlBuilder.substring(separator.length());
-            return WHERE + SP + condition;
+            if (translationContext.getTableMapper().hasDeletionFlag())
+            {
+                conditionSqlBuilder.insert(0, LP).append(RP).append(SP).append(AND).append(SP)
+                        .append(MAIN_TABLE_ALIAS).append(PERIOD).append(DELETION_COLUMN).append(SP).append(IS_NULL);
+            }
+
+            return WHERE + SP + conditionSqlBuilder;
         }
     }
 
@@ -504,12 +518,62 @@ public class SearchCriteriaTranslator
                 final ISearchCriteria criterion = criteria.iterator().next();
                 return (criterion instanceof AbstractObjectSearchCriteria<?>) &&
                         !(criterion instanceof SampleContainerSearchCriteria) &&
-                        ((AbstractCompositeSearchCriteria) criterion).getCriteria().isEmpty();
+                        ((AbstractCompositeSearchCriteria) criterion).getCriteria().isEmpty() &&
+                        !((criterion instanceof DataSetSearchCriteria) && isSearchAllCriteria((DataSetSearchCriteria) criterion));
             }
 
             default:
             {
                 return false;
+            }
+        }
+    }
+
+    /**
+     * Determines whether the datas set search criteria imply returning datasets from all data stores.
+     *
+     * @param dataSetSearchCriterion the criterion whose subcriteria should be checked.
+     * @return <code>true</code> if the results should be from all data stores.
+     */
+    private static boolean isSearchAllCriteria(final DataSetSearchCriteria dataSetSearchCriterion)
+    {
+        final Set<DataStoreKind> dataStoreKinds = dataSetSearchCriterion.getCriteria().stream().flatMap(subcriterion ->
+                {
+                    if (subcriterion instanceof DataStoreSearchCriteria)
+                    {
+                        final DataStoreSearchCriteria dataStoreSearchCriteria = (DataStoreSearchCriteria) subcriterion;
+                        final SearchOperator operator = dataStoreSearchCriteria.getOperator();
+                        final boolean andOperator = operator == SearchOperator.AND;
+                        final Set<DataStoreKind> identity = andOperator ? Set.of(DataStoreKind.DSS, DataStoreKind.AFS) : Set.of();
+
+                        return dataStoreSearchCriteria.getCriteria().stream().filter(c -> c instanceof DataStoreKindSearchCriteria)
+                                .map(c -> ((DataStoreKindSearchCriteria) c).getDataStoreKinds()).reduce(identity,
+                                        (dataStoreKinds1, dataStoreKinds2) -> joinSets(dataStoreKinds1, dataStoreKinds2, operator)).stream();
+                    } else
+                    {
+                        return Stream.of();
+                    }
+                }
+        ).collect(Collectors.toSet());
+
+        return dataStoreKinds.size() == DataStoreKind.values().length;
+    }
+
+    private static Set<DataStoreKind> joinSets(final Set<DataStoreKind> set1, final Set<DataStoreKind> set2, final SearchOperator searchOperator)
+    {
+        switch (searchOperator)
+        {
+            case AND:
+            {
+                return set1.stream().filter(set2::contains).collect(Collectors.toSet());
+            }
+            case OR:
+            {
+                return Stream.concat(set1.stream(), set2.stream()).collect(Collectors.toSet());
+            }
+            default:
+            {
+                throw new IllegalArgumentException();
             }
         }
     }

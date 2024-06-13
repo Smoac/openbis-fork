@@ -4,7 +4,7 @@
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/dataset/search/DataSetSearchRelation",
 		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/SampleSearchCriteria",
 		"as/dto/sample/search/NoSampleSearchCriteria", "as/dto/dataset/search/DataSetTypeSearchCriteria", "as/dto/dataset/search/PhysicalDataSearchCriteria",
-		"as/dto/dataset/search/LinkedDataSearchCriteria", "as/dto/common/search/TextAttributeSearchCriteria" ],
+		"as/dto/dataset/search/LinkedDataSearchCriteria", "as/dto/common/search/TextAttributeSearchCriteria", "as/dto/datastore/search/DataStoreSearchCriteria" ],
 	function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, DataSetSearchRelation) {
 	var AbstractDataSetSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
@@ -88,6 +88,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		};
 		prototype.withContainer = function() {
 			return this.addCriteria(new DataSetContainerSearchCriteria());
+		};
+		prototype.withDataStore = function() {
+			var DataStoreSearchCriteria = require("as/dto/datastore/search/DataStoreSearchCriteria");
+			return this.addCriteria(new DataStoreSearchCriteria());
 		};
 		prototype.withSubcriteria = function() {
 			return this.addCriteria(new DataSetSearchCriteria());
