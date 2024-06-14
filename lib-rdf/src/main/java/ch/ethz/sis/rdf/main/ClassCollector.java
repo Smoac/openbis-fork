@@ -38,7 +38,8 @@ public class ClassCollector {
 
     private static void addRestrictionSafely(OntClassObject ontClassObject, Property onProperty, Restriction restriction) {
         if (onProperty.canAs(OntProperty.class)) {
-            ontClassObject.addRestriction(onProperty.as(OntProperty.class), restriction);
+            //ontClassObject.addRestriction(onProperty.as(OntProperty.class), restriction);
+            ontClassObject.addRestriction(onProperty.getURI(), restriction);
         } else {
             System.err.println("Cannot convert node " + onProperty + " to OntProperty");
         }
@@ -52,9 +53,9 @@ public class ClassCollector {
             parseAnonymousClass(someValuesClass, ontClassObject);
         } else if (someValuesFrom.isURIResource()) {
             // Here, you handle URIResource cases, possibly adding them directly as restrictions
-            ontClassObject.addRestriction(svfRestriction.getOnProperty(), svfRestriction.asSomeValuesFromRestriction());
+            //ontClassObject.addRestriction(svfRestriction.getOnProperty(), svfRestriction.asSomeValuesFromRestriction());
+            ontClassObject.addRestriction(svfRestriction.getOnProperty().getURI(), svfRestriction.asSomeValuesFromRestriction());
             //System.out.println("     - Class URI Resource: " + someValuesFrom.asResource().getURI());
-            // You might want to reflect this in classDetails, depending on your application logic
         } else {
             //System.out.println("     - Non-Class URI Resource (skipped): " + someValuesFrom.asResource().getURI());
             throw new ConversionException("Unknown some values from restriction type: " + svfRestriction.getClass().getName());
@@ -150,7 +151,7 @@ public class ClassCollector {
                         Resource range = rangeStmt.getObject().asResource();
                         if (range.canAs(UnionClass.class)) {
                             // If the range is a union class, process each operand
-                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "ANY"));
+                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "SAMPLE"));
                             /*// If the range is a union class, process each operand
                             // To add multi ranged properties like hasCode [CODE] and hasCode [TERMINOLOGY]
                             UnionClass unionRange = range.as(UnionClass.class);
@@ -163,7 +164,7 @@ public class ClassCollector {
                             });*/
                         } else if (range.isURIResource()) {
                             // If the range is a single URI resource
-                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), range.getLocalName().toUpperCase(Locale.ROOT)));
+                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "SAMPLE:"+range.getLocalName().toUpperCase(Locale.ROOT)));
                         } else {
                             classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "UNKNOWN"));
                         }
