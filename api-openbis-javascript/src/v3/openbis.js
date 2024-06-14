@@ -639,7 +639,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 	}
 
-	var facade = function(asUrl, afsUrl, sessionToken) {
+	var facade = function(asUrl, afsUrl) {
 
         var openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
         var transactionCoordinatorUrl = "/openbis/openbis/rmi-transaction-coordinator.json";

@@ -276,7 +276,7 @@ var JExcelEditorManager = new function() {
 	}
 
 	this._isIdentifierCell = function(cellData) {
-	    if(!cellData || cellData == '') {
+	    if(!this._isString(cellData) || cellData == '') {
 	        return false;
 	    }
 	    var arr = cellData.split(/\s+/).filter(Boolean);
@@ -286,6 +286,10 @@ var JExcelEditorManager = new function() {
             }
         }
         return false;
+	}
+
+	this._isString = function(value) {
+        return typeof value === 'string' || value instanceof String;
 	}
 
 	this._isIdentifier = function(data) {

@@ -64,7 +64,9 @@ public class DelayedExecution
             return false;
         }
         DelayedExecution that = (DelayedExecution) o;
-        return creationOrUpdate.getClass() == that.creationOrUpdate.getClass() && identifier.equals(that.identifier);
+        return creationOrUpdate.getClass() == that.creationOrUpdate.getClass() &&
+                identifier != null &&
+                identifier.equals(that.identifier);
     }
 
     @Override

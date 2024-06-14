@@ -258,24 +258,33 @@ import ch.ethz.sis.openbis.generic.typescript.TypeScriptObject;
 public class OpenBISJavaScriptFacade implements IApplicationServerApi
 {
 
-    public OpenBISJavaScriptFacade(){}
+    public OpenBISJavaScriptFacade()
+    {
+    }
 
-    public OpenBISJavaScriptFacade(String openbisUrl){}
+    public OpenBISJavaScriptFacade(String openbisUrl)
+    {
+    }
 
-    public OpenBISJavaScriptFacade(String openbisUrl, String afsUrl){}
+    public OpenBISJavaScriptFacade(String openbisUrl, String afsUrl)
+    {
+    }
 
     @TypeScriptMethod(sessionToken = false, async = false)
-    public OpenBISJavaScriptDSSFacade getDataStoreFacade(){
+    public OpenBISJavaScriptDSSFacade getDataStoreFacade()
+    {
         return null;
     }
 
     @TypeScriptMethod(sessionToken = false, async = false)
-    public OpenBISJavaScriptAFSFacade getAfsServerFacade(){
+    public OpenBISJavaScriptAFSFacade getAfsServerFacade()
+    {
         return null;
     }
 
     @TypeScriptMethod(sessionToken = false, async = false)
-    public OpenBISJavaScriptDSSFacade getDataStoreFacade(String[] dataStoreCodes){
+    public OpenBISJavaScriptDSSFacade getDataStoreFacade(String[] dataStoreCodes)
+    {
         return null;
     }
 
@@ -302,8 +311,14 @@ public class OpenBISJavaScriptFacade implements IApplicationServerApi
     {
     }
 
-    @TypeScriptMethod(sessionToken = false)
-    public void setInteractiveSessionKey(String interactiveSessionKey){
+    @TypeScriptMethod(sessionToken = false, async = false)
+    public void setSessionToken(String sessionToken)
+    {
+    }
+
+    @TypeScriptMethod(sessionToken = false, async = false)
+    public void setInteractiveSessionKey(String interactiveSessionKey)
+    {
     }
 
     @TypeScriptMethod(sessionToken = false)

@@ -1830,27 +1830,27 @@ public class ExportExecutor implements IExportExecutor
         return set == null || set.contains(value);
     }
 
-    private static String convertJsonToHtml(final TreeNode node) throws IOException
+    private static String convertJsonToHtml(final JsonNode node)
     {
-
-        TreeNode data = node.get("values");
-        if(data == null) {
+        JsonNode data = node.get("values");
+        if (data == null) {
             // backwards compatibility
             data = node.get("data");
         }
-        final TreeNode styles = node.get("style");
+
+        final JsonNode styles = node.get("style");
 
         final StringBuilder tableBody = new StringBuilder();
         for (int i = 0; i < data.size(); i++)
         {
-            final TreeNode dataRow = data.get(i);
+            final JsonNode dataRow = data.get(i);
             tableBody.append("<tr>\n");
             for (int j = 0; j < dataRow.size(); j++)
             {
                 final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
-                final String style = ((TextNode) styles.get(stylesKey)).textValue();
-                final TextNode cell = (TextNode) dataRow.get(j);
-                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
+                final String style = styles.get(stylesKey).asText();
+                final JsonNode cell = dataRow.get(j);
+                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.asText())
                         .append(" </td>\n");
             }
             tableBody.append("</tr>\n");

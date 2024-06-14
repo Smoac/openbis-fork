@@ -1135,7 +1135,7 @@ public class DelayedExecutionDecorator
                     break;
             }
             if (entityType == null) {
-                dependencies.add(creation.getEntityTypeId());
+                dependencies.add(entityTypePermId);
             }
         }
 
@@ -1143,7 +1143,7 @@ public class DelayedExecutionDecorator
             PropertyType propertyType = getPropertyType(propertyTypePermId, new PropertyTypeFetchOptions());
             if (propertyType == null)
             {
-                dependencies.add(creation.getPropertyTypeId());
+                dependencies.add(propertyTypePermId);
             }
         }
 
