@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import java.util.List;
 import java.util.Locale;
 
 public class RDFSampleTypeHelper {
@@ -61,7 +62,7 @@ public class RDFSampleTypeHelper {
         sampleTypeRowValues.createCell(1).setCellValue(description);            //Description("Description", true),
         sampleTypeRowValues.createCell(2).setCellValue(1);                      //AutoGenerateCodes("Auto generate codes", true),
         //sampleTypeRowValues.createCell(3).setCellValue("");                       //ValidationScript("Validation script", true),
-        sampleTypeRowValues.createCell(4).setCellValue(code.substring(0,3));    //GeneratedCodePrefix("Generated code prefix", true);
+        sampleTypeRowValues.createCell(4).setCellValue(false);                  //GeneratedCodePrefix("Generated code prefix", true);
         sampleTypeRowValues.createCell(5).setCellValue(ontNamespace);           //OntologyId("Ontology Id", false),
         sampleTypeRowValues.createCell(6).setCellValue(ontVersion);             //OntologyVersion("Ontology Version", false),
         sampleTypeRowValues.createCell(7).setCellValue(ontClassURI);            //OntologyAnnotationId("Ontology Annotation Id", false),
