@@ -58,27 +58,27 @@ public class RDFSampleHelper {
         return defaultCols;
     }
 
-    protected void createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassObject ontClassObject) {
+    protected int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassObject ontClassObject) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         // Create header row for SAMPLE
-        Row headerSampleRow = sheet.createRow(rowNum);
+        Row headerSampleRow = sheet.createRow(rowNum++);
         Cell cellSample = headerSampleRow.createCell(0);
         cellSample.setCellValue("SAMPLE");
         cellSample.setCellStyle(headerStyle);
 
         // Create header row for Sample Type
-        Row headerSampleTypeRow = sheet.createRow(rowNum + 1);
+        Row headerSampleTypeRow = sheet.createRow(rowNum++);
         Cell cellSampleType = headerSampleTypeRow.createCell(0);
         cellSampleType.setCellValue("Sample type");
         cellSampleType.setCellStyle(headerStyle);
 
         // Add Sample Type Value
-        Row sampleTypeRow = sheet.createRow(rowNum + 2);
+        Row sampleTypeRow = sheet.createRow(rowNum++);
         sampleTypeRow.createCell(0).setCellValue(sampleTypeKey.toUpperCase(Locale.ROOT));
 
         // Create header row for Sample Type columns
-        Row sampleTypeRowHeaders = sheet.createRow(rowNum + 3);
+        Row sampleTypeRowHeaders = sheet.createRow(rowNum++);
 
         for (int i = 0; i < allColumns.size(); i++)
         {
@@ -86,19 +86,21 @@ public class RDFSampleHelper {
             cell.setCellValue(allColumns.get(i));
             cell.setCellStyle(headerStyle);
         }
+
+        return rowNum;
     }
 
-    protected int createResourceRows(Sheet sheet, int rowNum, ResourceRDF resource, OntClassObject ontClassObject) {
+    protected int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
-        String prefix = "https://biomedit.ch/rdf/sphn-resource/";
+        String resourcePrefix = "https://biomedit.ch/rdf/sphn-resource/";
 
         Row propertyRowValues = sheet.createRow(rowNum);
         //propertyRowValues.createCell(0).setCellValue(""); // $
         //propertyRowValues.createCell(1).setCellValue(""); // Identifier
         //propertyRowValues.createCell(2).setCellValue(property.getObject()); // Code
-        propertyRowValues.createCell(3).setCellValue("DEFAULT"); // Space
-        propertyRowValues.createCell(4).setCellValue("/DEFAULT/DEFAULT"); // Project
-        propertyRowValues.createCell(5).setCellValue("/DEFAULT/DEFAULT/DEFAULT"); // Experiment
+        propertyRowValues.createCell(3).setCellValue(projectId.split("/")[1]); // Space
+        propertyRowValues.createCell(4).setCellValue(projectId); // Project
+        propertyRowValues.createCell(5).setCellValue(projectId + resource.type); // Experiment
         //propertyRowValues.createCell(6).setCellValue(""); // Parents
         //propertyRowValues.createCell(7).setCellValue(""); // Children
 
@@ -107,12 +109,13 @@ public class RDFSampleHelper {
             propertyRowValues.createCell(idxName).setCellValue(resource.resourceVal);
         }
 
-        for (PropertyTupleRDF property : resource.properties)
-        {
-            propertyRowValues.createCell(2).setCellValue(property.getObject()); // Code
+        for (PropertyTupleRDF property : resource.properties) {
+            System.out.println(property);
+            propertyRowValues.createCell(1).setCellValue(projectId + "/" + resource.resourceVal); // Identifier
+            propertyRowValues.createCell(5).setCellValue(projectId + "/" + Utils.extractLabel(resource.type).toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
             int idx = allColumns.indexOf(Utils.extractLabel(property.getPredicateLabel()));
             if (idx != -1) {
-                propertyRowValues.createCell(idx).setCellValue("/DEFAULT/DEFAULT/"+property.getObject());
+                propertyRowValues.createCell(idx).setCellValue(projectId + "/" + property.getObject().replace(resourcePrefix, ""));
             }
         }
 

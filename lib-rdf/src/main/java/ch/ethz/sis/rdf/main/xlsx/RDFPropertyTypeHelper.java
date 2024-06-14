@@ -140,7 +140,6 @@ public class RDFPropertyTypeHelper {
             cell.setCellStyle(headerStyle);
         }
 
-        // Iterate over restrictions to create additional rows
         if (ontClassObject.propertyTuples != null) {
             for (PropertyTupleRDF propertyTupleRDF : ontClassObject.propertyTuples) {
                 AtomicBoolean isMultivalued = new AtomicBoolean(false);

@@ -76,10 +76,10 @@ public class RDFParser {
             model.listStatements(null, RDF.type, (Resource) null).forEachRemaining(statement -> {
                 Resource subject = statement.getSubject();
                 if (subject.isURIResource() && subject.getURI().startsWith(prefix)) {
-                    String subjectURI = subject.getURI();
+                    //String subjectURI = subject.getURI();
 
                     // Create a new ResourceRDF object
-                    ResourceRDF resource = new ResourceRDF(subjectURI);
+                    ResourceRDF resource = new ResourceRDF(subject.getLocalName());
 
                     // Set the type of the resource
                     Resource type = statement.getObject().asResource();
@@ -106,7 +106,7 @@ public class RDFParser {
                                 }
 
                                 // Add the predicate and object as a PropertyTuple to the ResourceRDF
-                                resource.properties.add(new PropertyTupleRDF(predicateURI, objectValue));
+                                resource.properties.add(new PropertyTupleRDF(predicate.getLocalName(), objectValue));
                             });
                 }
             });

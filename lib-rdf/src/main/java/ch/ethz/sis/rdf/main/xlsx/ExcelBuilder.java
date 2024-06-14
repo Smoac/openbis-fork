@@ -15,16 +15,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ExcelBuilder
-{
-
+public class ExcelBuilder {
     RDFSampleTypeHelper rdfSampleTypeHelper;
     RDFPropertyTypeHelper rdfPropertyTypeHelper;
     RDFSampleHelper rdfSampleHelper;
     RDFSpaceHelper rdfSpaceHelper;
     RDFProjectHelper rdfProjectHelper;
     RDFExperimentHelper rdfExperimentHelper;
-
 
     public ExcelBuilder() {
         this.rdfSampleTypeHelper = new RDFSampleTypeHelper();
@@ -47,7 +44,7 @@ public class ExcelBuilder
             //createVocabularyTypesSheet(workbook, headerStyle);
             createObjectTypesSheet(workbook, headerStyle, rdfParser);
             createSpaceProjExpSheet(workbook, headerStyle, "/DEFAULT/DEFAULT", rdfParser);
-            createObjectsSheet(workbook, headerStyle, rdfParser, new HashMap<>());
+            createObjectsSheet(workbook, headerStyle, "/DEFAULT/DEFAULT", rdfParser);
 
             // Write the output to a file
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
@@ -103,13 +100,12 @@ public class ExcelBuilder
 
     }
 
-    private void createObjectsSheet(Workbook workbook, CellStyle headerStyle, RDFParser rdfParser, Map<String, List<ResourceRDF>> typeGroupMap) {
+    private void createObjectsSheet(Workbook workbook, CellStyle headerStyle, String projectId, RDFParser rdfParser) {
         Sheet sheet = workbook.createSheet("Objects");
         int rowNum = 0;
         List<String> skippedSampleTypes = new ArrayList<>();
 
         for (Map.Entry<String, List<ResourceRDF>> entry : rdfParser.resourcesGroupedByType.entrySet()) {
-            System.out.println(entry);
             if (!rdfParser.classDetailsMap.containsKey(entry.getKey())) {
                 skippedSampleTypes.add(entry.getKey());
                 continue;
@@ -117,18 +113,19 @@ public class ExcelBuilder
             OntClassObject ontClassObject = rdfParser.classDetailsMap.get(entry.getKey());
 
             //System.out.println(ontClassObject);
-            String objectType = Utils.extractLabel(entry.getKey()).toUpperCase(Locale.ROOT);
-
 
             // Create headers and rows for each sample type
-            rdfSampleHelper.createSampleHeaders(sheet, rowNum, headerStyle, objectType, ontClassObject);
-            rowNum += 4;  // Adjust row number based on headers added
-            for (ResourceRDF res : entry.getValue()) {
-                rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, res, ontClassObject);
+            String objectType = Utils.extractLabel(entry.getKey()).toUpperCase(Locale.ROOT);
+            rowNum = rdfSampleHelper.createSampleHeaders(sheet, rowNum, headerStyle, objectType, ontClassObject);
+
+            for (ResourceRDF resourceRDF : entry.getValue()) {
+                rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, resourceRDF, ontClassObject);
             }
             // add empty row for readability
             sheet.createRow(rowNum++);
         }
+
+        Utils.autosizeColumns(sheet, 20);
         // Write the output to a file
         System.out.println("Skipped sample types: " + skippedSampleTypes);
     }
