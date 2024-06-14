@@ -71,45 +71,46 @@ public class RDFParser {
 
         // Map to store the resources grouped by type
         Map<String, List<ResourceRDF>> groupedResources = new HashMap<>();
+        if(prefix != null) {
+            // Iterate through all statements with rdf:type predicate
+            model.listStatements(null, RDF.type, (Resource) null).forEachRemaining(statement -> {
+                Resource subject = statement.getSubject();
+                if (subject.isURIResource() && subject.getURI().startsWith(prefix)) {
+                    String subjectURI = subject.getURI();
 
-        // Iterate through all statements with rdf:type predicate
-        model.listStatements(null, RDF.type, (Resource) null).forEachRemaining(statement -> {
-            Resource subject = statement.getSubject();
-            if (subject.isURIResource() && subject.getURI().startsWith(prefix)) {
-                String subjectURI = subject.getURI();
+                    // Create a new ResourceRDF object
+                    ResourceRDF resource = new ResourceRDF(subjectURI);
 
-                // Create a new ResourceRDF object
-                ResourceRDF resource = new ResourceRDF(subjectURI);
+                    // Set the type of the resource
+                    Resource type = statement.getObject().asResource();
+                    resource.setType(type.getURI());
 
-                // Set the type of the resource
-                Resource type = statement.getObject().asResource();
-                resource.setType(type.getURI());
+                    // Add the resource to the appropriate group based on its type
+                    groupedResources.putIfAbsent(type.getURI(), new ArrayList<>());
+                    groupedResources.get(type.getURI()).add(resource);
 
-                // Add the resource to the appropriate group based on its type
-                groupedResources.putIfAbsent(type.getURI(), new ArrayList<>());
-                groupedResources.get(type.getURI()).add(resource);
+                    // Iterate over all properties of the subject
+                    model.listStatements(subject, null, (Resource) null)
+                            .filterDrop(statement1 -> statement1.getPredicate().equals(RDF.type))
+                            .forEachRemaining(propStatement -> {
+                                Property predicate = propStatement.getPredicate();
+                                String predicateURI = predicate.getURI();
+                                String objectValue;
 
-                // Iterate over all properties of the subject
-                model.listStatements(subject, null, (Resource) null)
-                        .filterDrop(statement1 -> statement1.getPredicate().equals(RDF.type))
-                        .forEachRemaining(propStatement -> {
-                            Property predicate = propStatement.getPredicate();
-                            String predicateURI = predicate.getURI();
-                            String objectValue;
+                                // Get the object value
+                                if (propStatement.getObject().isResource()) {
+                                    Resource object = propStatement.getObject().asResource();
+                                    objectValue = object.getURI();
+                                } else {
+                                    objectValue = propStatement.getObject().toString();
+                                }
 
-                            // Get the object value
-                            if (propStatement.getObject().isResource()) {
-                                Resource object = propStatement.getObject().asResource();
-                                objectValue = object.getURI();
-                            } else {
-                                objectValue = propStatement.getObject().toString();
-                            }
-
-                            // Add the predicate and object as a PropertyTuple to the ResourceRDF
-                            resource.properties.add(new PropertyTupleRDF(predicateURI, objectValue));
-                        });
-            }
-        });
+                                // Add the predicate and object as a PropertyTuple to the ResourceRDF
+                                resource.properties.add(new PropertyTupleRDF(predicateURI, objectValue));
+                            });
+                }
+            });
+        }
         return groupedResources;
     }
 
