@@ -24,7 +24,7 @@ var JExcelEditorManager = new function() {
                 // little hack because jExcelEditor.getData(false, true) is not returning processed results
                 for(let rowIndex in values) {
                     values[rowIndex] = Object.values(values[rowIndex]).map((val, index) => {
-                        if(val.startsWith('=')) {
+                        if(this._isString(cellData) && val.startsWith('=')) {
                             var row = parseInt(rowIndex)+1;
                             return jExcelEditor.getValue(headers[index] + row, true);
                         }
