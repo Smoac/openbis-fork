@@ -57,6 +57,7 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
     public List<DataStorePE> search(IOperationContext context, DataStoreSearchCriteria criteria)
     {
         authorizationExecutor.canSearch(context);
+        criteria.withKind();
         return super.search(context, criteria);
     }
 
