@@ -13,27 +13,32 @@ class Facade {
       requirejs(
         ['openbis', 'util/Json'],
         (openbis, stjs) => {
-          new openbis().getServerPublicInformation()
-            .then(result => {
+          new openbis().getServerPublicInformation().then(
+            result => {
               const afsServerUrlKey = 'server-public-information.afs-server.url'
               const afsServerUrl = result[afsServerUrlKey]
-              if (afsServerUrl) {
-                _this.v3 = new openbis(null, afsServerUrl)
-                _this.stjs = stjs
-                resolve()
-              } else {
-                reject(new Error(afsServerUrlKey + ' is not set.'))
-              }
+              _this.v3 = new openbis(null, afsServerUrl)
+              _this.stjs = stjs
+              resolve()
             },
             error => {
               reject(error)
-            })
+            }
+          )
         },
         error => {
           reject(error)
         }
       )
     })
+  }
+
+  _getAfsServerFacade() {
+    if (!this.v3.getAfsUrl()) {
+      throw new Error('server-public-information.afs-server.url is not set.')
+    } else {
+      return this.v3.getAfsServerFacade();
+    }
   }
 
   useSession(sessionToken) {
@@ -257,43 +262,55 @@ class Facade {
   }
 
   executeCustomDSSService(serviceId, options) {
-    return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options));
+    return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options))
   }
 
   fromJson(jsonType, jsonObject) {
-    return this.promise(this.stjs.fromJson(jsonType, jsonObject));
+    return this.promise(this.stjs.fromJson(jsonType, jsonObject))
   }
 
   list(owner, source, recursively) {
-    return this.promise(this.v3.getAfsServerFacade().list(owner, source, recursively))
+    return this.promise(
+      this._getAfsServerFacade().list(owner, source, recursively)
+    )
   }
 
   read(owner, source, offset, limit) {
-    return this.promise(this.v3.getAfsServerFacade().read(owner, source, offset, limit))
+    return this.promise(
+      this._getAfsServerFacade().read(owner, source, offset, limit)
+    )
   }
 
   write(owner, source, offset, data) {
-    return this.promise(this.v3.getAfsServerFacade().write(owner, source, offset, data))
+    return this.promise(
+      this._getAfsServerFacade().write(owner, source, offset, data)
+    )
   }
 
   delete(owner, source) {
-    return this.promise(this.v3.getAfsServerFacade().delete(owner, source))
+    return this.promise(this._getAfsServerFacade().delete(owner, source))
   }
 
   copy(sourceOwner, source, targetOwner, target) {
-    return this.promise(this.v3.getAfsServerFacade().copy(sourceOwner, source, targetOwner, target))
+    return this.promise(
+      this._getAfsServerFacade().copy(sourceOwner, source, targetOwner, target)
+    )
   }
 
   move(sourceOwner, source, targetOwner, target) {
-    return this.promise(this.v3.getAfsServerFacade().move(sourceOwner, source, targetOwner, target))
+    return this.promise(
+      this._getAfsServerFacade().move(sourceOwner, source, targetOwner, target)
+    )
   }
 
   create(owner, source, directory) {
-    return this.promise(this.v3.getAfsServerFacade().create(owner, source, directory))
+    return this.promise(
+      this._getAfsServerFacade().create(owner, source, directory)
+    )
   }
 
   free(owner, source) {
-    return this.promise(this.v3.getAfsServerFacade().free(owner, source))
+    return this.promise(this._getAfsServerFacade().free(owner, source))
   }
 
   async executeService(id, options) {
