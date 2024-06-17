@@ -15,17 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update;
 
-import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntityUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -37,7 +31,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author pkupczyk
@@ -74,6 +67,9 @@ public class ExperimentUpdate extends AbstractEntityUpdate
     @JsonProperty
     private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
+    @JsonProperty
+    private boolean immutableData;
+
     @Override
     @JsonIgnore
     public IExperimentId getObjectId()
@@ -102,6 +98,7 @@ public class ExperimentUpdate extends AbstractEntityUpdate
     public void freeze()
     {
         this.freeze = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -114,6 +111,7 @@ public class ExperimentUpdate extends AbstractEntityUpdate
     {
         this.freeze = true;
         this.freezeForDataSets = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -126,6 +124,7 @@ public class ExperimentUpdate extends AbstractEntityUpdate
     {
         this.freeze = true;
         this.freezeForSamples = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -169,6 +168,17 @@ public class ExperimentUpdate extends AbstractEntityUpdate
     public void setMetaDataActions(List<ListUpdateAction<Object>> actions)
     {
         metaData.setActions(actions);
+    }
+
+    @JsonIgnore
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void makeDataImmutable()
+    {
+        this.immutableData = true;
     }
 
     @Override

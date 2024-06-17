@@ -41,6 +41,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.relationships = null;
 		prototype.attachments = null;
 		prototype.metaData = null;
+		prototype.immutableData = null;
 
 		prototype.getObjectId = function() {
 			return this.getSampleId();
@@ -56,6 +57,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		}
 		prototype.freeze = function() {
 			this.freeze = true;
+			this.immutableData = true;
 		}
 		prototype.shouldBeFrozenForComponents = function() {
 			return this.freezeForComponents;
@@ -63,6 +65,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.freezeForComponents = function() {
 			this.freeze = true;
 			this.freezeForComponents = true;
+			this.immutableData = true;
 		}
 		prototype.shouldBeFrozenForChildren = function() {
 			return this.freezeForChildren;
@@ -70,6 +73,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.freezeForChildren = function() {
 			this.freeze = true;
 			this.freezeForChildren = true;
+			this.immutableData = true;
 		}
 		prototype.shouldBeFrozenForParents = function() {
 			return this.freezeForParents;
@@ -77,6 +81,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.freezeForParents = function() {
 			this.freeze = true;
 			this.freezeForParents = true;
+			this.immutableData = true;
 		}
 		prototype.shouldBeFrozenForDataSets = function() {
 			return this.freezeForDataSets;
@@ -84,6 +89,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.freezeForDataSets = function() {
 			this.freeze = true;
 			this.freezeForDataSets = true;
+			this.immutableData = true;
 		}
 		prototype.getProjectId = function() {
 			return this.projectId;
@@ -159,6 +165,12 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
         prototype.setMetaDataActions = function(actions) {
             this.metaData.setActions(actions);
         };
+        prototype.isImmutableData = function() {
+            return this.immutableData;
+        }
+        prototype.makeDataImmutable = function() {
+            this.immutableData = true;
+        }
 	}, {
 		sampleId : "ISampleId",
 		experimentId : {

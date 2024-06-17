@@ -45,4 +45,6 @@ public class ExperimentBaseRecord extends ObjectBaseRecord
 
     public String metaData;
 
+    public boolean immutableData;
+
 }

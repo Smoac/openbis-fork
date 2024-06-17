@@ -147,6 +147,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private Map<String, String> metaData;
 
+    private boolean immutableData;
+
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     public Date getRegistrationDate()
@@ -710,7 +712,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @Override
-    @Column(name = "meta_data")
+    @Column(name = ColumnNames.META_DATA)
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
     {
@@ -721,5 +723,17 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IMMUTABLE_DATA_COLUMN, nullable = false)
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void setImmutableData(boolean immutableData)
+    {
+        this.immutableData = immutableData;
     }
 }
