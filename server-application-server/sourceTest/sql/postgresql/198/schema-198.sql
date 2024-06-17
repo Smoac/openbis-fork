@@ -1842,7 +1842,8 @@ CREATE TABLE experiments_all (
     frozen_for_samp boolean_char DEFAULT false NOT NULL,
     frozen_for_data boolean_char DEFAULT false NOT NULL,
     tsvector_document tsvector NOT NULL,
-    meta_data jsonb
+    meta_data jsonb,
+    immutable_data boolean_char DEFAULT false NOT NULL
 );
 CREATE VIEW experiments AS
  SELECT experiments_all.id,
@@ -1863,7 +1864,8 @@ CREATE VIEW experiments AS
     experiments_all.frozen_for_samp,
     experiments_all.frozen_for_data,
     experiments_all.tsvector_document,
-    experiments_all.meta_data
+    experiments_all.meta_data,
+    experiments_all.immutable_data
    FROM experiments_all
   WHERE (experiments_all.del_id IS NULL);
 CREATE VIEW experiments_deleted AS
