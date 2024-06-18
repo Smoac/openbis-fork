@@ -49,6 +49,94 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
     }
 
     @Test
+    public void testCreateAfsDataIn1PCTransaction() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+
+        openBIS.login(ADMIN, PASSWORD);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        sampleCreation.setSpaceId(spaceId);
+        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        // create sample at AS
+        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
+
+        // BEGIN
+        openBIS.beginTransaction();
+
+        assertSampleExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+
+        // create data at AFS
+        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+
+        assertSampleExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+
+        // COMMIT
+        openBIS.commitTransaction();
+
+        assertSampleExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+    }
+
+    @Test
+    public void testCreateAfsDataIn2PCTransaction() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+
+        openBIS.login(ADMIN, PASSWORD);
+
+        // BEGIN
+        openBIS.beginTransaction();
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        sampleCreation.setSpaceId(spaceId);
+        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        // create sample at AS
+        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
+
+        assertSampleExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+
+        // create data at AFS
+        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+
+        assertSampleExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+
+        // COMMIT
+        openBIS.commitTransaction();
+
+        assertSampleExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+    }
+
+    @Test
     public void testDeleteExperimentWithAfsDataSet() throws Exception
     {
         OpenBIS openBIS = createOpenBIS();
@@ -73,7 +161,12 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         ExperimentPermId experimentId = openBIS.createExperiments(List.of(experimentCreation)).get(0);
 
+        assertExperimentExistsAtAS(experimentId.getPermId(), true);
+        assertDataSetExistsAtAS(experimentId.getPermId(), false);
+        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
+
         openBIS.getAfsServerFacade().write(experimentId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(experimentId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
         ExperimentDeletionOptions options = new ExperimentDeletionOptions();
         options.setReason("It is just a test");
@@ -111,7 +204,12 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
 
+        assertSampleExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+
         openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
@@ -175,7 +273,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
     private void deleteLastSeenDeletionFile() throws Exception
     {
         String lastSeenDeletionFile = getAfsServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.openBISLastSeenDeletionFile);
-        Files.delete(Path.of(lastSeenDeletionFile));
+        Files.deleteIfExists(Path.of(lastSeenDeletionFile));
     }
 
 }
