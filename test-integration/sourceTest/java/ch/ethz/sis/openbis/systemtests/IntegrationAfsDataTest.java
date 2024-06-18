@@ -1,0 +1,114 @@
+package ch.ethz.sis.openbis.systemtests;
+
+import static org.testng.Assert.assertEquals;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import org.testng.annotations.Test;
+
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
+
+public class IntegrationAfsDataTest extends AbstractIntegrationTest
+{
+
+    private static final String ENTITY_CODE_PREFIX = "AFS_DATA_TEST_";
+
+    private static final long WAITING_TIME_FOR_ASYNC_TASKS = 5000L;
+
+    @Test
+    public void testDeleteExperimentWithAfsDataSet() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+
+        openBIS.login(ADMIN, PASSWORD);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setSpaceId(spaceId);
+        projectCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        ProjectPermId projectId = openBIS.createProjects(List.of(projectCreation)).get(0);
+
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        experimentCreation.setProjectId(projectId);
+        experimentCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        ExperimentPermId experimentId = openBIS.createExperiments(List.of(experimentCreation)).get(0);
+
+        openBIS.getAfsServerFacade().write(experimentId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+
+        ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertExperimentExistsAtAS(experimentId.getPermId(), true);
+        assertDataSetExistsAtAS(experimentId.getPermId(), true);
+        assertDataSetExistsAtAFS(experimentId.getPermId(), true);
+
+        IDeletionId deletionId = openBIS.deleteExperiments(List.of(experimentId), options);
+        openBIS.confirmDeletions(List.of(deletionId));
+
+        assertExperimentExistsAtAS(experimentId.getPermId(), false);
+        assertDataSetExistsAtAS(experimentId.getPermId(), false);
+        // we need to wait for both AS events-search-task and AFS serverObserver
+        Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
+        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
+    }
+
+    private void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM experiments_all WHERE perm_id = '" + experimentPermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
+    private void assertDataSetExistsAtAS(String dataSetPermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE code = '" + dataSetPermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
+    private void assertDataSetExistsAtAFS(String dataSetPermId, boolean exists) throws Exception
+    {
+        final String storageRoot = getAfsServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
+        final List<File> dataSetFolders = Files.find(Path.of(storageRoot), Integer.MAX_VALUE,
+                        (path, basicFileAttributes) -> path.getFileName().toString().equals(dataSetPermId) && Files.isDirectory(path))
+                .map(Path::toFile).collect(Collectors.toList());
+        assertEquals(dataSetFolders.size(), exists ? 1 : 0);
+    }
+
+}

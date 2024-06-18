@@ -52,7 +52,7 @@ import ch.ethz.sis.transaction.TransactionStatus;
 public class Integration2PCTest extends AbstractIntegrationTest
 {
 
-    private static final String ENTITY_CODE_PREFIX = "TRANSACTION_TEST_";
+    private static final String ENTITY_CODE_PREFIX = "2PC_TEST_";
 
     private static final long WAITING_TIME_FOR_FINISHING_TRANSACTIONS = 2000L;
 
