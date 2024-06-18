@@ -3,6 +3,7 @@ package ch.ethz.sis.openbis.systemtests;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -25,6 +27,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDele
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
@@ -35,6 +40,13 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
     private static final String ENTITY_CODE_PREFIX = "AFS_DATA_TEST_";
 
     private static final long WAITING_TIME_FOR_ASYNC_TASKS = 5000L;
+
+    @AfterMethod
+    public void afterMethod(Method method) throws Exception
+    {
+        deleteLastSeenDeletionFile();
+        super.afterMethod(method);
+    }
 
     @Test
     public void testDeleteExperimentWithAfsDataSet() throws Exception
@@ -80,6 +92,44 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         assertDataSetExistsAtAFS(experimentId.getPermId(), false);
     }
 
+    @Test
+    public void testDeleteSampleWithAfsDataSet() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+
+        openBIS.login(ADMIN, PASSWORD);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        sampleCreation.setSpaceId(spaceId);
+        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
+
+        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+
+        SampleDeletionOptions options = new SampleDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertSampleExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAS(sampleId.getPermId(), true);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+
+        IDeletionId deletionId = openBIS.deleteSamples(List.of(sampleId), options);
+        openBIS.confirmDeletions(List.of(deletionId));
+
+        assertSampleExistsAtAS(sampleId.getPermId(), false);
+        assertDataSetExistsAtAS(sampleId.getPermId(), false);
+        // we need to wait for both AS events-search-task and AFS serverObserver
+        Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
+        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+    }
+
     private void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
     {
         try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
@@ -91,12 +141,23 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         }
     }
 
+    private void assertSampleExistsAtAS(String samplePermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM samples_all WHERE perm_id = '" + samplePermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
     private void assertDataSetExistsAtAS(String dataSetPermId, boolean exists) throws Exception
     {
         try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
                 Statement statement = connection.createStatement())
         {
-            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE code = '" + dataSetPermId + "'");
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE afs_data = 't' AND code = '" + dataSetPermId + "'");
             resultSet.next();
             assertEquals(resultSet.getInt(1), exists ? 1 : 0);
         }
@@ -109,6 +170,12 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                         (path, basicFileAttributes) -> path.getFileName().toString().equals(dataSetPermId) && Files.isDirectory(path))
                 .map(Path::toFile).collect(Collectors.toList());
         assertEquals(dataSetFolders.size(), exists ? 1 : 0);
+    }
+
+    private void deleteLastSeenDeletionFile() throws Exception
+    {
+        String lastSeenDeletionFile = getAfsServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.openBISLastSeenDeletionFile);
+        Files.delete(Path.of(lastSeenDeletionFile));
     }
 
 }
