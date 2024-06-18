@@ -39,16 +39,11 @@ def process(transaction):
     incoming = transaction.getIncoming();
     folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
-    discardHiddenFiles = transaction.getGlobalState().getThreadParameters().discardHiddenFiles()
     allowHiddenFiles = transaction.getGlobalState().getThreadParameters().allowHiddenFiles()
     discardFilesPatterns = transaction.getGlobalState().getThreadParameters().discardFilesPatterns()
     stringToPatternMap = transaction.getGlobalState().getThreadParameters().discardFilesPatternsCache()
 
     try:
-        if discardHiddenFiles:
-            hiddenFiles = getHiddenFiles(incoming)
-            for filePath in hiddenFiles:
-                deleteFiles(filePath)
         if discardFilesPatterns != "":
             stringPatterns = discardFilesPatterns.split(",")
             patterns = []
