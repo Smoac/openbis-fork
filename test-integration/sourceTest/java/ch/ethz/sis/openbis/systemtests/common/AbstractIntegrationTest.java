@@ -62,9 +62,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -79,7 +83,7 @@ public abstract class AbstractIntegrationTest
 
     public static final String TEST_INTERACTIVE_SESSION_KEY = "integration-test-interactive-session-key";
 
-    public static final String USER = "test";
+    public static final String ADMIN = "admin";
 
     public static final String PASSWORD = "password";
 
@@ -107,6 +111,7 @@ public abstract class AbstractIntegrationTest
 
         startApplicationServer(true);
         startApplicationServerProxy();
+        createAfsUser();
         startAfsServer();
         startAfsServerProxy();
     }
@@ -286,6 +291,25 @@ public abstract class AbstractIntegrationTest
         log("Started application server proxy.");
     }
 
+    private void createAfsUser() throws Exception
+    {
+        final Configuration configuration = getAfsServerConfiguration();
+
+        PersonCreation afsUserCreation = new PersonCreation();
+        afsUserCreation.setUserId(configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUser));
+
+        final OpenBIS openBIS = createOpenBIS();
+        openBIS.login(ADMIN, PASSWORD);
+        final PersonPermId afsUserId = openBIS.createPersons(List.of(afsUserCreation)).get(0);
+
+        RoleAssignmentCreation afsRoleCreation = new RoleAssignmentCreation();
+        afsRoleCreation.setUserId(afsUserId);
+        afsRoleCreation.setRole(Role.ETL_SERVER);
+        openBIS.createRoleAssignments(List.of(afsRoleCreation));
+
+        log("Created " + afsUserCreation.getUserId() + " user.");
+    }
+
     private void startAfsServer() throws Exception
     {
         log("Starting afs server.");
@@ -433,6 +457,8 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerPort, String.valueOf(TestInstanceHostUtils.getAFSPort()));
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerUri, TestInstanceHostUtils.getAFSPath());
+        configuration.setProperty(AtomicFileSystemServerParameter.openBISUrl,
+                TestInstanceHostUtils.getOpenBISProxyUrl() + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL);
         return configuration;
     }
 

@@ -29,12 +29,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -82,8 +85,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         openBISWithTr.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
 
-        openBISWithTr.login(USER, PASSWORD);
-        openBISWithNoTr.login(USER, PASSWORD);
+        openBISWithTr.login(ADMIN, PASSWORD);
+        openBISWithNoTr.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBISWithTr.beginTransaction();
 
@@ -108,7 +111,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
         } catch (Exception e)
         {
             assertTrue(e.getMessage()
-                    .startsWith("Transaction '" + transactionId + "' execute operation 'createExperiments' for participant 'application-server' failed with error: Type id cannot be null"));
+                    .startsWith("Transaction '" + transactionId
+                            + "' execute operation 'createExperiments' for participant 'application-server' failed with error: Type id cannot be null"));
         }
 
         ExperimentCreation experimentCreation2 = createExperimentCreation(spaceCreation.getCode(), projectCreation.getCode(), "UNKNOWN");
@@ -244,7 +248,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     public void testBeginWithoutInteractiveSessionKey()
     {
         OpenBIS openBIS = createOpenBIS();
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         try
         {
@@ -261,7 +265,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey("this is incorrect");
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         try
         {
@@ -278,7 +282,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -305,7 +309,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         OpenBIS openBIS2 = createOpenBIS();
         openBIS2.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
 
-        String sessionToken = openBIS.login(USER, PASSWORD);
+        String sessionToken = openBIS.login(ADMIN, PASSWORD);
         openBIS2.setSessionToken(sessionToken);
 
         UUID transactionId = openBIS.beginTransaction();
@@ -336,7 +340,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
             {
                 OpenBIS openBIS = createOpenBIS();
                 openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-                openBIS.login(USER, PASSWORD);
+                openBIS.login(ADMIN, PASSWORD);
                 openBIS.beginTransaction();
                 openBISes.add(openBIS);
             }
@@ -372,7 +376,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -410,7 +414,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // check committed data
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNotNull(createdSpace);
@@ -436,7 +440,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -472,7 +476,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // check committed data
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNotNull(createdSpace);
@@ -486,7 +490,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -496,7 +500,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
             fail();
         } catch (Exception e)
         {
-            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId + "' execute operation 'createSpaces' for participant 'application-server' failed with error: Code cannot be empty"));
+            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId
+                    + "' execute operation 'createSpaces' for participant 'application-server' failed with error: Code cannot be empty"));
         } finally
         {
             openBIS.rollbackTransaction();
@@ -508,7 +513,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -519,7 +524,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
             fail();
         } catch (Exception e)
         {
-            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId + "' execute operation 'create' for participant 'afs-server' failed with error: owner is marked non-null but is null"));
+            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId
+                    + "' execute operation 'create' for participant 'afs-server' failed with error: owner is marked non-null but is null"));
         } finally
         {
             openBIS.rollbackTransaction();
@@ -530,12 +536,13 @@ public class Integration2PCTest extends AbstractIntegrationTest
         try
         {
             // fails in AFS
-            openBIS.getAfsServerFacade().read("i-dont-exist", "me-neither", 0L,0);
+            openBIS.getAfsServerFacade().read("i-dont-exist", "me-neither", 0L, 0);
             fail();
         } catch (Exception e)
         {
-            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId2 + "' execute operation 'read' for participant 'afs-server' failed with error:"));
-            assertTrue(e.getMessage().contains("NoSuchFileException"));
+            assertTrue(e.getMessage()
+                    .startsWith("Transaction '" + transactionId2 + "' execute operation 'read' for participant 'afs-server' failed with error:"));
+            assertTrue(e.getMessage().contains("don't have rights [Read] over i-dont-exist me-neither to perform the operation Read"));
         } finally
         {
             openBIS.rollbackTransaction();
@@ -547,7 +554,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         openBIS.beginTransaction();
 
@@ -581,7 +588,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -610,7 +617,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // check data hasn't been committed
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNull(createdSpace);
@@ -641,7 +648,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -670,7 +677,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // check data hasn't been committed
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNull(createdSpace);
@@ -689,7 +696,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         try
         {
@@ -718,7 +725,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -745,7 +752,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // check committed data
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNotNull(createdSpace);
@@ -771,7 +778,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -798,7 +805,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // check committed data
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNotNull(createdSpace);
@@ -832,8 +839,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         openBISWithTr.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
 
-        openBISWithTr.login(USER, PASSWORD);
-        openBISWithNoTr.login(USER, PASSWORD);
+        openBISWithTr.login(ADMIN, PASSWORD);
+        openBISWithNoTr.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBISWithTr.beginTransaction();
 
@@ -888,19 +895,13 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
     private void testAFSOnlyTransaction(boolean rollback)
     {
-        // make AS always fail to make sure it does not interrupt AS only transaction
-        setApplicationServerProxyInterceptor((method, defaultAction) ->
-        {
-            throw new RuntimeException("Test AS exception");
-        });
-
         OpenBIS openBISWithTr = createOpenBIS();
         OpenBIS openBISWithNoTr = createOpenBIS();
 
         openBISWithTr.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
 
-        openBISWithTr.login(USER, PASSWORD);
-        openBISWithNoTr.login(USER, PASSWORD);
+        openBISWithTr.login(ADMIN, PASSWORD);
+        openBISWithNoTr.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBISWithTr.beginTransaction();
 
@@ -953,7 +954,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         try
         {
@@ -970,7 +971,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
     {
         OpenBIS openBIS = createOpenBIS();
         openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(ADMIN, PASSWORD);
 
         UUID transactionId = openBIS.beginTransaction();
 
@@ -995,7 +996,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         }
 
         OpenBIS openBIS2 = createOpenBIS();
-        openBIS2.login(USER, PASSWORD);
+        openBIS2.login(ADMIN, PASSWORD);
 
         Space space = openBIS2.getSpaces(Collections.singletonList(spaceId), new SpaceFetchOptions()).get(spaceId);
         assertNull(space);
@@ -1037,7 +1038,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         // transaction 1 is committed before the crash (prepare is successful but commit fails at both AS and AFS)
         OpenBIS openBISWithCommittedTransaction = createOpenBIS();
         openBISWithCommittedTransaction.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBISWithCommittedTransaction.login(USER, PASSWORD);
+        openBISWithCommittedTransaction.login(ADMIN, PASSWORD);
 
         UUID committedTransactionId = openBISWithCommittedTransaction.beginTransaction();
 
@@ -1053,7 +1054,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         // transaction 2 is not committed before the crash
         OpenBIS openBISWithNotCommittedTransaction = createOpenBIS();
         openBISWithNotCommittedTransaction.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
-        openBISWithNotCommittedTransaction.login(USER, PASSWORD);
+        openBISWithNotCommittedTransaction.login(ADMIN, PASSWORD);
 
         UUID notCommittedTransactionId = openBISWithNotCommittedTransaction.beginTransaction();
 
@@ -1073,7 +1074,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
                 new TestTransaction(notCommittedTransactionId, TransactionStatus.BEGIN_FINISHED));
 
         OpenBIS openBISNoTr = createOpenBIS();
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         Space committedSpace = openBISNoTr.getSpaces(List.of(spaceIdCommitted), new SpaceFetchOptions()).get(spaceIdCommitted);
         assertNull(committedSpace);
@@ -1109,7 +1110,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         Thread.sleep(WAITING_TIME_FOR_FINISHING_TRANSACTIONS);
 
         // check transactions state after the crash
-        openBISNoTr.login(USER, PASSWORD);
+        openBISNoTr.login(ADMIN, PASSWORD);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap());
 
@@ -1162,6 +1163,11 @@ public class Integration2PCTest extends AbstractIntegrationTest
         try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
                 Statement statement = connection.createStatement())
         {
+            statement.execute(
+                    "DELETE FROM external_data WHERE id in (SELECT id FROM data_all WHERE samp_id in (select id from samples WHERE code LIKE '"
+                            + ENTITY_CODE_PREFIX + "%'))");
+            statement.execute("DELETE FROM data_all WHERE samp_id in (select id from samples WHERE code LIKE '" + ENTITY_CODE_PREFIX + "%')");
+            statement.execute("DELETE FROM samples WHERE code LIKE '" + ENTITY_CODE_PREFIX + "%'");
             statement.execute("DELETE FROM experiments WHERE code LIKE '" + ENTITY_CODE_PREFIX + "%'");
             statement.execute("DELETE FROM projects WHERE code LIKE '" + ENTITY_CODE_PREFIX + "%'");
             statement.execute("DELETE FROM spaces WHERE code LIKE '" + ENTITY_CODE_PREFIX + "%'");
@@ -1194,12 +1200,35 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
     private static WriteData createWriteData()
     {
-        WriteData writeData = new WriteData();
-        writeData.owner = "test-owner-" + UUID.randomUUID();
-        writeData.source = "test-source-" + UUID.randomUUID();
-        writeData.content = "test-content-" + UUID.randomUUID();
-        writeData.bytes = writeData.content.getBytes(StandardCharsets.UTF_8);
-        return writeData;
+        OpenBIS openBIS = createOpenBIS();
+
+        String sessionToken = null;
+
+        try
+        {
+            sessionToken = openBIS.login(ADMIN, PASSWORD);
+
+            SampleCreation ownerCreation = new SampleCreation();
+            ownerCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+            ownerCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+            ownerCreation.setSpaceId(new SpacePermId("/DEFAULT"));
+            ownerCreation.setExperimentId(new ExperimentIdentifier("/DEFAULT/DEFAULT/DEFAULT"));
+
+            SamplePermId ownerId = openBIS.createSamples(List.of(ownerCreation)).get(0);
+
+            WriteData writeData = new WriteData();
+            writeData.owner = ownerId.getPermId();
+            writeData.source = "test-source-" + UUID.randomUUID();
+            writeData.content = "test-content-" + UUID.randomUUID();
+            writeData.bytes = writeData.content.getBytes(StandardCharsets.UTF_8);
+            return writeData;
+        } finally
+        {
+            if (sessionToken != null)
+            {
+                openBIS.logout();
+            }
+        }
     }
 
     private static class WriteData
