@@ -189,8 +189,6 @@ public final class ThreadParameters
 
     private final boolean h5arFolders;
 
-    private final boolean discardHiddenFiles;
-
     private final boolean allowHiddenFiles;
 
     private final String discardFilesPatterns;
@@ -205,7 +203,6 @@ public final class ThreadParameters
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties, threadName);
         this.h5Folders = PropertyUtils.getBoolean(threadProperties, H5_FOLDERS, false);
         this.h5arFolders = PropertyUtils.getBoolean(threadProperties, H5AR_FOLDERS, true);
-        this.discardHiddenFiles = PropertyUtils.getBoolean(threadProperties, DISCARD_HIDDEN_FILES, true);
         this.allowHiddenFiles = PropertyUtils.getBoolean(threadProperties, ALLOW_HIDDEN_FILES, true);
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, true);
@@ -582,11 +579,6 @@ public final class ThreadParameters
     public boolean hasH5AsFolders()
     {
         return h5Folders;
-    }
-
-    public boolean discardHiddenFiles()
-    {
-        return discardHiddenFiles;
     }
 
     public boolean allowHiddenFiles()
