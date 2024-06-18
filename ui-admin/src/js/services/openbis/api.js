@@ -34,11 +34,15 @@ class Facade {
   }
 
   _getAfsServerFacade() {
-    if (!this.v3.getAfsUrl()) {
+    if (!this.isAfsSet()) {
       throw new Error('server-public-information.afs-server.url is not set.')
     } else {
-      return this.v3.getAfsServerFacade();
+      return this.v3.getAfsServerFacade()
     }
+  }
+
+  isAfsSet() {
+    return !!this.v3.getAfsUrl()
   }
 
   useSession(sessionToken) {
@@ -262,7 +266,9 @@ class Facade {
   }
 
   executeCustomDSSService(serviceId, options) {
-    return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options))
+    return this.promise(
+      this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options)
+    )
   }
 
   fromJson(jsonType, jsonObject) {

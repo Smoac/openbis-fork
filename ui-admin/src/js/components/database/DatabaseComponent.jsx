@@ -64,7 +64,7 @@ class DatabaseComponent extends React.PureComponent {
              fetchOptions
         )
         json = experiments[object.id]
-        showDataBrowser = true
+        showDataBrowser = openbis.isAfsSet()
       } else if (object.type === objectType.OBJECT) {
         const fetchOptions = new openbis.SampleFetchOptions()
         fetchOptions.withSpace()
@@ -78,7 +78,7 @@ class DatabaseComponent extends React.PureComponent {
           fetchOptions
         )
         json = samples[object.id]
-        showDataBrowser = true
+        showDataBrowser = openbis.isAfsSet()
       } else if (object.type === objectType.DATA_SET) {
         const fetchOptions = new openbis.DataSetFetchOptions()
         fetchOptions.withExperiment()
