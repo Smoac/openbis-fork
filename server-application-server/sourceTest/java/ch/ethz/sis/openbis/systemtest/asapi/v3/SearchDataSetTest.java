@@ -17,7 +17,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.junit.Assert.fail;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
