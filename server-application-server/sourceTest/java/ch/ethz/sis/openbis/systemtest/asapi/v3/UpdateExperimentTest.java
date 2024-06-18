@@ -784,9 +784,16 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        ExperimentIdentifier expId1 = new ExperimentIdentifier("/CISD/NEMO/EXP10");
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        creation.setTypeId(new EntityTypePermId("DELETION_TEST"));
+        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+
         ExperimentUpdate update1 = new ExperimentUpdate();
-        update1.setExperimentId(expId1);
+        update1.setExperimentId(experimentPermId);
         update1.makeDataImmutable();
 
         // When
@@ -794,10 +801,10 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         // Then
         Map<IExperimentId, Experiment> experiments =
-                v3api.getExperiments(sessionToken, Arrays.asList(expId1),
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId),
                         new ExperimentFetchOptions());
-        Experiment experiment1 = experiments.get(expId1);
-        assertEquals(experiment1.getIdentifier().getIdentifier(), expId1.getIdentifier());
+        Experiment experiment1 = experiments.get(experimentPermId);
+        assertEquals(experiment1.getPermId().getPermId(), experimentPermId.getPermId());
         assertEquals(experiment1.isFrozen(), false);
         assertEquals(experiment1.isImmutableData(), true);
         assertEquals(experiment1.isFrozenForDataSets(), false);

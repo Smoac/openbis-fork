@@ -613,7 +613,8 @@ CREATE OR REPLACE RULE sample_insert AS
          space_id,
          space_frozen,
          version,
-         meta_data
+         meta_data,
+         immutable_data
        ) VALUES (
          NEW.id,
          NEW.frozen,
@@ -639,7 +640,8 @@ CREATE OR REPLACE RULE sample_insert AS
          NEW.space_id,
          NEW.space_frozen,
          NEW.version,
-         NEW.meta_data
+         NEW.meta_data,
+         NEW.immutable_data
        );
 
 CREATE OR REPLACE RULE sample_update AS
@@ -668,7 +670,8 @@ CREATE OR REPLACE RULE sample_update AS
               space_id = NEW.space_id,
               space_frozen = NEW.space_frozen,
               version = NEW.version,
-              meta_data = NEW.meta_data
+              meta_data = NEW.meta_data,
+              immutable_data = NEW.immutable_data
           WHERE id = NEW.id;
 
 CREATE OR REPLACE RULE sample_delete AS
@@ -714,7 +717,8 @@ CREATE OR REPLACE RULE experiment_insert AS
        proj_frozen,
        registration_timestamp,
        version,
-       meta_data
+       meta_data,
+       immutable_data
      ) VALUES (
        NEW.id,
        NEW.frozen,
@@ -733,7 +737,8 @@ CREATE OR REPLACE RULE experiment_insert AS
        NEW.proj_frozen,
        NEW.registration_timestamp,
        NEW.version,
-       NEW.meta_data
+       NEW.meta_data,
+       NEW.immutable_data
      );
 
 CREATE OR REPLACE RULE experiment_update AS
@@ -755,7 +760,8 @@ CREATE OR REPLACE RULE experiment_update AS
               proj_frozen = NEW.proj_frozen,
               registration_timestamp = NEW.registration_timestamp,
               version = NEW.version,
-              meta_data = NEW.meta_data
+              meta_data = NEW.meta_data,
+              immutable_data = NEW.immutable_data
           WHERE id = NEW.id;
 
 CREATE OR REPLACE RULE experiment_delete AS

@@ -1228,7 +1228,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
 
         SampleCreation samp1 = new SampleCreation();
-        samp1.setCode("SAMPLE_WITH_SYS_PROPERTY");
+        samp1.setCode("IMMUTABLE_SAMPLE_WITH_SYS_PROPERTY");
         samp1.setTypeId(new EntityTypePermId("MASTER_PLATE"));
         samp1.setSpaceId(new SpacePermId("CISD"));
         samp1.setProperty(systemPropertyName, systemPropertyValue);
