@@ -428,33 +428,21 @@ public abstract class AbstractIntegrationTest
         startAfsServer();
     }
 
-    private Properties getApplicationServerConfiguration(boolean createDatabase) throws Exception
+    public Properties getApplicationServerConfiguration(boolean createDatabase) throws Exception
     {
         Properties configuration = new Properties();
         configuration.load(new FileInputStream("etc/as/service.properties"));
         configuration.setProperty("database.create-from-scratch", String.valueOf(createDatabase));
-        configuration.setProperty("database.kind", "integration");
-        configuration.setProperty("script-folder", "../server-application-server/source");
-        configuration.setProperty(TransactionConfiguration.COORDINATOR_KEY_PROPERTY_NAME, TEST_TRANSACTION_COORDINATOR_KEY);
-        configuration.setProperty(TransactionConfiguration.INTERACTIVE_SESSION_KEY_PROPERTY_NAME, TEST_INTERACTIVE_SESSION_KEY);
-        configuration.setProperty(TransactionConfiguration.TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME, "./targets/transaction-logs");
-        configuration.setProperty(TransactionConfiguration.TRANSACTION_TIMEOUT_PROPERTY_NAME, "5");
-        configuration.setProperty(TransactionConfiguration.FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, "1");
         configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
         configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
                 TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
         return configuration;
     }
 
-    private Configuration getAfsServerConfiguration()
+    public Configuration getAfsServerConfiguration()
     {
         Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
                 "etc/afs/service.properties");
-        configuration.setProperty(AtomicFileSystemServerParameter.logConfigFile, "etc/afs/log4j2.xml");
-        configuration.setProperty(AtomicFileSystemServerParameter.writeAheadLogRoot, "./targets/afs/transaction-logs");
-        configuration.setProperty(AtomicFileSystemServerParameter.storageRoot, "./targets/afs/storage");
-        configuration.setProperty(AtomicFileSystemServerParameter.apiServerTransactionManagerKey, TEST_TRANSACTION_COORDINATOR_KEY);
-        configuration.setProperty(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerPort, String.valueOf(TestInstanceHostUtils.getAFSPort()));
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerUri, TestInstanceHostUtils.getAFSPath());
         configuration.setProperty(AtomicFileSystemServerParameter.openBISUrl,
