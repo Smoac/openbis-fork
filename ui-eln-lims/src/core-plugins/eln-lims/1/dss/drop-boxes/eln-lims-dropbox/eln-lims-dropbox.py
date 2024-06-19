@@ -14,10 +14,7 @@ from java.util.concurrent import ConcurrentHashMap
 from java.util.regex import Pattern, PatternSyntaxException
 from org.apache.commons.io import FileUtils
 from org.json import JSONObject
-
-# import java.util.concurrent.ConcurrentHashMap;
-# import java.util.regex.Pattern;
-# import java.util.regex.PatternSyntaxException;
+from ch.ethz.sis import PersistentKeyValueStore
 
 INVALID_FORMAT_ERROR_MESSAGE = "Invalid format for the folder name, should follow the pattern <ENTITY_KIND>+<SPACE_CODE>+<PROJECT_CODE>+[<EXPERIMENT_CODE>|<SAMPLE_CODE>]+<OPTIONAL_DATASET_TYPE>+<OPTIONAL_NAME>";
 FAILED_TO_PARSE_ERROR_MESSAGE = "Failed to parse folder name";
@@ -37,12 +34,12 @@ def process(transaction):
     incoming = transaction.getIncoming();
     folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
-    discardFilesPatterns = getConfigurationProperty(transaction, 'eln-lims-dropbox-discard-files-patterns')
-    illegalFilesPatterns = getConfigurationProperty(transaction, 'eln-lims-dropbox-illegal-files-patterns')
+    discardFilesPatternsString = getConfigurationProperty(transaction, 'eln-lims-dropbox-discard-files-patterns')
+    illegalFilesPatternsString = getConfigurationProperty(transaction, 'eln-lims-dropbox-illegal-files-patterns')
 
     try:
-        deleteFilesMatchingPatterns(incoming, discardFilesPatterns)
-        validateIllegalFilesMatchingPatterns(incoming, illegalFilesPatterns)
+        deleteFilesMatchingPatterns(incoming, discardFilesPatternsString)
+        validateIllegalFilesMatchingPatterns(incoming, illegalFilesPatternsString)
 
         if not folderName.startswith('.'):
             datasetInfo = folderName.split("+");
@@ -273,8 +270,11 @@ def stringArrayStrip(sArray):
 
 
 def deleteFilesMatchingPatterns(incoming, discardFilesPatterns):
+    print("||> DUPA delete")
     stringToPatternMap = getStringPatternMap()
-    if discardFilesPatterns != "":
+    print(discardFilesPatterns)
+    if discardFilesPatterns:
+        print("||> DUPA IF")
         stringPatterns = stringArrayStrip(discardFilesPatterns.split(","))
         patterns = []
         try:
@@ -293,9 +293,11 @@ def deleteFilesMatchingPatterns(incoming, discardFilesPatterns):
 
 
 def validateIllegalFilesMatchingPatterns(incoming, illegalFilesPatterns):
+    print("||> VALIDATE")
     stringToPatternMap = getStringPatternMap()
-    if illegalFilesPatterns != "":
+    if illegalFilesPatterns:
         stringPatterns = stringArrayStrip(illegalFilesPatterns.split(","))
+        print(stringPatterns)
         patterns = []
         try:
             for stringPattern in stringPatterns:
@@ -336,7 +338,9 @@ def getIllegalFilesMatchingPatterns(file, patterns):
     for pattern in patterns:
         if pattern.matcher(file.getName()).matches():
             result.append(file.getPath())
+            break
     if file.isDirectory():
         for fileInDirectory in file.listFiles():
-            getIllegalFilesMatchingPatterns(fileInDirectory, patterns)
+            result.extend(getIllegalFilesMatchingPatterns(fileInDirectory, patterns))
+    return result
 
