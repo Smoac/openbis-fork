@@ -73,6 +73,7 @@ class EntityType:
             "showParents",
             "showParentMetadata",
             "validationPlugin",
+            "managedInternally"
         ]
 
     def __dir__(self):
@@ -120,7 +121,9 @@ class EntityType:
             "registrator",
             "registrationDate",
             "plugin",
-            "unique"
+            "unique",
+            "pattern",
+            "patternType"
         ]
 
         pas = self.__dict__["_propertyAssignments"]
@@ -178,7 +181,9 @@ class EntityType:
         initialValueForExistingEntities=None,
         showInEditView=True,
         showRawValueInForms=True,
-        unique=False
+        unique=False,
+        patternType="NONE",
+        pattern=None
     ):
         """The «section» groups certain properties.
         The «ordinal» is defining the rank in the list where the property appears.
@@ -206,7 +211,9 @@ class EntityType:
                 "permId": property_type.permId,
             },
             "@type": "as.dto.property.create.PropertyAssignmentCreation",
-            "unique": unique
+            "unique": unique,
+            "patternType": patternType,
+            "pattern": pattern
         }
 
         # assign plugin
@@ -512,5 +519,7 @@ class PropertyAssignment:
             "registrator",
             "registrationDate",
             "plugin",
-            "unique"
+            "unique",
+            "pattern",
+            "patternType"
         ]
