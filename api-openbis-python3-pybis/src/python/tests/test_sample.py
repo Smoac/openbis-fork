@@ -150,7 +150,9 @@ def test_empty_data_frame(openbis_instance):
         "registrator",
         "registrationDate",
         "plugin",
-        "unique"
+        "unique",
+        "pattern",
+        "patternType"
     ]
 
     pd.testing.assert_frame_equal(pa.df, pd.DataFrame(columns=attrs))
@@ -765,4 +767,50 @@ def test_create_sample_clear_property_values(space):
     key, val = sample.props().popitem()
     assert key in [property_type_code_1, property_type_code_2]
     assert val is None
+
+
+def test_create_sample_type_assign_property_pattern(space):
+    name_suffix = str(time.time())
+    sc = "TEST_1_" + name_suffix
+    pc = "ESFA_1_" + name_suffix
+    ptc1 = "TEXT_PATTERN_1_" + name_suffix
+    ptc2 = "INTEGER_PATTERN_1_" + name_suffix
+    ptc3 = "TEXT_PATTERN_2_" + name_suffix
+    stc = "EXPERIMENTAL_STEP_MILAR_" + name_suffix
+
+    # Create the new space and project
+    sp = space.openbis.new_space(code=sc, description="Test space")
+    sp.save()
+    pr = space.openbis.new_project(code=pc, space=sc, description="ESFA experiments")
+    pr.save()
+
+    # Create the experiment
+    exp = space.openbis.new_collection(code=pc, project="/" + sc + "/" + pc, type="COLLECTION")
+    exp.save()
+
+    # Create the sample type
+    date_prop = space.openbis.new_property_type(code=ptc1, dataType="VARCHAR",
+                                                label="text pattern",
+                                                description="test text pattern")
+    date_prop.save()
+    date_prop = space.openbis.new_property_type(code=ptc2, dataType="INTEGER",
+                                                label="integer test pattern",
+                                                description="integer test pattern")
+    date_prop.save()
+    date_prop = space.openbis.new_property_type(code=ptc3, dataType="VARCHAR",
+                                                label="text pattern 2",
+                                                description="test text pattern 2")
+    date_prop.save()
+    st = space.openbis.new_sample_type(code=stc, generatedCodePrefix="TEST_PATTERN_")
+    st.save()
+
+    if st is None:
+        print(space.openbis.get_sample_types())
+        st = space.openbis.get_sample_type(stc)
+        st.save()
+
+    st.assign_property(ptc1, patternType="PATTERN", pattern=".*")
+    st.assign_property(ptc2, patternType="RANGES", pattern="1-10, 15-20")
+    st.assign_property(ptc3, patternType="VALUES", pattern='"a", "b", "c"')
+    st.save()
 
