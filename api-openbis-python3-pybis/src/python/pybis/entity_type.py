@@ -182,7 +182,7 @@ class EntityType:
         showInEditView=True,
         showRawValueInForms=True,
         unique=False,
-        patternType="NONE",
+        patternType=None,
         pattern=None
     ):
         """The «section» groups certain properties.
@@ -211,10 +211,12 @@ class EntityType:
                 "permId": property_type.permId,
             },
             "@type": "as.dto.property.create.PropertyAssignmentCreation",
-            "unique": unique,
-            "patternType": patternType,
-            "pattern": pattern
+            "unique": unique
         }
+
+        if patternType is not None:
+            new_assignment["patternType"] = patternType
+            new_assignment["pattern"] = pattern
 
         # assign plugin
         if plugin is not None:
