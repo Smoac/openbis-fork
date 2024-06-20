@@ -4,19 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 public class AtomicFileSystemServerParameterUtil
 {
 
-    public static IApplicationServerApi getApplicationServerApi(Configuration configuration)
+    public static OpenBIS getOpenBIS(Configuration configuration)
     {
         String openBISUrl = getStringParameter(configuration, AtomicFileSystemServerParameter.openBISUrl, true);
         Integer openBISTimeout = getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISTimeout, true);
-        return HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl, openBISTimeout);
+        return new OpenBIS(openBISUrl, openBISTimeout);
     }
 
     public static String getOpenBISUser(Configuration configuration)
@@ -84,6 +83,11 @@ public class AtomicFileSystemServerParameterUtil
     {
         getStringParameter(configuration, AtomicFileSystemServerParameter.jsonObjectMapperClass, true);
         return configuration.getInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
+    }
+
+    public static String getInteractiveSessionKey(Configuration configuration)
+    {
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, true);
     }
 
     private static String getStringParameter(Configuration configuration, AtomicFileSystemServerParameter parameter, boolean mandatory)

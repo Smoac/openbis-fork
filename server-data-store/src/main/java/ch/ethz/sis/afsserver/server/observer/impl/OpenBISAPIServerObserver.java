@@ -3,10 +3,12 @@ package ch.ethz.sis.afsserver.server.observer.impl;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -22,7 +24,7 @@ import ch.ethz.sis.afsserver.server.Request;
 import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
@@ -41,10 +43,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class OpenBISAPIServerObserver implements APIServerObserver<TransactionConnection>
 {
+
+    private Configuration configuration;
 
     private String storageRoot;
 
@@ -52,121 +55,148 @@ public class OpenBISAPIServerObserver implements APIServerObserver<TransactionCo
 
     private Integer storageIncomingShareId;
 
-    private IApplicationServerApi applicationServerApi;
-
     @Override
     public void init(Configuration configuration) throws Exception
     {
+        this.configuration = configuration;
         storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
         storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(configuration);
         storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(configuration);
-        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(configuration);
     }
 
     @Override
     public void beforeAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
     {
-        // handle only transactional calls
-        if (!worker.isInteractiveSessionMode())
+        if (worker.isInteractiveSessionMode())
         {
-            return;
-        }
+            boolean isOnePhaseTransaction = !worker.isTransactionManagerMode();
+            boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
 
-        boolean isOnePhaseTransaction = !worker.isTransactionManagerMode();
-        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
-
-        if ((isOnePhaseTransaction && request.getMethod().equals("commit")) || (isTwoPhaseTransaction && request.getMethod().equals("prepare")))
-        {
-            List<String> paths = new ArrayList<>();
-
-            if (worker.getConnection().getTransaction().getOperations() != null)
+            if (isOnePhaseTransaction)
             {
-                for (Operation operation : worker.getConnection().getTransaction().getOperations())
+                if (request.getMethod().equals("commit"))
                 {
-                    if (operation instanceof CreateOperation)
+                    Set<String> owners = getOwnersCreatedInTransaction(worker);
+
+                    if (!owners.isEmpty())
                     {
-                        paths.add(((CreateOperation) operation).getSource());
-                    } else if (operation instanceof WriteOperation)
-                    {
-                        paths.add(((WriteOperation) operation).getSource());
-                    } else if (operation instanceof CopyOperation)
-                    {
-                        paths.add(((CopyOperation) operation).getTarget());
-                    } else if (operation instanceof MoveOperation)
-                    {
-                        paths.add(((MoveOperation) operation).getTarget());
+                        OpenBIS openBIS = AtomicFileSystemServerParameterUtil.getOpenBIS(configuration);
+                        openBIS.setSessionToken(worker.getSessionToken());
+
+                        createDataSets(openBIS, owners);
                     }
                 }
+            } else if (isTwoPhaseTransaction)
+            {
+                String owner = getOwnerCreatedInRequest(request);
+
+                if (owner != null && !ownerExistsInTransaction(worker, owner) && !ownerExistsInStore(worker, owner))
+                {
+                    OpenBIS openBIS = AtomicFileSystemServerParameterUtil.getOpenBIS(configuration);
+                    openBIS.setSessionToken(worker.getSessionToken());
+                    openBIS.setTransactionId(worker.getConnection().getTransaction().getUuid());
+                    openBIS.setInteractiveSessionKey(AtomicFileSystemServerParameterUtil.getInteractiveSessionKey(configuration));
+
+                    createDataSets(openBIS, List.of(owner));
+                }
             }
-
-            List<String> owners = paths.stream().map(this::extractOwnerFromPath).filter(Objects::nonNull).collect(Collectors.toList());
-
-            createDataSets(worker, request, owners);
         }
     }
 
     @Override
     public void afterAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
     {
-        // handle only non-transactional calls
-        if (worker.isInteractiveSessionMode())
+        if (!worker.isInteractiveSessionMode())
         {
-            return;
+            String owner = getOwnerCreatedInRequest(request);
+
+            if (owner != null && !ownerExistsInStore(worker, owner))
+            {
+                OpenBIS openBIS = AtomicFileSystemServerParameterUtil.getOpenBIS(configuration);
+                openBIS.setSessionToken(worker.getSessionToken());
+
+                createDataSets(openBIS, List.of(owner));
+            }
         }
+    }
 
-        List<String> owners = new ArrayList<>();
-
+    private String getOwnerCreatedInRequest(Request request)
+    {
         switch (request.getMethod())
         {
             case "write":
             case "create":
-                owners.add((String) request.getParams().get("owner"));
-                break;
+                return (String) request.getParams().get("owner");
             case "copy":
             case "move":
-                owners.add((String) request.getParams().get("targetOwner"));
-                break;
+                return (String) request.getParams().get("targetOwner");
+            default:
+                return null;
         }
-
-        createDataSets(worker, request, owners);
     }
 
-    private void createDataSets(Worker<TransactionConnection> worker, Request request, List<String> owners) throws Exception
+    private Set<String> getOwnersCreatedInTransaction(Worker<TransactionConnection> worker)
     {
-        if (owners == null || owners.isEmpty())
+        List<String> paths = new ArrayList<>();
+
+        if (worker.getConnection().getTransaction().getOperations() != null)
         {
-            return;
+            for (Operation operation : worker.getConnection().getTransaction().getOperations())
+            {
+                if (operation instanceof CreateOperation)
+                {
+                    paths.add(((CreateOperation) operation).getSource());
+                } else if (operation instanceof WriteOperation)
+                {
+                    paths.add(((WriteOperation) operation).getSource());
+                } else if (operation instanceof CopyOperation)
+                {
+                    paths.add(((CopyOperation) operation).getTarget());
+                } else if (operation instanceof MoveOperation)
+                {
+                    paths.add(((MoveOperation) operation).getTarget());
+                }
+            }
         }
 
+        return paths.stream().map(this::extractOwnerFromPath).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    private boolean ownerExistsInTransaction(Worker<TransactionConnection> worker, String owner)
+    {
+        return getOwnersCreatedInTransaction(worker).contains(owner);
+    }
+
+    private boolean ownerExistsInStore(Worker<TransactionConnection> worker, String owner) throws Exception
+    {
+        try
+        {
+            List<File> files = worker.list(owner, "", false);
+            return !files.isEmpty();
+        } catch (NoSuchFileException e)
+        {
+            return false;
+        }
+    }
+
+    private void createDataSets(OpenBIS openBIS, Collection<String> owners) throws Exception
+    {
         List<DataSetCreation> creations = new ArrayList<>();
 
         for (String owner : owners)
         {
-            try
-            {
-                List<File> ownerFiles = worker.list(owner, "", false);
-
-                if (!ownerFiles.isEmpty())
-                {
-                    continue;
-                }
-            } catch (NoSuchFileException e)
-            {
-                // good, the folder does not exist yet i.e. we should create a data set
-            }
-
-            Experiment foundExperiment = findExperiment(request.getSessionToken(), owner);
+            Experiment foundExperiment = findExperiment(openBIS, owner);
 
             if (foundExperiment != null)
             {
-                creations.add(createDataSetCreation(request.getSessionToken(), owner, null));
+                creations.add(createDataSetCreation(owner, null));
             } else
             {
-                Sample foundSample = findSample(request.getSessionToken(), owner);
+                Sample foundSample = findSample(openBIS, owner);
 
                 if (foundSample != null)
                 {
-                    creations.add(createDataSetCreation(request.getSessionToken(), null, owner));
+                    creations.add(createDataSetCreation(null, owner));
                 }
             }
         }
@@ -177,8 +207,8 @@ public class OpenBISAPIServerObserver implements APIServerObserver<TransactionCo
             {
                 try
                 {
-                    applicationServerApi.createDataSets(request.getSessionToken(), List.of(creation));
-                } catch (UserFailureException e)
+                    openBIS.createDataSetsAS(List.of(creation));
+                } catch (Exception e)
                 {
                     if (e.getMessage() == null || !e.getMessage().contains("DataSet already exists in the database and needs to be unique"))
                     {
@@ -190,7 +220,7 @@ public class OpenBISAPIServerObserver implements APIServerObserver<TransactionCo
         }
     }
 
-    private DataSetCreation createDataSetCreation(String sessionToken, String experimentPermId, String samplePermId)
+    private DataSetCreation createDataSetCreation(String experimentPermId, String samplePermId)
     {
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
         physicalCreation.setShareId(storageIncomingShareId.toString());
@@ -229,10 +259,10 @@ public class OpenBISAPIServerObserver implements APIServerObserver<TransactionCo
         return IOUtils.getPath(storageUuid, elements.toArray(new String[] {}));
     }
 
-    private Experiment findExperiment(String sessionToken, String experimentPermId)
+    private Experiment findExperiment(OpenBIS openBIS, String experimentPermId)
     {
         Map<IExperimentId, Experiment> experiments =
-                applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
+                openBIS.getExperiments(List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
 
         if (!experiments.isEmpty())
         {
@@ -243,10 +273,10 @@ public class OpenBISAPIServerObserver implements APIServerObserver<TransactionCo
         }
     }
 
-    private Sample findSample(String sessionToken, String samplePermId)
+    private Sample findSample(OpenBIS openBIS, String samplePermId)
     {
         Map<ISampleId, Sample> samples =
-                applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
+                openBIS.getSamples(List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
 
         if (!samples.isEmpty())
         {

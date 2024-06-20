@@ -446,8 +446,7 @@ public abstract class AbstractIntegrationTest
                 "etc/afs/service.properties");
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerPort, String.valueOf(TestInstanceHostUtils.getAFSPort()));
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerUri, TestInstanceHostUtils.getAFSPath());
-        configuration.setProperty(AtomicFileSystemServerParameter.openBISUrl,
-                TestInstanceHostUtils.getOpenBISProxyUrl() + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL);
+        configuration.setProperty(AtomicFileSystemServerParameter.openBISUrl, TestInstanceHostUtils.getOpenBISProxyUrl());
         return configuration;
     }
 

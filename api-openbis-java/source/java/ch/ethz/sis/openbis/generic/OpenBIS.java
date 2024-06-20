@@ -373,12 +373,13 @@ public class OpenBIS
                         asFacadeNoTransactions);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
 
-        if(afsURL != null)
+        if (afsURL != null)
         {
             this.afsClientNoTransactions = new AfsClient(URI.create(afsURL), timeout);
             this.afsClientWithTransactions = createTransactionalProxy(ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, PublicAPI.class,
                     afsClientNoTransactions);
-        } else {
+        } else
+        {
             this.afsClientNoTransactions = null;
             this.afsClientWithTransactions = null;
         }
@@ -1246,11 +1247,13 @@ public class OpenBIS
         return asFacadeWithTransactions.createCodes(sessionToken, prefix, entityKind, count);
     }
 
-    public ImportResult executeImport(ImportData importData, ImportOptions importOptions) {
+    public ImportResult executeImport(ImportData importData, ImportOptions importOptions)
+    {
         return asFacadeWithTransactions.executeImport(sessionToken, importData, importOptions);
     }
 
-    public ExportResult executeExport(ExportData exportData, ExportOptions exportOptions) {
+    public ExportResult executeExport(ExportData exportData, ExportOptions exportOptions)
+    {
         return asFacadeWithTransactions.executeExport(sessionToken, exportData, exportOptions);
     }
 
@@ -1508,10 +1511,11 @@ public class OpenBIS
 
     public AfsServerFacade getAfsServerFacade()
     {
-        if(this.afsURL != null)
+        if (this.afsURL != null)
         {
             return new AfsServerFacade();
-        } else {
+        } else
+        {
             throw new IllegalArgumentException("Please specify AFS server url");
         }
     }
@@ -1521,11 +1525,13 @@ public class OpenBIS
 
         private final MessageDigest digest;
 
-        private AfsServerFacade() {
+        private AfsServerFacade()
+        {
             try
             {
                 this.digest = MessageDigest.getInstance("MD5");
-            } catch (Exception e){
+            } catch (Exception e)
+            {
                 throw new RuntimeException("Could not create afs server facade", e);
             }
         }
@@ -1670,7 +1676,7 @@ public class OpenBIS
     {
         this.sessionToken = sessionToken;
 
-        if(afsClientNoTransactions != null)
+        if (afsClientNoTransactions != null)
         {
             this.afsClientNoTransactions.setSessionToken(sessionToken);
         }
@@ -1684,6 +1690,16 @@ public class OpenBIS
     public String getInteractiveSessionKey()
     {
         return interactiveSessionKey;
+    }
+
+    public void setTransactionId(UUID transactionId)
+    {
+        this.transactionId = transactionId;
+    }
+
+    public UUID getTransactionId()
+    {
+        return transactionId;
     }
 
     /**

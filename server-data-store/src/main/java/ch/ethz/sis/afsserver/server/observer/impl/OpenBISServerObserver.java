@@ -19,7 +19,7 @@ import ch.ethz.sis.afsserver.server.impl.ApiResponseBuilder;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
@@ -40,6 +40,8 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
     private static final String THREAD_NAME = "openbis-server-observer-task";
 
+    private Configuration configuration;
+
     private String openBISUser;
 
     private String openBISPassword;
@@ -50,8 +52,6 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
     private Integer openBISLastSeenDeletionIntervalInSeconds;
 
-    private IApplicationServerApi applicationServerApi;
-
     private APIServer<TransactionConnection, ApiRequest, ApiResponse, ?> apiServer;
 
     private JsonObjectMapper jsonObjectMapper;
@@ -59,6 +59,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     @Override
     public void init(APIServer<TransactionConnection, ?, ?, ?> apiServer, Configuration configuration) throws Exception
     {
+        this.configuration = configuration;
         this.openBISUser = AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration);
         this.openBISPassword = AtomicFileSystemServerParameterUtil.getOpenBISPassword(configuration);
         this.openBISLastSeenDeletionFile = AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionFile(configuration);
@@ -66,7 +67,6 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
                 AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionBatchSize(configuration);
         this.openBISLastSeenDeletionIntervalInSeconds =
                 AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionIntervalInSeconds(configuration);
-        this.applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(configuration);
         this.apiServer = (APIServer<TransactionConnection, ApiRequest, ApiResponse, ?>) apiServer;
         this.jsonObjectMapper = AtomicFileSystemServerParameterUtil.getJsonObjectMapper(configuration);
     }
@@ -94,11 +94,11 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     {
         while (true)
         {
-            String sessionToken = null;
+            OpenBIS openBIS = AtomicFileSystemServerParameterUtil.getOpenBIS(configuration);
 
             try
             {
-                sessionToken = applicationServerApi.login(openBISUser, openBISPassword);
+                String sessionToken = openBIS.login(openBISUser, openBISPassword);
 
                 if (sessionToken == null)
                 {
@@ -127,7 +127,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
                     logger.info("No last seen event file found. All deletion events will be processed.");
                 }
 
-                SearchResult<Event> foundEvents = applicationServerApi.searchEvents(sessionToken, criteria, fo);
+                SearchResult<Event> foundEvents = openBIS.searchEvents(criteria, fo);
 
                 if (foundEvents.getObjects().isEmpty())
                 {
@@ -190,9 +190,9 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
                 return;
             } finally
             {
-                if (sessionToken != null)
+                if (openBIS.getSessionToken() != null)
                 {
-                    applicationServerApi.logout(sessionToken);
+                    openBIS.logout();
                 }
             }
         }

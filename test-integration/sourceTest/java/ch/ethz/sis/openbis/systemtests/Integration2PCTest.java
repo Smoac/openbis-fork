@@ -90,10 +90,12 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBISWithTr.beginTransaction();
 
-        WriteData writeData = createWriteData(openBISWithTr);
+        SamplePermId sampleId = createSampleOwner(openBISWithTr);
+        WriteData writeData = createWriteData(openBISWithTr, sampleId.getPermId());
         openBISWithTr.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
-        WriteData writeData2 = createWriteData(openBISWithTr);
+        SamplePermId sampleId2 = createSampleOwner(openBISWithTr);
+        WriteData writeData2 = createWriteData(openBISWithTr, sampleId2.getPermId());
         openBISWithTr.getAfsServerFacade().write(writeData2.owner, writeData2.source, 0L, writeData2.bytes);
 
         SpaceCreation spaceCreation = createSpaceCreation();
@@ -380,9 +382,6 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBIS.beginTransaction();
 
-        WriteData writeData = createWriteData(openBIS);
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
-
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
         SpaceCreation spaceCreation = createSpaceCreation();
@@ -407,6 +406,10 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         // second attempt
         SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         openBIS.commitTransaction();
 
@@ -447,7 +450,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
         SpaceCreation spaceCreation = createSpaceCreation();
         SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
 
-        WriteData writeData = createWriteData(openBIS);
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
         try
@@ -592,7 +596,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBIS.beginTransaction();
 
-        WriteData writeData = createWriteData(openBIS);
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
         openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
@@ -652,7 +657,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBIS.beginTransaction();
 
-        WriteData writeData = createWriteData(openBIS);
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
         openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
@@ -729,7 +735,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBIS.beginTransaction();
 
-        WriteData writeData = createWriteData(openBIS);
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
         openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
@@ -782,7 +789,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBIS.beginTransaction();
 
-        WriteData writeData = createWriteData(openBIS);
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
         openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
@@ -905,7 +913,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         UUID transactionId = openBISWithTr.beginTransaction();
 
-        WriteData writeData = createWriteData(openBISWithTr);
+        SamplePermId sampleId = createSampleOwner(openBISWithTr);
+        WriteData writeData = createWriteData(openBISWithTr, sampleId.getPermId());
         openBISWithTr.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
@@ -978,7 +987,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
         SpaceCreation spaceCreation = createSpaceCreation();
         SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
 
-        WriteData writeData = createWriteData(openBIS);
+        SamplePermId sampleId = createSampleOwner(openBIS);
+        WriteData writeData = createWriteData(openBIS, sampleId.getPermId());
         openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
@@ -1045,7 +1055,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
         SpaceCreation spaceCreationCommitted = createSpaceCreation();
         SpacePermId spaceIdCommitted = openBISWithCommittedTransaction.createSpaces(List.of(spaceCreationCommitted)).get(0);
 
-        WriteData writeDataCommitted = createWriteData(openBISWithCommittedTransaction);
+        SamplePermId sampleIdCommitted = createSampleOwner(openBISWithCommittedTransaction);
+        WriteData writeDataCommitted = createWriteData(openBISWithCommittedTransaction, sampleIdCommitted.getPermId());
         openBISWithCommittedTransaction.getAfsServerFacade()
                 .write(writeDataCommitted.owner, writeDataCommitted.source, 0L, writeDataCommitted.bytes);
 
@@ -1061,7 +1072,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
         SpaceCreation spaceCreationNotCommitted = createSpaceCreation();
         SpacePermId spaceIdNotCommitted = openBISWithNotCommittedTransaction.createSpaces(List.of(spaceCreationNotCommitted)).get(0);
 
-        WriteData writeDataNotCommitted = createWriteData(openBISWithNotCommittedTransaction);
+        SamplePermId sampleIdNotCommited = createSampleOwner(openBISWithNotCommittedTransaction);
+        WriteData writeDataNotCommitted = createWriteData(openBISWithNotCommittedTransaction, sampleIdNotCommited.getPermId());
         openBISWithNotCommittedTransaction.getAfsServerFacade()
                 .write(writeDataNotCommitted.owner, writeDataNotCommitted.source, 0L, writeDataNotCommitted.bytes);
 
@@ -1198,18 +1210,24 @@ public class Integration2PCTest extends AbstractIntegrationTest
         return experimentCreation;
     }
 
-    private static WriteData createWriteData(OpenBIS openBIS)
+    private static SamplePermId createSampleOwner(OpenBIS openBIS)
     {
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
         SampleCreation ownerCreation = new SampleCreation();
         ownerCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
         ownerCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        ownerCreation.setSpaceId(new SpacePermId("/DEFAULT"));
-        ownerCreation.setExperimentId(new ExperimentIdentifier("/DEFAULT/DEFAULT/DEFAULT"));
+        ownerCreation.setSpaceId(spaceId);
 
-        SamplePermId ownerId = openBIS.createSamples(List.of(ownerCreation)).get(0);
+        return openBIS.createSamples(List.of(ownerCreation)).get(0);
+    }
 
+    private static WriteData createWriteData(OpenBIS openBIS, String owner)
+    {
         WriteData writeData = new WriteData();
-        writeData.owner = ownerId.getPermId();
+        writeData.owner = owner;
         writeData.source = "test-source-" + UUID.randomUUID();
         writeData.content = "test-content-" + UUID.randomUUID();
         writeData.bytes = writeData.content.getBytes(StandardCharsets.UTF_8);

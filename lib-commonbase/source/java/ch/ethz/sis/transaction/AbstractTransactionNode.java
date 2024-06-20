@@ -140,7 +140,7 @@ public abstract class AbstractTransactionNode<T extends AbstractTransaction>
         {
             try
             {
-                transaction.lockOrSkip(() ->
+                transaction.executeWithLockOrSkip(() ->
                 {
                     operationLog.info(
                             "Finishing failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"

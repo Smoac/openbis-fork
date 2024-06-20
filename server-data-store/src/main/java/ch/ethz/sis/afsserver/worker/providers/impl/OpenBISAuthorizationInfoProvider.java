@@ -29,7 +29,7 @@ import ch.ethz.sis.afsserver.server.observer.impl.OpenBISUtils;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.afsserver.worker.WorkerContext;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -60,6 +60,8 @@ import ch.ethz.sis.shared.startup.Configuration;
 public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvider
 {
 
+    private Configuration configuration;
+
     private String storageRoot;
 
     private String storageUuid;
@@ -70,11 +72,10 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
 
     private String openBISUser;
 
-    private IApplicationServerApi applicationServerApi;
-
     @Override
     public void init(Configuration configuration) throws Exception
     {
+        this.configuration = configuration;
         storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
         storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(configuration);
         storageShares = IOUtils.getShares(storageRoot);
@@ -84,17 +85,25 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
         storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(configuration);
         openBISUser = AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration);
-        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(configuration);
     }
 
     @Override
     public boolean doesSessionHaveRights(WorkerContext workerContext, String owner, Set<FilePermission> permissions)
     {
+        OpenBIS openBIS = AtomicFileSystemServerParameterUtil.getOpenBIS(configuration);
+        openBIS.setSessionToken(workerContext.getSessionToken());
+
+        if (workerContext.isTransactionManagerMode())
+        {
+            openBIS.setTransactionId(workerContext.getTransactionId());
+            openBIS.setInteractiveSessionKey(AtomicFileSystemServerParameterUtil.getInteractiveSessionKey(configuration));
+        }
+
         String ownerShare = null;
         ObjectPermId ownerPermId = null;
         Set<FilePermission> ownerSupportedPermissions = null;
 
-        Experiment foundExperiment = findExperiment(workerContext.getSessionToken(), owner);
+        Experiment foundExperiment = findExperiment(openBIS, owner);
 
         if (foundExperiment != null)
         {
@@ -109,7 +118,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             }
         } else
         {
-            Sample foundSample = findSample(workerContext.getSessionToken(), owner);
+            Sample foundSample = findSample(openBIS, owner);
 
             if (foundSample != null)
             {
@@ -124,7 +133,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
                 }
             } else
             {
-                DataSet foundDataSet = findDataSet(workerContext.getSessionToken(), owner);
+                DataSet foundDataSet = findDataSet(openBIS, owner);
 
                 if (foundDataSet != null)
                 {
@@ -137,7 +146,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
 
         if (ownerPermId != null)
         {
-            if (hasPermissions(workerContext, ownerPermId, ownerSupportedPermissions, permissions))
+            if (hasPermissions(openBIS, ownerPermId, ownerSupportedPermissions, permissions))
             {
                 String ownerPath = findOwnerPath(ownerPermId.getPermId(), ownerShare);
                 workerContext.getOwnerPathMap().put(owner, ownerPath);
@@ -145,11 +154,11 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             }
         } else
         {
-            SessionInformation sessionInformation = applicationServerApi.getSessionInformation(workerContext.getSessionToken());
+            SessionInformation sessionInformation = openBIS.getSessionInformation();
 
             if (sessionInformation != null && sessionInformation.getPerson().getUserId().equals(openBISUser))
             {
-                Event deletion = findAfsDataSetDeletion(workerContext.getSessionToken(), owner);
+                Event deletion = findAfsDataSetDeletion(openBIS, owner);
 
                 if (deletion != null)
                 {
@@ -163,7 +172,8 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         return false;
     }
 
-    private boolean hasPermissions(WorkerContext workerContext, ObjectPermId ownerPermId, Set<FilePermission> ownerSupportedPermissions,
+    private boolean hasPermissions(OpenBIS openBIS, ObjectPermId ownerPermId,
+            Set<FilePermission> ownerSupportedPermissions,
             Set<FilePermission> requestedPermissions)
     {
         for (FilePermission requestPermission : requestedPermissions)
@@ -182,8 +192,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             return true;
         }
 
-        Rights rights =
-                applicationServerApi.getRights(workerContext.getSessionToken(), List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
+        Rights rights = openBIS.getRights(List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
 
         if (rights.getRights().contains(Right.UPDATE))
         {
@@ -201,10 +210,10 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         return true;
     }
 
-    private Experiment findExperiment(String sessionToken, String experimentPermId)
+    private Experiment findExperiment(OpenBIS openBIS, String experimentPermId)
     {
         Map<IExperimentId, Experiment> experiments =
-                applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
+                openBIS.getExperiments(List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
 
         if (!experiments.isEmpty())
         {
@@ -215,10 +224,10 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    private Sample findSample(String sessionToken, String samplePermId)
+    private Sample findSample(OpenBIS openBIS, String samplePermId)
     {
         Map<ISampleId, Sample> samples =
-                applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
+                openBIS.getSamples(List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
 
         if (!samples.isEmpty())
         {
@@ -229,14 +238,14 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    private DataSet findDataSet(String sessionToken, String dataSetPermId)
+    private DataSet findDataSet(OpenBIS openBIS, String dataSetPermId)
     {
         IDataSetId dataSetId = new DataSetPermId(dataSetPermId);
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withPhysicalData();
 
-        Map<IDataSetId, DataSet> dataSets = applicationServerApi.getDataSets(sessionToken, List.of(dataSetId), fo);
+        Map<IDataSetId, DataSet> dataSets = openBIS.getDataSets(List.of(dataSetId), fo);
 
         if (!dataSets.isEmpty())
         {
@@ -247,14 +256,14 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    private Event findAfsDataSetDeletion(String sessionToken, String identifier)
+    private Event findAfsDataSetDeletion(OpenBIS openBIS, String identifier)
     {
         EventSearchCriteria criteria = new EventSearchCriteria();
         criteria.withEventType().thatEquals(EventType.DELETION);
         criteria.withEntityType().thatEquals(EntityType.DATA_SET);
         criteria.withIdentifier().thatEquals(identifier);
 
-        SearchResult<Event> searchResult = applicationServerApi.searchEvents(sessionToken, criteria, new EventFetchOptions());
+        SearchResult<Event> searchResult = openBIS.searchEvents(criteria, new EventFetchOptions());
 
         if (!searchResult.getObjects().isEmpty())
         {
