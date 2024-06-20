@@ -566,7 +566,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals(13, dataSetTypes.size());
 
         Collections.sort(dataSetTypes, new ToStringComparator());
-        DataSetType dataSetType = dataSetTypes.get(3);
+        DataSetType dataSetType = dataSetTypes.get(4);
         assertEquals("HCS_IMAGE", dataSetType.getCode());
 
         List<PropertyTypeGroup> propertyTypeGroups = dataSetType.getPropertyTypeGroups();
