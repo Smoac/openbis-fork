@@ -70,7 +70,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             final List<String> permIds, final int rowNumber, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
-        return compatibleWithImport ? new AdditionResult(0, List.of(), Map.of())
+        return compatibleWithImport ? new AdditionResult(0, List.of(), Map.of(), Map.of())
                 : super.add(api, sessionToken, wb, permIds, rowNumber, entityTypeExportFieldsMap, textFormatting, false);
     }
 
@@ -85,6 +85,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
         fetchOptions.withExperiment();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
         fetchOptions.withPhysicalData();

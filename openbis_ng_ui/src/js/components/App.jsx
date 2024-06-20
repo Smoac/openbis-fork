@@ -19,6 +19,16 @@ import Tools from '@src/js/components/tools/Tools.jsx'
 import AppController from '@src/js/components/AppController.js'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { faFolder, faFile, faFileArchive, faFileAudio, faFileImage, faFileText,
+  faFileVideo, faFileCode, faFilePdf, faFileWord, faFileExcel,
+  faFilePowerpoint } from '@fortawesome/free-regular-svg-icons'
+
+library.add(fab, faFolder, faFile, faFileAudio, faFileText, faFileVideo,
+  faFileCode, faFileImage, faFileArchive, faFilePdf, faFileWord, faFileExcel,
+  faFilePowerpoint)
+
 const styles = {
   container: {
     height: '100%',
@@ -92,7 +102,7 @@ class App extends React.Component {
     if (AppController.getInstance().getSession()) {
       return (
         <div className={classes.container}>
-          <Menu />
+          <Menu userName={AppController.getInstance().getSession().userName}/>
           {_.map(pageToComponent, (PageComponent, page) => {
             let visible = AppController.getInstance().getCurrentPage() === page
             return (

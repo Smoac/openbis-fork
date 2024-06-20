@@ -106,8 +106,9 @@ class Grid extends React.PureComponent {
       return <Loading loading={true}></Loading>
     }
 
-    const { id, classes } = this.props
+    const { id, classes, showHeaders } = this.props
     const { loading, rows } = this.state
+    const doShowHeaders = typeof showHeaders === 'boolean' ? showHeaders : true
 
     return (
       <div
@@ -125,7 +126,7 @@ class Grid extends React.PureComponent {
                 <TableHead classes={{ root: classes.tableHead }}>
                   {this.renderTitle()}
                   {this.renderPagingAndConfigsAndExports()}
-                  {this.renderHeaders()}
+                  {doShowHeaders && this.renderHeaders()}
                   {this.renderFilters()}
                   {this.renderSelectionInfo()}
                 </TableHead>
@@ -166,7 +167,9 @@ class Grid extends React.PureComponent {
   }
 
   renderPagingAndConfigsAndExports() {
-    const { multiselectable, classes } = this.props
+    const { multiselectable, classes, showPaging, showConfigs } = this.props
+    const doShowPaging = typeof showPaging === 'boolean' ? showPaging : true
+    const doShowConfigs = typeof showConfigs === 'boolean' ? showConfigs : true
 
     const visibleColumns = this.controller.getVisibleColumns()
 
@@ -178,15 +181,15 @@ class Grid extends React.PureComponent {
           content: classes.pagingAndConfigsAndExportsContent
         }}
       >
-        {this.renderPaging()}
-        {this.renderConfigs()}
+        {doShowPaging && this.renderPaging()}
+        {doShowConfigs && this.renderConfigs()}
         {this.renderExports()}
       </GridRowFullWidth>
     )
   }
 
   renderPaging() {
-    const { id } = this.props
+    const { id, showRowsPerPage } = this.props
     const { page, pageSize, totalCount } = this.state
 
     return (
@@ -195,6 +198,7 @@ class Grid extends React.PureComponent {
         count={totalCount}
         page={page}
         pageSize={pageSize}
+        showRowsPerPage={showRowsPerPage}
         onPageChange={this.controller.handlePageChange}
         onPageSizeChange={this.controller.handlePageSizeChange}
       />
@@ -348,7 +352,7 @@ class Grid extends React.PureComponent {
   }
 
   renderRow(row) {
-    const { selectable, multiselectable, onRowClick } = this.props
+    const { selectable, multiselectable, onRowClick, onRowDoubleClick } = this.props
     const { selectedRow, multiselectedRows, heights } = this.state
 
     const visibleColumns = this.controller.getVisibleColumns()
@@ -359,12 +363,14 @@ class Grid extends React.PureComponent {
         columns={visibleColumns}
         row={row}
         heights={heights[row.id]}
-        clickable={onRowClick ? true : false}
+        clickable={!!onRowClick}
+        doubleClickable={!!onRowDoubleClick}
         selectable={selectable}
         selected={selectedRow ? selectedRow.id === row.id : false}
         multiselectable={multiselectable}
         multiselected={multiselectedRows && multiselectedRows[row.id]}
         onClick={this.controller.handleRowClick}
+        onDoubleClick={this.controller.handleRowDoubleClick}
         onSelect={this.controller.handleRowSelect}
         onMultiselect={this.controller.handleRowMultiselect}
         onMeasured={this.controller.handleMeasured}

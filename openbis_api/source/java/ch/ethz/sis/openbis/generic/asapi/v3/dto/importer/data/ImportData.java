@@ -24,68 +24,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.importer.data.ImportValue")
-public class ImportValue implements Serializable
+@JsonObject("as.dto.importer.data.ImportData")
+public class ImportData implements Serializable
 {
-
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private String name;
+    private ImportFormat format;
 
     @JsonProperty
-    private String value;
+    private String[] sessionWorkspaceFiles;
 
     @SuppressWarnings("unused")
-    public ImportValue()
+    public ImportData()
     {
     }
 
-    public ImportValue(final String name, final String value)
+    public ImportData(final ImportFormat format, final String... sessionWorkspaceFiles)
     {
-        this.name = name;
-        this.value = value;
-    }
-
-    @JsonIgnore
-    public String getName()
-    {
-        return name;
+        this.format = format;
+        this.sessionWorkspaceFiles = sessionWorkspaceFiles;
     }
 
     @JsonIgnore
-    public void setName(final String name)
+    public ImportFormat getFormat()
     {
-        this.name = name;
+        return format;
     }
 
     @JsonIgnore
-    public String getValue()
+    public void setFormat(final ImportFormat format)
     {
-        return value;
+        this.format = format;
     }
 
-    @JsonIgnore
-    public void setValue(final String value)
+    public String[] getSessionWorkspaceFiles()
     {
-        this.value = value;
+        return sessionWorkspaceFiles;
+    }
+
+    public void setSessionWorkspaceFiles(String[] sessionWorkspaceFiles)
+    {
+        this.sessionWorkspaceFiles = sessionWorkspaceFiles;
     }
 
     @Override
     public String toString()
     {
-        final ObjectToString builder = new ObjectToString(this).append("name", name);
-        if (value == null)
-        {
-            builder.append("value", null);
-        } else if (value.length() <= 255)
-        {
-            builder.append("value", value);
-        } else
-        {
-            builder.append("value", value.substring(0, 255) + "...");
-        }
-        return builder.toString();
+        return new ObjectToString(this).append("format", format).toString();
     }
 
 }

@@ -172,8 +172,7 @@ var SampleDataGridUtil = new function() {
 					}
 				}
 			}
-			
-			var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+			var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes, samples);
 			FormUtil.sortPropertyColumns(propertyColumnsToSort, samples.map(function(sample){
 				return {
 					entityKind: "SAMPLE",
@@ -828,8 +827,10 @@ var SampleDataGridUtil = new function() {
 		}
 	}
 
-    this.createPropertyColumns = function(foundPropertyCodes) {
+    this.createPropertyColumns = function(foundPropertyCodes, samples) {
         var _this = this;
+        var samplePropertiesDetails = new Map();
+        var samplePermIdsToIdentify = new Set();
         var propertyColumnsToSort = [];
         for (propertyCode in foundPropertyCodes) {
             var propertiesToSkip = ["$NAME", "$XMLCOMMENTS", "$ANNOTATIONS_STATE"];
@@ -837,6 +838,23 @@ var SampleDataGridUtil = new function() {
                 continue;
             }
             var propertyType = profile.getPropertyType(propertyCode);
+
+            // Preprocessing
+            if(propertyType.dataType === 'SAMPLE') {
+                // Add sample permIds for preprocessing
+                for(sample of samples) {
+                    var ids = sample[propertyType.code];
+                    if(Array.isArray(ids)) {
+                        ids.forEach(id => {
+                            samplePermIdsToIdentify.add(id);
+                            samplePropertiesDetails.set(id, id);
+                        });
+                    } else if(ids) {
+                         samplePermIdsToIdentify.add(ids);
+                         samplePropertiesDetails.set(ids, ids);
+                    }
+                }
+            }
 
             if(propertyType.dataType === "BOOLEAN"){
                 var getBooleanColumn = function(propertyType) {
@@ -947,6 +965,7 @@ var SampleDataGridUtil = new function() {
                 propertyColumnsToSort.push(getDateColumn(propertyType));
             } else {
                 var renderValue = null;
+                var asyncLoad = null;
 
                 if(propertyType.dataType === "XML"){
                     renderValue = (function(propertyType){
@@ -961,6 +980,24 @@ var SampleDataGridUtil = new function() {
                         }
                     })(propertyType)
                 } else if(propertyType.dataType === "SAMPLE") {
+                    asyncLoad = function(callback) {
+                        require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier",
+                                                    "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+                            function(SamplePermId, SampleIdentifier, SampleFetchOptions) {
+                                var fetchOptions = new SampleFetchOptions();
+                                fetchOptions.withProperties();
+                                var ids = [];
+                                samplePermIdsToIdentify.forEach(x => ids.push(new SamplePermId(x)));
+                                callback(mainController.openbisV3.getSamples(ids, fetchOptions)
+                                    .then(result => {
+                                        var map = new Map();
+                                        for(id in result) {
+                                          map.set(id, Util.getDisplayNameForEntity2(result[id]));
+                                        }
+                                        return map;
+                                    }));
+                            });
+                    };
                     renderValue = (function(propertyType){
                           return function(row, params){
                             if(Array.isArray(params.value)) {
@@ -969,11 +1006,13 @@ var SampleDataGridUtil = new function() {
                                    if(result.length > 0) {
                                        result.push(', ')
                                    }
-                                   result.push(FormUtil.getFormLink(singleValue, "Sample", singleValue));
+                                   var displayValue = params.displayValues.get(singleValue) ?? singleValue
+                                   result.push(FormUtil.getFormLink(displayValue, "Sample", singleValue));
                                }
                                return result;
                             } else {
-                               return FormUtil.getFormLink(params.value, "Sample", params.value);
+                               var displayValue = params.displayValues.get(params.value) ?? params.value
+                               return FormUtil.getFormLink(displayValue, "Sample", params.value);
 }
                           }
                       })(propertyType)
@@ -989,10 +1028,15 @@ var SampleDataGridUtil = new function() {
                     metadata: {
                         dataType: propertyType.dataType
                     },
-                    render: renderValue
+                    render: renderValue,
+                    asyncLoad: asyncLoad
                 });
             }
         }
+        if(samplePermIdsToIdentify.size > 0) {
+
+        }
+
         return propertyColumnsToSort;
     }
 
@@ -1010,10 +1054,6 @@ var SampleDataGridUtil = new function() {
 
     this.getTerm = function(params, propertyType) {
         var value = params.row[propertyType.code]
-//        if(Array.isArray(value)) {
-//            return value.sort().toString();
-//        } else {
             return value ? value : "";
-//        }
     }
 }

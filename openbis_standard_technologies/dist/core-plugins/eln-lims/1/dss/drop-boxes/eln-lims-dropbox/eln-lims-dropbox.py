@@ -6,14 +6,17 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
 from ch.systemsx.cisd.common.mail import EMailAddress
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
+from java.util.concurrent import ConcurrentHashMap
 from java.io import File
 from java.nio.file import Files, Paths, StandardCopyOption
-from java.util import List
+from java.util import List, Map
+from java.util.concurrent import ConcurrentHashMap
+from java.util.regex import Pattern, PatternSyntaxException
 from org.apache.commons.io import FileUtils
 from org.json import JSONObject
+from ch.ethz.sis import PersistentKeyValueStore
 
 INVALID_FORMAT_ERROR_MESSAGE = "Invalid format for the folder name, should follow the pattern <ENTITY_KIND>+<SPACE_CODE>+<PROJECT_CODE>+[<EXPERIMENT_CODE>|<SAMPLE_CODE>]+<OPTIONAL_DATASET_TYPE>+<OPTIONAL_NAME>";
-ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE = "Directory or its content contain illegal characters: \"', ~, $, %\"";
 FAILED_TO_PARSE_ERROR_MESSAGE = "Failed to parse folder name";
 FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE = "Failed to parse sample";
 FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
@@ -22,9 +25,8 @@ SAMPLE_MISSING_ERROR_MESSAGE = "Sample not found";
 EXPERIMENT_MISSING_ERROR_MESSAGE = "Experiment not found";
 NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice, it should just be in either folder name or metadata.json"
 EMAIL_SUBJECT = "ELN LIMS Dropbox Error";
-ILLEGAL_FILES = ["desktop.ini", "IconCache.db", "thumbs.db"];
-ILLEGAL_FILES_ERROR_MESSAGE = "Directory contains illegal files: " + str(ILLEGAL_FILES);
-HIDDEN_FILES_ERROR_MESSAGE = "Directory contains hidden files: files starting with '.'";
+ILLEGAL_FILES_ERROR_MESSAGE = "Directory contains illegal files";
+INVALID_PATTERN_ERROR_MESSAGE = "Provided pattern could not be compiled"
 
 errorMessages = []
 
@@ -32,8 +34,13 @@ def process(transaction):
     incoming = transaction.getIncoming();
     folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
+    discardFilesPatternsString = getConfigurationProperty(transaction, 'eln-lims-dropbox-discard-files-patterns')
+    illegalFilesPatternsString = getConfigurationProperty(transaction, 'eln-lims-dropbox-illegal-files-patterns')
 
     try:
+        deleteFilesMatchingPatterns(incoming, discardFilesPatternsString)
+        validateIllegalFilesMatchingPatterns(incoming, illegalFilesPatternsString)
+
         if not folderName.startswith('.'):
             datasetInfo = folderName.split("+");
             entityKind = None;
@@ -88,19 +95,6 @@ def process(transaction):
                 else:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 
-                hiddenFiles = getHiddenFiles(incoming)
-                if hiddenFiles:
-                    reportIssue(HIDDEN_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE + ":\n" + pathListToStr(hiddenFiles))
-
-                illegalFiles = getIllegalFiles(incoming)
-                if illegalFiles:
-                    reportIssue(ILLEGAL_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE + ":\n" + pathListToStr(illegalFiles))
-
-                filesWithIllegalCharacters = getFilesWithIllegalCharacters(incoming)
-                if filesWithIllegalCharacters:
-                    reportIssue(ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE + ":\n" + pathListToStr(filesWithIllegalCharacters))
-
                 readOnlyFiles = getReadOnlyFiles(incoming)
                 if readOnlyFiles:
                     reportIssue(FOLDER_CONTAINS_NON_DELETABLE_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE + ":\n" + pathListToStr(readOnlyFiles));
@@ -124,19 +118,6 @@ def process(transaction):
                         reportIssue(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
                 else:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
-
-                hiddenFiles = getHiddenFiles(incoming)
-                if hiddenFiles:
-                    reportIssue(HIDDEN_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE + ":\n" + pathListToStr(hiddenFiles))
-
-                illegalFiles = getIllegalFiles(incoming)
-                if illegalFiles:
-                    reportIssue(ILLEGAL_FILES_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE + ":\n" + pathListToStr(illegalFiles))
-
-                filedWithIllegalCharacters = getFilesWithIllegalCharacters(incoming)
-                if filedWithIllegalCharacters:
-                    reportIssue(ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE + ":\n" + pathListToStr(filedWithIllegalCharacters))
 
                 readOnlyFiles = getReadOnlyFiles(incoming)
                 if readOnlyFiles:
@@ -174,7 +155,7 @@ def process(transaction):
                             raise UserFailureException(NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE)
                         propertyValue = properties.get(propertyKey)
                         if propertyValue is not None:
-                            propertyValueString = str(propertyValue)
+                            propertyValueString = unicode(propertyValue)
                             dataSet.setPropertyValue(propertyKey, propertyValueString)
                 else:
                     itemsInFolder = itemsInFolder + 1;
@@ -188,7 +169,7 @@ def process(transaction):
                 try:
                     for inputFile in filesInFolder:
                         Files.move(inputFile.toPath(), Paths.get(tmpPath, inputFile.getName()),
-                                   StandardCopyOption.ATOMIC_MOVE);
+                                    StandardCopyOption.ATOMIC_MOVE);
                     transaction.moveFile(tmpDir.getAbsolutePath(), dataSet);
                 finally:
                     if tmpDir is not None:
@@ -209,7 +190,7 @@ def pathListToStr(list):
 
 
 def getContactsEmailAddresses(transaction):
-    emailString = getThreadProperties(transaction).get("mail.addresses.dropbox-errors")
+    emailString = getConfigurationProperty(transaction, "mail.addresses.dropbox-errors")
     return re.split("[,;]", emailString) if emailString is not None else []
 
 
@@ -224,45 +205,6 @@ def reportAllIssues(transaction, emailAddress):
         joinedErrorMessages = "\n".join(errorMessages)
         sendMail(transaction, map(lambda address: EMailAddress(address), allAddresses), EMAIL_SUBJECT, joinedErrorMessages);
         raise UserFailureException(joinedErrorMessages)
-
-
-def getFilesWithIllegalCharacters(folder):
-    result = []
-    if bool(re.search(r"['~$%]", folder.getPath())):
-        result.append(folder.getName())
-
-    files = folder.listFiles()
-    if files is not None:
-        for f in files:
-            result.extend(getFilesWithIllegalCharacters(f))
-
-    return result
-
-
-def getHiddenFiles(folder):
-    result = []
-    if folder.getName().startswith("."):
-        result.append(folder.getPath())
-
-    files = folder.listFiles()
-    if files is not None:
-        for f in files:
-            result.extend(getHiddenFiles(f))
-
-    return result
-
-
-def getIllegalFiles(folder):
-    result = []
-    if folder.getName() in ILLEGAL_FILES:
-        result.append(folder.getPath())
-
-    files = folder.listFiles()
-    if files is not None:
-        for f in files:
-            result.extend(getIllegalFiles(f))
-
-    return result
 
 
 def getReadOnlyFiles(folder):
@@ -302,12 +244,103 @@ def getExperimentRegistratorsEmail(transaction, spaceCode, projectCode, experime
     return foundExperiment.getRegistrator().getEmail() if foundExperiment is not None else None
 
 
-def getThreadProperties(transaction):
-    threadPropertyDict = {}
-    threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties()
-    for key in threadProperties:
+def getConfigurationProperty(transaction, propertyName):
+    threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties();
+    try:
+        return threadProperties.getProperty(propertyName);
+    except:
+        return None
+
+
+def getStringPatternMap():
+    stringPatternMap = None
+    if PersistentKeyValueStore.containsKey('eln-lims-dropbox-string-pattern-map'):
+        stringPatternMap = PersistentKeyValueStore.get('eln-lims-dropbox-string-pattern-map')
+    else:
+        stringPatternMap = ConcurrentHashMap()
+        PersistentKeyValueStore.put('eln-lims-dropbox-string-pattern-map', stringPatternMap)
+    return stringPatternMap
+
+
+def stringArrayStrip(sArray):
+    sArrayStripped = []
+    for s in sArray:
+        sArrayStripped.append(s.strip())
+    return sArrayStripped
+
+
+def deleteFilesMatchingPatterns(incoming, discardFilesPatterns):
+    print("||> DUPA delete")
+    stringToPatternMap = getStringPatternMap()
+    print(discardFilesPatterns)
+    if discardFilesPatterns:
+        print("||> DUPA IF")
+        stringPatterns = stringArrayStrip(discardFilesPatterns.split(","))
+        patterns = []
         try:
-            threadPropertyDict[key] = threadProperties.getProperty(key)
-        except:
-            pass
-    return threadPropertyDict
+            for stringPattern in stringPatterns:
+                pattern = None
+                if stringToPatternMap.containsKey(stringPattern):
+                    pattern = stringToPatternMap.get(stringPattern)
+                else:
+                    pattern = Pattern.compile(stringPattern)
+                    stringToPatternMap.put(stringPattern, pattern)
+                patterns.append(pattern)
+        except PatternSyntaxException as err:
+            reportIssue(str(err))
+            raise UserFailureException(INVALID_PATTERN_ERROR_MESSAGE)
+        deleteFilesMatchingPatternsExec(incoming, patterns)
+
+
+def validateIllegalFilesMatchingPatterns(incoming, illegalFilesPatterns):
+    print("||> VALIDATE")
+    stringToPatternMap = getStringPatternMap()
+    if illegalFilesPatterns:
+        stringPatterns = stringArrayStrip(illegalFilesPatterns.split(","))
+        print(stringPatterns)
+        patterns = []
+        try:
+            for stringPattern in stringPatterns:
+                pattern = None
+                if stringToPatternMap.containsKey(stringPattern):
+                    pattern = stringToPatternMap.get(stringPattern)
+                else:
+                    pattern = Pattern.compile(stringPattern)
+                    stringToPatternMap.put(stringPattern, pattern)
+                patterns.append(pattern)
+        except PatternSyntaxException as err:
+            reportIssue(str(err))
+            raise UserFailureException(INVALID_PATTERN_ERROR_MESSAGE)
+        illegalFiles = getIllegalFilesMatchingPatterns(incoming, patterns)
+        if illegalFiles:
+            reportIssue(ILLEGAL_FILES_ERROR_MESSAGE + ":\n" + pathListToStr(illegalFiles))
+
+
+def deleteFiles(file):
+    if file.isDirectory():
+        for fileInDirectory in file.listFiles():
+            deleteFiles(fileInDirectory)
+    file.delete()
+
+
+def deleteFilesMatchingPatternsExec(file, patterns):
+    for pattern in patterns:
+        if pattern.matcher(file.getName()).matches():
+            deleteFiles(file)
+            return
+    if file.isDirectory():
+        for fileInDirectory in file.listFiles():
+            deleteFilesMatchingPatternsExec(fileInDirectory, patterns)
+
+
+def getIllegalFilesMatchingPatterns(file, patterns):
+    result = []
+    for pattern in patterns:
+        if pattern.matcher(file.getName()).matches():
+            result.append(file.getPath())
+            break
+    if file.isDirectory():
+        for fileInDirectory in file.listFiles():
+            result.extend(getIllegalFilesMatchingPatterns(fileInDirectory, patterns))
+    return result
+

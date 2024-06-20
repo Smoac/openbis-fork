@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.io.File;
@@ -32,6 +31,8 @@ public interface ISessionWorkspaceProvider
 
     File getSessionWorkspace(String sessionToken);
 
+    File getCanonicalFile(String sessionToken, String relativePathToFile) throws IOException;
+
     void deleteSessionWorkspace(String sessionToken);
 
     void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException;
@@ -39,6 +40,8 @@ public interface ISessionWorkspaceProvider
     FileOutputStream getFileOutputStream(String sessionToken, String relativePathToFile) throws IOException;
 
     InputStream read(String sessionToken, String relativePathToFile) throws IOException;
+
+    byte[] readAllBytes(String sessionToken, String relativePathToFile) throws IOException;
 
     void delete(String sessionToken, String relativePathToFile) throws IOException;
 

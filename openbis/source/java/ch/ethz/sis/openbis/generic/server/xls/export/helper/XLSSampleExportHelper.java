@@ -113,6 +113,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
         fetchOptions.withParents();
         fetchOptions.withChildren();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
+        fetchOptions.withSampleProperties();
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();

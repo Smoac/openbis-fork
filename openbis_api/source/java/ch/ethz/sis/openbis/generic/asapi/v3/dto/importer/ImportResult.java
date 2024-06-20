@@ -14,67 +14,53 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.importer.data.ImportScript")
-public class ImportScript implements Serializable
+@JsonObject("as.dto.importer.ImportResult")
+public class ImportResult implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private String name;
-
-    @JsonProperty
-    private String source;
+    private List<IObjectId> objectIds;
 
     @SuppressWarnings("unused")
-    public ImportScript()
+    public ImportResult()
     {
     }
 
-    public ImportScript(final String name, final String source)
+    public ImportResult(final List<IObjectId> objectIds)
     {
-        this.name = name;
-        this.source = source;
-    }
-
-    @JsonIgnore
-    public String getName()
-    {
-        return name;
+        this.objectIds = objectIds;
     }
 
     @JsonIgnore
-    public void setName(final String name)
+    public List<IObjectId> getObjectIds()
     {
-        this.name = name;
+        return objectIds;
     }
 
     @JsonIgnore
-    public String getSource()
+    public void setObjectIds(final List<IObjectId> objectIds)
     {
-        return source;
-    }
-
-    @JsonIgnore
-    public void setSource(final String source)
-    {
-        this.source = source;
+        this.objectIds = objectIds;
     }
 
     @Override
     public String toString()
     {
-        return new ObjectToString(this).append("name", name).append("source", source).toString();
+        return new ObjectToString(this).append("objectIds", objectIds).toString();
     }
 
 }

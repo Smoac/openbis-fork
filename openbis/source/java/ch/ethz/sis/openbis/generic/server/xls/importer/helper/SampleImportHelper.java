@@ -107,7 +107,7 @@ public class SampleImportHelper extends BasicImportHelper
 
             sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), SAMPLE_TYPE_FIELD));
             if(sampleType.getPermId() == null || sampleType.getPermId().isEmpty()) {
-                throw new UserFailureException("Mandatory field missing or empty: " + SAMPLE_TYPE_FIELD);
+                throw new UserFailureException("Mandatory field is missing or empty: " + SAMPLE_TYPE_FIELD);
             }
 
             // first check that sample type exist.
@@ -268,7 +268,7 @@ public class SampleImportHelper extends BasicImportHelper
         }
 
         if (identifier == null || identifier.isEmpty()) {
-            throw new UserFailureException("'Identifier' is missing, is mandatory since is needed to select a sample to update.");
+            throw new UserFailureException("'Identifier' is missing, it is mandatory since it is needed to select a sample to update.");
         }
 
         ISampleId sampleId = ImportUtils.buildSampleIdentifier(identifier);

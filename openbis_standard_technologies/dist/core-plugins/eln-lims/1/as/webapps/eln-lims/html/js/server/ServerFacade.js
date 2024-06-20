@@ -120,19 +120,16 @@ function ServerFacade(openbisServer) {
         });
     }
 
-    this.registerSamples = function(allowedSampleTypes, experimentsByType, spacesByType, barcodeValidationInfo, sessionKey, callback) {
-        this.customELNASAPI({
-            "method" : "importSamples",
-            "allowedSampleTypes" : allowedSampleTypes,
-            "experimentsByType" : experimentsByType,
-            "spacesByType" : spacesByType,
-            "barcodeValidationInfo" : barcodeValidationInfo,
-            "mode" : "FAIL_IF_EXISTS",
-            "sessionKey" : sessionKey
-        }, function(result) {
-            callback(result)
-        }, true);
-    }
+		this.importSamples = function(mode, sessionKey, allowedSampleTypes, experimentsByType, spacesByType, callback) {
+				this.customASService({
+					"method" : "import",
+					"mode" : mode,
+					"fileName" : sessionKey,
+					"allowedSampleTypes" : allowedSampleTypes,
+					"experimentsByType" : experimentsByType,
+					"spacesByType" : spacesByType,
+				}, callback, "xls-import", null, true);
+		}
 
     this.deleteSpace = function(code, reason, callback) {
         this.customELNASAPI({
@@ -142,18 +139,6 @@ function ServerFacade(openbisServer) {
         }, function(result) {
             callback(result);
         });
-    }
-
-    this.updateSamples = function(allowedSampleTypes, barcodeValidationInfo, sessionKey, callback) {
-        this.customELNASAPI({
-            "method" : "importSamples",
-            "allowedSampleTypes" : allowedSampleTypes,
-            "barcodeValidationInfo" : barcodeValidationInfo,
-            "mode" : "UPDATE_IF_EXISTS",
-            "sessionKey" : sessionKey
-        }, function(result) {
-            callback(result)
-        }, true);
     }
 
     this.getSamplesImportTemplate = function(allowedSampleTypes, templateType, importMode, callback) {
@@ -1172,7 +1157,12 @@ function ServerFacade(openbisServer) {
     }
 
     this.isDropboxMonitorUsageAuthorized = function(callback) {
-        this._dropboxApi({"checkAuthorization": true}, callback);
+        var dataStoreCode = profile.getDefaultDataStoreCode();
+        if(dataStoreCode === null) {
+            callback(false);
+        } else {
+            this._dropboxApi({"checkAuthorization": true}, callback);
+        }
     }
 
     this.getDropboxMonitorOverview = function(callback) {
@@ -1189,7 +1179,13 @@ function ServerFacade(openbisServer) {
         var dataStoreCode = profile.getDefaultDataStoreCode();
         this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
             if (data.error) {
-                Util.showError(data.error.message, Util.unblockUI);
+                var errorCallback = null;
+                if(parameters.checkAuthorization) {
+                    errorCallback = callback(false);
+                } else {
+                    errorCallback = Util.unblockUI;
+                }
+                Util.showError(data.error.message, errorCallback);
             } else if (data && data.result && data.result.columns) {
                 var rows = data.result.rows;
                 if (data.result.columns.length > 1 && data.result.columns[1].title === "Error") {
@@ -2344,79 +2340,11 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
-    this.getResultsWithBrokenEqualsFix = function(hackFixForBrokenEquals, results, operator) {
-        if (!operator) {
-            operator = "AND";
-        }
-
-        if(hackFixForBrokenEquals.length > 0 && results) {
-            var filteredResults = [];
-            var resultsValid = new Array(results.length);
-            for (var vIdx = 0; vIdx < resultsValid.length; vIdx++) {
-                switch(operator) {
-                    case "AND":
-                        resultsValid[vIdx] = true;
-                        break;
-                    case "OR":
-                        resultsValid[vIdx] = false;
-                        break;
-                }
-            }
-
-            for(var rIdx = 0; rIdx < results.length; rIdx++) {
-        	    var result = results[rIdx];
-        	    for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
-        	        var propertyFound = hackFixForBrokenEquals[fIdx].propertyCode && result &&
-                                        result.properties &&
-                                        result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value;
-
-                    var permIdFound = hackFixForBrokenEquals[fIdx].permId && result &&
-                                        result.permId && result.permId.permId &&
-                                        result.permId.permId === hackFixForBrokenEquals[fIdx].value;
-        		    if(propertyFound || permIdFound) {
-        			    switch(operator) {
-                            case "AND":
-                                resultsValid[rIdx] = resultsValid[rIdx] && true;
-                                break;
-                            case "OR":
-                                resultsValid[rIdx] = resultsValid[rIdx] || true;
-                                break;
-                        }
-        		    } else {
-                        switch(operator) {
-                            case "AND":
-                                resultsValid[rIdx] = resultsValid[rIdx] && false;
-                                break;
-                            case "OR":
-                                resultsValid[rIdx] = resultsValid[rIdx] || false;
-                                break;
-                        }
-        	        }
-                }
-            }
-
-            for(var rIdx = 0; rIdx < results.length; rIdx++) {
-        	    if(resultsValid[rIdx]) {
-        	        filteredResults.push(results[rIdx]);
-        	    }
-            }
-
-            results = filteredResults;
-        }
-
-        return results;
-    }
-
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		var _this = this;
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-				var majorVersion =  profile.openbisVersion.split('.', 1);
-				if (!isNaN(majorVersion) && majorVersion <= 19) {
-					apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
-						advancedSearchCriteria.logicalOperator);
-				}
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -2770,10 +2698,6 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-			var majorVersion =  profile.openbisVersion.split('.', 1);
-			if (!isNaN(majorVersion) && majorVersion <= 19) {
-				results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
-			}
 			callbackFunction(results);
 		});
 	}
@@ -3880,6 +3804,38 @@ function ServerFacade(openbisServer) {
                    }
 		});
 	}
+
+	this.customDSSService = function(parameters, callbackFunction, serviceCode, errorHandler) {
+        require(["dss/dto/service/id/CustomDssServiceCode","dss/dto/service/CustomDSSServiceExecutionOptions"],
+            function(CustomDssServiceCode, CustomDSSServiceExecutionOptions) {
+                var id = new CustomDssServiceCode(serviceCode);
+                var options = new CustomDSSServiceExecutionOptions();
+
+                if(parameters) {
+                   for(key in parameters) {
+                       options.withParameter(key, parameters[key]);
+                   }
+                }
+
+                var failureHander = function(result) {
+                    if (errorHandler) {
+                        errorHandler(result);
+                    } else {
+                        var msg = result.message;
+                        if (!msg) {
+                            msg = "Call failed to server: " + JSON.stringify(result);
+                        }
+                        Util.showError(msg);
+                    }
+                };
+
+
+               mainController.openbisV3.getDataStoreFacade().executeCustomDSSService(id, options).done(function(result) {
+                   callbackFunction(result);
+               }).fail(failureHander);
+
+        });
+    }
 
 	//
 	// search-store Functions

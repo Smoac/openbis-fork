@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, CISD
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.io.File;
@@ -98,13 +97,13 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     public Map<String, File> getSessionWorkspaces()
     {
         File[] sessionWorkspaces = sessionWorkspaceRootDir.listFiles(new FileFilter()
+        {
+            @Override
+            public boolean accept(File file)
             {
-                @Override
-                public boolean accept(File file)
-                {
-                    return false == file.isHidden();
-                }
-            });
+                return false == file.isHidden();
+            }
+        });
 
         Map<String, File> map = new TreeMap<String, File>();
 
@@ -135,6 +134,14 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
+    public File getCanonicalFile(String sessionToken, String relativePathToFile) throws IOException
+    {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        return targetFile.getCanonicalFile();
+    }
+
+    @Override
     public void deleteSessionWorkspace(String sessionTokenOrPAT)
     {
         try
@@ -157,6 +164,7 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     public void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException {
         File sessionWorkspace = getSessionWorkspace(sessionToken);
         File targetFile = new File(sessionWorkspace, relativePathToFile);
+        targetFile.getParentFile().mkdirs();
         Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -171,6 +179,13 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
         File sessionWorkspace = getSessionWorkspace(sessionToken);
         File targetFile = new File(sessionWorkspace, relativePathToFile);
         return Files.newInputStream(targetFile.toPath());
+    }
+
+    @Override
+    public byte[] readAllBytes(String sessionToken, String relativePathToFile) throws IOException {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        return Files.readAllBytes(targetFile.toPath());
     }
 
     @Override

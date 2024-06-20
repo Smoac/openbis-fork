@@ -15,23 +15,15 @@
  */
 package ch.ethz.sis.openbis.systemtest.plugin.excelimport;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -44,6 +36,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
@@ -60,12 +57,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
@@ -73,19 +69,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi
 
 public class TestUtils
 {
-    private static final String TEST_XLS = "TEST-XLS";
-
-    private static final String XLS_NAME = "xls_name";
-
-    private static final String UPDATE_MODE = "update_mode";
-
-    private static final String XLS_PARAM = "xls";
-
-    public static final String CSV_PARAM = "csv";
-
-    private static final String SCRIPTS_PARAM = "scripts";
-
-    private static final String XLS_IMPORT_API = "xls-import-api";
 
     static Vocabulary getVocabulary(IApplicationServerInternalApi v3api, String sessionToken, String code)
     {
@@ -276,7 +259,7 @@ public class TestUtils
         }
     }
 
-    static Sample getSample(IApplicationServerInternalApi v3api, String sessionToken, String sampleCode, String spaceCode)
+    static Sample getSample(IApplicationServerInternalApi v3api, String sessionToken, String spaceCode, String sampleCode)
     {
         List<ISampleId> ids = new ArrayList<>();
         ids.add(new SampleIdentifier(spaceCode, null, null, sampleCode));
@@ -351,83 +334,11 @@ public class TestUtils
     static List<IObjectId> createFrom(IApplicationServerInternalApi v3api, String sessionToken, UpdateMode updateMode, Path... xls_paths)
             throws IOException
     {
-        List<byte[]> excels = new ArrayList<>();
-        for (Path xls_path : xls_paths)
-        {
-            byte[] xls = readData(xls_path);
-            excels.add(xls);
-        }
-        CustomASServiceExecutionOptions options = new CustomASServiceExecutionOptions();
-        options.withParameter(XLS_PARAM, excels);
-        options.withParameter(UPDATE_MODE, updateMode.name());
-        options.withParameter(XLS_NAME, TEST_XLS);
-        return (List<IObjectId>) v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options);
-    }
+        final String[] sessionWorkspaceFiles = Arrays.stream(xls_paths).map(Path::toString).toArray(String[]::new);
+        final ImportResult importResult = v3api.executeImport(sessionToken, new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles),
+                new ImportOptions(ImportMode.valueOf(updateMode.name())));
 
-    static String createFromCsv(IApplicationServerInternalApi v3api, String sessionToken, Path... csv_paths) throws IOException
-    {
-        List<byte[]> csvs = new ArrayList<>();
-        for (Path csv_path : csv_paths)
-        {
-            byte[] csv = readData(csv_path);
-            csvs.add(csv);
-        }
-        CustomASServiceExecutionOptions options = new CustomASServiceExecutionOptions();
-        options.withParameter(CSV_PARAM, csvs);
-        options.withParameter(UPDATE_MODE, UpdateMode.IGNORE_EXISTING.name());
-        options.withParameter(XLS_NAME, TEST_XLS);
-        return v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options).toString();
-    }
-
-    static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, Map<String, String> scripts, Path... xls_paths)
-            throws IOException
-    {
-        return TestUtils.createFrom(v3api, sessionToken, scripts, UpdateMode.IGNORE_EXISTING, xls_paths);
-    }
-
-    static String createFrom(IApplicationServerInternalApi v3api, String sessionToken, Map<String, String> scripts, UpdateMode updateMode,
-            Path... xls_paths) throws IOException
-    {
-        List<byte[]> excels = new ArrayList<>();
-        for (Path xls_path : xls_paths)
-        {
-            byte[] xls = readData(xls_path);
-            excels.add(xls);
-        }
-        CustomASServiceExecutionOptions options = new CustomASServiceExecutionOptions();
-        options.withParameter(XLS_PARAM, excels);
-        options.withParameter(SCRIPTS_PARAM, scripts);
-        options.withParameter(UPDATE_MODE, updateMode.name());
-        options.withParameter(XLS_NAME, TEST_XLS);
-        return v3api.executeCustomASService(sessionToken, new CustomASServiceCode(XLS_IMPORT_API), options).toString();
-    }
-
-    static String getValidationScript()
-    {
-        return "def validate(entity, isNew):\n  if isNew:\n    return";
-    }
-
-    static String getDynamicScript()
-    {
-        return "def calculate():\n    return 1";
-    }
-
-    static Map<String, String> getValidationPluginMap()
-    {
-        String dynamicScriptString = getValidationScript();
-        Map<String, String> scriptsMap = new HashMap<>();
-        scriptsMap.put("valid.py", dynamicScriptString);
-
-        return scriptsMap;
-    }
-
-    static Map<String, String> getDynamicPluginMap()
-    {
-        String dynamicScriptString = getDynamicScript();
-        Map<String, String> scriptsMap = new HashMap<>();
-        scriptsMap.put("dynamic/dynamic.py", dynamicScriptString);
-
-        return scriptsMap;
+        return importResult.getObjectIds();
     }
 
     static VocabularyPermId createVocabulary(IApplicationServerInternalApi v3api, String sessionToken, String code, String description)
@@ -447,17 +358,6 @@ public class TestUtils
         }
     }
 
-    static String extractSamplePermIdFromResults(String result)
-    {
-        // Note this will work only if we created single sample!!
-        int indexOfSamples = result.indexOf("CreateSamplesOperationResult");
-        int permIdStart = indexOfSamples + "CreateSamplesOperationResult".length();
-        int permIdEnd = result.indexOf("]", indexOfSamples);
-        String permId = result.substring(permIdStart, permIdEnd);
-        permId = StringUtils.strip(permId, "[]");
-        return permId;
-    }
-
     static List<PropertyAssignment> extractAndSortPropertyAssignmentsPerGivenPropertyName(IEntityType rawData, List<String> propertyNames)
             throws Exception
     {
@@ -475,17 +375,6 @@ public class TestUtils
         }
 
         return sortedPropertyAssignments;
-    }
-
-    private static byte[] readData(Path xls_path) throws IOException
-    {
-        String path = xls_path.toString();
-        try (InputStream resourceAsStream = TestUtils.class.getClassLoader().getResourceAsStream(path))
-        {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            IOUtils.copy(resourceAsStream, byteArrayOutputStream);
-            return byteArrayOutputStream.toByteArray();
-        }
     }
 
 }

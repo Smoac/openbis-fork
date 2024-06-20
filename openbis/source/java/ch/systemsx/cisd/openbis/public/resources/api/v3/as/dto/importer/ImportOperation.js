@@ -46,7 +46,7 @@ define(["stjs", "as/dto/common/operation/IOperation"],
         };
       },
       {
-        importData: "IImportData",
+        importData: "ImportData",
         importOptions: "ImportOptions"
       }
     );

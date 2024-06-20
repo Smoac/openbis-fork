@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.handler;
 
+import static org.springframework.util.StringUtils.trimWhitespace;
+
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -89,7 +91,7 @@ public class ExcelParser
     {
         if (value != null && value.startsWith("__value-") && value.endsWith(".txt__"))
         {
-            return importValues.get(value.substring(2, value.length() - 2));
+            return trimWhitespace(importValues.get(value.substring(2, value.length() - 2)));
         } else
         {
             return value;

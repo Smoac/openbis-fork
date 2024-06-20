@@ -96,9 +96,12 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.FAIL_IF_EXISTS, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -114,9 +117,12 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT2", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT2");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -132,12 +138,23 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECT)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_ALL_ELSEWHERE)));
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String projectSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(projectSessionWorkspaceFilePath));
+
+        final String experimentsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_ALL_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentsSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -153,12 +170,22 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECT)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS)));
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String projectSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(projectSessionWorkspaceFilePath));
+
+        final String experimentsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentsSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -166,20 +193,36 @@ public class ImportExperimentsTest extends AbstractImportTest
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Experiment type COLLECTION not found.*")
     public void shouldThrowExceptionIfExperimentTypeDoesntExist() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECT)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_ALL_ELSEWHERE)));
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String projectSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(projectSessionWorkspaceFilePath));
+
+        final String experimentsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_ALL_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentsSessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Entity \\[/TEST_SPACE/TEST_PROJECT\\] could not be found\\..*")
     public void shouldThrowExceptionIfProjectDoesntExist() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_ALL_ELSEWHERE)));
+        // the Excel contains internally property types which can be only manipulated by the system user
+        sessionToken = v3api.loginAsSystem();
+
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String experimentsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_ALL_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentsSessionWorkspaceFilePath));
     }
 
     @Test
@@ -190,10 +233,17 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_TYPE_ELSEWHERE)));
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String experimentsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_TYPE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentsSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -209,12 +259,23 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECT)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_TYPE_ELSEWHERE)));
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String projectSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(projectSessionWorkspaceFilePath));
+
+        final String experimentsSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_TYPE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentsSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -225,7 +286,8 @@ public class ImportExperimentsTest extends AbstractImportTest
     @Test(expectedExceptions = UserFailureException.class)
     public void shouldThrowExceptionIfExperimentNoCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENTS_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
     @Test
@@ -236,9 +298,13 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_NON_MANDATORY_PROPERTY_MISSING)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_NON_MANDATORY_PROPERTY_MISSING));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -249,7 +315,9 @@ public class ImportExperimentsTest extends AbstractImportTest
     @Test(expectedExceptions = RuntimeException.class)
     public void shouldThrowExceptionIfExperimentNoProject() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_NO_PROJECT_ATTRIBUTE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_NO_PROJECT_ATTRIBUTE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
     @Test
@@ -260,11 +328,19 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROJECT)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_SPACE_AND_PROJECT_ELSEWHERE)));
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String projectSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROJECT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(projectSessionWorkspaceFilePath));
+
+        final String elsewhereWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_SPACE_AND_PROJECT_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(elsewhereWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -280,10 +356,16 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_SPACE_ELSEWHERE)));
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String spaceElsewhereSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_SPACE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceElsewhereSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -299,11 +381,20 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_TYPE_AND_SPACE_ELSEWHERE)));
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String spaceSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(spaceSessionWorkspaceFilePath));
+
+        final String elsewhereSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_TYPE_AND_SPACE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(elsewhereSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -314,7 +405,9 @@ public class ImportExperimentsTest extends AbstractImportTest
     @Test(expectedExceptions = UserFailureException.class)
     public void shouldThrowExceptionIfMandatoryPropertyMissing() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_MANDATORY_PROPERTY_MISSING)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_MANDATORY_PROPERTY_MISSING));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
     @Test
@@ -325,9 +418,13 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_MANDATORY_PROPERTY_PRESENT)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_WITH_MANDATORY_PROPERTY_PRESENT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -343,9 +440,13 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_PROPERTIES_COLUMNS_AS_LABELS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_PROPERTIES_COLUMNS_AS_LABELS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -361,11 +462,17 @@ public class ImportExperimentsTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENTS_PROPERTIES_COLUMNS_AS_LABELS_TYPE_ON_SERVER)));
+        final String experimentTypeSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(experimentTypeSessionWorkspaceFilePath));
+
+        final String elsewhereSessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENTS_PROPERTIES_COLUMNS_AS_LABELS_TYPE_ON_SERVER));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(elsewhereSessionWorkspaceFilePath));
+
         // WHEN
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
@@ -373,19 +480,26 @@ public class ImportExperimentsTest extends AbstractImportTest
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
-//    @Test
-//    @DirtiesContext
-//    public void testExperimentsUpdate() throws Exception
-//    {
-//        // GIVEN
-//        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS)));
-//        // WHEN
-//        TestUtils.createFrom(v3api, sessionToken, TestUtils.getDynamicPluginMap(), UpdateMode.UPDATE_IF_EXISTS,
-//                Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_UPDATE)));
-//        Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
-//        // THEN
-//        assertEquals(experiment.getProperties().get("$NAME"), "NameUpdate");
-//        assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "DefaultObjectTypeUpdate");
-//    }
+    @Test
+    @DirtiesContext
+    public void testExperimentsUpdate() throws Exception
+    {
+        // the Excel contains internally managed property types which can be only manipulated by the system user
+        String sessionToken = v3api.loginAsSystem();
+
+        // GIVEN
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXPERIMENT_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
+        // WHEN
+        final String[] updateSessionWorkspaceFilePaths = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, EXPERIMENT_UPDATE), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(updateSessionWorkspaceFilePaths[0]));
+        Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
+
+        // THEN
+        assertEquals(experiment.getProperties().get("$NAME"), "NameUpdate");
+        assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "DefaultObjectTypeUpdate");
+    }
 
 }

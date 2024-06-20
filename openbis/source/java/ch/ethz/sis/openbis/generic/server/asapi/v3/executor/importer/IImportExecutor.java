@@ -18,11 +18,12 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.importer;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 public interface IImportExecutor
 {
 
-    void doImport(final IOperationContext context, final ImportOperation operation);
+    ImportResult doImport(final IOperationContext context, final ImportOperation operation);
 
 }

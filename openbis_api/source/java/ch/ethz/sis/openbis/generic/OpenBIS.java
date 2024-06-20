@@ -74,6 +74,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
@@ -85,6 +88,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
@@ -260,9 +266,13 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.client.util.MultiPartContentProvider;
+import org.eclipse.jetty.client.util.PathContentProvider;
+import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
 import java.io.*;
@@ -934,6 +944,14 @@ public class OpenBIS
         return asFacade.createCodes(sessionToken, prefix, entityKind, count);
     }
 
+    public ImportResult executeImport(ImportData importData, ImportOptions importOptions) {
+        return asFacade.executeImport(sessionToken, importData, importOptions);
+    }
+
+    public ExportResult executeExport(ExportData exportData, ExportOptions exportOptions) {
+        return asFacade.executeExport(sessionToken, exportData, exportOptions);
+    }
+
     //
     // DSS Facade methods
     //
@@ -971,6 +989,40 @@ public class OpenBIS
     public void setSessionToken(final String sessionToken)
     {
         this.sessionToken = sessionToken;
+    }
+
+    public String uploadToSessionWorkspace(final Path fileOrFolder)
+    {
+        String uploadId = UUID.randomUUID().toString() + "/" + fileOrFolder.getFileName().toString();
+
+        try
+        {
+            HttpClient httpClient = JettyHttpClientFactory.getHttpClient();
+
+            MultiPartContentProvider multiPart = new MultiPartContentProvider();
+            multiPart.addFieldPart("sessionKeysNumber", new StringContentProvider("1"), null);
+            multiPart.addFieldPart("sessionKey_0", new StringContentProvider("openbis-file-upload"), null);
+            multiPart.addFilePart("openbis-file-upload", uploadId, new PathContentProvider(fileOrFolder), null);
+            multiPart.addFieldPart("keepOriginalFileName", new StringContentProvider("True"), null);
+            multiPart.addFieldPart("sessionID", new StringContentProvider(this.sessionToken), null);
+            multiPart.close();
+
+            ContentResponse response = httpClient.newRequest(this.asURL + "/upload")
+                    .method(HttpMethod.POST)
+                    .content(multiPart)
+                    .send();
+
+            final int status = response.getStatus();
+            if (status != 200)
+            {
+                throw new IOException(response.getContentAsString());
+            }
+        } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return uploadId;
     }
 
     public String uploadFileWorkspaceDSS(final Path fileOrFolder)

@@ -15,15 +15,15 @@
  */
 package ch.ethz.sis.openbis.systemtest.plugin.excelimport;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -33,14 +33,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
-import static org.testng.Assert.*;
 
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
@@ -109,9 +110,12 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_XLS)));
+        final String sessionWorkspaceFile = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SAMPLES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.FAIL_IF_EXISTS, Paths.get(sessionWorkspaceFile));
+
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "AAA", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "AAA");
+
         // THEN
         assertEquals(sample.getCode(), "AAA");
         assertEquals(sample.getProject(), null);
@@ -127,9 +131,10 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SAMPLES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertEquals(sample.getCode(), "VVV");
         assertEquals(sample.getProject(), null);
@@ -145,9 +150,10 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SAMPLES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "S1", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "S1");
         // THEN
         assertEquals(sample.getCode(), "S1");
         assertEquals(sample.getProject(), null);
@@ -163,10 +169,13 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
+        final String sessionWorkspaceFilePathForSpace = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForSpace));
+        final String sessionWorkspaceFilePathForSamplesSpaceElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForSamplesSpaceElsewhere));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
     }
@@ -179,19 +188,28 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
+        final String sessionWorkspaceFilePathForSpace = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, SPACE));
+        final String sessionWorkspaceFilePathForSamplesSpaceElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForSpace),
+                Paths.get(sessionWorkspaceFilePathForSamplesSpaceElsewhere));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "(s?).*Entity \\[TEST_SPACE\\] could not be found. "
+                    + "Either you forgot to register it or mistyped the identifier.*")
     public void shouldThrowExceptionIfSpaceDoesntExist() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
+        // the Excel contains internally property types which can be only manipulated by the system user
+        sessionToken = v3api.loginAsSystem();
+
+        final String sessionWorkspaceFilePathForSamplesSpaceElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForSamplesSpaceElsewhere));
     }
 
     @Test
@@ -202,10 +220,17 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC)));
-        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC)));
+        final String sessionWorkspaceFilePathForVocabularyType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE));
+        final String sessionWorkspaceFilePathForSampleType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForVocabularyType),
+                Paths.get(sessionWorkspaceFilePathForSampleType));
+
+        final String sessionWorkspaceFilePathForSampleTypeElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC));
+        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS,
+                Paths.get(sessionWorkspaceFilePathForSampleTypeElsewhere));
         List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(9), (SampleIdentifier)ids.get(10), (SampleIdentifier)ids.get(11));
         // WHEN
         List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
@@ -226,13 +251,22 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
+        final String sessionWorkspaceFilePathForVocabularyType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE));
+        final String sessionWorkspaceFilePathForSampleType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE));
+
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE)));
-        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC)));
+                Paths.get(sessionWorkspaceFilePathForVocabularyType),
+                Paths.get(sessionWorkspaceFilePathForSampleType));
+
+        final String sessionWorkspaceFilePathForSampleTypeElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC));
+        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS,
+                Paths.get(sessionWorkspaceFilePathForSampleTypeElsewhere));
         List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(9), (SampleIdentifier)ids.get(10), (SampleIdentifier)ids.get(11));
         // WHEN
-        List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
+        List<Sample> samples = TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
         Set<String> differentCyclicAssignments = new HashSet<>();
         for (Sample sample:samples) {
             differentCyclicAssignments.add((String)sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
@@ -242,7 +276,8 @@ public class ImportSamplesTest extends AbstractImportTest
         assertEquals(differentCyclicAssignments.size(), 2);
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "(?s).*Property CYCLIC_SAMPLE_PROPERTY is not a sample of type ANTIBODY but of type TEST_TYPE.*")
     @DirtiesContext
     public void testSamplesAreCreatedWhenSampleTypeCyclicOnServerFixTypeWrongType() throws IOException
     {
@@ -250,10 +285,18 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
+        final String sessionWorkspaceFilePathForVocabularyType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE));
+        final String sessionWorkspaceFilePathForSampleType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE));
+
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE)));
-        List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC_WRONG_TYPE)));
+                Paths.get(sessionWorkspaceFilePathForVocabularyType),
+                Paths.get(sessionWorkspaceFilePathForSampleType));
+
+        final String sessionWorkspaceFilePathForSampleTypeElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC_WRONG_TYPE));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePathForSampleTypeElsewhere));
     }
 
     @Test
@@ -264,12 +307,19 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
+        final String sessionWorkspaceFilePathForVocabularyType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE));
+        final String sessionWorkspaceFilePathForSampleType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE));
         TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE)));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE)));
+                Paths.get(sessionWorkspaceFilePathForVocabularyType),
+                Paths.get(sessionWorkspaceFilePathForSampleType));
+
+        final String sessionWorkspaceFilePathForSampleTypeElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForSampleTypeElsewhere));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
     }
@@ -282,11 +332,14 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE)),
-                Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE)));
+        final String sessionWorkspaceFilePathForSampleType = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE));
+        final String sessionWorkspaceFilePathForSampleTypeElsewhere = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePathForSampleType),
+                Paths.get(sessionWorkspaceFilePathForSampleTypeElsewhere));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
     }
@@ -299,10 +352,10 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, CHILD_AS_IDENTIFIER)));
+        final String sessionWorkspaceFile = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, CHILD_AS_IDENTIFIER));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFile));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
         assertEquals(sample.getChildren().size(), 1);
@@ -319,10 +372,10 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, PARENT_AS_IDENTIFIER)));
+        final String sessionWorkspaceFile = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PARENT_AS_IDENTIFIER));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFile));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
         assertEquals(sample.getParents().size(), 1);
@@ -339,10 +392,10 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, CHILD_AS_DOLLARTAG)));
+        final String sessionWorkspaceFile = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, CHILD_AS_DOLLARTAG));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFile));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
         assertEquals(sample.getChildren().size(), 1);
@@ -359,10 +412,10 @@ public class ImportSamplesTest extends AbstractImportTest
         String sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, PARENT_AS_DOLLARTAG)));
+        final String sessionWorkspaceFile = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PARENT_AS_DOLLARTAG));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFile));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "VVV", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "VVV");
         // THEN
         assertNotNull(sample);
         assertEquals(sample.getParents().size(), 1);
@@ -379,10 +432,10 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken,
-                Paths.get(FilenameUtils.concat(FILES_DIR, NON_MANDATORY_FIELD_MISSING)));
+        final String sessionWorkspaceFile = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, NON_MANDATORY_FIELD_MISSING));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFile));
         // WHEN
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "AAA", "TEST_SPACE");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "TEST_SPACE", "AAA");
         // THEN
         assertNotNull(sample);
         assertEquals(sample.getProperties().get("FOR_WHAT"), null);
@@ -396,9 +449,9 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-
-        List<IObjectId> result = TestUtils.createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING,
-                Paths.get(FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_LEVEL)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_LEVEL));
+        List<IObjectId> result = TestUtils.createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING, Paths.get(sessionWorkspaceFilePath));
         String permId = result.get(result.size() - 1).toString();
 
         // WHEN
@@ -416,8 +469,9 @@ public class ImportSamplesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        List<IObjectId> result = TestUtils.createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING,
-                Paths.get(FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_TYPE_LEVEL)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_TYPE_LEVEL));
+        List<IObjectId> result = TestUtils.createFrom(v3api, sessionToken, UpdateMode.IGNORE_EXISTING, Paths.get(sessionWorkspaceFilePath));
 
         String permId = result.get(result.size() - 1).toString();
         // WHEN
@@ -434,10 +488,11 @@ public class ImportSamplesTest extends AbstractImportTest
         // the Excel contains internally managed property types which can be only manipulated by the system user
         sessionToken = v3api.loginAsSystem();
 
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, GENERAL_ELN_SETTINGS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, GENERAL_ELN_SETTINGS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
 
         // test sample before update
-        Sample sample = TestUtils.getSample(v3api, sessionToken, "GENERAL_ELN_SETTINGS", "ELN_SETTINGS");
+        Sample sample = TestUtils.getSample(v3api, sessionToken, "ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
         assertNotNull(sample);
         // properties are empty
         assertEquals(sample.getProperties().size(), 0);
@@ -456,11 +511,12 @@ public class ImportSamplesTest extends AbstractImportTest
         assertEquals(experiment.getProperties().containsKey("$NAME"), true);
         assertEquals(experiment.getProperties().get("$NAME"), "Default Experiment");
 
-        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS,
-                Paths.get(FilenameUtils.concat(FILES_DIR, GENERAL_ELN_SETTINGS_UPDATE)));
+        final String sessionWorkspaceFilePathForUpdate = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, GENERAL_ELN_SETTINGS_UPDATE));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePathForUpdate));
 
         // test sample after update
-        sample = TestUtils.getSample(v3api, sessionToken, "GENERAL_ELN_SETTINGS", "ELN_SETTINGS");
+        sample = TestUtils.getSample(v3api, sessionToken, "ELN_SETTINGS", "GENERAL_ELN_SETTINGS");
         assertNotNull(sample);
         // properties have been updated
         assertEquals(sample.getProperties().size(), 1);
@@ -483,16 +539,28 @@ public class ImportSamplesTest extends AbstractImportTest
         assertEquals(experiment.getProperties().get("$NAME"), "Default Experiment Updated");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "(s?).*Entity \\[TEST_SPACE, /TEST_SPACE/TEST_PROJECT/TEST_EXPERIMENT\\] could not be found. "
+                    + "Either you forgot to register it or mistyped the identifier.*")
     public void shouldThrowExceptionIfSamplesSpaceProjectDoesntExist() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_PROJECT_EXPERIMENT_ELSEWHERE)));
+        // the Excel contains internally property types which can be only manipulated by the system user
+        sessionToken = v3api.loginAsSystem();
+
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_PROJECT_EXPERIMENT_ELSEWHERE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "(s?).*Header 'name' is neither an attribute, property code or property label.*")
     public void shouldThrowExceptionIfMandatoryPropertyIsMissing() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, MANDATORY_FIELD_MISSING)));
+        // the Excel contains internally property types which can be only manipulated by the system user
+        sessionToken = v3api.loginAsSystem();
+
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, MANDATORY_FIELD_MISSING));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
 }

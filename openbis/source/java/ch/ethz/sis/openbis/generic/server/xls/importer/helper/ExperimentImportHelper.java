@@ -92,7 +92,7 @@ public class ExperimentImportHelper extends BasicImportHelper
 
             experimentType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), EXPERIMENT_TYPE_FIELD));
             if(experimentType.getPermId() == null || experimentType.getPermId().isEmpty()) {
-                throw new UserFailureException("Mandatory field missing or empty: " + EXPERIMENT_TYPE_FIELD);
+                throw new UserFailureException("Mandatory field is missing or empty: " + EXPERIMENT_TYPE_FIELD);
             }
 
             // first check that experiment type exist.
@@ -171,7 +171,6 @@ public class ExperimentImportHelper extends BasicImportHelper
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
         String identifier = getValueByColumnName(header, values, Attribute.Identifier);
-        String project = getValueByColumnName(header, values, Attribute.Project);
 
         if (identifier == null || identifier.isEmpty())
         {
@@ -181,6 +180,8 @@ public class ExperimentImportHelper extends BasicImportHelper
         ExperimentUpdate update = new ExperimentUpdate();
         IExperimentId experimentId = new ExperimentIdentifier(identifier);
         update.setExperimentId(experimentId);
+
+        String project = getValueByColumnName(header, values, Attribute.Project);
 
         // Project is used to "MOVE", only set if present since can't be null
         if (project != null && !project.isEmpty())

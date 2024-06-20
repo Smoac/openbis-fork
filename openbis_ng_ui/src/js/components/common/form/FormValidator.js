@@ -4,6 +4,7 @@ import messages from '@src/js/common/messages.js'
 const CODE_PATTERN = /^[A-Z0-9_\-.]+$/i
 const INTERNAL_CODE_PATTERN = /^\$[A-Z0-9_\-.]+$/i
 const TERM_CODE_PATTERN = /^[A-Z0-9_\-.:]+$/i
+const INTERNAL_TERM_CODE_PATTERN = /^\$[A-Z0-9_\-.:]+$/i
 const USER_CODE_PATTERN = /^[A-Z0-9_\-.@]+$/i
 
 class FormValidator {
@@ -42,6 +43,21 @@ class FormValidator {
       )
     }
   }
+
+  validateBooleanNotSet(object, name, label) {
+    const field = object[name]
+    if (
+        field.value === null ||
+        field.value === undefined ||
+        field.value === true
+      ) {
+        this.addError(
+          object,
+          name,
+          messages.get(messages.VALIDATION_BOOLEAN_NOT_SET, label)
+        )
+      }
+    }
 
   validateDateNotEmpty(object, name, label) {
     if (!this.isFullMode()) {
@@ -104,6 +120,15 @@ class FormValidator {
       name,
       messages.get(messages.VALIDATION_TERM_CODE_PATTERN, label),
       TERM_CODE_PATTERN
+    )
+  }
+
+  validateInternalTermCode(object, name, label) {
+    this.validatePattern(
+      object,
+      name,
+      messages.get(messages.VALIDATION_INTERNAL_TERM_CODE_PATTERN, label),
+      INTERNAL_TERM_CODE_PATTERN
     )
   }
 

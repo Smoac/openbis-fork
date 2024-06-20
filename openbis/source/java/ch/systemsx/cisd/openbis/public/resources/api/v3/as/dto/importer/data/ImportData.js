@@ -15,21 +15,22 @@
  *
  */
 
-define(["stjs", "as/dto/importer/data/IImportData"],
-  function (stjs, IImportData) {
-    var ZipImportData = function() {
+define(["stjs"], function (stjs) {
+    var ImportData = function(format, sessionWorkspaceFiles) {
+      this.format = format;
+      this.sessionWorkspaceFiles = sessionWorkspaceFiles;
     }
 
     stjs.extend(
-      ZipImportData,
-      IImportData,
-      [IImportData],
+      ImportData,
+      null,
+      [],
       function (constructor, prototype) {
-        prototype["@type"] = "as.dto.importer.data.ZipImportData";
+        prototype["@type"] = "as.dto.importer.data.ImportData";
 
         constructor.serialVersionUID = 1;
         prototype.format = null;
-        prototype.file = null;
+        prototype.sessionWorkspaceFiles = null;
 
         prototype.getFormat = function() {
           return this.format;
@@ -39,19 +40,19 @@ define(["stjs", "as/dto/importer/data/IImportData"],
           this.format = format;
         };
 
-        prototype.getFile = function() {
-          return this.file;
+        prototype.getSessionWorkspaceFiles = function() {
+          return this.sessionWorkspaceFiles;
         };
 
-        prototype.setFile = function(file) {
-          this.file = file;
+        prototype.setSessionWorkspaceFiles = function(sessionWorkspaceFiles) {
+          this.sessionWorkspaceFiles = sessionWorkspaceFiles;
         };
       },
       {
         format: "ImportFormat",
-        file: "byte[]"
+        sessionWorkspaceFiles: "String[]"
       }
     );
 
-    return ZipImportData;
+    return ImportData;
   });

@@ -17,7 +17,8 @@
 
 define(["stjs", "as/dto/common/operation/IOperationResult"],
   function (stjs, IOperationResult) {
-    var ImportOperationResult = function() {
+    var ImportOperationResult = function(importResult) {
+      this.importResult = importResult;
     }
 
     stjs.extend(
@@ -28,12 +29,23 @@ define(["stjs", "as/dto/common/operation/IOperationResult"],
         prototype["@type"] = "as.dto.importer.ImportOperationResult";
 
         constructor.serialVersionUID = 1;
+        prototype.importResult = null;
 
         prototype.getMessage = function() {
           return "ImportOperationResult";
         };
+
+        prototype.getImportResult = function() {
+          return this.importResult;
+        };
+
+        prototype.setImportResult = function(importResult) {
+          this.importResult = importResult;
+        };
       },
-      {}
+      {
+        importResult: "ImportResult"
+      }
     );
 
     return ImportOperationResult;

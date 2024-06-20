@@ -17,106 +17,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
-import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.ATTRIBUTE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.PROPERTY;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.SCRIPTS_DIRECTORY;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
-import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
-import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
-import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.jsoup.Jsoup;
-import org.jsoup.helper.W3CDom;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.openhtmltopdf.extend.FSSupplier;
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
@@ -169,6 +72,54 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.openhtmltopdf.extend.FSSupplier;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.log4j.Logger;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.*;
+import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.ATTRIBUTE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.PROPERTY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.*;
+import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
+import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
 @SuppressWarnings("SizeReplaceableByIsEmpty")
 @Component
@@ -179,9 +130,13 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String XLSX_DIRECTORY = "xlsx";
 
-    public static final String PDF_DIRECTORY = "pdf";
+    public static final String PDF_DIRECTORY = "hierarchy";
 
     public static final String DATA_DIRECTORY = "data";
+
+    public static final String MISCELLANEOUS_DIRECTORY = "miscellaneous";
+
+    public static final String FILE_SERVICE_SUBDIRECTORY = "file-service";
 
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 
@@ -255,26 +210,13 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
-    /** Used to replace possible illegal characters in the HTML. */
-    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
-
-    private static final String UNPRINTABLE_CHARACTER_REFERENCES_REGEXP = "&#x[0-1]?[0-9A-Fa-f];";
-
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
-    private ObjectWriter objectWriter;
-
     private long dataLimit = -1;
-
-    @PostConstruct
-    private void postConstruct()
-    {
-        objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
-    }
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -469,6 +411,13 @@ public class ExportExecutor implements IExportExecutor
             exportFiles(valueFiles, new File(xlsxDirectory, DATA_DIRECTORY), Function.identity());
         }
 
+        final Map<String, byte[]> miscellaneousFiles = xlsExportResult.getMiscellaneousFiles();
+        if (!miscellaneousFiles.isEmpty())
+        {
+            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY + '/' + FILE_SERVICE_SUBDIRECTORY),
+                    Function.identity());
+        }
+
         try (
                 final Workbook wb = xlsExportResult.getWorkbook();
                 final BufferedOutputStream bos = new BufferedOutputStream(
@@ -485,12 +434,28 @@ public class ExportExecutor implements IExportExecutor
             final Function<String, String> fileNameTransformer) throws IOException
     {
         mkdirs(directory);
-        for (final Map.Entry<String, String> fileName : fileNameToContentsMap.entrySet())
+        for (final Map.Entry<String, String> fileNameToContentsEntry : fileNameToContentsMap.entrySet())
         {
-            final File scriptFile = new File(directory, fileNameTransformer.apply(fileName.getKey()));
+            final File scriptFile = new File(directory, fileNameTransformer.apply(fileNameToContentsEntry.getKey()));
             try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
             {
-                bos.write(fileName.getValue().getBytes());
+                bos.write(fileNameToContentsEntry.getValue().getBytes());
+                bos.flush();
+            }
+        }
+    }
+
+    private static void exportBinaryFiles(final Map<String, byte[]> fileNameToContentsMap, final File directory,
+            final Function<String, String> fileNameTransformer) throws IOException
+    {
+        mkdirs(directory);
+        for (final Map.Entry<String, byte[]> fileEntry : fileNameToContentsMap.entrySet())
+        {
+            final File file = new File(directory, fileNameTransformer.apply(fileEntry.getKey()));
+            mkdirs(file.getParentFile());
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE))
+            {
+                bos.write(fileEntry.getValue());
                 bos.flush();
             }
         }
@@ -1158,7 +1123,6 @@ public class ExportExecutor implements IExportExecutor
                 }
             }, "NotoEmoji");
 
-            //String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             String replacedHtml = ExportPDFUtils.addStyleHeader(html);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
             replacedHtml = ExportPDFUtils.insertPagePagebreak(replacedHtml, "<h2>Identification Info</h2>");
@@ -1448,7 +1412,7 @@ public class ExportExecutor implements IExportExecutor
             titleStringBuilder.append(entityObj.getCode());
         }
 
-        documentBuilder.addTitle(titleStringBuilder.toString());
+        documentBuilder.addHeader(titleStringBuilder.toString(), 1);
 
         final IEntityType typeObj = getEntityType(v3, sessionToken, entityObj);
 
@@ -1458,15 +1422,25 @@ public class ExportExecutor implements IExportExecutor
 
         // Properties
 
+        documentBuilder.addHeader("Properties", 2);
         if (entityObj instanceof IPropertiesHolder && typeObj != null)
         {
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
-                final Map<String, String> properties = ((IPropertiesHolder) entityObj).getProperties();
+                propertyAssignments.sort(Comparator.comparingInt(PropertyAssignment::getOrdinal));
+
+                final Map<String, Serializable> properties = includeSampleProperties((IPropertiesHolder) entityObj);
+                boolean firstAssignment = true;
+                String currentSection = null;
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
-                    System.out.println(selectedExportFields);
+                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || firstAssignment)
+                    {
+                        currentSection = propertyAssignment.getSection();
+                        documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
+                        firstAssignment = false;
+                    }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
                     final String propertyTypeCode = propertyType.getCode();
@@ -1474,10 +1448,25 @@ public class ExportExecutor implements IExportExecutor
 
                     if (rawPropertyValue != null && allowsValue(selectedExportProperties, propertyTypeCode))
                     {
-                        final String initialPropertyValue = String.valueOf(rawPropertyValue);
+                        final String initialPropertyValue = String.valueOf(rawPropertyValue instanceof Sample
+                                ? ((Sample) rawPropertyValue).getIdentifier().getIdentifier()
+                                : rawPropertyValue);
                         final String propertyValue;
 
-                        if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
+                        if (propertyType.getDataType() == DataType.SAMPLE)
+                        {
+                            if (rawPropertyValue instanceof Sample[])
+                            {
+                                propertyValue = Arrays.stream(((Sample[]) rawPropertyValue)).map(sample -> sample.getIdentifier().getIdentifier())
+                                        .collect(Collectors.joining(", "));
+                            } else if (rawPropertyValue instanceof Sample)
+                            {
+                                propertyValue = ((Sample) rawPropertyValue).getIdentifier().getIdentifier();
+                            } else
+                            {
+                                throw new IllegalArgumentException("Sample property value is not of type Sample or Sample[].");
+                            }
+                        } else if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
                             propertyValue = encodeImages(initialPropertyValue);
@@ -1513,7 +1502,7 @@ public class ExportExecutor implements IExportExecutor
             final String description = ((IDescriptionHolder) entityObj).getDescription();
             if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
-                documentBuilder.addHeader("Description");
+                documentBuilder.addHeader("Description", 2);
                 documentBuilder.addParagraph(encodeImages(description));
             }
         }
@@ -1525,7 +1514,7 @@ public class ExportExecutor implements IExportExecutor
             final IParentChildrenHolder<?> parentChildrenHolder = (IParentChildrenHolder<?>) entityObj;
             if (allowsValue(selectedExportAttributes, Attribute.PARENTS.name()))
             {
-                documentBuilder.addHeader("Parents");
+                documentBuilder.addHeader("Parents", 2);
                 final List<?> parents = parentChildrenHolder.getParents();
                 for (final Object parent : parents)
                 {
@@ -1537,7 +1526,7 @@ public class ExportExecutor implements IExportExecutor
 
             if (allowsValue(selectedExportAttributes, Attribute.CHILDREN.name()))
             {
-                documentBuilder.addHeader("Children");
+                documentBuilder.addHeader("Children", 2);
                 final List<?> children = parentChildrenHolder.getChildren();
                 for (final Object child : children)
                 {
@@ -1550,7 +1539,7 @@ public class ExportExecutor implements IExportExecutor
 
         // Identification Info
 
-        documentBuilder.addHeader("Identification Info");
+        documentBuilder.addHeader("Identification Info", 2);
 
         if (entityObj instanceof Experiment)
         {
@@ -1564,7 +1553,7 @@ public class ExportExecutor implements IExportExecutor
         }
 
         documentBuilder.addProperty(entityObj instanceof Project || entityObj instanceof Space
-                        ? KIND_DOCUMENT_PROPERTY_ID : TYPE_DOCUMENT_PROPERTY_ID,
+                ? KIND_DOCUMENT_PROPERTY_ID : TYPE_DOCUMENT_PROPERTY_ID,
                 kindOrType);
 
         if (allowsValue(selectedExportAttributes, Attribute.CODE.name()))
@@ -1793,22 +1782,27 @@ public class ExportExecutor implements IExportExecutor
         return set == null || set.contains(value);
     }
 
-    private static String convertJsonToHtml(final TreeNode node) throws IOException
+    private static String convertJsonToHtml(final JsonNode node)
     {
-        final TreeNode data = node.get("data");
-        final TreeNode styles = node.get("style");
+        JsonNode data = node.get("values");
+        if (data == null) {
+            // backwards compatibility
+            data = node.get("data");
+        }
+
+        final JsonNode styles = node.get("style");
 
         final StringBuilder tableBody = new StringBuilder();
         for (int i = 0; i < data.size(); i++)
         {
-            final TreeNode dataRow = data.get(i);
+            final JsonNode dataRow = data.get(i);
             tableBody.append("<tr>\n");
             for (int j = 0; j < dataRow.size(); j++)
             {
                 final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
-                final String style = ((TextNode) styles.get(stylesKey)).textValue();
-                final TextNode cell = (TextNode) dataRow.get(j);
-                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
+                final String style = styles.get(stylesKey).asText();
+                final JsonNode cell = dataRow.get(j);
+                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.asText())
                         .append(" </td>\n");
             }
             tableBody.append("</tr>\n");
@@ -1944,6 +1938,32 @@ public class ExportExecutor implements IExportExecutor
         } catch (final MalformedURLException e) {
             return false;
         }
+    }
+
+    private static Map<String, Serializable> includeSampleProperties(final IPropertiesHolder entity)
+    {
+        final Map<String, Sample> sampleProperties;
+        if (entity instanceof Sample)
+        {
+            sampleProperties = ((Sample) entity).getSampleProperties();
+        } else if (entity instanceof Experiment)
+        {
+            sampleProperties = ((Experiment) entity).getSampleProperties();
+        } else if (entity instanceof DataSet)
+        {
+            sampleProperties = ((DataSet) entity).getSampleProperties();
+        } else
+        {
+            sampleProperties = null;
+        }
+
+        final Map<String, Serializable> properties = new HashMap<>(entity.getProperties());
+        if (sampleProperties != null)
+        {
+            properties.putAll(sampleProperties);
+        }
+
+        return properties;
     }
 
     private static class EntitiesVo

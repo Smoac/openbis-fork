@@ -687,6 +687,9 @@ function MainController(profile) {
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
 					var argsArray = arg ? arg : [null, null];
+					if(typeof(argsArray) === 'string') {
+					    argsArray = [argsArray, false];
+					}
 					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
@@ -1148,7 +1151,7 @@ function MainController(profile) {
 	
 	this._showBlancPage = function() {
 		var content = this._getBackwardsCompatibleMainContainer();
-		content.append("Welcome to openBIS ELN-LIMS.");
+		content.load("./etc/welcome.html");
 		this.currentView = {
 		    content : content
 		}
@@ -1211,12 +1214,6 @@ function MainController(profile) {
 				var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
 
 				switch (collectionView) {
-					case "FORM_VIEW": {
-                        document.title = ELNDictionary.getExperimentKindName(experiment.experimentTypeCode) + " " +
-							experimentIdentifier;
-						_this._showExperimentPage(experiment, FormMode.VIEW);
-						break;
-					}
 					case "LIST_VIEW": {
 						if (experimentIdentifier === "null") { //Fix for reloads when there is text on the url
 							experimentIdentifier = null;
@@ -1227,6 +1224,13 @@ function MainController(profile) {
 							experimentIdentifier, experimentIdentifier, null, null, experiment);
 						sampleTableController.init(views);
 						_this.currentView = sampleTableController;
+						break;
+					}
+					case "FORM_VIEW":
+					default:{
+						document.title = ELNDictionary.getExperimentKindName(experiment.experimentTypeCode) + " " +
+							experimentIdentifier;
+						_this._showExperimentPage(experiment, FormMode.VIEW);
 						break;
 					}
 				}

@@ -40,7 +40,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
@@ -75,7 +74,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     public void setupClass() throws IOException
     {
         String f = ImportVocabularyTypesTest.class.getName().replace(".", "/");
-        FILES_DIR = f.substring(0, f.length() - ImportVocabularyTypesTest.class.getSimpleName().length()) + "/test_files/";
+        FILES_DIR = f.substring(0, f.length() - ImportVocabularyTypesTest.class.getSimpleName().length()) + "test_files/";
     }
 
     @Test
@@ -86,7 +85,8 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
         // THEN
@@ -102,9 +102,12 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
+
         // THEN
         VocabularyTerm term = detection.getTerms().get(0);
         assertEquals(term.getCode(), "HRP");
@@ -120,9 +123,12 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         List<Vocabulary> vocabularies = TestUtils.getAllVocabularies(v3api, sessionToken);
+
         // THEN
         assertEquals(vocabularies.size(), 3); // 2 created + 1 default
     }
@@ -135,9 +141,12 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
+
         // THEN
         VocabularyTerm term = detection.getTerms().get(1);
         assertEquals(term.getCode(), "TEST_VOC");
@@ -150,24 +159,30 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     public void testVocabularyWithNoTermDescriptionShouldBeCreated() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_DESCRIPTION)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_DESCRIPTION));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
+
         // THEN
         assertNotNull(detection);
         assertNull(detection.getTerms().get(0).getDescription());
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "(s?).*Mandatory field is missing or empty: Code.*")
     public void shouldThrowExceptionIfNoVocabularyCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "(s?).*Mandatory field is missing or empty: Code.*")
     public void shouldThrowExceptionIfNoTermCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
     @Test
@@ -175,9 +190,13 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     public void shouldNotThrowExceptionIfNoVocabularyDescription() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_DESCRIPTION)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_DESCRIPTION));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
+
         // THEN
         assertNotNull(detection);
         assertNull(detection.getDescription());
@@ -188,9 +207,12 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     public void shouldNotThrowExceptionIfNoTermLabel() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_LABEL)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_LABEL));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
+
         // THEN
         assertNotNull(detection);
         assertNull(detection.getTerms().get(0).getLabel());
@@ -201,9 +223,12 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     public void shouldNotThrowExceptionIfNoTerms() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERMS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERMS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         Vocabulary detection = TestUtils.getVocabulary(v3api, sessionToken, "DETECTION");
+
         // THEN
         assertNotNull(detection);
     }
@@ -214,7 +239,8 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     {
         TestUtils.createVocabulary(v3api, sessionToken, "TEST_VOCABULARY_TYPE", "Test desc");
         // there should be no exceptions
-        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, EXIST_VOCABULARIES)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, EXIST_VOCABULARIES));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePath));
         Vocabulary test = TestUtils.getVocabulary(v3api, sessionToken, "TEST_VOCABULARY_TYPE");
         assertNotNull(test);
     }
@@ -250,8 +276,9 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         assertEquals(beforeTerm.getDescription(), "Original Description");
         assertEquals(beforeTerm.getRegistrator().getUserId(), TEST_USER);
 
-        TestUtils.createFrom(v3api, systemSessionToken, UpdateMode.UPDATE_IF_EXISTS,
-                Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_WITH_TERM_TO_TAKE_OVER)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(systemSessionToken,
+                FilenameUtils.concat(FILES_DIR, VOCABULARY_WITH_TERM_TO_TAKE_OVER));
+        TestUtils.createFrom(v3api, systemSessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePath));
 
         Vocabulary afterVocabulary = v3api.getVocabularies(instanceAdminSessionToken, Arrays.asList(vocabularyId), fetchOptions).get(vocabularyId);
         VocabularyTerm afterTerm = afterVocabulary.getTerms().get(0);

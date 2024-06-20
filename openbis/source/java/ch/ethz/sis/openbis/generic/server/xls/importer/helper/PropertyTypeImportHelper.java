@@ -15,6 +15,15 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.SAMPLE_DATA_TYPE_MANDATORY_TYPE;
+import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.SAMPLE_DATA_TYPE_PREFIX;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
@@ -29,21 +38,13 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDec
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.handler.JSONHandler;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import org.apache.log4j.Logger;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.SAMPLE_DATA_TYPE_MANDATORY_TYPE;
-import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.SAMPLE_DATA_TYPE_PREFIX;
 
 public class PropertyTypeImportHelper extends BasicImportHelper
 {
@@ -68,8 +69,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false);
-//        MultiValued("Multivalued", false),
-//        Unique("Unique", false);
 
         private final String headerName;
 
@@ -129,8 +128,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         }
         if (!propertyData.equals(this.propertyCache.get(code)))
         {
-            throw new UserFailureException(
-                    "Unambiguous property " + code + " found, has been declared before with different attributes.");
+            throw new UserFailureException("Ambiguous property " + code + " found, it has been declared before with different attributes.");
         }
     }
 
@@ -145,6 +143,11 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        }
 
         boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
         boolean isSystem = delayedExecutor.isSystem();
@@ -196,7 +199,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
-//        String multiValued = getValueByColumnName(header, values, Attribute.MultiValued);
 
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -225,14 +227,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         {
             creation.setMetaData(JSONHandler.parseMetaData(metadata));
         }
-
-//        if (multiValued != null && !multiValued.isEmpty())
-//        {
-//            creation.setMultiValue(Boolean.parseBoolean(multiValued));
-//        } else
-//        {
-//            creation.setMultiValue(false);
-//        }
 
         delayedExecutor.createPropertyType(creation, page, line);
     }
@@ -305,6 +299,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         {
             update.getMetaData().add(JSONHandler.parseMetaData(metadata));
         }
+
         delayedExecutor.updatePropertyType(update, page, line);
     }
 

@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server;
 
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import org.springframework.context.ApplicationContext;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IImportService;
@@ -117,6 +118,12 @@ public class CommonServiceProvider
     public static Object tryToGetBean(String beanName)
     {
         return applicationContext.getBean(beanName);
+    }
+
+    public static String tryToGetProperty(String propertyName) {
+        ExposablePropertyPlaceholderConfigurer config =
+                (ExposablePropertyPlaceholderConfigurer) applicationContext.getBean(ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
+        return config.getResolvedProps().getProperty(propertyName);
     }
 
     public static ApplicationContext getApplicationContext()

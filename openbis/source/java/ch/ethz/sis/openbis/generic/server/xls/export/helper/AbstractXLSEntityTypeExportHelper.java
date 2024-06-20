@@ -157,10 +157,10 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             warnings.addAll(additionResult.getWarnings());
             rowNumber = additionResult.getRowNumber();
 
-            return new AdditionResult(rowNumber + 1, warnings, valueFiles);
+            return new AdditionResult(rowNumber + 1, warnings, valueFiles, Map.of());
         } else
         {
-            return new AdditionResult(rowNumber, warnings, valueFiles);
+            return new AdditionResult(rowNumber, warnings, valueFiles, Map.of());
         }
     }
 
@@ -187,12 +187,11 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     String.valueOf(vocabulary != null ? vocabulary.getCode() : ""),
                     propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
-                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : ""};
-//                    String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase(),
-//                    String.valueOf(propertyAssignment.isUnique() != null && propertyAssignment.isUnique()).toUpperCase()};
+                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "",
+            };
             addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
         }
-        return new AdditionResult(rowNumber, warnings, valueFiles);
+        return new AdditionResult(rowNumber, warnings, valueFiles, Map.of());
     }
 
     private String getFullDataTypeString(final PropertyType propertyType)

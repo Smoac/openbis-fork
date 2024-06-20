@@ -63,11 +63,19 @@ export default class EntityTypeFormControllerAddProperty {
         visible: false
       }),
       plugin: FormUtil.createField(),
+      pattern: FormUtil.createField(),
+      patternType: FormUtil.createField(),
       mandatory: FormUtil.createField({
         value: false
       }),
       showInEditView: FormUtil.createField({
         value: true
+      }),
+      isMultiValue: FormUtil.createField({
+        value: false
+      }),
+      unique: FormUtil.createField({
+        value: false
       }),
       showRawValueInForms: FormUtil.createField({
         value: false
