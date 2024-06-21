@@ -250,8 +250,6 @@ public class SearchDataStoreTest extends AbstractTest
     @Test
     public void testSearchWithKindAfs()
     {
-//        createAfsDataStore();
-
         final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
         criteria.withKind().thatIn(DataStoreKind.AFS);
 
