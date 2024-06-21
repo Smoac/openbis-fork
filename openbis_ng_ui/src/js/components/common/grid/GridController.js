@@ -987,17 +987,6 @@ export default class GridController {
     }
   }
 
-  async handleRowDoubleClick(row) {
-    const { onRowDoubleClick } = this.context.getProps()
-    if (onRowDoubleClick) {
-      onRowDoubleClick({
-        id: row.id,
-        data: row,
-        visible: true
-      })
-    }
-  }
-
   async handleRowSelect(row) {
     await this.selectRow(row ? row.id : null)
   }
@@ -1034,10 +1023,6 @@ export default class GridController {
   }
 
   async handleMultiselectionClear() {
-    this.clearSelection()
-  }
-
-  clearSelection() {
     this.multiselectRows([])
   }
 

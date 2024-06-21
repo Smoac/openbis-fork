@@ -86,8 +86,7 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
       'managedInternally',
       false
     )
-    const managedInternally = _.get(loadedTerm, 'managedInternally', false)
-    const internalTerm = internalVocabulary && managedInternally
+    const internalTerm = internalVocabulary && registrator === users.SYSTEM
 
     const term = {
       id: id,
@@ -116,11 +115,6 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
       }),
       registrationDate: FormUtil.createField({
         value: _.get(loadedTerm, 'registrationDate', null),
-        visible: false,
-        enabled: false
-      }),
-      internal: FormUtil.createField({
-        value: managedInternally,
         visible: false,
         enabled: false
       })

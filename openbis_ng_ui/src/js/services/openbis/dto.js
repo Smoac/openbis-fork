@@ -21,7 +21,6 @@ const CLASS_FULL_NAMES = [
   'as/dto/dataset/search/DataSetTypeSearchCriteria',
   'as/dto/dataset/search/SearchDataSetsOperation',
   'as/dto/dataset/update/DataSetTypeUpdate',
-  'as/dto/dataset/update/DataSetUpdate',
   'as/dto/dataset/update/UpdateDataSetTypesOperation',
   'as/dto/entitytype/EntityKind',
   'as/dto/entitytype/id/EntityTypePermId',
@@ -176,20 +175,7 @@ const CLASS_FULL_NAMES = [
   'as/dto/vocabulary/update/UpdateVocabularyTermsOperation',
   'as/dto/vocabulary/update/VocabularyTermUpdate',
   'as/dto/vocabulary/update/VocabularyUpdate',
-  'as/dto/webapp/create/WebAppSettingCreation',
-  'dss/dto/service/id/CustomDssServiceCode',
-  'dss/dto/service/CustomDSSServiceExecutionOptions',
-  'imaging/dto/ImagingDataSetConfig',
-  'imaging/dto/ImagingDataSetControl',
-  'imaging/dto/ImagingDataSetControlVisibility',
-  'imaging/dto/ImagingDataSetExport',
-  'imaging/dto/ImagingDataSetImage',
-  'imaging/dto/ImagingDataSetMultiExport',
-  'imaging/dto/ImagingDataSetPreview',
-  'imaging/dto/ImagingDataSetPropertyConfig',
-  'imaging/dto/ImagingPreviewContainer',
-  'imaging/dto/ImagingExportContainer',
-  'imaging/dto/ImagingMultiExportContainer'
+  'as/dto/webapp/create/WebAppSettingCreation'
 ]
 
 class Dto {

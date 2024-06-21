@@ -21,9 +21,6 @@ const config = {
     secondary: {
       main: lightBlue[600]
     },
-    default: {
-      main: '#00000089'
-    },
     info: {
       main: lightBlue[600]
     },

@@ -11,12 +11,7 @@ const styles = () => ({
   container: {
     display: 'flex',
     width: '100%'
-  },
-  component: {
-    height: 0,
-    flex: '1 1 100%',
-    overflow: 'hidden'
-  },
+  }
 })
 
 class Database extends React.PureComponent {
@@ -29,7 +24,6 @@ class Database extends React.PureComponent {
       <div className={classes.container}>
         <DatabaseBrowser />
         <Content
-          classes={{component: classes.component}}
           page={pages.DATABASE}
           renderComponent={this.renderComponent}
           renderTab={this.renderTab}

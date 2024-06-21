@@ -25,19 +25,17 @@ class Header extends React.PureComponent {
     const { styles, classes, size } = this.props
 
     let variant = null
-    let className = this.props.className;
+    let className = null
 
-    if (!className) {
-      if (size === 'big') {
-        variant = 'h5'
-        className = classes.big
-      } else if (size === 'medium') {
-        variant = 'h6'
-        className = classes.medium
-      } else if (size === 'small') {
-        variant = 'subtitle1'
-        className = classes.small
-      }
+    if (size === 'big') {
+      variant = 'h5'
+      className = classes.big
+    } else if (size === 'medium') {
+      variant = 'h6'
+      className = classes.medium
+    } else if (size === 'small') {
+      variant = 'subtitle1'
+      className = classes.small
     }
 
     return (

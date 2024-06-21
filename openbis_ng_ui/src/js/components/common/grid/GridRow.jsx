@@ -44,7 +44,6 @@ class GridRow extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
-    this.handleDoubleClick = this.handleDoubleClick.bind(this)
     this.handleMultiselect = this.handleMultiselect.bind(this)
   }
 
@@ -57,14 +56,6 @@ class GridRow extends React.PureComponent {
 
     if (clickable && onClick) {
       onClick(row)
-    }
-  }
-
-  handleDoubleClick() {
-    const { doubleClickable, onDoubleClick, row } = this.props
-
-    if (doubleClickable && onDoubleClick) {
-      onDoubleClick(row)
     }
   }
 
@@ -115,7 +106,6 @@ class GridRow extends React.PureComponent {
       <TableRow
         key={row.id}
         onClick={this.handleClick}
-        onDoubleClick={this.handleDoubleClick}
         classes={{ root: rowClasses.join(' ') }}
       >
         {this.renderMultiselect()}

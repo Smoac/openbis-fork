@@ -15,24 +15,24 @@ describe(EntityTypeFormComponentTest.SUITE, () => {
 })
 
 async function testInternal() {
-  await doTestInternal(true, true, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
-  await doTestInternal(false, false, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
-  await doTestInternal(true, false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
-  await doTestInternal(false, false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
-  await doTestInternal(true, false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
-  await doTestInternal(false, false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
-  await doTestInternal(true, true, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
-  await doTestInternal(false, false, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(true, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(false, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(true, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(true, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(true, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(false, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
 }
 
 async function doTestInternal(
   propertyTypeInternal,
-  propertyAssignmentInternal,
   propertyTypeRegistrator,
   propertyAssignmentRegistrator
 ) {
   const assignmentInternal =
-    propertyTypeInternal && propertyAssignmentInternal
+    propertyTypeInternal &&
+    propertyAssignmentRegistrator.userId === fixture.SYSTEM_USER_DTO.userId
 
   const propertyType = new openbis.PropertyType()
   propertyType.setCode('TEST_PROPERTY')
@@ -44,7 +44,6 @@ async function doTestInternal(
   propertyAssignment.setPropertyType(propertyType)
   propertyAssignment.setPlugin(fixture.TEST_PLUGIN_DTO)
   propertyAssignment.setRegistrator(propertyAssignmentRegistrator)
-  propertyAssignment.setManagedInternally(propertyAssignmentInternal)
 
   const type = new openbis.SampleType()
   type.setCode('TEST_TYPE')

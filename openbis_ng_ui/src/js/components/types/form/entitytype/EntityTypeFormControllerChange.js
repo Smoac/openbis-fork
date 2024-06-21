@@ -122,20 +122,6 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
           },
           sampleType: {
             value: _.get(newExisting, 'sampleType.code', null)
-          },
-          pattern: {
-            value: _.get(newExisting, 'pattern', null)
-          },
-          patternType: {
-            value: _.get(newExisting, 'patternType', null)
-          },
-          isMultiValue: {
-            value: _.get(newExisting, 'multiValue', false),
-            enabled: false
-          },
-          unique: {
-            value: _.get(newExisting, 'unique', false),
-            enabled: true
           }
         }
 
@@ -199,17 +185,7 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
           ...newProperty.sampleType,
           enabled: !newExisting
         },
-        assignments: propertyAssignments,
-        pattern: {
-          ...newProperty.pattern,
-          enabled:
-            true
-        },
-        patternType: {
-          ...newProperty.patternType,
-          enabled:
-            true
-        },
+        assignments: propertyAssignments
       })
 
       newProperty.originalGlobal = newExisting ? _.cloneDeep(newProperty) : null
@@ -364,31 +340,13 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
         ...dest.plugin,
         value: _.get(src, 'plugin.value', null)
       },
-      pattern: {
-        ...dest.pattern,
-        value: _.get(src, 'pattern.value', null)
-      },
-      patternType: {
-        ...dest.patternType,
-        value: _.get(src, 'patternType.value', 'NONE')
-      },
       mandatory: {
         ...dest.mandatory,
         value: _.get(src, 'mandatory.value', false)
       },
-      isMultiValue: {
-        ...dest.isMultiValue,
-        value: _.get(src, 'isMultiValue.value', false),
-        enabled: _.get(src, 'isMultiValue.enabled', true)
-      },
       showInEditView: {
         ...dest.showInEditView,
         value: _.get(src, 'showInEditView.value', true)
-      },
-      unique: {
-        ...dest.unique,
-        value: _.get(src, 'unique.value', false),
-        enabled: _.get(src, 'unique.enabled', true)
       },
       showRawValueInForms: {
         ...dest.showRawValueInForms,

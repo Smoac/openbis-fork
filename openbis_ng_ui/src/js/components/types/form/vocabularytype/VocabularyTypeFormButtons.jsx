@@ -67,7 +67,7 @@ class VocabularyTypeFormButtons extends React.PureComponent {
     if (selection && selection.type === VocabularyTypeFormSelectionType.TERM) {
       const term = terms.find(term => term.id === selection.params.id)
       return !(
-        vocabulary.internal.value && term.internal.value
+        vocabulary.internal.value && term.registrator.value === users.SYSTEM
       )
     } else {
       return false

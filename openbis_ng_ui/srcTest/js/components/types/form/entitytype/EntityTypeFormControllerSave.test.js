@@ -63,11 +63,6 @@ async function testSaveAddProperty() {
     field: 'description',
     value: 'NEW_DESCRIPTION'
   })
-  common.controller.handleChange(EntityTypeFormSelectionType.PROPERTY, {
-    id: 'property-0',
-    field: 'unique',
-    value: true
-  })
 
   await common.controller.handleSave()
 
@@ -77,7 +72,7 @@ async function testSaveAddProperty() {
       dataType: openbis.DataType.VARCHAR,
       label: 'NEW_LABEL'
     }),
-    setPropertyAssignmentOperation(SAMPLE_TYPE.getCode(), 'NEW_CODE', false, true)
+    setPropertyAssignmentOperation(SAMPLE_TYPE.getCode(), 'NEW_CODE', false)
   ])
 }
 
@@ -102,8 +97,7 @@ async function testSaveUpdatePropertyAssignment() {
     setPropertyAssignmentOperation(
       SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
       TEST_PROPERTY_TYPE.getCode(),
-      true,
-      false
+      true
     )
   ])
 }
@@ -129,8 +123,7 @@ async function testSaveUpdatePropertyType() {
     setPropertyAssignmentOperation(
       SAMPLE_TYPE_WITH_TEST_PROPERTY.getCode(),
       TEST_PROPERTY_TYPE.getCode(),
-      TEST_PROPERTY_ASSIGNMENT.isMandatory(),
-      false
+      TEST_PROPERTY_ASSIGNMENT.isMandatory()
     )
   ])
 }
@@ -228,18 +221,13 @@ function updatePropertyTypeOperation(propertyTypeCode, propertyTypeLabel) {
 function setPropertyAssignmentOperation(
   typeCode,
   propertyCode,
-  propertyMandatory,
-  unique
+  propertyMandatory
 ) {
   const assignments = []
   if (propertyCode) {
     let assignment = new openbis.PropertyAssignmentCreation()
     assignment.setPropertyTypeId(new openbis.PropertyTypePermId(propertyCode))
     assignment.setMandatory(propertyMandatory)
-    if(unique === undefined) {
-      unique = false;
-    }
-    assignment.setUnique(unique);
     assignments.push(assignment)
   }
 
@@ -291,11 +279,9 @@ TEST_PROPERTY_TYPE.setCode('TEST_PROPERTY_TYPE')
 TEST_PROPERTY_TYPE.setLabel('TEST_LABEL')
 TEST_PROPERTY_TYPE.setDescription('TEST_DESCRIPTION')
 TEST_PROPERTY_TYPE.setDataType(openbis.DataType.INTEGER)
-TEST_PROPERTY_TYPE.setMultiValue(false)
 
 const TEST_PROPERTY_ASSIGNMENT = new openbis.PropertyAssignment()
 TEST_PROPERTY_ASSIGNMENT.setPropertyType(TEST_PROPERTY_TYPE)
-TEST_PROPERTY_ASSIGNMENT.unique = false
 
 const SAMPLE_TYPE_WITH_TEST_PROPERTY = new openbis.SampleType()
 SAMPLE_TYPE_WITH_TEST_PROPERTY.setCode('TEST_TYPE')

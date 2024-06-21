@@ -15,34 +15,31 @@ describe(VocabularyTypeFormComponentTest.SUITE, () => {
 })
 
 async function testInternal() {
-  await doTestInternal(false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO, false)
-  await doTestInternal(true, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO, false)
-  await doTestInternal(false, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO, false)
-  await doTestInternal(true, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO, true)
-  await doTestInternal(false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO, false)
-  await doTestInternal(true, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO, false)
-  await doTestInternal(false, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO, false)
-  await doTestInternal(true, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO, false)
+  await doTestInternal(false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(true, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(false, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(true, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(true, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(false, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
+  await doTestInternal(true, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
 }
 
 async function doTestInternal(
   vocabularyInternal,
   vocabularyRegistrator,
-  termRegistrator,
-  vocabularyTermInternal
+  termRegistrator
 ) {
   const isSystemInternalTerm =
-    vocabularyInternal && vocabularyTermInternal
-
-  const prefix = vocabularyTermInternal ? "$" : ""
+    vocabularyInternal &&
+    termRegistrator.userId === fixture.SYSTEM_USER_DTO.userId
 
   const term = new openbis.VocabularyTerm()
-  term.setCode(prefix + 'TEST_TERM')
+  term.setCode('TEST_TERM')
   term.setDescription('Test Term Description')
   term.setLabel('Test Term Label')
   term.setRegistrator(termRegistrator)
   term.setOfficial(true)
-  term.setManagedInternally(vocabularyTermInternal)
 
   const vocabulary = new openbis.Vocabulary()
   vocabulary.setCode('TEST_VOCABULARY')

@@ -83,8 +83,7 @@ class GridPaging extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridPaging.render')
 
-    const { id, classes, count, page, pageSize, showRowsPerPage } = this.props
-    const doShowRowsPerPage = typeof showRowsPerPage === 'boolean' ? showRowsPerPage : true
+    const { id, classes, count, page, pageSize } = this.props
 
     return (
       <div className={classes.container}>
@@ -134,32 +133,28 @@ class GridPaging extends React.PureComponent {
           </IconButton>
         </div>
         <div className={classes.separator}></div>
-        {doShowRowsPerPage && [
-            <div id={id + '.page-size-id'} key={id + '.page-size-id'} className={classes.pageSize}>
-              <FormControlLabel
-                control={
-                  <SelectField
-                    value={pageSize}
-                    options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
-                      label: pageSize,
-                      value: pageSize
-                    }))}
-                    onChange={this.handlePageSizeChange}
-                    variant='standard'
-                  />
-                }
-                classes={{
-                  label: classes.pageSizeLabel,
-                  labelPlacementStart: classes.pageSizeLabelPlacement
-                }}
-                label={messages.get(messages.ROWS_PER_PAGE)}
-                labelPlacement='start'
+        <div id={id + '.page-size-id'} className={classes.pageSize}>
+          <FormControlLabel
+            control={
+              <SelectField
+                value={pageSize}
+                options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
+                  label: pageSize,
+                  value: pageSize
+                }))}
+                onChange={this.handlePageSizeChange}
+                variant='standard'
               />
-            </div>,
-            <div key={id + '.separator'} className={classes.separator}></div>
-          ]
-        }
-
+            }
+            classes={{
+              label: classes.pageSizeLabel,
+              labelPlacementStart: classes.pageSizeLabelPlacement
+            }}
+            label={messages.get(messages.ROWS_PER_PAGE)}
+            labelPlacement='start'
+          />
+        </div>
+        <div className={classes.separator}></div>
       </div>
     )
   }
