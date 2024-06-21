@@ -951,6 +951,31 @@ var Util = new function() {
 
         Util.blockUI($window, css);
     }
+
+    /**
+    *   Custom stringify method that filters keys that are fitting given regexp. Created because JSON.stringify has length limitation.
+    *   object - object to stringify
+    *   filterRegexp - regexp to test keys of the object against
+    *   inverse - true/false flag, whether to filter out keys(true) or only include keys matching the regexp(false)
+    **/
+    this.stringify = function(object, filterRegexp, inverse) {
+        var keys = Object.keys(profile) ?? [];
+        if(filterRegexp) {
+            if(inverse) {
+                keys = keys.filter(key => !filterRegexp.test(key));
+            } else {
+                keys = keys.filter(key => filterRegexp.test(key));
+            }
+        }
+        var json = [];
+        for(let key of keys) {
+            var part = JSON.stringify(profile[key]);
+            if(part) {
+             json = json.concat(["\""+key+"\""+ ":" + part]);
+            }
+        }
+        return "{" + json.join(',') + "}";
+    }
 }
 
 
