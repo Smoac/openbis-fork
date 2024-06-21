@@ -2399,6 +2399,34 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			})
 		}
 
+		this.uploadToSessionWorkspace = function(file) {
+			//Building Form Data Object for Multipart File Upload
+			var formData = new FormData();
+			formData.append("sessionKeysNumber", "1");
+			formData.append("sessionKey_0", "openbis-file-upload");
+			formData.append("openbis-file-upload", file);
+			formData.append("keepOriginalFileName", "True");
+			formData.append("sessionID", this._private.sessionToken);
+
+			var dfd = jquery.Deferred();
+
+			jquery.ajax({
+				type: "POST",
+				url: "/openbis/openbis/upload",
+				contentType: false,
+				processData: false,
+				data: formData,
+				success: function() {
+					dfd.resolve();
+				},
+				error: function() {
+					dfd.reject();
+				}
+			});
+
+			return dfd.promise();
+		}
+
 		/**
 		 * ======================= 
 		 * OpenBIS webapp context
