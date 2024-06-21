@@ -48,41 +48,41 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         var c = new common(assert, dtos);
 
                 var fAction = function (facade) {
-                    var fileName = "model.xlsx"
-                    var data = new window.File([c.base64ToBlob(fileContent)], fileName)
+                    var fileName = "model.xlsx";
+                    var data = new window.File([c.base64ToBlob(fileContent)], fileName);
                     return facade.uploadToSessionWorkspace(data)
                           .then(function() {
-                              c.ok("uploadToSessionWorkspace")
-                              var importData = new dtos.ImportData()
-                              importData.setFormat("EXCEL")
-                              importData.setSessionWorkspaceFiles([fileName])
+                              c.ok("uploadToSessionWorkspace");
+                              var importData = new dtos.ImportData();
+                              importData.setFormat("EXCEL");
+                              importData.setSessionWorkspaceFiles([fileName]);
 
-                              var importOptions = new dtos.ImportOptions()
-                              importOptions.setMode("UPDATE_IF_EXISTS")
+                              var importOptions = new dtos.ImportOptions();
+                              importOptions.setMode("UPDATE_IF_EXISTS");
 
                               return facade.executeImport(importData, importOptions)
                                   .then(function() {
                                       c.ok("executeImport")
-                                  })
-                          })
+                                  });
+                          });
                 }
 
         var fCheck = function(facade) {
           var criteria = new dtos.VocabularySearchCriteria();
           criteria.withCode().thatEquals("VOCAB");
 
-          var vocabularyFetchOptions = c.createVocabularyFetchOptions()
+          var vocabularyFetchOptions = c.createVocabularyFetchOptions();
           vocabularyFetchOptions.withTerms();
 
           return facade.searchVocabularies(criteria, vocabularyFetchOptions).then(function(results) {
-            c.assertEqual(results.getTotalCount(), 1)
+            c.assertEqual(results.getTotalCount(), 1);
             var vocabulary = (results.getObjects())[0];
 
             c.assertEqual(vocabulary.code, "VOCAB");
 
             var terms = vocabulary.getTerms();
 
-            c.assertEqual(terms.length, 3)
+            c.assertEqual(terms.length, 3);
 
             var codes = terms.map(function(object) {
               return object.code;
