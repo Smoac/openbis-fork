@@ -1,5 +1,4 @@
-#
-# Copyright 2014 ETH Zuerich, Scientific IT Services
+#   Copyright ETH 2023 Zürich, Scientific IT Services
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,19 +15,30 @@
 # MasterDataRegistrationTransaction Class
 from ch.ethz.sis.openbis.generic.server.asapi.v3 import ApplicationServerApi
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
 from ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl import MasterDataRegistrationHelper
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportData
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportFormat
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportMode
 import sys
+
+print("======================== eln-lims-life-sciences xls import ========================")
 
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
-props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays()) \
-    .withParameter('method', 'import').withParameter('zip', False).withParameter('xls_name', 'ELN-LIMS-LIFE-SCIENCES').withParameter('update_mode', 'UPDATE_IF_EXISTS') \
-    .withParameter('scripts', helper.getAllScripts())
-result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
+
+sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "data-model.xlsx", "scripts/genetic_modifications.py")
+importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
+importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
+importResult = api.executeImport(sessionToken, importData, importOptions)
+
+print("======================== eln-lims-life-sciences xls ingestion result ========================")
+print(importResult.getObjectIds())
+
+
+
 api.logout(sessionToken)
-print("======================== master-data xls ingestion result ========================")
-print(result)
-print("======================== master-data xls ingestion result ========================")
+print("======================== eln-lims-life-sciences xls import end ========================")
+
+

@@ -16,13 +16,23 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -31,6 +41,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 /**
  * Helper class to be used in initialize-master-data.py.
@@ -62,140 +74,19 @@ public class MasterDataRegistrationHelper {
         throw new IllegalArgumentException("Does not contain path to the core plugin: " + systemPaths);
     }
 
-    public List<byte[]> listXlsByteArrays() {
-        List<byte[]> result = new ArrayList<>();
-        for (File file : masterDataFolder.listFiles()) {
-            String name = file.getName();
-            if (name.endsWith(".xls") || name.endsWith(".xlsx")) {
-                operationLog.info("load master data " + file.getName());
-                result.add(FileUtilities.loadToByteArray(file));
-            }
-        }
-        return result;
-    }
-
-    public List<byte[]> getByteArray(String findName) {
-        for (File file : masterDataFolder.listFiles()) {
-            String name = file.getName();
-            if (name.equals(findName)) {
-                operationLog.info("load master data " + file.getName());
-                return Arrays.asList(FileUtilities.loadToByteArray(file));
-            }
-        }
-        return null;
-    }
-
-    public List<byte[]> listCsvByteArrays() throws IOException {
-        List<byte[]> result = new ArrayList<>();
-        for (File file : masterDataFolder.listFiles()) {
-            String name = file.getName();
-            if (name.endsWith(".csv")) {
-                operationLog.info("load master data " + file.getName());
-                result.add(Files.readAllBytes(file.toPath()));
-            }
-        }
-        return result;
-    }
-
-    public Map<String, String> getAllScripts() {
-        Map<String, String> result = new TreeMap<>();
-        File scriptsFolder = new File(masterDataFolder, "scripts");
-        if (scriptsFolder.isDirectory()) {
-            gatherScripts(result, scriptsFolder, scriptsFolder);
-        }
-        return result;
-    }
-
-    private static void gatherScripts(Map<String, String> scripts, File rootFolder, File file) {
-        if (file.isFile()) {
-            String scriptPath = FileUtilities.getRelativeFilePath(rootFolder, file);
-            scripts.put(scriptPath, FileUtilities.loadToString(file));
-            operationLog.info("Script " + scriptPath + " loaded");
-        }
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            for (File child : files) {
-                gatherScripts(scripts, rootFolder, child);
-            }
-        }
-    }
-
-    public static Map<String, String> getAllScripts(Path path) {
-        Map<String, String> result = new TreeMap<>();
-        File scriptsFolder = new File(path.toFile(), "scripts");
-        if (scriptsFolder.isDirectory()) {
-            gatherScripts(result, scriptsFolder, scriptsFolder);
-        }
-        return result;
-    }
-
-    public static Map<String, String> getAllLargeValues(Path path)
+    public String[] uploadToAsSessionWorkspace(final String sessionToken, final String... relativeFilePaths) throws IOException
     {
-        final Map<String, String> result = new TreeMap<>();
-        final File valuesFolder = new File(path.toFile(), "data");
-        if (valuesFolder.isDirectory())
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final String uploadId = UUID.randomUUID().toString();
+        final String[] destinations = new String[relativeFilePaths.length];
+
+        for (int i = 0; i < relativeFilePaths.length; i++)
         {
-            gatherFileValues(result, valuesFolder, valuesFolder);
-        }
-        return result;
-    }
-
-    private static void gatherFileValues(final Map<String, String> values, final File rootFolder, final File file) {
-        if (file.isFile())
-        {
-            final String filePath = FileUtilities.getRelativeFilePath(rootFolder, file);
-            values.put(filePath, FileUtilities.loadToString(file));
-            operationLog.info("File " + filePath + " loaded");
-        }
-        if (file.isDirectory())
-        {
-            final File[] files = file.listFiles();
-            for (final File child : files)
-            {
-                gatherScripts(values, rootFolder, child);
-            }
-        }
-    }
-
-    public static List<byte[]> getByteArrays(Path path, String findName) {
-        List<byte[]> byteArrays = new ArrayList<>();
-        for (File file : path.toFile().listFiles()) {
-            String name = file.getName();
-            if (name.contains(findName)) {
-                operationLog.info("load master data " + file.getName());
-                byteArrays.add(FileUtilities.loadToByteArray(file));
-            }
-        }
-        return byteArrays;
-    }
-
-    public static void extractToDestination(byte[] zip, String tempPathAsString) throws IOException
-    {
-        // Write temp file
-        Path tempZipPath = Paths.get(tempPathAsString, "temp.zip");
-        Files.write(tempZipPath, zip);
-
-        try (ZipFile zipFile = new ZipFile(tempZipPath.toFile())) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                File entryDestination = new File(tempPathAsString,  entry.getName());
-                if (entry.isDirectory())
-                {
-                    entryDestination.mkdirs();
-                } else
-                {
-                    entryDestination.getParentFile().mkdirs();
-                    try (InputStream in = zipFile.getInputStream(entry))
-                    {
-                        Files.copy(in, entryDestination.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
+            destinations[i] = uploadId + "/" + relativeFilePaths[i];
+            sessionWorkspaceProvider.write(sessionToken, destinations[i], new FileInputStream(masterDataFolder.getCanonicalPath() + "/" + relativeFilePaths[i]));
         }
 
-        // Delete temp file leaving on the folder only the uncompressed content
-        Files.delete(tempZipPath);
+        return destinations;
     }
 
 }

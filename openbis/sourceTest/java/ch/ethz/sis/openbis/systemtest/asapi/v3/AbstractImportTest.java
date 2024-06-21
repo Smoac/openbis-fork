@@ -20,7 +20,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -62,22 +61,6 @@ public class AbstractImportTest extends AbstractTest
         file.delete();
 
         v3api.logout(sessionToken);
-    }
-
-    protected static byte[] getFileContent(final String fileName)
-    {
-        try (final InputStream is = AbstractImportTest.class.getResourceAsStream("test_files/import/" + fileName))
-        {
-            if (is == null)
-            {
-                throw new RuntimeException();
-            }
-
-            return is.readAllBytes();
-        } catch (final IOException e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     protected static String[] uploadToAsSessionWorkspace(final String sessionToken, final String... relativeFilePaths) throws IOException
