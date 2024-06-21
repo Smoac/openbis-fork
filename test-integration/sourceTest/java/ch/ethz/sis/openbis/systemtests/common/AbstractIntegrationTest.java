@@ -64,11 +64,12 @@ import org.testng.annotations.BeforeSuite;
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.OpenBIS;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -79,11 +80,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
  */
 public abstract class AbstractIntegrationTest
 {
-    public static final String TEST_TRANSACTION_COORDINATOR_KEY = "integration-test-transaction-coordinator-key";
-
     public static final String TEST_INTERACTIVE_SESSION_KEY = "integration-test-interactive-session-key";
 
-    public static final String ADMIN = "admin";
+    public static final String DEFAULT_SPACE = "DEFAULT";
+
+    public static final String TEST_SPACE = "TEST";
+
+    public static final String INSTANCE_ADMIN = "admin";
+
+    public static final String TEST_SPACE_ADMIN = "test_space_admin";
 
     public static final String PASSWORD = "password";
 
@@ -111,7 +116,7 @@ public abstract class AbstractIntegrationTest
 
         startApplicationServer(true);
         startApplicationServerProxy();
-        createAfsUser();
+        createApplicationServerData();
         startAfsServer();
         startAfsServerProxy();
     }
@@ -291,16 +296,17 @@ public abstract class AbstractIntegrationTest
         log("Started application server proxy.");
     }
 
-    private void createAfsUser() throws Exception
+    private void createApplicationServerData() throws Exception
     {
         final Configuration configuration = getAfsServerConfiguration();
 
+        final OpenBIS openBIS = createOpenBIS();
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        // create AFS server user
         PersonCreation afsUserCreation = new PersonCreation();
         afsUserCreation.setUserId(configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUser));
-
-        final OpenBIS openBIS = createOpenBIS();
-        openBIS.login(ADMIN, PASSWORD);
-        final PersonPermId afsUserId = openBIS.createPersons(List.of(afsUserCreation)).get(0);
+        PersonPermId afsUserId = openBIS.createPersons(List.of(afsUserCreation)).get(0);
 
         RoleAssignmentCreation afsRoleCreation = new RoleAssignmentCreation();
         afsRoleCreation.setUserId(afsUserId);
@@ -308,6 +314,26 @@ public abstract class AbstractIntegrationTest
         openBIS.createRoleAssignments(List.of(afsRoleCreation));
 
         log("Created " + afsUserCreation.getUserId() + " user.");
+
+        // create test space
+        SpaceCreation testSpaceCreation = new SpaceCreation();
+        testSpaceCreation.setCode(TEST_SPACE);
+        openBIS.createSpaces(List.of(testSpaceCreation));
+
+        log("Created " + testSpaceCreation.getCode() + " space.");
+
+        // create test space admin
+        PersonCreation testSpaceAdminCreation = new PersonCreation();
+        testSpaceAdminCreation.setUserId(TEST_SPACE_ADMIN);
+        PersonPermId testSpaceAdminId = openBIS.createPersons(List.of(testSpaceAdminCreation)).get(0);
+
+        RoleAssignmentCreation testSpaceAdminRoleCreation = new RoleAssignmentCreation();
+        testSpaceAdminRoleCreation.setUserId(testSpaceAdminId);
+        testSpaceAdminRoleCreation.setSpaceId(new SpacePermId(TEST_SPACE));
+        testSpaceAdminRoleCreation.setRole(Role.ADMIN);
+        openBIS.createRoleAssignments(List.of(testSpaceAdminRoleCreation));
+
+        log("Created " + testSpaceAdminCreation.getUserId() + " user.");
     }
 
     private void startAfsServer() throws Exception

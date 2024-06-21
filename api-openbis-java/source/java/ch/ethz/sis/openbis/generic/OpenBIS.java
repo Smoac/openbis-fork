@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.nio.file.Path;
@@ -1889,7 +1890,13 @@ public class OpenBIS
                                 transactionParticipantId, method.getName(), args);
                     } else
                     {
-                        return method.invoke(service, args);
+                        try
+                        {
+                            return method.invoke(service, args);
+                        } catch (InvocationTargetException e)
+                        {
+                            throw e.getTargetException();
+                        }
                     }
                 });
     }
