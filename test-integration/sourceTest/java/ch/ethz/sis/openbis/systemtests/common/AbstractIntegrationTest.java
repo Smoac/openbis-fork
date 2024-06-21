@@ -53,6 +53,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
 import org.springframework.remoting.support.RemoteInvocation;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -73,6 +78,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -81,6 +88,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 public abstract class AbstractIntegrationTest
 {
     public static final String TEST_INTERACTIVE_SESSION_KEY = "integration-test-interactive-session-key";
+
+    public static final String TEST_DATA_STORE_CODE = "TEST";
 
     public static final String DEFAULT_SPACE = "DEFAULT";
 
@@ -302,6 +311,22 @@ public abstract class AbstractIntegrationTest
 
         final OpenBIS openBIS = createOpenBIS();
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        // create TEST data store server (we do not start the actual old DSS, but we still want to have some old DSS data sets for testing)
+        DataStorePE testDataStore = new DataStorePE();
+        testDataStore.setCode(TEST_DATA_STORE_CODE);
+        testDataStore.setDownloadUrl("");
+        testDataStore.setRemoteUrl("");
+        testDataStore.setDatabaseInstanceUUID("");
+        testDataStore.setSessionToken("");
+        testDataStore.setArchiverConfigured(false);
+
+        executeInApplicationServerTransaction((status) ->
+        {
+            IDAOFactory daoFactory = applicationServerSpringContext.getBean(IDAOFactory.class);
+            daoFactory.getDataStoreDAO().createOrUpdateDataStore(testDataStore);
+            return null;
+        });
 
         // create AFS server user
         PersonCreation afsUserCreation = new PersonCreation();
@@ -542,6 +567,16 @@ public abstract class AbstractIntegrationTest
         return new OpenBIS(TestInstanceHostUtils.getOpenBISUrl() + TestInstanceHostUtils.getOpenBISPath(),
                 TestInstanceHostUtils.getDSSUrl() + TestInstanceHostUtils.getDSSPath(),
                 TestInstanceHostUtils.getAFSUrl() + TestInstanceHostUtils.getAFSPath());
+    }
+
+    public void executeInApplicationServerTransaction(TransactionCallback<?> callback)
+    {
+        PlatformTransactionManager manager = applicationServerSpringContext.getBean(PlatformTransactionManager.class);
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        definition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        definition.setReadOnly(false);
+        TransactionTemplate template = new TransactionTemplate(manager, definition);
+        template.execute(callback);
     }
 
     public void log(String message)

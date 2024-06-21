@@ -21,7 +21,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
@@ -297,6 +306,64 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         assertExperimentExistsAtAS(experimentId.getPermId(), true);
         assertAFSDataSetExistsAtAS(experimentId.getPermId(), false);
         assertDataSetExistsAtAFS(experimentId.getPermId(), false);
+    }
+
+    @Test
+    public void testWriteToDSSExperimentDataSetWithAccess() throws Exception
+    {
+        OpenBIS openBISInstanceAdmin = createOpenBIS();
+        openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+        // create dataset with instance admin user
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setSpaceId(new SpacePermId(TEST_SPACE));
+        projectCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+        ProjectPermId projectId = openBISInstanceAdmin.createProjects(List.of(projectCreation)).get(0);
+
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        experimentCreation.setProjectId(projectId);
+        experimentCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+        ExperimentPermId experimentId = openBISInstanceAdmin.createExperiments(List.of(experimentCreation)).get(0);
+
+        Integer shareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(getAfsServerConfiguration());
+
+        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setShareId(shareId.toString());
+        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setLocation("test-location-" + UUID.randomUUID());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+        physicalCreation.setH5arFolders(false);
+        physicalCreation.setH5Folders(false);
+
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setDataStoreId(new DataStorePermId(TEST_DATA_STORE_CODE));
+        dataSetCreation.setDataSetKind(DataSetKind.PHYSICAL);
+        dataSetCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        dataSetCreation.setExperimentId(experimentId);
+        dataSetCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+        dataSetCreation.setPhysicalData(physicalCreation);
+
+        DataSetPermId dataSetId = openBISInstanceAdmin.createDataSetsAS(List.of(dataSetCreation)).get(0);
+
+        assertDSSDataSetExistsAtAS(dataSetId.getPermId(), true);
+        assertAFSDataSetExistsAtAS(dataSetId.getPermId(), false);
+        assertDataSetExistsAtAFS(dataSetId.getPermId(), false);
+
+        try
+        {
+            // try to write data to the dataset with instance admin user
+            openBISInstanceAdmin.getAfsServerFacade().write(dataSetId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+            fail();
+        } catch (Exception e)
+        {
+            assertTrue(e.getMessage().contains("don't have rights [Write] over " + dataSetId));
+        }
+
+        assertDSSDataSetExistsAtAS(dataSetId.getPermId(), true);
+        assertAFSDataSetExistsAtAS(dataSetId.getPermId(), false);
+        assertDataSetExistsAtAFS(dataSetId.getPermId(), false);
     }
 
     @Test
