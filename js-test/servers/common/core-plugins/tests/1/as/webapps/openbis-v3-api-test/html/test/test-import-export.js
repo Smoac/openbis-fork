@@ -47,7 +47,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
       QUnit.test("executeImport()", function(assert) {
         var c = new common(assert, dtos);
 
-                var fAction = function (facade: openbis.openbis) {
+                var fAction = function (facade) {
                     var fileName = "model.xlsx"
                     var data = new window.File([c.base64ToBlob(fileContent)], fileName)
                     return facade.uploadToSessionWorkspace(data)
