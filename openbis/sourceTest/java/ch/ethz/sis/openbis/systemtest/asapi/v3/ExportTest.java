@@ -134,6 +134,8 @@ public class ExportTest extends AbstractTest
 
     private static final String BIG_CELL_SAMPLE_CODE = "BIG_CELL";
 
+    private static final String CELL_WITH_IMAGE_REFERENCES_SAMPLE_CODE = "IMAGE_REF";
+
     private static final String JAVA_FOLDER_PATH = "./sourceTest/java/";
 
     protected String sessionToken;
@@ -148,9 +150,13 @@ public class ExportTest extends AbstractTest
 
     private EntityTypePermId bigCellSampleTypePermId;
 
+    private EntityTypePermId cellWithImageReferencesSampleTypePermId;
+
     private SamplePermId richTextSamplePermId;
 
     private SamplePermId bigCellSamplePermId;
+
+    private SamplePermId cellWithImageReferencesSamplePermId;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -173,6 +179,7 @@ public class ExportTest extends AbstractTest
         richTextPropertyTypeCreation.setLabel("Multiline");
         richTextPropertyTypeCreation.setDescription("Property type with multiline text value");
         richTextPropertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
+        richTextPropertyTypeCreation.setMetaData(Map.of("custom_widget", "Word Processor"));
 
         final PropertyTypeCreation richTextWithImagePropertyTypeCreation = new PropertyTypeCreation();
         richTextWithImagePropertyTypeCreation.setCode(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME);
@@ -196,12 +203,14 @@ public class ExportTest extends AbstractTest
         richTextWithSpreadsheetPropertyTypePermId = propertyTypes.get(2);
 
         final SampleCreation richTextSampleCreation = getRichTextSampleCreation();
-
         final SampleCreation bigCellSampleCreation = getBigCellSampleCreation();
+        final SampleCreation cellWithImageReferencesSampleCreation = getCellWithImageReferencesSampleCreation();
 
-        final List<SamplePermId> samplePermsIds = v3api.createSamples(sessionToken, List.of(richTextSampleCreation, bigCellSampleCreation));
+        final List<SamplePermId> samplePermsIds = v3api.createSamples(sessionToken,
+                List.of(richTextSampleCreation, bigCellSampleCreation, cellWithImageReferencesSampleCreation));
         richTextSamplePermId = samplePermsIds.get(0);
         bigCellSamplePermId = samplePermsIds.get(1);
+        cellWithImageReferencesSamplePermId = samplePermsIds.get(2);
 
         final Mockery mockery = new Mockery();
         registerDss(mockery);
@@ -244,10 +253,10 @@ public class ExportTest extends AbstractTest
         sampleTypeCreation.setCode("BIG_CELL_SAMPLE_TYPE");
 
         // Big cell reuses the rich text property type
-        final PropertyAssignmentCreation bigCellPropertyAssignmentCreation = new PropertyAssignmentCreation();
-        bigCellPropertyAssignmentCreation.setPropertyTypeId(richTextPropertyTypePermId);
+        final PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
+        propertyAssignmentCreation.setPropertyTypeId(richTextPropertyTypePermId);
 
-        sampleTypeCreation.setPropertyAssignments(List.of(bigCellPropertyAssignmentCreation));
+        sampleTypeCreation.setPropertyAssignments(List.of(propertyAssignmentCreation));
         bigCellSampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
 
         final SampleCreation bigCellSampleCreation = new SampleCreation();
@@ -255,6 +264,36 @@ public class ExportTest extends AbstractTest
         bigCellSampleCreation.setCode(BIG_CELL_SAMPLE_CODE);
         bigCellSampleCreation.setTypeId(bigCellSampleTypePermId);
         bigCellSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, getResourceFileContent(XLS_EXPORT_RESOURCES_PATH + "lorem-ipsum.txt"));
+
+        return bigCellSampleCreation;
+    }
+
+    private SampleCreation getCellWithImageReferencesSampleCreation()
+    {
+        final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
+        sampleTypeCreation.setCode("IMAGE_REF_SAMPLE_TYPE");
+
+        // Cell with image references reuses the rich text property type
+        final PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
+        propertyAssignmentCreation.setPropertyTypeId(richTextPropertyTypePermId);
+
+        sampleTypeCreation.setPropertyAssignments(List.of(propertyAssignmentCreation));
+        cellWithImageReferencesSampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
+
+        final SampleCreation bigCellSampleCreation = new SampleCreation();
+        bigCellSampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        bigCellSampleCreation.setCode(CELL_WITH_IMAGE_REFERENCES_SAMPLE_CODE);
+        bigCellSampleCreation.setTypeId(cellWithImageReferencesSampleTypePermId);
+        bigCellSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, "<p>This is some text.</p>"
+                + "<figure class=\"image\">"
+                + "<img src=\"/openbis/openbis/file-service/eln-lims/c1/b2/91/"
+                + "c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c.jpg\">"
+                + "</figure>"
+                + "<p>Then we have more text between images.</p>"
+                + "<figure class=\"image\"><img src=\"/openbis/openbis/file-service/eln-lims/46/63/05/"
+                + "466305f0-4842-441f-b21c-777ea82079b4/466305f0-4842-441f-b21c-777ea82079b4.jpg\">"
+                + "</figure>"
+                + "<p>And some text at the end.</p>");
 
         return bigCellSampleCreation;
     }
@@ -287,12 +326,14 @@ public class ExportTest extends AbstractTest
 
         final SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
         sampleDeletionOptions.setReason("Test");
-        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(richTextSamplePermId, bigCellSamplePermId), sampleDeletionOptions);
+        final IDeletionId deletionId = v3api.deleteSamples(sessionToken,
+                List.of(richTextSamplePermId, bigCellSamplePermId, cellWithImageReferencesSamplePermId), sampleDeletionOptions);
         v3api.confirmDeletions(systemSessionToken, List.of(deletionId));
 
         final SampleTypeDeletionOptions sampleTypeDeletionOptions = new SampleTypeDeletionOptions();
         sampleTypeDeletionOptions.setReason("Test");
-        v3api.deleteSampleTypes(sessionToken, List.of(richTextSampleTypePermId, bigCellSampleTypePermId), sampleTypeDeletionOptions);
+        v3api.deleteSampleTypes(sessionToken, List.of(richTextSampleTypePermId, bigCellSampleTypePermId, cellWithImageReferencesSampleTypePermId),
+                sampleTypeDeletionOptions);
 
         final PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
         propertyTypeDeletionOptions.setReason("Test");
@@ -484,6 +525,22 @@ public class ExportTest extends AbstractTest
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + "export-large-cell.zip", getBareFileName(exportResult.getDownloadURL()));
+    }
+
+    /**
+     * Tests export of cells larger than 32k.
+     */
+    @Test
+    public void testCellWithImageReferencesXlsExport() throws IOException
+    {
+        final ExportData exportData =
+                new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, cellWithImageReferencesSamplePermId.getPermId())),
+                        new SelectedFields(List.of(REGISTRATOR, CODE, IDENTIFIER, SPACE, DESCRIPTION),
+                                List.of(richTextPropertyTypePermId)));
+        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, true);
+        final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
+
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + "export-cell-with-images.zip", getBareFileName(exportResult.getDownloadURL()));
     }
 
     private static String getBareFileName(final String url)
