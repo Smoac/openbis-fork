@@ -45,77 +45,78 @@
           })
       }
 
-     QUnit.test("executeImport()", function(assert) {
-        var c = new common(assert, dtos)
+        QUnit.test("executeImport()", function(assert) {
+          var c = new common(assert, dtos)
 
-        var fAction = function(facade) {
-          var fileName = "model.xlsx"
-          var data = new window.File([c.base64ToBlob(fileContent)], fileName)
-          return facade.uploadToSessionWorkspace(data).then(function() {
-            c.ok("uploadToSessionWorkspace")
-            var importData = new dtos.ImportData()
-            importData.setFormat("EXCEL")
-            importData.setSessionWorkspaceFiles([fileName])
+          var fAction = function(facade) {
+            var fileName = "model.xlsx"
+            var data = new window.File([c.base64ToBlob(fileContent)], fileName)
+            return facade.uploadToSessionWorkspace(data).then(function() {
+              c.ok("uploadToSessionWorkspace")
+              var importData = new dtos.ImportData()
+              importData.setFormat("EXCEL")
+              importData.setSessionWorkspaceFiles([fileName])
 
-            var importOptions = new dtos.ImportOptions()
-            importOptions.setMode("UPDATE_IF_EXISTS")
+              var importOptions = new dtos.ImportOptions()
+              importOptions.setMode("UPDATE_IF_EXISTS")
+
+              return facade
+                .executeImport(importData, importOptions)
+                .then(function() {
+                  c.ok("executeImport")
+                })
+            })
+          }
+
+          var fCheck = function(facade) {
+            var criteria = new dtos.VocabularySearchCriteria()
+            criteria.withCode().thatEquals("VOCAB")
+
+            var vocabularyFetchOptions = c.createVocabularyFetchOptions()
+            vocabularyFetchOptions.withTerms()
 
             return facade
-              .executeImport(importData, importOptions)
-              .then(function() {
-                c.ok("executeImport")
-              })
-          })
-        }
+              .searchVocabularies(criteria, vocabularyFetchOptions)
+              .then(
+                function(results) {
+                  c.assertEqual(results.getTotalCount(), 1)
+                  var vocabulary = results.getObjects()[0]
 
-        var fCheck = function(facade) {
-          var criteria = new dtos.VocabularySearchCriteria()
-          criteria.withCode().thatEquals("VOCAB")
+                  c.assertEqual(vocabulary.getCode(), "VOCAB")
 
-          var vocabularyFetchOptions = c.createVocabularyFetchOptions()
-          vocabularyFetchOptions.withTerms()
+                  var terms = vocabulary.getTerms()
 
-          return facade
-            .searchVocabularies(criteria, vocabularyFetchOptions)
-            .then(
-              function(results) {
-                c.assertEqual(results.getTotalCount(), 1)
-                var vocabulary = results.getObjects()[0]
+                  c.assertEqual(terms.length, 3)
 
-                c.assertEqual(vocabulary.getCode(), "VOCAB")
+                  var codes = terms
+                    .map(function(object) {
+                      return object.getCode()
+                    })
+                    .sort()
 
-                var terms = vocabulary.getTerms()
+                  var labels = terms
+                    .map(function(object) {
+                      return object.getLabel()
+                    })
+                    .sort()
 
-                c.assertEqual(terms.length, 3)
+                  c.assertEqual(codes[0], "TERM_A")
+                  c.assertEqual(codes[1], "TERM_B")
+                  c.assertEqual(codes[2], "TERM_C")
 
-                var codes = terms
-                  .map(function(object) {
-                    return object.getCode()
-                  })
-                  .sort()
+                  c.assertEqual(labels[0], "A")
+                  c.assertEqual(labels[1], "B")
+                  c.assertEqual(labels[2], "C")
+                },
+                function(error) {
+                  c.fail("Error searching vocabularies. error=" + error.message)
+                }
+              )
+          }
 
-                var labels = terms
-                  .map(function(object) {
-                    return object.getLabel()
-                  })
-                  .sort()
-
-                c.assertEqual(codes[0], "TERM_A")
-                c.assertEqual(codes[1], "TERM_B")
-                c.assertEqual(codes[2], "TERM_C")
-
-                c.assertEqual(labels[0], "A")
-                c.assertEqual(labels[1], "B")
-                c.assertEqual(labels[2], "C")
-              },
-              function(error) {
-                c.fail("Error searching vocabularies. error=" + error.message)
-              }
-            )
-        }
-
-        testAction(c, fAction, fCheck)
-      })
+          testAction(c, fAction, fCheck)
+        });
+    }
 
     return function() {
         executeModule("Export/import tests (RequireJS)", new openbis(), dtos);
