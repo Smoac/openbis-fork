@@ -22,12 +22,15 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import javax.servlet.ReadListener;
@@ -68,12 +71,44 @@ import org.testng.annotations.BeforeSuite;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
@@ -97,7 +132,11 @@ public abstract class AbstractIntegrationTest
 
     public static final String INSTANCE_ADMIN = "admin";
 
+    public static final String DEFAULT_SPACE_ADMIN = "default_space_admin";
+
     public static final String TEST_SPACE_ADMIN = "test_space_admin";
+
+    public static final String TEST_SPACE_OBSERVER = "test_space_observer";
 
     public static final String PASSWORD = "password";
 
@@ -307,58 +346,21 @@ public abstract class AbstractIntegrationTest
 
     private void createApplicationServerData() throws Exception
     {
-        final Configuration configuration = getAfsServerConfiguration();
+        Configuration configuration = getAfsServerConfiguration();
 
-        final OpenBIS openBIS = createOpenBIS();
+        OpenBIS openBIS = createOpenBIS();
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-        // create TEST data store server (we do not start the actual old DSS, but we still want to have some old DSS data sets for testing)
-        DataStorePE testDataStore = new DataStorePE();
-        testDataStore.setCode(TEST_DATA_STORE_CODE);
-        testDataStore.setDownloadUrl("");
-        testDataStore.setRemoteUrl("");
-        testDataStore.setDatabaseInstanceUUID("");
-        testDataStore.setSessionToken("");
-        testDataStore.setArchiverConfigured(false);
+        createDataStore(TEST_DATA_STORE_CODE);
 
-        executeInApplicationServerTransaction((status) ->
-        {
-            IDAOFactory daoFactory = applicationServerSpringContext.getBean(IDAOFactory.class);
-            daoFactory.getDataStoreDAO().createOrUpdateDataStore(testDataStore);
-            return null;
-        });
+        String afsServerUser = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUser);
+        createUser(openBIS, afsServerUser, null, Role.ETL_SERVER);
 
-        // create AFS server user
-        PersonCreation afsUserCreation = new PersonCreation();
-        afsUserCreation.setUserId(configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUser));
-        PersonPermId afsUserId = openBIS.createPersons(List.of(afsUserCreation)).get(0);
+        createSpace(openBIS, TEST_SPACE);
+        createUser(openBIS, TEST_SPACE_ADMIN, TEST_SPACE, Role.ADMIN);
+        createUser(openBIS, TEST_SPACE_OBSERVER, TEST_SPACE, Role.OBSERVER);
 
-        RoleAssignmentCreation afsRoleCreation = new RoleAssignmentCreation();
-        afsRoleCreation.setUserId(afsUserId);
-        afsRoleCreation.setRole(Role.ETL_SERVER);
-        openBIS.createRoleAssignments(List.of(afsRoleCreation));
-
-        log("Created " + afsUserCreation.getUserId() + " user.");
-
-        // create test space
-        SpaceCreation testSpaceCreation = new SpaceCreation();
-        testSpaceCreation.setCode(TEST_SPACE);
-        openBIS.createSpaces(List.of(testSpaceCreation));
-
-        log("Created " + testSpaceCreation.getCode() + " space.");
-
-        // create test space admin
-        PersonCreation testSpaceAdminCreation = new PersonCreation();
-        testSpaceAdminCreation.setUserId(TEST_SPACE_ADMIN);
-        PersonPermId testSpaceAdminId = openBIS.createPersons(List.of(testSpaceAdminCreation)).get(0);
-
-        RoleAssignmentCreation testSpaceAdminRoleCreation = new RoleAssignmentCreation();
-        testSpaceAdminRoleCreation.setUserId(testSpaceAdminId);
-        testSpaceAdminRoleCreation.setSpaceId(new SpacePermId(TEST_SPACE));
-        testSpaceAdminRoleCreation.setRole(Role.ADMIN);
-        openBIS.createRoleAssignments(List.of(testSpaceAdminRoleCreation));
-
-        log("Created " + testSpaceAdminCreation.getUserId() + " user.");
+        createUser(openBIS, DEFAULT_SPACE_ADMIN, DEFAULT_SPACE, Role.ADMIN);
     }
 
     private void startAfsServer() throws Exception
@@ -479,7 +481,7 @@ public abstract class AbstractIntegrationTest
         startAfsServer();
     }
 
-    public Properties getApplicationServerConfiguration(boolean createDatabase) throws Exception
+    public static Properties getApplicationServerConfiguration(boolean createDatabase) throws Exception
     {
         Properties configuration = new Properties();
         configuration.load(new FileInputStream("etc/as/service.properties"));
@@ -491,7 +493,7 @@ public abstract class AbstractIntegrationTest
         return configuration;
     }
 
-    public Configuration getAfsServerConfiguration()
+    public static Configuration getAfsServerConfiguration()
     {
         Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
                 "etc/afs/service.properties");
@@ -569,7 +571,147 @@ public abstract class AbstractIntegrationTest
                 TestInstanceHostUtils.getAFSUrl() + TestInstanceHostUtils.getAFSPath());
     }
 
-    public void executeInApplicationServerTransaction(TransactionCallback<?> callback)
+    public static void createDataStore(String dataStoreCode)
+    {
+        DataStorePE testDataStore = new DataStorePE();
+        testDataStore.setCode(dataStoreCode);
+        testDataStore.setDownloadUrl("");
+        testDataStore.setRemoteUrl("");
+        testDataStore.setDatabaseInstanceUUID("");
+        testDataStore.setSessionToken("");
+        testDataStore.setArchiverConfigured(false);
+
+        executeInApplicationServerTransaction((status) ->
+        {
+            IDAOFactory daoFactory = applicationServerSpringContext.getBean(IDAOFactory.class);
+            daoFactory.getDataStoreDAO().createOrUpdateDataStore(testDataStore);
+            return null;
+        });
+    }
+
+    public static Space createSpace(OpenBIS openBIS, String spaceCode)
+    {
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(spaceCode);
+        List<SpacePermId> spaceIds = openBIS.createSpaces(List.of(spaceCreation));
+        Space space = getSpace(openBIS, spaceIds.get(0));
+        log("Created " + space.getCode() + " space.");
+        return space;
+    }
+
+    public static Space getSpace(OpenBIS openBIS, ISpaceId spaceId)
+    {
+        return openBIS.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
+    }
+
+    public static Project createProject(OpenBIS openBIS, ISpaceId spaceId, String projectCode)
+    {
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setSpaceId(spaceId);
+        projectCreation.setCode(projectCode);
+        List<ProjectPermId> projectIds = openBIS.createProjects(List.of(projectCreation));
+        Project project = openBIS.getProjects(projectIds, new ProjectFetchOptions()).get(projectIds.get(0));
+        log("Created " + project.getIdentifier() + " project.");
+        return project;
+    }
+
+    public static Experiment createExperiment(OpenBIS openBIS, IProjectId projectId, String experimentCode)
+    {
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        experimentCreation.setProjectId(projectId);
+        experimentCreation.setCode(experimentCode);
+        List<ExperimentPermId> experimentIds = openBIS.createExperiments(List.of(experimentCreation));
+        Experiment experiment = openBIS.getExperiments(experimentIds, new ExperimentFetchOptions()).get(experimentIds.get(0));
+        log("Created " + experiment.getIdentifier() + " experiment.");
+        return experiment;
+    }
+
+    public static Sample createSample(OpenBIS openBIS, ISpaceId spaceId, String sampleCode)
+    {
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        sampleCreation.setSpaceId(spaceId);
+        sampleCreation.setCode(sampleCode);
+        List<SamplePermId> sampleIds = openBIS.createSamples(List.of(sampleCreation));
+        Sample sample = getSample(openBIS, sampleIds.get(0));
+        log("Created " + sample.getIdentifier() + " sample.");
+        return sample;
+    }
+
+    public static Sample getSample(OpenBIS openBIS, ISampleId sampleId)
+    {
+        return openBIS.getSamples(List.of(sampleId), new SampleFetchOptions()).get(sampleId);
+    }
+
+    public static DataSet createDataSet(OpenBIS openBIS, IExperimentId experimentId, String dataSetCode, String testFile, byte[] testData)
+            throws IOException
+    {
+        Configuration afsServerConfiguration = getAfsServerConfiguration();
+        String storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(afsServerConfiguration);
+        String storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(afsServerConfiguration);
+        Integer shareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(afsServerConfiguration);
+
+        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setShareId(shareId.toString());
+        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setLocation("test-location-" + UUID.randomUUID());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+        physicalCreation.setH5arFolders(false);
+        physicalCreation.setH5Folders(false);
+
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setDataStoreId(new DataStorePermId(TEST_DATA_STORE_CODE));
+        dataSetCreation.setDataSetKind(DataSetKind.PHYSICAL);
+        dataSetCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        dataSetCreation.setExperimentId(experimentId);
+        dataSetCreation.setCode(dataSetCode);
+        dataSetCreation.setPhysicalData(physicalCreation);
+
+        List<DataSetPermId> dataSetIds = openBIS.createDataSetsAS(List.of(dataSetCreation));
+        DataSet dataSet = openBIS.getDataSets(dataSetIds, new DataSetFetchOptions()).get(dataSetIds.get(0));
+
+        if (testFile != null && testData != null)
+        {
+            List<String> dataSetFolderParts = new ArrayList<>();
+            dataSetFolderParts.add(storageRoot);
+            dataSetFolderParts.add(shareId.toString());
+            dataSetFolderParts.add(storageUuid);
+            dataSetFolderParts.addAll(Arrays.asList(ch.ethz.sis.shared.io.IOUtils.getShards(dataSet.getCode())));
+            dataSetFolderParts.add(dataSet.getCode());
+            File dataSetFolder = new File(String.join(File.separator, dataSetFolderParts));
+
+            Files.createDirectories(dataSetFolder.toPath());
+            Path testFilePath = Files.createFile(Path.of(dataSetFolder.getPath(), testFile));
+            ch.ethz.sis.shared.io.IOUtils.write(testFilePath.toFile().getAbsolutePath(), 0L, testData);
+        }
+
+        log("Created " + dataSet.getPermId() + " dataSet.");
+        return dataSet;
+    }
+
+    public static Person createUser(OpenBIS openBIS, String userId, String spaceCode, Role spaceRole)
+    {
+        PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId(userId);
+        PersonPermId personId = openBIS.createPersons(List.of(personCreation)).get(0);
+
+        RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+        roleCreation.setUserId(personId);
+        if (spaceCode != null)
+        {
+            roleCreation.setSpaceId(new SpacePermId(spaceCode));
+        }
+        roleCreation.setRole(spaceRole);
+        openBIS.createRoleAssignments(List.of(roleCreation));
+
+        Person person = openBIS.getPersons(List.of(personId), new PersonFetchOptions()).get(personId);
+        log("Created " + person.getUserId() + " user.");
+        return person;
+    }
+
+    public static void executeInApplicationServerTransaction(TransactionCallback<?> callback)
     {
         PlatformTransactionManager manager = applicationServerSpringContext.getBean(PlatformTransactionManager.class);
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
@@ -579,7 +721,7 @@ public abstract class AbstractIntegrationTest
         template.execute(callback);
     }
 
-    public void log(String message)
+    public static void log(String message)
     {
         System.out.println("[TEST] " + message);
     }

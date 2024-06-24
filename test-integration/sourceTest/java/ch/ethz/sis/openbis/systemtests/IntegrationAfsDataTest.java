@@ -21,27 +21,14 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
-import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.openbis.generic.OpenBIS;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 
@@ -67,30 +54,25 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        sampleCreation.setSpaceId(new SpacePermId(DEFAULT_SPACE));
-        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
         // create sample at AS
-        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
 
         // create data at AFS
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), true);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+        assertDataExistsInStore(sample.getPermId().getPermId(), true);
 
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), true);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+        assertDataExistsInStore(sample.getPermId().getPermId(), true);
     }
 
     @Test
@@ -101,35 +83,30 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        sampleCreation.setSpaceId(new SpacePermId(DEFAULT_SPACE));
-        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
         // create sample at AS
-        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
         // BEGIN
         openBIS.beginTransaction();
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
 
         // create data at AFS
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
 
         // COMMIT
         openBIS.commitTransaction();
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), true);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+        assertDataExistsInStore(sample.getPermId().getPermId(), true);
     }
 
     @Test
@@ -143,227 +120,376 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         // BEGIN
         openBIS.beginTransaction();
 
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        sampleCreation.setSpaceId(new SpacePermId(DEFAULT_SPACE));
-        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
         // create sample at AS
-        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
-        assertSampleExistsAtAS(sampleId.getPermId(), false);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), false);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
 
         // create data at AFS
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
-        assertSampleExistsAtAS(sampleId.getPermId(), false);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), false);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
 
         // COMMIT
         openBIS.commitTransaction();
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), true);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+        assertDataExistsInStore(sample.getPermId().getPermId(), true);
     }
 
     @Test
-    public void testWriteToSampleWithAccess() throws Exception
+    public void testAccessToReadDataFromSample() throws Exception
     {
-        OpenBIS openBISInstanceAdmin = createOpenBIS();
-        openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+        // TEST space users should have READ access, DEFAULT space user should not
+        List<List<Object>> testCases =
+                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, true), List.of(DEFAULT_SPACE_ADMIN, false));
 
-        // create sample in TEST space with instance admin user
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        sampleCreation.setSpaceId(new SpacePermId(TEST_SPACE));
-        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
-        SamplePermId sampleId = openBISInstanceAdmin.createSamples(List.of(sampleCreation)).get(0);
-
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
-
-        OpenBIS openBISTestSpaceAdmin = createOpenBIS();
-        openBISTestSpaceAdmin.login(TEST_SPACE_ADMIN, PASSWORD);
-
-        // write data to the sample with TEST space admin user
-        openBISTestSpaceAdmin.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), true);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
-    }
-
-    @Test void testWriteToSampleWithoutAccess() throws Exception
-    {
-        OpenBIS openBISInstanceAdmin = createOpenBIS();
-        openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
-
-        // create sample in DEFAULT space with instance admin user
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        sampleCreation.setSpaceId(new SpacePermId(DEFAULT_SPACE));
-        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
-        SamplePermId sampleId = openBISInstanceAdmin.createSamples(List.of(sampleCreation)).get(0);
-
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
-
-        OpenBIS openBISTestSpaceAdmin = createOpenBIS();
-        openBISTestSpaceAdmin.login(TEST_SPACE_ADMIN, PASSWORD);
-
-        try
+        for (List<Object> testCase : testCases)
         {
-            // try to write data to the sample with TEST space admin user
-            openBISTestSpaceAdmin.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-            fail();
-        } catch (Exception e)
-        {
-            assertTrue(e.getMessage().contains("don't have rights [Write] over " + sampleId));
+            log("Test case: " + testCase);
+
+            String userId = (String) testCase.get(0);
+            boolean userHasAccess = (boolean) testCase.get(1);
+
+            String testFile = "test-file-" + UUID.randomUUID();
+            String testData = "test-content-" + UUID.randomUUID();
+
+            OpenBIS openBISInstanceAdmin = createOpenBIS();
+            openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+            // create sample and data in TEST space with instance admin user
+            Sample sample = createSample(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            openBISInstanceAdmin.getAfsServerFacade().write(sample.getPermId().getPermId(), testFile, 0L, testData.getBytes());
+
+            assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+            assertDataExistsInStore(sample.getPermId().getPermId(), true);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(userId, PASSWORD);
+
+            try
+            {
+                byte[] readData =
+                        openBIS.getAfsServerFacade().read(sample.getPermId().getPermId(), testFile, 0L, testData.length());
+
+                if (userHasAccess)
+                {
+                    assertEquals(readData, testData.getBytes());
+                } else
+                {
+                    fail();
+                }
+            } catch (Exception e)
+            {
+                if (userHasAccess)
+                {
+                    fail();
+                } else
+                {
+                    assertTrue(e.getMessage().contains("don't have rights [Read] over " + sample.getPermId().getPermId()));
+                }
+            }
+
+            assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+            assertDataExistsInStore(sample.getPermId().getPermId(), true);
         }
-
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
     }
 
     @Test
-    public void testWriteToExperimentWithAccess() throws Exception
+    public void testAccessToWriteDataToSample() throws Exception
     {
-        OpenBIS openBISInstanceAdmin = createOpenBIS();
-        openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+        // TEST space admin user should have WRITE access, TEST space observer and DEFAULT space user should not
+        List<List<Object>> testCases =
+                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, false), List.of(DEFAULT_SPACE_ADMIN, false));
 
-        // create experiment in TEST space with instance admin user
-        ProjectCreation projectCreation = new ProjectCreation();
-        projectCreation.setSpaceId(new SpacePermId(TEST_SPACE));
-        projectCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        ProjectPermId projectId = openBISInstanceAdmin.createProjects(List.of(projectCreation)).get(0);
-
-        ExperimentCreation experimentCreation = new ExperimentCreation();
-        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        experimentCreation.setProjectId(projectId);
-        experimentCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        ExperimentPermId experimentId = openBISInstanceAdmin.createExperiments(List.of(experimentCreation)).get(0);
-
-        assertExperimentExistsAtAS(experimentId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), false);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
-
-        OpenBIS openBISTestSpaceAdmin = createOpenBIS();
-        openBISTestSpaceAdmin.login(TEST_SPACE_ADMIN, PASSWORD);
-
-        // write data to the experiment with TEST space admin user
-        openBISTestSpaceAdmin.getAfsServerFacade().write(experimentId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-
-        assertExperimentExistsAtAS(experimentId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), true);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), true);
-    }
-
-    @Test
-    public void testWriteToExperimentWithoutAccess() throws Exception
-    {
-        OpenBIS openBISInstanceAdmin = createOpenBIS();
-        openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
-
-        // create experiment in DEFAULT space with instance admin user
-        ProjectCreation projectCreation = new ProjectCreation();
-        projectCreation.setSpaceId(new SpacePermId(DEFAULT_SPACE));
-        projectCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        ProjectPermId projectId = openBISInstanceAdmin.createProjects(List.of(projectCreation)).get(0);
-
-        ExperimentCreation experimentCreation = new ExperimentCreation();
-        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        experimentCreation.setProjectId(projectId);
-        experimentCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        ExperimentPermId experimentId = openBISInstanceAdmin.createExperiments(List.of(experimentCreation)).get(0);
-
-        assertExperimentExistsAtAS(experimentId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), false);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
-
-        OpenBIS openBISTestSpaceAdmin = createOpenBIS();
-        openBISTestSpaceAdmin.login(TEST_SPACE_ADMIN, PASSWORD);
-
-        try
+        for (List<Object> testCase : testCases)
         {
-            // try to write data to the experiment with TEST space admin user
-            openBISTestSpaceAdmin.getAfsServerFacade().write(experimentId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-            fail();
-        } catch (Exception e)
-        {
-            assertTrue(e.getMessage().contains("don't have rights [Write] over " + experimentId));
+            log("Test case: " + testCase);
+
+            String userId = (String) testCase.get(0);
+            boolean userHasAccess = (boolean) testCase.get(1);
+
+            String testFile = "test-file-" + UUID.randomUUID();
+            String testData = "test-content-" + UUID.randomUUID();
+
+            OpenBIS openBISInstanceAdmin = createOpenBIS();
+            openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+            // create sample in TEST space with instance admin user
+            Sample sample = createSample(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+            assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+            assertDataExistsInStore(sample.getPermId().getPermId(), false);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(userId, PASSWORD);
+
+            try
+            {
+                openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), testFile, 0L, testData.getBytes());
+                byte[] readData = openBIS.getAfsServerFacade().read(sample.getPermId().getPermId(), testFile, 0L, testData.length());
+
+                if (userHasAccess)
+                {
+                    assertEquals(readData, testData.getBytes());
+                    assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+                    assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+                    assertDataExistsInStore(sample.getPermId().getPermId(), true);
+                } else
+                {
+                    fail();
+                }
+            } catch (Exception e)
+            {
+                if (userHasAccess)
+                {
+                    fail();
+                } else
+                {
+                    assertTrue(e.getMessage().contains("don't have rights [Write] over " + sample.getPermId().getPermId()));
+                    assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+                    assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+                    assertDataExistsInStore(sample.getPermId().getPermId(), false);
+                }
+            }
         }
-
-        assertExperimentExistsAtAS(experimentId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), false);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
     }
 
     @Test
-    public void testWriteToDSSExperimentDataSetWithAccess() throws Exception
+    public void testAccessToReadDataFromExperiment() throws Exception
     {
-        OpenBIS openBISInstanceAdmin = createOpenBIS();
-        openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+        // TEST space users should have READ access, DEFAULT space user should not
+        List<List<Object>> testCases =
+                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, true), List.of(DEFAULT_SPACE_ADMIN, false));
 
-        // create dataset with instance admin user
-        ProjectCreation projectCreation = new ProjectCreation();
-        projectCreation.setSpaceId(new SpacePermId(TEST_SPACE));
-        projectCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        ProjectPermId projectId = openBISInstanceAdmin.createProjects(List.of(projectCreation)).get(0);
-
-        ExperimentCreation experimentCreation = new ExperimentCreation();
-        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        experimentCreation.setProjectId(projectId);
-        experimentCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        ExperimentPermId experimentId = openBISInstanceAdmin.createExperiments(List.of(experimentCreation)).get(0);
-
-        Integer shareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(getAfsServerConfiguration());
-
-        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-        physicalCreation.setShareId(shareId.toString());
-        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
-        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-        physicalCreation.setLocation("test-location-" + UUID.randomUUID());
-        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
-        physicalCreation.setH5arFolders(false);
-        physicalCreation.setH5Folders(false);
-
-        DataSetCreation dataSetCreation = new DataSetCreation();
-        dataSetCreation.setDataStoreId(new DataStorePermId(TEST_DATA_STORE_CODE));
-        dataSetCreation.setDataSetKind(DataSetKind.PHYSICAL);
-        dataSetCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        dataSetCreation.setExperimentId(experimentId);
-        dataSetCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-        dataSetCreation.setPhysicalData(physicalCreation);
-
-        DataSetPermId dataSetId = openBISInstanceAdmin.createDataSetsAS(List.of(dataSetCreation)).get(0);
-
-        assertDSSDataSetExistsAtAS(dataSetId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(dataSetId.getPermId(), false);
-        assertDataSetExistsAtAFS(dataSetId.getPermId(), false);
-
-        try
+        for (List<Object> testCase : testCases)
         {
-            // try to write data to the dataset with instance admin user
-            openBISInstanceAdmin.getAfsServerFacade().write(dataSetId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-            fail();
-        } catch (Exception e)
-        {
-            assertTrue(e.getMessage().contains("don't have rights [Write] over " + dataSetId));
+            log("Test case: " + testCase);
+
+            String userId = (String) testCase.get(0);
+            boolean userHasAccess = (boolean) testCase.get(1);
+
+            String testFile = "test-file-" + UUID.randomUUID();
+            String testData = "test-content-" + UUID.randomUUID();
+
+            OpenBIS openBISInstanceAdmin = createOpenBIS();
+            openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+            // create experiment and data in TEST space with instance admin user
+            Project project = createProject(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            Experiment experiment = createExperiment(openBISInstanceAdmin, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            openBISInstanceAdmin.getAfsServerFacade().write(experiment.getPermId().getPermId(), testFile, 0L, testData.getBytes());
+
+            assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
+            assertDataExistsInStore(experiment.getPermId().getPermId(), true);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(userId, PASSWORD);
+
+            try
+            {
+                byte[] readData =
+                        openBIS.getAfsServerFacade().read(experiment.getPermId().getPermId(), testFile, 0L, testData.length());
+
+                if (userHasAccess)
+                {
+                    assertEquals(readData, testData.getBytes());
+                } else
+                {
+                    fail();
+                }
+            } catch (Exception e)
+            {
+                if (userHasAccess)
+                {
+                    fail();
+                } else
+                {
+                    assertTrue(e.getMessage().contains("don't have rights [Read] over " + experiment.getPermId().getPermId()));
+                }
+            }
+
+            assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
+            assertDataExistsInStore(experiment.getPermId().getPermId(), true);
         }
+    }
 
-        assertDSSDataSetExistsAtAS(dataSetId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(dataSetId.getPermId(), false);
-        assertDataSetExistsAtAFS(dataSetId.getPermId(), false);
+    @Test
+    public void testAccessToWriteDataToExperiment() throws Exception
+    {
+        // TEST space admin user should have WRITE access, TEST space observer and DEFAULT space user should not
+        List<List<Object>> testCases =
+                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, false), List.of(DEFAULT_SPACE_ADMIN, false));
+
+        for (List<Object> testCase : testCases)
+        {
+            log("Test case: " + testCase);
+
+            String userId = (String) testCase.get(0);
+            boolean userHasAccess = (boolean) testCase.get(1);
+
+            String testFile = "test-file-" + UUID.randomUUID();
+            String testData = "test-content-" + UUID.randomUUID();
+
+            OpenBIS openBISInstanceAdmin = createOpenBIS();
+            openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+            // create experiment and in TEST space with instance admin user
+            Project project = createProject(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            Experiment experiment = createExperiment(openBISInstanceAdmin, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+            assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
+            assertDataExistsInStore(experiment.getPermId().getPermId(), false);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(userId, PASSWORD);
+
+            try
+            {
+                openBIS.getAfsServerFacade().write(experiment.getPermId().getPermId(), testFile, 0L, testData.getBytes());
+                byte[] readData = openBIS.getAfsServerFacade().read(experiment.getPermId().getPermId(), testFile, 0L, testData.length());
+
+                if (userHasAccess)
+                {
+                    assertEquals(readData, testData.getBytes());
+                    assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+                    assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
+                    assertDataExistsInStore(experiment.getPermId().getPermId(), true);
+                } else
+                {
+                    fail();
+                }
+            } catch (Exception e)
+            {
+                if (userHasAccess)
+                {
+                    fail();
+                } else
+                {
+                    assertTrue(e.getMessage().contains("don't have rights [Write] over " + experiment.getPermId().getPermId()));
+                    assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+                    assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
+                    assertDataExistsInStore(experiment.getPermId().getPermId(), false);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testAccessToReadDataFromDSSDataSet() throws Exception
+    {
+        // TEST space users should have READ access, DEFAULT space user should not
+        List<List<Object>> testCases =
+                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, true), List.of(DEFAULT_SPACE_ADMIN, false));
+
+        for (List<Object> testCase : testCases)
+        {
+            log("Test case: " + testCase);
+
+            String userId = (String) testCase.get(0);
+            boolean userHasAccess = (boolean) testCase.get(1);
+
+            String testFile = "test-file-" + UUID.randomUUID();
+            String testData = "test-content-" + UUID.randomUUID();
+
+            OpenBIS openBISInstanceAdmin = createOpenBIS();
+            openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+            // create experiment and data in TEST space with instance admin user
+            Project project = createProject(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            Experiment experiment = createExperiment(openBISInstanceAdmin, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            DataSet dataSet = createDataSet(openBISInstanceAdmin, experiment.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID(), testFile,
+                    testData.getBytes());
+
+            assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
+            assertDataExistsInStore(dataSet.getPermId().getPermId(), true);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(userId, PASSWORD);
+
+            try
+            {
+                byte[] readData =
+                        openBIS.getAfsServerFacade().read(dataSet.getPermId().getPermId(), testFile, 0L, testData.length());
+
+                if (userHasAccess)
+                {
+                    assertEquals(readData, testData.getBytes());
+                } else
+                {
+                    fail();
+                }
+            } catch (Exception e)
+            {
+                if (userHasAccess)
+                {
+                    fail();
+                } else
+                {
+                    assertTrue(e.getMessage().contains("don't have rights [Read] over " + dataSet.getPermId().getPermId()));
+                }
+            }
+
+            assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
+            assertDataExistsInStore(dataSet.getPermId().getPermId(), true);
+        }
+    }
+
+    @Test
+    public void testAccessToWriteDataToDSSDataSet() throws Exception
+    {
+        // nobody should have WRITE access to old DSS dataset
+        List<String> userIds = List.of(INSTANCE_ADMIN, TEST_SPACE_ADMIN, TEST_SPACE_OBSERVER);
+
+        for (String userId : userIds)
+        {
+            log("Test case: " + userId);
+
+            String testFile = "test-file-" + UUID.randomUUID();
+            String testData = "test-content-" + UUID.randomUUID();
+
+            OpenBIS openBISInstanceAdmin = createOpenBIS();
+            openBISInstanceAdmin.login(INSTANCE_ADMIN, PASSWORD);
+
+            // create dataset with instance admin user
+            Project project = createProject(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            Experiment experiment = createExperiment(openBISInstanceAdmin, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+            DataSet dataSet = createDataSet(openBISInstanceAdmin, experiment.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID(), null, null);
+
+            assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
+            assertDataExistsInStore(dataSet.getPermId().getPermId(), false);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(userId, PASSWORD);
+
+            try
+            {
+                openBIS.getAfsServerFacade().write(dataSet.getPermId().getPermId(), testFile, 0L, testData.getBytes());
+                fail();
+            } catch (Exception e)
+            {
+                assertTrue(e.getMessage().contains("don't have rights [Write] over " + dataSet.getPermId().getPermId()));
+            }
+
+            assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
+            assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
+            assertDataExistsInStore(dataSet.getPermId().getPermId(), false);
+        }
     }
 
     @Test
@@ -373,46 +499,31 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-        SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+        Project project = createProject(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+        Experiment experiment = createExperiment(openBIS, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
-        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+        assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
+        assertDataExistsInStore(experiment.getPermId().getPermId(), false);
 
-        ProjectCreation projectCreation = new ProjectCreation();
-        projectCreation.setSpaceId(spaceId);
-        projectCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
-        ProjectPermId projectId = openBIS.createProjects(List.of(projectCreation)).get(0);
-
-        ExperimentCreation experimentCreation = new ExperimentCreation();
-        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        experimentCreation.setProjectId(projectId);
-        experimentCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
-        ExperimentPermId experimentId = openBIS.createExperiments(List.of(experimentCreation)).get(0);
-
-        assertExperimentExistsAtAS(experimentId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), false);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
-
-        openBIS.getAfsServerFacade().write(experimentId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-        openBIS.getAfsServerFacade().write(experimentId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+        openBIS.getAfsServerFacade().write(experiment.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(experiment.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
         ExperimentDeletionOptions options = new ExperimentDeletionOptions();
         options.setReason("It is just a test");
 
-        assertExperimentExistsAtAS(experimentId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), true);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), true);
+        assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
+        assertDataExistsInStore(experiment.getPermId().getPermId(), true);
 
-        IDeletionId deletionId = openBIS.deleteExperiments(List.of(experimentId), options);
+        IDeletionId deletionId = openBIS.deleteExperiments(List.of(experiment.getPermId()), options);
         openBIS.confirmDeletions(List.of(deletionId));
 
-        assertExperimentExistsAtAS(experimentId.getPermId(), false);
-        assertAFSDataSetExistsAtAS(experimentId.getPermId(), false);
+        assertExperimentExistsAtAS(experiment.getPermId().getPermId(), false);
+        assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
         // we need to wait for both AS events-search-task and AFS serverObserver
         Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
-        assertDataSetExistsAtAFS(experimentId.getPermId(), false);
+        assertDataExistsInStore(experiment.getPermId().getPermId(), false);
     }
 
     @Test
@@ -422,40 +533,30 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-        SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
-        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
 
-        SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        sampleCreation.setSpaceId(spaceId);
-        sampleCreation.setCode(ENTITY_CODE_PREFIX + UUID.randomUUID());
-
-        SamplePermId sampleId = openBIS.createSamples(List.of(sampleCreation)).get(0);
-
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
-
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file.txt", 0L, "test-content".getBytes());
-        openBIS.getAfsServerFacade().write(sampleId.getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
 
-        assertSampleExistsAtAS(sampleId.getPermId(), true);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), true);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), true);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
+        assertDataExistsInStore(sample.getPermId().getPermId(), true);
 
-        IDeletionId deletionId = openBIS.deleteSamples(List.of(sampleId), options);
+        IDeletionId deletionId = openBIS.deleteSamples(List.of(sample.getPermId()), options);
         openBIS.confirmDeletions(List.of(deletionId));
 
-        assertSampleExistsAtAS(sampleId.getPermId(), false);
-        assertAFSDataSetExistsAtAS(sampleId.getPermId(), false);
+        assertSampleExistsAtAS(sample.getPermId().getPermId(), false);
+        assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
         // we need to wait for both AS events-search-task and AFS serverObserver
         Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
-        assertDataSetExistsAtAFS(sampleId.getPermId(), false);
+        assertDataExistsInStore(sample.getPermId().getPermId(), false);
     }
 
     private void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
@@ -502,11 +603,11 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         }
     }
 
-    private void assertDataSetExistsAtAFS(String dataSetPermId, boolean exists) throws Exception
+    private void assertDataExistsInStore(String owner, boolean exists) throws Exception
     {
         final String storageRoot = getAfsServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         final List<File> dataSetFolders = Files.find(Path.of(storageRoot), Integer.MAX_VALUE,
-                        (path, basicFileAttributes) -> path.getFileName().toString().equals(dataSetPermId) && Files.isDirectory(path))
+                        (path, basicFileAttributes) -> path.getFileName().toString().equals(owner) && Files.isDirectory(path))
                 .map(Path::toFile).collect(Collectors.toList());
         assertEquals(dataSetFolders.size(), exists ? 1 : 0);
     }
