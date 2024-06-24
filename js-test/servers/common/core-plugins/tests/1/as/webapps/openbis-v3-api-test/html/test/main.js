@@ -18,7 +18,7 @@ define([
          'test/test-dss-services',
          'test/test-archive-unarchive'
 
-//         'test/test-import-export'
+         'test/test-import-export'
          ], function() {
 	var testSuites = arguments;
 	return function() {

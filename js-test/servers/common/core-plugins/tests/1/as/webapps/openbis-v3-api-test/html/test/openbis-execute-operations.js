@@ -119,6 +119,10 @@ define([], function() {
 			return this._executeCreateOperation(new dtos.CreateExternalDmsOperation(creations));
 		}
 
+		this.createExternalDataManagementSystems = function(creations) {
+			return this._executeCreateOperation(new dtos.CreateExternalDmsOperation(creations));
+		}
+
 		this.createSamples = function(creations) {
 			return this._executeCreateOperation(new dtos.CreateSamplesOperation(creations));
 		}
@@ -703,11 +707,20 @@ define([], function() {
 			return facade.getDataStoreFacade.apply(facade, arguments);
 		}
 
-		this.executeImport = function(importData, importOptions) {
-			return this._executeOperation(new dtos.ImportOperation(importData, importOptions));
-		}
+        this.executeImport = function (importData, importOptions) {
+            return this._executeOperation(new dtos.ImportOperation(importData, importOptions)).then(function (results) {
+                return results.getResults()[0].getImportResult()
+            })
+        }
 
-	}
+        this.executeExport = function (exportData, exportOptions) {
+            return this._executeOperation(new dtos.ExportOperation(exportData, exportOptions)).then(function (results) {
+                return results.getResults()[0].getExportResult()
+            })
+        }
+
+        this.uploadToSessionWorkspace = facade.uploadToSessionWorkspace;
+    }
 
 	return executeOperationsFacade;
 
