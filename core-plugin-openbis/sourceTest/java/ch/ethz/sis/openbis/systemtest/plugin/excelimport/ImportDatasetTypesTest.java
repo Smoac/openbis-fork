@@ -128,7 +128,7 @@ public class ImportDatasetTypesTest extends AbstractImportTest
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
 
         // THEN
-        assertEquals(rawData.getValidationPlugin().getName().toUpperCase(), "RAW_DATA.VALID");
+        assertEquals(rawData.getValidationPlugin().getName().toUpperCase(), "VALID");
     }
 
     @Test

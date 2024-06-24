@@ -16,12 +16,9 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,6 +50,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
+import static org.testng.Assert.*;
+import static org.testng.Assert.fail;
 
 public class ZipImportTest extends AbstractImportTest
 {
@@ -139,12 +139,44 @@ public class ZipImportTest extends AbstractImportTest
         experimentTypeSearchCriteria.withCode().thatEquals("$INTERNAL_EXPERIMENT_TYPE");
 
         final ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+        experimentTypeFetchOptions.withPropertyAssignments().withPropertyType();
 
         SearchResult<ExperimentType> experimentTypeSearchResult =
                 v3api.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, experimentTypeFetchOptions);
 
         assertEquals(experimentTypeSearchResult.getTotalCount(), 1);
-        assertEquals(experimentTypeSearchResult.getObjects().get(0).getDescription(), "Internal Experiment Type");
+        ExperimentType experimentType = experimentTypeSearchResult.getObjects().get(0);
+        assertEquals(experimentType.getDescription(), "Internal Experiment Type");
+
+        List<PropertyAssignment> propertyAssignments = experimentType.getPropertyAssignments();
+        assertEquals(propertyAssignments.size(), 2);
+        Optional<PropertyAssignment> assignmentOptional = propertyAssignments.stream().filter(x -> "$FOR_WHAT_INTERNAL".equals(x.getPropertyType().getCode())).findFirst();
+        assertTrue(assignmentOptional.isPresent());
+        assertTrue(assignmentOptional.get().isManagedInternally());
+
+        final VocabularySearchCriteria vocabularySearchCriteria = new VocabularySearchCriteria();
+        vocabularySearchCriteria.withCode().thatEquals("$INTERNAL_VOCABULARY_TYPE");
+
+        final VocabularyFetchOptions vocabularyFetchOptions = new VocabularyFetchOptions();
+        vocabularyFetchOptions.withTerms();
+
+        SearchResult<Vocabulary> vocabularySearchResult = v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
+        assertEquals(vocabularySearchResult.getTotalCount(), 1);
+        Vocabulary vocabulary = vocabularySearchResult.getObjects().get(0);
+        assertEquals(vocabulary.getDescription(), "Internal Vocabulary Type");
+        assertEquals(vocabulary.getTerms().size(), 2);
+
+        for(VocabularyTerm term : vocabulary.getTerms())
+        {
+            if(term.getCode().equals("$INTERNAL_TERM"))
+            {
+                assertTrue(term.isManagedInternally());
+            } else if (term.getCode().equals("REGULAR_TERM")) {
+                assertFalse(term.isManagedInternally());
+            } else {
+                fail("UNKNOWN TERM!");
+            }
+        }
     }
 
     @Test
@@ -269,7 +301,7 @@ public class ZipImportTest extends AbstractImportTest
         final Plugin validationPlugin = sampleType.getValidationPlugin();
         final String validationPluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(validationPlugin.getName(), sampleType.getCode() + "." + validationPluginBareName);
+        assertEquals(validationPlugin.getName(), validationPluginBareName);
         assertEquals(validationPlugin.getScript().trim(), source);
     }
 
@@ -305,7 +337,7 @@ public class ZipImportTest extends AbstractImportTest
 
         final String pluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
+        assertEquals(plugin.getName(), pluginBareName);
         assertEquals(plugin.getScript().trim(), source);
     }
 

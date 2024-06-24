@@ -11,12 +11,14 @@ exports.default = new Promise((resolve) => {
         common: common.CommonConstructor,
         dtos
     ) {
-        var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
+        var executeModule = function (moduleName: string, createFacade: () => openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
             QUnit.test("loginAs()", async function (assert) {
                 var c = new common(assert, dtos)
                 c.start()
+
+                var facade = createFacade()
 
                 var criteria = new dtos.SpaceSearchCriteria()
                 var fetchOptions = new dtos.SpaceFetchOptions()
@@ -44,6 +46,8 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
                 c.start()
 
+                var facade = createFacade()
+
                 facade.login("openbis_test_js", "password").then(
                     function () {
                         return facade.getSessionInformation().then(function (sessionInformation) {
@@ -63,6 +67,8 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
                 c.start()
 
+                var facade = createFacade()
+
                 var criteria = new dtos.SpaceSearchCriteria()
                 var fetchOptions = new dtos.SpaceFetchOptions()
 
@@ -79,12 +85,64 @@ exports.default = new Promise((resolve) => {
                     }
                 )
             })
+
+            QUnit.test("setSessionToken() with session token", async function (assert) {
+                var c = new common(assert, dtos)
+                c.start()
+
+                try {
+                    var userId = "openbis_test_js";
+
+                    var facade = createFacade()
+                    var facade2 = createFacade()
+
+                    var sessionToken = await facade.login(userId, "password")
+                    facade2.setSessionToken(sessionToken)
+
+                    var sessionInformation = await facade2.getSessionInformation()
+                    c.assertEqual(sessionInformation.getUserName(), userId)
+                } finally {
+                    c.finish()
+                }
+            })
+
+            QUnit.test("setSessionToken() with personal access token", async function (assert) {
+                var c = new common(assert, dtos)
+                c.start()
+
+                try {
+                    var userId = "openbis_test_js"
+
+                    var facade = createFacade()
+                    var facade2 = createFacade()
+
+                    await facade.login(userId, "password")
+
+                    var patCreation = new dtos.PersonalAccessTokenCreation()
+                    patCreation.setOwnerId(new dtos.PersonPermId(userId))
+                    patCreation.setSessionName("test-session")
+                    patCreation.setValidFromDate(new Date().getTime())
+                    patCreation.setValidToDate(new Date().getTime() + 24 * 60 * 60 * 1000)
+
+                    var patPermIds = await facade.createPersonalAccessTokens([patCreation])
+
+                    await facade.logout()
+
+                    facade2.setSessionToken(patPermIds[0].getPermId())
+
+                    var sessionInformation = await facade2.getSessionInformation()
+                    c.assertEqual(sessionInformation.getUserName(), userId)
+                } finally {
+                    c.finish()
+                }
+            })
+
         }
 
         resolve(function () {
-            executeModule("Login tests (RequireJS)", new openbisRequireJS(), dtos)
-            executeModule("Login tests (module VAR)", new window.openbis.openbis(), window.openbis)
-            executeModule("Login tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM)
+            executeModule("Login tests (RequireJS)", () => new openbisRequireJS(), dtos)
+            executeModule("Login tests (module VAR)", () => new window.openbis.openbis(), window.openbis)
+            executeModule("Login tests (module ESM)", () => new window.openbisESM.openbis(), window.openbisESM)
         })
     })
 })

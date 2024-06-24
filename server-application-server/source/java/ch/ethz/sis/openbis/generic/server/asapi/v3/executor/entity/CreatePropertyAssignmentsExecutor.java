@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +55,12 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 @Component
 public class CreatePropertyAssignmentsExecutor
 {
+    private static final List<DataTypeCode> NOT_ALLOWED_PATTERN_VALIDATION_DATA_TYPES =
+            List.of(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_REAL, DataTypeCode.ARRAY_STRING,
+                    DataTypeCode.ARRAY_TIMESTAMP, DataTypeCode.SAMPLE, DataTypeCode.MATERIAL,
+                    DataTypeCode.BOOLEAN, DataTypeCode.CONTROLLEDVOCABULARY, DataTypeCode.JSON,
+                    DataTypeCode.XML);
+
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     protected ICommonBusinessObjectFactory businessObjectFactory;
 
@@ -65,7 +72,7 @@ public class CreatePropertyAssignmentsExecutor
 
     @Autowired
     private IPatternCompiler patternCompiler;
-    
+
     public void createPropertyAssignments(final IOperationContext context, String entityTypeCode,
             Collection<? extends PropertyAssignmentCreation> propertyAssignments, ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
     {
@@ -154,6 +161,14 @@ public class CreatePropertyAssignmentsExecutor
         {
             throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
         }
+        if(assignmentCreation.getPatternType() != null && !assignmentCreation.getPatternType().trim().isEmpty())
+        {
+            DataTypeCode code = propertyTypePE.getType().getCode();
+            if(NOT_ALLOWED_PATTERN_VALIDATION_DATA_TYPES.contains(code)) {
+                throw new UserFailureException("Pattern validation can not be assigned for property of data type: " + code);
+            }
+        }
+
         assignment.setPatternType(assignmentCreation.getPatternType());
         assignment.setPattern(assignmentCreation.getPattern());
         Pattern pattern = patternCompiler.compilePattern(assignmentCreation.getPattern(), assignmentCreation.getPatternType());

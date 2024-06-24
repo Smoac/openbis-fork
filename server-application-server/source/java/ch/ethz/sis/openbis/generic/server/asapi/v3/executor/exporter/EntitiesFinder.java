@@ -139,7 +139,7 @@ class EntitiesFinder
         final List<DataSetPermId> dataSetPermIds = permIds.stream().map(DataSetPermId::new)
                 .collect(Collectors.toList());
         final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-
+        fetchOptions.withSampleProperties();
         configureFetchOptions(fetchOptions);
         configureFetchOptions(fetchOptions.withParents());
         configureFetchOptions(fetchOptions.withChildren());
@@ -163,6 +163,7 @@ class EntitiesFinder
         final List<ExperimentPermId> experimentPermIds = permIds.stream().map(ExperimentPermId::new)
                 .collect(Collectors.toList());
         final ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withSampleProperties();
         final ProjectFetchOptions projectFetchOptions = fetchOptions.withProject();
         projectFetchOptions.withSpace();
         projectFetchOptions.withRegistrator();
@@ -217,6 +218,7 @@ class EntitiesFinder
         final List<SamplePermId> samplePermIds = permIds.stream().map(SamplePermId::new)
                 .collect(Collectors.toList());
         final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withSampleProperties();
         configureFetchOptions(fetchOptions);
         configureFetchOptions(fetchOptions.withParents());
         configureFetchOptions(fetchOptions.withChildren());
@@ -245,7 +247,9 @@ class EntitiesFinder
 
     private static void configureFetchOptions(final DataSetFetchOptions dataSetFetchOptions)
     {
-        dataSetFetchOptions.withExperiment().withProject().withSpace();
+        final ExperimentFetchOptions experimentFetchOptions = dataSetFetchOptions.withExperiment();
+        experimentFetchOptions.withProperties();
+        experimentFetchOptions.withProject().withSpace();
         dataSetFetchOptions.withType().withPropertyAssignments().withPropertyType();
         dataSetFetchOptions.withProperties();
         dataSetFetchOptions.withRegistrator();

@@ -16,9 +16,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,22 +33,24 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 
 /**
  * <i>ETL</i> thread specific parameters.
- * 
+ *
  * @author Tomasz Pylak
  */
 public final class ThreadParameters
 {
 
     /**
-     * A path to a script which should be called from command line before data set registration. The script gets two parameters: data set code and
-     * absolute path to the data set in the data store.
+     * A path to a script which should be called from command line before data set registration. The
+     * script gets two parameters: data set code and absolute path to the data set in the data
+     * store.
      */
     @Private
     static final String PRE_REGISTRATION_SCRIPT_KEY = "pre-registration-script";
 
     /**
-     * A path to a script which should be called from command line after successful data set registration. The script gets two parameters: data set
-     * code and absolute path to the data set in the data store.
+     * A path to a script which should be called from command line after successful data set
+     * registration. The script gets two parameters: data set code and absolute path to the data set
+     * in the data store.
      */
     @Private
     static final String POST_REGISTRATION_SCRIPT_KEY = "post-registration-script";
@@ -99,7 +99,8 @@ public final class ThreadParameters
     @Private
     public static final String INCOMING_SHARE_ID = "incoming-share-id";
 
-    private static final String INCOMING_SHARE_MINIMUM_FREE_SPACE_IN_GB = "incoming-share-minimum-free-space-in-gb";
+    private static final String INCOMING_SHARE_MINIMUM_FREE_SPACE_IN_GB =
+            "incoming-share-minimum-free-space-in-gb";
 
     /*
      * The properties that control the process of retrying registration by jython dropboxes
@@ -132,8 +133,8 @@ public final class ThreadParameters
     private static final String H5AR_FOLDERS = "h5ar-folders";
 
     /**
-     * The (local) directory to monitor for new files and directories to move to the remote side. The directory where data to be processed by the ETL
-     * server become available.
+     * The (local) directory to monitor for new files and directories to move to the remote side.
+     * The directory where data to be processed by the ETL server become available.
      */
     private final File incomingDataDirectory;
 
@@ -184,7 +185,8 @@ public final class ThreadParameters
     private final boolean h5arFolders;
 
     /**
-     * @param threadProperties parameters for one processing thread together with general parameters.
+     * @param threadProperties parameters for one processing thread together with general
+     *                         parameters.
      */
     public ThreadParameters(final Properties threadProperties, final String threadName)
     {
@@ -270,7 +272,6 @@ public final class ThreadParameters
                     ON_ERROR_DECISION_KEY + ".class", ex.getMessage());
         }
         this.onErrorDecisionClassOrNull = onErrorClass;
-
     }
 
     private DataSetRegistrationPreStagingBehavior getOriginalnputDataSetBehaviour(
@@ -410,7 +411,8 @@ public final class ThreadParameters
 
     private static Long tryGetIncomingShareMinimumFreeSpace(Properties properties)
     {
-        double min = PropertyUtils.getDouble(properties, INCOMING_SHARE_MINIMUM_FREE_SPACE_IN_GB, -1);
+        double min =
+                PropertyUtils.getDouble(properties, INCOMING_SHARE_MINIMUM_FREE_SPACE_IN_GB, -1);
         return min < 0 ? null : (long) (min * FileUtils.ONE_GB);
     }
 
@@ -479,8 +481,10 @@ public final class ThreadParameters
         if (operationLog.isInfoEnabled())
         {
             logLine("Top-level registrator: '%s'",
-                    (null == topLevelDataSetRegistratorClassOrNull) ? TransferredDataSetHandler.class
-                            .getName() : topLevelDataSetRegistratorClassOrNull.getName());
+                    (null == topLevelDataSetRegistratorClassOrNull) ?
+                            TransferredDataSetHandler.class
+                                    .getName() :
+                            topLevelDataSetRegistratorClassOrNull.getName());
             if (null == topLevelDataSetRegistratorClassOrNull)
             {
                 IETLServerPlugin plugin = ETLServerPluginFactory.getPluginForThread(this);

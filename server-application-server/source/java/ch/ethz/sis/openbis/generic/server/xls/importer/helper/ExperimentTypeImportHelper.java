@@ -18,7 +18,10 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
@@ -130,10 +133,7 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
 
         creation.setCode(code);
         creation.setDescription(description);
-        if (validationScript != null && !validationScript.isEmpty())
-        {
-            creation.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(creation.getCode(), validationScript)));
-        }
+        creation.setValidationPluginId(ImportUtils.getScriptId(validationScript, null));
         creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
 
         delayedExecutor.createExperimentType(creation, page, line);
@@ -160,10 +160,10 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
             }
         }
 
-        if (validationScript != null && !validationScript.isEmpty())
-        {
-            update.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(code, validationScript)));
-        }
+        ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+        experimentTypeFetchOptions.withValidationPlugin();
+        ExperimentType experimentType = delayedExecutor.getExperimentType(new EntityTypePermId(code), experimentTypeFetchOptions);
+        update.setValidationPluginId(ImportUtils.getScriptId(validationScript, experimentType.getValidationPlugin()));
 
         delayedExecutor.updateExperimentType(update, page, line);
     }

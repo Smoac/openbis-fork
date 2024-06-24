@@ -476,11 +476,20 @@ public final class ColumnNames
     public static final String TS_VECTOR_COLUMN = "tsvector_document";
 
     public static final String SAMPLE_IDENTIFIER_COLUMN = "sample_identifier";
+
     public static final String INTEGER_ARRAY_VALUE_COLUMN = "integer_array_value";
+
     public static final String REAL_ARRAY_VALUE_COLUMN = "real_array_value";
+
     public static final String TIMESTAMP_ARRAY_VALUE_COLUMN = "timestamp_array_value";
+
     public static final String STRING_ARRAY_VALUE_COLUMN = "string_array_value";
+
     public static final String JSON_VALUE_COLUMN = "json_value";
+
+    public static final String IMMUTABLE_DATA_COLUMN = "immutable_data";
+
+    public static final String META_DATA = "meta_data";
 
     private ColumnNames()
     {

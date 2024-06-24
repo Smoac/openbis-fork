@@ -18,9 +18,11 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
@@ -129,10 +131,9 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         DataSetTypeCreation creation = new DataSetTypeCreation();
         creation.setCode(code);
         creation.setDescription(description);
-        if (validationScript != null && !validationScript.isEmpty())
-        {
-            creation.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(creation.getCode(), validationScript)));
-        }
+
+        creation.setValidationPluginId(ImportUtils.getScriptId(validationScript, null));
+
         creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
 
         delayedExecutor.createDataSetType(creation, page, line);
@@ -157,10 +158,11 @@ public class DatasetTypeImportHelper extends BasicImportHelper
                 update.setDescription(description);
             }
         }
-        if (validationScript != null && !validationScript.isEmpty())
-        {
-            update.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(code, validationScript)));
-        }
+
+        DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+        dataSetTypeFetchOptions.withValidationPlugin();
+        DataSetType dataSetType = delayedExecutor.getDataSetType(new EntityTypePermId(code), dataSetTypeFetchOptions);
+        update.setValidationPluginId(ImportUtils.getScriptId(validationScript, dataSetType.getValidationPlugin()));
 
         delayedExecutor.updateDataSetType(update, page, line);
     }

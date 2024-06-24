@@ -15,11 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
@@ -33,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -98,7 +95,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     private ImportTypes importTypes;
 
-    private Set<String> existingCodes;
+    private HashMap<String, Plugin> existingDynamicPluginsByPropertyCode;
 
     Map<String, Integer> beforeVersions;
 
@@ -115,6 +112,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
         this.beforeVersions = beforeVersions;
+        this.existingDynamicPluginsByPropertyCode = new HashMap<>();
     }
 
     @Override protected ImportTypes getTypeName()
@@ -136,6 +134,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         if (version == null || version.isEmpty()) {
             return true;
         } else {
+            Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();
             return !existingCodes.contains(code) || VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
         }
     }
@@ -169,13 +168,15 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setPatternType(patternType);
         creation.setManagedInternally(Boolean.parseBoolean(internalAssignment));
 
-        if (script != null && !script.isEmpty())
-        {
-            creation.setPluginId(new PluginPermId(ImportUtils.getScriptName(code, script)));
-        }
-
         ListUpdateValue newAssignments = new ListUpdateValue();
-        if (!this.existingCodes.contains(creation.getPropertyTypeId().toString()))
+        Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();
+        PluginPermId scriptId = ImportUtils.getScriptId(script,
+                existingDynamicPluginsByPropertyCode.get(code));
+        if (scriptId != null)
+        {
+            creation.setPluginId(scriptId);
+        }
+        if (!existingCodes.contains(code))
         {
             // Add property assignment
             newAssignments.add(creation);
@@ -183,9 +184,6 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
             // Update property assignment
             ArrayList<PropertyAssignmentCreation> propertyAssignmentsForUpdate = getPropertyAssignmentsForUpdate();
             int index = indexOf(creation.getPropertyTypeId(), propertyAssignmentsForUpdate);
-            if (creation.getPluginId() == null && propertyAssignmentsForUpdate.get(index).getPluginId() != null) { // If the property has been made dynamic on the system
-                creation.setPluginId(propertyAssignmentsForUpdate.get(index).getPluginId()); // Keep the property dynamic
-            }
             propertyAssignmentsForUpdate.set(index, creation);
             newAssignments.set(propertyAssignmentsForUpdate.toArray());
         }
@@ -272,30 +270,34 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         createObject(header, values, page, line);
     }
 
-    private Set<String> generateExistingCodes(IEntityTypeId permId)
+    private void generateExistingCodes(IEntityTypeId permId)
     {
         switch (importTypes)
         {
             case EXPERIMENT_TYPE:
                 ExperimentTypeFetchOptions experimentFetchOptions = new ExperimentTypeFetchOptions();
                 experimentFetchOptions.withPropertyAssignments().withPropertyType();
+                experimentFetchOptions.withPropertyAssignments().withPlugin();
                 ExperimentType experimentType = delayedExecutor.getExperimentType(permId, experimentFetchOptions);
-                return experimentType.getPropertyAssignments().stream().map(PropertyAssignment::getPropertyType).map(PropertyType::getCode)
-                        .collect(Collectors.toSet());
+                assignExisting(experimentType.getPropertyAssignments());
+                break;
             case SAMPLE_TYPE:
                 SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
                 sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
                 SampleType sampleType = delayedExecutor.getSampleType(permId, sampleTypeFetchOptions);
-                return sampleType.getPropertyAssignments().stream().map(PropertyAssignment::getPropertyType).map(PropertyType::getCode)
-                        .collect(Collectors.toSet());
+                assignExisting(sampleType.getPropertyAssignments());
+                break;
             case DATASET_TYPE:
                 DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
                 dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
                 DataSetType dataSetType = delayedExecutor.getDataSetType(permId, dataSetTypeFetchOptions);
-                return dataSetType.getPropertyAssignments().stream().map(PropertyAssignment::getPropertyType).map(PropertyType::getCode)
-                        .collect(Collectors.toSet());
+                assignExisting(dataSetType.getPropertyAssignments());
+                break;
             default:
-                return new HashSet<>();
+                existingDynamicPluginsByPropertyCode = new HashMap<>();
+            break;
         }
     }
 
@@ -324,12 +326,20 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
                 break;
         }
 
-        this.existingCodes = generateExistingCodes(this.permId);
+        generateExistingCodes(this.permId);
         super.importBlock(page, pageIndex, start + 2, end);
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
     {
         throw new IllegalStateException("This method should have never been called.");
+    }
+
+    private void assignExisting(List<PropertyAssignment> propertyAssignments)
+    {
+        existingDynamicPluginsByPropertyCode = new HashMap<>();
+        for (PropertyAssignment propertyAssignment: propertyAssignments) {
+            existingDynamicPluginsByPropertyCode.put(propertyAssignment.getPropertyType().getCode(), propertyAssignment.getPlugin());
+        }
     }
 }

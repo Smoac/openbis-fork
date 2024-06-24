@@ -1856,7 +1856,7 @@ public class AbstractTest extends SystemTestCase
         return map.get(tokenId);
     }
 
-    @DataProvider
+    @DataProvider (name = USER_ROLES_PROVIDER)
     protected Object[][] provideUserRoles()
     {
         return createProvider(RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_OBSERVER, RoleWithHierarchy.SPACE_ADMIN,

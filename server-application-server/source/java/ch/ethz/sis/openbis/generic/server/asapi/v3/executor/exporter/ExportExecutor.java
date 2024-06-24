@@ -62,6 +62,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -94,7 +94,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -1172,7 +1171,6 @@ public class ExportExecutor implements IExportExecutor
                 }
             }, "NotoEmoji");
 
-            //String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             String replacedHtml = ExportPDFUtils.addStyleHeader(html);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
             replacedHtml = ExportPDFUtils.insertPagePagebreak(replacedHtml, "<h2>Identification Info</h2>");
@@ -1462,7 +1460,7 @@ public class ExportExecutor implements IExportExecutor
             titleStringBuilder.append(entityObj.getCode());
         }
 
-        documentBuilder.addTitle(titleStringBuilder.toString());
+        documentBuilder.addHeader(titleStringBuilder.toString(), 1);
 
         final IEntityType typeObj = getEntityType(v3, sessionToken, entityObj);
 
@@ -1472,15 +1470,25 @@ public class ExportExecutor implements IExportExecutor
 
         // Properties
 
+        documentBuilder.addHeader("Properties", 2);
         if (entityObj instanceof IPropertiesHolder && typeObj != null)
         {
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
-                final Map<String, Serializable> properties = ((IPropertiesHolder) entityObj).getProperties();
+                propertyAssignments.sort(Comparator.comparingInt(PropertyAssignment::getOrdinal));
+
+                final Map<String, Serializable> properties = includeSampleProperties((IPropertiesHolder) entityObj);
+                boolean firstAssignment = true;
+                String currentSection = null;
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
-                    System.out.println(selectedExportFields);
+                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || firstAssignment)
+                    {
+                        currentSection = propertyAssignment.getSection();
+                        documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
+                        firstAssignment = false;
+                    }
 
                     final PropertyType propertyType = propertyAssignment.getPropertyType();
                     final String propertyTypeCode = propertyType.getCode();
@@ -1488,10 +1496,25 @@ public class ExportExecutor implements IExportExecutor
 
                     if (rawPropertyValue != null && allowsValue(selectedExportProperties, propertyTypeCode))
                     {
-                        final String initialPropertyValue = String.valueOf(rawPropertyValue);
+                        final String initialPropertyValue = String.valueOf(rawPropertyValue instanceof Sample
+                                ? ((Sample) rawPropertyValue).getIdentifier().getIdentifier()
+                                : rawPropertyValue);
                         final String propertyValue;
 
-                        if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
+                        if (propertyType.getDataType() == DataType.SAMPLE)
+                        {
+                            if (rawPropertyValue instanceof Sample[])
+                            {
+                                propertyValue = Arrays.stream(((Sample[]) rawPropertyValue)).map(sample -> sample.getIdentifier().getIdentifier())
+                                        .collect(Collectors.joining(", "));
+                            } else if (rawPropertyValue instanceof Sample)
+                            {
+                                propertyValue = ((Sample) rawPropertyValue).getIdentifier().getIdentifier();
+                            } else
+                            {
+                                throw new IllegalArgumentException("Sample property value is not of type Sample or Sample[].");
+                            }
+                        } else if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
                             propertyValue = encodeImages(initialPropertyValue);
@@ -1527,7 +1550,7 @@ public class ExportExecutor implements IExportExecutor
             final String description = ((IDescriptionHolder) entityObj).getDescription();
             if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
-                documentBuilder.addHeader("Description");
+                documentBuilder.addHeader("Description", 2);
                 documentBuilder.addParagraph(encodeImages(description));
             }
         }
@@ -1539,7 +1562,7 @@ public class ExportExecutor implements IExportExecutor
             final IParentChildrenHolder<?> parentChildrenHolder = (IParentChildrenHolder<?>) entityObj;
             if (allowsValue(selectedExportAttributes, Attribute.PARENTS.name()))
             {
-                documentBuilder.addHeader("Parents");
+                documentBuilder.addHeader("Parents", 2);
                 final List<?> parents = parentChildrenHolder.getParents();
                 for (final Object parent : parents)
                 {
@@ -1551,7 +1574,7 @@ public class ExportExecutor implements IExportExecutor
 
             if (allowsValue(selectedExportAttributes, Attribute.CHILDREN.name()))
             {
-                documentBuilder.addHeader("Children");
+                documentBuilder.addHeader("Children", 2);
                 final List<?> children = parentChildrenHolder.getChildren();
                 for (final Object child : children)
                 {
@@ -1564,7 +1587,7 @@ public class ExportExecutor implements IExportExecutor
 
         // Identification Info
 
-        documentBuilder.addHeader("Identification Info");
+        documentBuilder.addHeader("Identification Info", 2);
 
         if (entityObj instanceof Experiment)
         {
@@ -1807,27 +1830,27 @@ public class ExportExecutor implements IExportExecutor
         return set == null || set.contains(value);
     }
 
-    private static String convertJsonToHtml(final TreeNode node) throws IOException
+    private static String convertJsonToHtml(final JsonNode node)
     {
-
-        TreeNode data = node.get("values");
-        if(data == null) {
+        JsonNode data = node.get("values");
+        if (data == null) {
             // backwards compatibility
             data = node.get("data");
         }
-        final TreeNode styles = node.get("style");
+
+        final JsonNode styles = node.get("style");
 
         final StringBuilder tableBody = new StringBuilder();
         for (int i = 0; i < data.size(); i++)
         {
-            final TreeNode dataRow = data.get(i);
+            final JsonNode dataRow = data.get(i);
             tableBody.append("<tr>\n");
             for (int j = 0; j < dataRow.size(); j++)
             {
                 final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
-                final String style = ((TextNode) styles.get(stylesKey)).textValue();
-                final TextNode cell = (TextNode) dataRow.get(j);
-                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
+                final String style = styles.get(stylesKey).asText();
+                final JsonNode cell = dataRow.get(j);
+                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.asText())
                         .append(" </td>\n");
             }
             tableBody.append("</tr>\n");
@@ -1963,6 +1986,32 @@ public class ExportExecutor implements IExportExecutor
         } catch (final MalformedURLException e) {
             return false;
         }
+    }
+
+    private static Map<String, Serializable> includeSampleProperties(final IPropertiesHolder entity)
+    {
+        final Map<String, Sample[]> sampleProperties;
+        if (entity instanceof Sample)
+        {
+            sampleProperties = ((Sample) entity).getSampleProperties();
+        } else if (entity instanceof Experiment)
+        {
+            sampleProperties = ((Experiment) entity).getSampleProperties();
+        } else if (entity instanceof DataSet)
+        {
+            sampleProperties = ((DataSet) entity).getSampleProperties();
+        } else
+        {
+            sampleProperties = null;
+        }
+
+        final Map<String, Serializable> properties = new HashMap<>(entity.getProperties());
+        if (sampleProperties != null)
+        {
+            properties.putAll(sampleProperties);
+        }
+
+        return properties;
     }
 
     private static class EntitiesVo

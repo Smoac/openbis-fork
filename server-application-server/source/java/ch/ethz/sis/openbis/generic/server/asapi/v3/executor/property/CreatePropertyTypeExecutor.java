@@ -20,10 +20,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IPatternCompiler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -76,8 +74,6 @@ public class CreatePropertyTypeExecutor
     @Autowired
     private IPropertyTypeAuthorizationExecutor authorizationExecutor;
 
-    @Autowired
-    private IPatternCompiler patternCompiler;
 
     @Override
     protected IObjectId getId(PropertyTypePE entity)

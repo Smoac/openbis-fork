@@ -24,7 +24,7 @@ var JExcelEditorManager = new function() {
                 // little hack because jExcelEditor.getData(false, true) is not returning processed results
                 for(let rowIndex in values) {
                     values[rowIndex] = Object.values(values[rowIndex]).map((val, index) => {
-                        if(val.startsWith('=')) {
+                        if(_this._isString(val) && val.startsWith('=')) {
                             var row = parseInt(rowIndex)+1;
                             return jExcelEditor.getValue(headers[index] + row, true);
                         }
@@ -276,7 +276,7 @@ var JExcelEditorManager = new function() {
 	}
 
 	this._isIdentifierCell = function(cellData) {
-	    if(!cellData || cellData == '') {
+	    if(!this._isString(cellData) || cellData == '') {
 	        return false;
 	    }
 	    var arr = cellData.split(/\s+/).filter(Boolean);
@@ -286,6 +286,10 @@ var JExcelEditorManager = new function() {
             }
         }
         return false;
+	}
+
+	this._isString = function(value) {
+        return typeof value === 'string' || value instanceof String;
 	}
 
 	this._isIdentifier = function(data) {

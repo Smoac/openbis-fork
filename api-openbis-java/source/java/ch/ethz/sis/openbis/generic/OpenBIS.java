@@ -1675,6 +1675,7 @@ public class OpenBIS
 
     public void setSessionToken(final String sessionToken)
     {
+        checkTransactionDoesNotExist();
         this.sessionToken = sessionToken;
 
         if (afsClientNoTransactions != null)

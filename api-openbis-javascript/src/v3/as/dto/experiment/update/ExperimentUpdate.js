@@ -25,6 +25,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.tagIds = null;
 		prototype.attachments = null;
 		prototype.metaData = null;
+		prototype.immutableData = null;
 
 		prototype.getObjectId = function() {
 			return this.getExperimentId();
@@ -40,6 +41,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		}
 		prototype.freeze = function() {
 			this.freeze = true;
+			this.immutableData = true;
 		}
 		prototype.shouldBeFrozenForDataSets = function() {
 			return this.freezeForDataSets;
@@ -47,6 +49,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.freezeForDataSets = function() {
 			this.freeze = true;
 			this.freezeForDataSets = true;
+			this.immutableData = true;
 		}
 		prototype.shouldBeFrozenForSamples = function() {
 			return this.freezeForSamples;
@@ -54,6 +57,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
 		prototype.freezeForSamples = function() {
 			this.freeze = true;
 			this.freezeForSamples = true;
+			this.immutableData = true;
 		}
 		prototype.setProjectId = function(projectId) {
 			this.projectId.setValue(projectId);
@@ -75,6 +79,12 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/upd
         };
         prototype.setMetaDataActions = function(actions) {
             this.metaData.setActions(actions);
+        };
+        prototype.isImmutableData = function() {
+            return this.immutableData;
+        };
+        prototype.makeDataImmutable = function() {
+            this.immutableData = true;
         };
 	}, {
 		experimentId : "IExperimentId",
