@@ -41,7 +41,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
     private static final long WAITING_TIME_FOR_FINISHING_TRANSACTIONS = 2000L;
 
-    private static final long WAITING_TIME_FOR_TIMEOUT = 6000L;
+    private static final long WAITING_TIME_FOR_TIMEOUT = 7000L;
 
     @AfterMethod
     public void afterMethod(Method method) throws Exception
