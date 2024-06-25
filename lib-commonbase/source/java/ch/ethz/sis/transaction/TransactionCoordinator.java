@@ -66,6 +66,11 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
         commitPreparedTransaction(transaction, null, interactiveSessionKey, true);
     }
 
+    @Override protected boolean isCoordinator()
+    {
+        return true;
+    }
+
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
         try

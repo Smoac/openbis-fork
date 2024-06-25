@@ -82,6 +82,8 @@ public abstract class AbstractTransactionNode<T extends AbstractTransaction>
 
     protected abstract void finishFailedOrAbandonedTransactionViaRollback(final T transaction) throws Exception;
 
+    protected abstract boolean isCoordinator();
+
     public void recoverTransactionsFromTransactionLog()
     {
         try
@@ -140,65 +142,86 @@ public abstract class AbstractTransactionNode<T extends AbstractTransaction>
         {
             try
             {
-                transaction.executeWithLockOrSkip(() ->
+                operationLog.info(
+                        "Checking transaction '" + transaction.getTransactionId() + "' with last status '"
+                                + transaction.getTransactionStatus() + "'.");
+
+                switch (transaction.getTransactionStatus())
                 {
-                    operationLog.info(
-                            "Finishing failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
-                                    + transaction.getTransactionStatus()
-                                    + "'");
-
-                    switch (transaction.getTransactionStatus())
-                    {
-                        case BEGIN_STARTED:
-                        case PREPARE_STARTED:
-                        case ROLLBACK_STARTED:
-                            /*
-                              If we are able to lock the transaction with the last state XXX_STARTED,
-                              then XXX operation either failed in the middle or was unable to log XXX_FINISHED
-                              state at the end. We can roll back the transaction without waiting for timeout.
-                            */
+                    case BEGIN_STARTED:
+                    case PREPARE_STARTED:
+                    case ROLLBACK_STARTED:
+                        /*
+                          If we are able to lock the transaction with the last state XXX_STARTED,
+                          then XXX operation either failed in the middle or was unable to log XXX_FINISHED
+                          state at the end. We can roll back the transaction without waiting for timeout.
+                        */
+                        transaction.executeWithLockOrSkip(() ->
+                        {
                             finishFailedOrAbandonedTransactionViaRollback(transaction);
-                            break;
-                        case NEW:
-                            /*
-                              If we are able to lock the transaction with the last state NEW then
-                              either we have just created a new transaction and didn't lock it yet
-                              or the transaction was unable to log BEGIN_STARTED status and failed.
-                              To handle both cases correctly we should roll back after a timeout.
-                            */
-                        case BEGIN_FINISHED:
-                            /*
-                              The transaction in BEGIN_FINISHED state should be receiving operation executions.
-                              If the operations are not coming then after a timeout we need to roll back.
-                            */
+                            return null;
+                        }, false);
+                        break;
+                    case NEW:
+                        /*
+                          If we are able to lock the transaction with the last state NEW then
+                          either we have just created a new transaction and didn't lock it yet
+                          or the transaction was unable to log BEGIN_STARTED status and failed.
+                          To handle both cases correctly we should roll back after a timeout.
+                        */
+                    case BEGIN_FINISHED:
+                        /*
+                          The transaction in BEGIN_FINISHED state should be receiving operation executions.
+                          If the operations are not coming then after a timeout we need to roll back.
+                        */
 
-                            boolean hasTimedOut =
-                                    System.currentTimeMillis() - transaction.getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
+                        boolean hasTimedOut =
+                                System.currentTimeMillis() - transaction.getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
 
-                            if (hasTimedOut)
+                        if (hasTimedOut)
+                        {
+                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out. It was last accessed at '"
+                                    + transaction.getLastAccessedDate() + "'.");
+                            transaction.executeWithLockOrSkip(() ->
                             {
-                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out. It was last accessed at '"
-                                        + transaction.getLastAccessedDate() + "'.");
                                 finishFailedOrAbandonedTransactionViaRollback(transaction);
-                            } else
-                            {
-                                long timeTillTimeoutInMillis = Math.max(0,
-                                        transaction.getLastAccessedDate().getTime() + transactionTimeoutInSeconds * 1000L
-                                                - System.currentTimeMillis());
-                                operationLog.info(
-                                        "Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet. It was last accessed at '"
-                                                + transaction.getLastAccessedDate() + "'. It will timeout in '" + DateTimeUtils.renderDuration(
-                                                timeTillTimeoutInMillis) + "'.");
-                            }
-                            break;
-                        case PREPARE_FINISHED:
-                        case COMMIT_STARTED:
-                            finishFailedOrAbandonedTransactionViaCommit(transaction);
-                            break;
-                    }
+                                return null;
+                            }, false);
+                        } else
+                        {
+                            long timeTillTimeoutInMillis = Math.max(0,
+                                    transaction.getLastAccessedDate().getTime() + transactionTimeoutInSeconds * 1000L
+                                            - System.currentTimeMillis());
+                            operationLog.info(
+                                    "Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet. It was last accessed at '"
+                                            + transaction.getLastAccessedDate() + "'. It will timeout in '" + DateTimeUtils.renderDuration(
+                                            timeTillTimeoutInMillis) + "'.");
+                        }
+                        break;
+                    case PREPARE_FINISHED:
+                        /*
+                            PREPARE_FINISHED state at the coordinator node is an unfinished/failed commit which should be repeated.
+                            At a participant node PREPARED_FINISHED state means it is an unfinished transaction which hasn't been yet
+                            committed or rolled back (it is waiting for the coordinator's decision).
+                         */
 
-                    return null;
-                }, false);
+                        if (isCoordinator())
+                        {
+                            transaction.executeWithLockOrSkip(() ->
+                            {
+                                finishFailedOrAbandonedTransactionViaCommit(transaction);
+                                return null;
+                            }, false);
+                        }
+                        break;
+                    case COMMIT_STARTED:
+                        transaction.executeWithLockOrSkip(() ->
+                        {
+                            finishFailedOrAbandonedTransactionViaCommit(transaction);
+                            return null;
+                        }, false);
+                        break;
+                }
             } catch (Exception e)
             {
                 operationLog.warn(

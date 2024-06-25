@@ -92,6 +92,11 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
         rollbackTransaction(transaction);
     }
 
+    @Override protected boolean isCoordinator()
+    {
+        return false;
+    }
+
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
