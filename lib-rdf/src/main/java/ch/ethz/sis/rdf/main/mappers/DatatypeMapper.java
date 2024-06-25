@@ -3,6 +3,7 @@ package ch.ethz.sis.rdf.main.mappers;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.UnionClass;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.ArrayList;
@@ -58,11 +59,17 @@ public class DatatypeMapper {
                         // rdfs:range [ a rdfs:Datatype ;
                         //            owl:unionOf ( xsd:double xsd:string ) ] ;
                         UnionClass unionRange = range.as(UnionClass.class);
-                        unionRange.listOperands().forEachRemaining(operand -> {
+                        for(int i=0; i<unionRange.getOperands().size(); i++) {
+                            RDFNode item = unionRange.getOperands().get(i);
+                            if (item.isURIResource()) {
+                                openBISDataTypeRange.add(datatypeMappings.getOrDefault(item.asResource().getURI(), "UNKNOWN"));
+                            }
+                        }
+                        /*unionRange.listOperands().forEachRemaining(operand -> {
                             if (operand.isURIResource()) {
                                 openBISDataTypeRange.add(datatypeMappings.getOrDefault(operand.getURI(), "UNKNOWN"));
                             }
-                        });
+                        });*/
                     } else if (range.isURIResource()) {
                         // If the range is a single URI resource
                         openBISDataTypeRange.add(datatypeMappings.getOrDefault(range.getURI(), "UNKNOWN"));
@@ -77,3 +84,4 @@ public class DatatypeMapper {
         return mappedDataTypes;
     }
 }
+
