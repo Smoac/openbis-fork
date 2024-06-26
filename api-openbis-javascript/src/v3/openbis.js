@@ -661,7 +661,12 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
         this.setSessionToken = function(sessionToken) {
             var thisFacade = this;
             thisFacade._private.checkTransactionDoesNotExist();
-            thisFacade._private.sessionToken = sessionToken
+            thisFacade._private.sessionToken = sessionToken;
+        }
+
+        this.getSessionToken = function() {
+            var thisFacade = this;
+            return thisFacade._private.sessionToken;
         }
 
 		this.getAfsUrl = function() {
