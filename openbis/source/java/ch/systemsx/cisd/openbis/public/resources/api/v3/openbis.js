@@ -421,6 +421,16 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this._private = new __private();
 
+        this.setSessionToken = function(sessionToken) {
+            var thisFacade = this;
+            thisFacade._private.sessionToken = sessionToken;
+        }
+
+        this.getSessionToken = function() {
+            var thisFacade = this;
+            return thisFacade._private.sessionToken;
+        }
+
 		this.login = function(user, password) {
 			var thisFacade = this;
 			return thisFacade._private.loginCommon(user, false, thisFacade._private.ajaxRequest({
