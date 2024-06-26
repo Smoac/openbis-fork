@@ -1233,13 +1233,13 @@ var FormUtil = new function() {
         }
 
         var ids = [];
-        if(isReadOnly) {
-            identifierRegexp = /(?:\/[A-Z_\d]+){3,5}/g
+        if(isReadOnly && value) {
+            var identifierRegexp = /(?:\/[A-Z_\d]+){3,5}/g
             ids = value.match(identifierRegexp);
-            if ( !ids) {
+            if (!ids) {
                 ids = [];
             }
-            permIdRegexp = /\d{17}-\d+/g
+            var permIdRegexp = /\d{17}-\d+/g
             var permIds = value.match(permIdRegexp);
             if ( !permIds) {
                 permIds = [];
