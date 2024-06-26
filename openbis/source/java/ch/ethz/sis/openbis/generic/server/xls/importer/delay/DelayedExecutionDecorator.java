@@ -635,7 +635,12 @@ public class DelayedExecutionDecorator
                     }
                     propertyValues.add(propertyValue);
                 }
-                sampleProperties.put(propertyCode, propertyValues.get(0));
+                if (propertyValues.size() == 1)
+                {
+                    sampleProperties.put(propertyCode, propertyValues.get(0));
+                } else if (propertyValues.size() > 1) {
+                    throw new IllegalStateException("XLS Parser - samplePropertiesVariableReplacer called with multi valued properties. Not supported on 20.10.X");
+                }
             }
         }
 
