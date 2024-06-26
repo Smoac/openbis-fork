@@ -60,7 +60,7 @@ public class ELNFixes {
     public static void beforeUpgrade(String sessionToken) throws Exception {
         operationLog.info("ELNFixes beforeUpgrade START");
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
-        storageCollectionIntroduction(sessionToken, api);
+        // storageCollectionIntroduction(sessionToken, api);
         storageValidationLevelFix(sessionToken, api);
         nameNoRTFFix(sessionToken, api);
         fixProperties("sample_properties", "sample_type_property_types", "stpt_id", "samp_frozen");
