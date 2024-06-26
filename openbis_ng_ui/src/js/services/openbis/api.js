@@ -235,6 +235,10 @@ class Facade {
     return this.promise(this.v3.evaluatePlugin(options))
   }
 
+  uploadToSessionWorkspace(file) {
+    return this.promise(this.v3.uploadToSessionWorkspace(file))
+  }
+
   async executeService(id, options) {
     const scheduleResult = await this.executeOperations(
       [new dto.ExecuteCustomASServiceOperation(id, options)],
