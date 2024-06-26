@@ -49,7 +49,7 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
     public void testUploadToSessionWorkspace() throws Exception
     {
         final OpenBIS openBIS = createOpenBIS();
-        final String sessionToken = openBIS.login(USER, PASSWORD);
+        final String sessionToken = openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
         final Path originalFilePath = Path.of("sourceTest/java/tests.xml");
 
@@ -87,7 +87,7 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
         final String fileName = "import-test.zip";
         final Path originalFilePath = Path.of("sourceTest/java/ch/ethz/sis/openbis/systemtests/" + fileName);
 
-        openBIS.login(USER, PASSWORD);
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
         openBIS.uploadToSessionWorkspace(originalFilePath);
 
         // Execute import
@@ -136,7 +136,7 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
     public void testExport() throws Exception
     {
         final OpenBIS openBIS = createOpenBIS();
-        final String sessionId = openBIS.login(USER, PASSWORD);
+        final String sessionId = openBIS.login(INSTANCE_ADMIN, PASSWORD);
         final String sampleIdentifierString = "/DEFAULT/DEFAULT/DEFAULT";
 
         // Execute export

@@ -15,17 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update;
 
-import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntityUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -104,6 +98,9 @@ public class SampleUpdate extends AbstractEntityUpdate
     @JsonProperty
     private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
+    @JsonProperty
+    private boolean immutableData;
+
     @Override
     @JsonIgnore
     public ISampleId getObjectId()
@@ -131,6 +128,7 @@ public class SampleUpdate extends AbstractEntityUpdate
     public void freeze()
     {
         this.freeze = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -143,6 +141,7 @@ public class SampleUpdate extends AbstractEntityUpdate
     {
         this.freeze = true;
         this.freezeForComponents = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -155,6 +154,7 @@ public class SampleUpdate extends AbstractEntityUpdate
     {
         this.freeze = true;
         this.freezeForChildren = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -167,6 +167,7 @@ public class SampleUpdate extends AbstractEntityUpdate
     {
         this.freeze = true;
         this.freezeForParents = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -179,6 +180,7 @@ public class SampleUpdate extends AbstractEntityUpdate
     {
         this.freeze = true;
         this.freezeForDataSets = true;
+        this.immutableData = true;
     }
 
     @JsonIgnore
@@ -324,6 +326,17 @@ public class SampleUpdate extends AbstractEntityUpdate
     public void setMetaDataActions(List<ListUpdateAction<Object>> actions)
     {
         metaData.setActions(actions);
+    }
+
+    @JsonIgnore
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void makeDataImmutable()
+    {
+        this.immutableData = true;
     }
 
     @Override

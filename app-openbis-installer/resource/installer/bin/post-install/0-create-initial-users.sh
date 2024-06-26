@@ -44,8 +44,20 @@ if [ -z "$ETLSERVER_PASSWORD" ]; then
 fi
 createUser "etlserver" "$ETLSERVER_PASSWORD"
 
+#
+# create 'afsserver' user
+#
+if [ -z "AFSSERVER_PASSWORD" ]; then
+    read -s -p "Enter password for 'afsserver' : " $AFSSERVER_PASSWORD
+fi
+createUser "afsserver" "$AFSSERVER_PASSWORD"
+
 # remove existing password configuration
 
 DSS_SERVICE_PROPERTIES=$BASE/../../servers/datastore_server/etc/service.properties
 cat $DSS_SERVICE_PROPERTIES | awk '{ sub("^password[ tab]*=.*$", "password=" ENVIRON["ETLSERVER_PASSWORD"]); print }' > $DSS_SERVICE_PROPERTIES.TMP
 mv $DSS_SERVICE_PROPERTIES.TMP $DSS_SERVICE_PROPERTIES
+
+AFS_SERVICE_PROPERTIES=$BASE/../../servers/afs-server/etc/service.properties
+cat $AFS_SERVICE_PROPERTIES | awk '{ sub("^openBISPassword[ tab]*=.*$", "openBISPassword=" ENVIRON["AFSSERVER_PASSWORD"]); print }' > $AFS_SERVICE_PROPERTIES.TMP
+mv $AFS_SERVICE_PROPERTIES.TMP $AFS_SERVICE_PROPERTIES

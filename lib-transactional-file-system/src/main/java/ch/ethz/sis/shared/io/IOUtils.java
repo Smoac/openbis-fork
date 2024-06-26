@@ -632,7 +632,7 @@ public class IOUtils {
         }
     }
 
-    public static String[] getShares(String folder){
+    public static Integer[] getShares(String folder){
         try
         {
             return Files.list(Paths.get(folder)).filter(file ->
@@ -649,7 +649,7 @@ public class IOUtils {
                 {
                     return false;
                 }
-            }).map(file -> Integer.parseInt(file.getFileName().toString())).sorted().map(Object::toString).toArray(String[]::new);
+            }).map(file -> Integer.parseInt(file.getFileName().toString())).sorted().toArray(Integer[]::new);
         } catch (IOException e)
         {
             throw new RuntimeException(e);

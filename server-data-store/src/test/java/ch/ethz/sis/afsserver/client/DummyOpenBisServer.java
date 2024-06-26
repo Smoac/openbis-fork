@@ -76,7 +76,7 @@ public final class DummyOpenBisServer
 
                 try
                 {
-                    final Object result = operationExecutor.executeOperation(method, arguments);
+                    final Object result = operationExecutor.executeOperation(exchange.getRequestURI().toString(), method, arguments);
                     remoteInvocationResult = new RemoteInvocationResult(result);
                 }catch(Throwable e){
                     remoteInvocationResult = new RemoteInvocationResult(new InvocationTargetException(e));
@@ -94,7 +94,7 @@ public final class DummyOpenBisServer
     }
 
     public interface OperationExecutor {
-        Object executeOperation(String methodName, Object[] methodArguments);
+        Object executeOperation(String url, String methodName, Object[] methodArguments);
     }
 
 }

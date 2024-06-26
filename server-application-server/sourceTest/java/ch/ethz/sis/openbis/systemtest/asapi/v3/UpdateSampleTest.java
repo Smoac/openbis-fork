@@ -2119,6 +2119,33 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testmakeDataImmutable()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleIdentifier sampleId1 = new SampleIdentifier("/CISD/MP002-1:B11");
+        SampleUpdate update1 = new SampleUpdate();
+        update1.setSampleId(sampleId1);
+        update1.makeDataImmutable();
+
+        // When
+        v3api.updateSamples(sessionToken, Arrays.asList(update1));
+
+        // Then
+        Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken,
+                Arrays.asList(sampleId1), new SampleFetchOptions());
+        Sample sample1 = samples.get(sampleId1);
+        assertEquals(sample1.getIdentifier().getIdentifier(), sampleId1.getIdentifier());
+        assertEquals(sample1.isFrozen(), false);
+        assertEquals(sample1.isImmutableData(), true);
+        assertEquals(sample1.isFrozenForComponents(), false);
+        assertEquals(sample1.isFrozenForChildren(), false);
+        assertEquals(sample1.isFrozenForParents(), false);
+        assertEquals(sample1.isFrozenForDataSets(), false);
+
+    }
+
+    @Test
     public void testFreeze()
     {
         // Given
@@ -2153,6 +2180,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample1 = samples.get(sampleId1);
         assertEquals(sample1.getIdentifier().getIdentifier(), sampleId1.getIdentifier());
         assertEquals(sample1.isFrozen(), true);
+        assertEquals(sample1.isImmutableData(), true);
         assertEquals(sample1.isFrozenForComponents(), false);
         assertEquals(sample1.isFrozenForChildren(), false);
         assertEquals(sample1.isFrozenForParents(), false);
@@ -2162,6 +2190,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample2 = samples.get(sampleId2);
         assertEquals(sample2.getIdentifier().getIdentifier(), sampleId2.getIdentifier());
         assertEquals(sample2.isFrozen(), true);
+        assertEquals(sample2.isImmutableData(), true);
         assertEquals(sample2.isFrozenForComponents(), true);
         assertEquals(sample2.isFrozenForChildren(), false);
         assertEquals(sample2.isFrozenForParents(), false);
@@ -2171,6 +2200,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample3 = samples.get(sampleId3);
         assertEquals(sample3.getIdentifier().getIdentifier(), sampleId3.getIdentifier());
         assertEquals(sample3.isFrozen(), true);
+        assertEquals(sample3.isImmutableData(), true);
         assertEquals(sample3.isFrozenForComponents(), false);
         assertEquals(sample3.isFrozenForChildren(), true);
         assertEquals(sample3.isFrozenForParents(), false);
@@ -2180,6 +2210,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample4 = samples.get(sampleId4);
         assertEquals(sample4.getIdentifier().getIdentifier(), sampleId4.getIdentifier());
         assertEquals(sample4.isFrozen(), true);
+        assertEquals(sample4.isImmutableData(), true);
         assertEquals(sample4.isFrozenForComponents(), false);
         assertEquals(sample4.isFrozenForChildren(), false);
         assertEquals(sample4.isFrozenForParents(), true);
@@ -2189,6 +2220,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample5 = samples.get(sampleId5);
         assertEquals(sample5.getIdentifier().getIdentifier(), sampleId5.getIdentifier());
         assertEquals(sample5.isFrozen(), true);
+        assertEquals(sample5.isImmutableData(), true);
         assertEquals(sample5.isFrozenForComponents(), false);
         assertEquals(sample5.isFrozenForChildren(), false);
         assertEquals(sample5.isFrozenForParents(), false);

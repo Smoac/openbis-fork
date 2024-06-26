@@ -65,18 +65,44 @@ public abstract class AbstractTransaction
         this.lastAccessedDate = lastAccessedDate;
     }
 
-    public <T> T lockOrFail(Callable<T> action, boolean touch) throws Exception
+    public <T> T executeWithoutLock(Callable<T> action, boolean touch) throws Exception
     {
-        return lock(lock::tryLock, action, () ->
+        if (touch)
+        {
+            setLastAccessedDate(new Date());
+        }
+
+        try
+        {
+            if (lock.isLocked())
+            {
+                throw new UserFailureException(
+                        "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
+            } else
+            {
+                return executeAction(action);
+            }
+        } finally
+        {
+            if (touch)
+            {
+                setLastAccessedDate(new Date());
+            }
+        }
+    }
+
+    public void executeWithLockOrFail(Callable<?> action, boolean touch) throws Exception
+    {
+        executeWithLock(lock::tryLock, action, () ->
         {
             throw new UserFailureException(
                     "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
         }, touch);
     }
 
-    public void lockOrSkip(Callable<?> action, boolean touch) throws Exception
+    public void executeWithLockOrSkip(Callable<?> action, boolean touch) throws Exception
     {
-        lock(lock::tryLock, action, () ->
+        executeWithLock(lock::tryLock, action, () ->
         {
             operationLog.info(
                     "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
@@ -84,10 +110,10 @@ public abstract class AbstractTransaction
         }, touch);
     }
 
-    public void lockOrWait(Callable<?> action, int timeoutInSeconds, boolean touch) throws Exception
+    public void executeWithLockOrWait(Callable<?> action, int timeoutInSeconds, boolean touch) throws Exception
     {
         long timestamp = System.currentTimeMillis();
-        lock(() -> lock.tryLock(timeoutInSeconds, TimeUnit.SECONDS), action, () ->
+        executeWithLock(() -> lock.tryLock(timeoutInSeconds, TimeUnit.SECONDS), action, () ->
         {
             throw new UserFailureException(
                     "Cannot execute a new action on transaction '" + getTransactionId()
@@ -95,7 +121,8 @@ public abstract class AbstractTransaction
         }, touch);
     }
 
-    private <T> T lock(Callable<Boolean> lockingAction, Callable<T> lockedAction, Callable<?> notLockedAction, boolean touch) throws Exception
+    private void executeWithLock(Callable<Boolean> lockingAction, Callable<?> lockedAction, Callable<?> notLockedAction, boolean touch)
+            throws Exception
     {
         if (lockingAction.call())
         {
@@ -106,7 +133,7 @@ public abstract class AbstractTransaction
 
             try
             {
-                return executeAction(lockedAction);
+                executeAction(lockedAction);
             } finally
             {
                 if (touch)
@@ -119,7 +146,6 @@ public abstract class AbstractTransaction
         } else
         {
             notLockedAction.call();
-            return null;
         }
     }
 

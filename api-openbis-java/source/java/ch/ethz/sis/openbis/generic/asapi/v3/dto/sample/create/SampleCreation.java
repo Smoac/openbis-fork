@@ -78,6 +78,8 @@ public class SampleCreation extends AbstractEntityCreation
 
     private Map<String, String> metaData;
 
+    private boolean immutableData;
+
     public IEntityTypeId getTypeId()
     {
         return typeId;
@@ -242,6 +244,15 @@ public class SampleCreation extends AbstractEntityCreation
         this.creationId = creationId;
     }
 
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void setImmutableData(boolean immutableData)
+    {
+        this.immutableData = immutableData;
+    }
 
     @Override
     public String toString()

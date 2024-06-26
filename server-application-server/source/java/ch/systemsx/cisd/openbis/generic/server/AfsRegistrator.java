@@ -15,6 +15,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 @Component
@@ -22,6 +23,8 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AfsRegistrator.class);
+
+    private static final String AFS_DATA_SET_TYPE_CODE = "$AFS_DATA";
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -60,23 +63,37 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 
         DataStorePE existingDataStore = dataStoreDAO.tryToFindDataStoreByCode(DataStoreDAO.AFS_DATA_STORE_CODE);
 
-        if (existingDataStore != null)
+        if (existingDataStore == null)
+        {
+            DataStorePE dataStore = new DataStorePE();
+            dataStore.setCode(DataStoreDAO.AFS_DATA_STORE_CODE);
+            dataStore.setDownloadUrl("");
+            dataStore.setRemoteUrl("");
+            dataStore.setDatabaseInstanceUUID("");
+            dataStore.setSessionToken("");
+            dataStore.setArchiverConfigured(false);
+
+            operationLog.info("Registering AFS server in the data stores table.");
+
+            dataStoreDAO.createOrUpdateDataStore(dataStore);
+        } else
         {
             operationLog.info("AFS server has been already registered in the data stores table before. Nothing to do.");
-            return;
         }
 
-        DataStorePE dataStore = new DataStorePE();
-        dataStore.setCode(DataStoreDAO.AFS_DATA_STORE_CODE);
-        dataStore.setDownloadUrl("");
-        dataStore.setRemoteUrl("");
-        dataStore.setDatabaseInstanceUUID("");
-        dataStore.setSessionToken("");
-        dataStore.setArchiverConfigured(false);
+        DataSetTypePE existingAfsDataSetType = daoFactory.getDataSetTypeDAO().tryToFindDataSetTypeByCode("$AFS_DATA");
 
-        operationLog.info("Registering AFS server in the data stores table.");
+        if (existingAfsDataSetType == null)
+        {
+            DataSetTypePE afsDataSetType = new DataSetTypePE();
+            afsDataSetType.setCode(AFS_DATA_SET_TYPE_CODE);
+            daoFactory.getDataSetTypeDAO().persist(afsDataSetType);
 
-        dataStoreDAO.createOrUpdateDataStore(dataStore);
+            operationLog.info("Registering AFS data set type " + AFS_DATA_SET_TYPE_CODE + ".");
+        } else
+        {
+            operationLog.info("AFS data set type has been already registered before. Nothing to do.");
+        }
     }
 
 }

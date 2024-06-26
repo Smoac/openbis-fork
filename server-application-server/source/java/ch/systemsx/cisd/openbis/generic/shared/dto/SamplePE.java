@@ -133,6 +133,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private Map<String, String> metaData;
 
+    private boolean immutableData;
+
     @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
     @Fetch(FetchMode.SUBSELECT)
@@ -1103,7 +1105,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.metaprojectAssignments = metaprojectAssignments;
     }
 
-    @Column(name = "meta_data")
+    @Column(name = ColumnNames.META_DATA)
     @Type(type = "JsonMap")
     @Override
     public Map<String, String> getMetaData()
@@ -1115,6 +1117,18 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IMMUTABLE_DATA_COLUMN, nullable = false)
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void setImmutableData(boolean immutableData)
+    {
+        this.immutableData = immutableData;
     }
 
 }

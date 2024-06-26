@@ -48,6 +48,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship", "as/dto/common
 		prototype.modifier = null;
 		prototype.attachments = null;
 		prototype.metaData = null;
+		prototype.immutableData = null;
 		prototype.getFetchOptions = function() {
 			return AbstractEntity.prototype.getFetchOptions.call(this);
 		};
@@ -436,6 +437,12 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship", "as/dto/common
         prototype.setMetaData = function(metaData) {
             this.metaData = metaData;
         };
+        prototype.isImmutableData = function() {
+            return this.immutableData;
+        }
+        prototype.setImmutableData = function(immutableData) {
+            this.immutableData = immutableData;
+        }
 		prototype.toString = function() {
 			return "Sample " + this.permId;
 		};

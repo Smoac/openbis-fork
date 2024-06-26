@@ -131,10 +131,15 @@ public class UpdateExperimentExecutor extends
             ExperimentPE experiment = entry.getValue();
             FreezingFlags freezingFlags = new FreezingFlags();
             RelationshipUtils.updateModificationDateAndModifier(experiment, person, timeStamp);
+            if(update.isImmutableData())
+            {
+                experiment.setImmutableData(update.isImmutableData());
+            }
             if (update.shouldBeFrozen())
             {
                 authorizationExecutor.canFreeze(context, experiment);
                 experiment.setFrozen(true);
+                experiment.setImmutableData(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForDataSets())

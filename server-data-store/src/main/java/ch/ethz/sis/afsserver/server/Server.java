@@ -15,12 +15,13 @@
  */
 package ch.ethz.sis.afsserver.server;
 
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.afsserver.http.HttpServer;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
-import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
 import ch.ethz.sis.shared.log.LogManager;
@@ -28,26 +29,33 @@ import ch.ethz.sis.shared.log.Logger;
 import ch.ethz.sis.shared.pool.Factory;
 import ch.ethz.sis.shared.pool.Pool;
 import ch.ethz.sis.shared.startup.Configuration;
-import lombok.NonNull;
 
-public final class Server<CONNECTION, API> {
+public final class Server<CONNECTION, API>
+{
 
     private Logger logger;
+
     private Pool<Configuration, CONNECTION> connectionsPool;
+
     private Pool<Configuration, Worker<CONNECTION>> workersPool;
+
     private APIServer apiServer;
+
     private JacksonObjectMapper jsonObjectMapper;
+
     private ApiServerAdapter<CONNECTION, API> apiServerAdapter;
+
     private HttpServer httpServer;
+
     private boolean shutdown;
+
     private ServerObserver<CONNECTION> observer;
 
-    public Server(Configuration configuration,
-                  @NonNull ServerObserver<CONNECTION> serverObserver,
-                  @NonNull APIServerObserver apiServerObserver) throws Exception {
+    public Server(Configuration configuration) throws Exception
+    {
         //1. Load logging plugin, Initializing LogManager
         shutdown = false;
-        observer = serverObserver;
+
         LogFactoryFactory logFactoryFactory = new LogFactoryFactory();
         LogFactory logFactory = logFactoryFactory.create(configuration.getStringProperty(AtomicFileSystemServerParameter.logFactoryClass));
         logFactory.configure(configuration.getStringProperty(AtomicFileSystemServerParameter.logConfigFile));
@@ -59,22 +67,28 @@ public final class Server<CONNECTION, API> {
 
         // 2.1 Load DB plugin
         logger.info("Creating Connection Factory");
-        Factory<Configuration, Configuration, CONNECTION> connectionFactory = configuration.getSharableInstance(AtomicFileSystemServerParameter.connectionFactoryClass);
+        Factory<Configuration, Configuration, CONNECTION> connectionFactory =
+                configuration.getSharableInstance(AtomicFileSystemServerParameter.connectionFactoryClass);
         connectionFactory.init(configuration);
 
         logger.info("Creating Workers Factory");
-        Factory<Configuration, Configuration, Worker<CONNECTION>> workerFactory = configuration.getSharableInstance(AtomicFileSystemServerParameter.workerFactoryClass);
+        Factory<Configuration, Configuration, Worker<CONNECTION>> workerFactory =
+                configuration.getSharableInstance(AtomicFileSystemServerParameter.workerFactoryClass);
         workerFactory.init(configuration);
 
         // 2.2 Creating workers pool
         logger.info("Creating server workers");
         int poolSize = configuration.getIntegerProperty(AtomicFileSystemServerParameter.poolSize);
 
-
         connectionsPool = new Pool<>(poolSize, configuration, connectionFactory);
         workersPool = new Pool<>(poolSize, configuration, workerFactory);
 
         // 2.3 Init API Server observer
+        APIServerObserver<CONNECTION> apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
+        if (apiServerObserver == null)
+        {
+            apiServerObserver = new DummyServerObserver<>();
+        }
         apiServerObserver.init(configuration);
 
         // 2.4 Creating API Server
@@ -83,7 +97,9 @@ public final class Server<CONNECTION, API> {
         String interactiveSessionKey = configuration.getStringProperty(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey);
         String transactionManagerKey = configuration.getStringProperty(AtomicFileSystemServerParameter.apiServerTransactionManagerKey);
         int apiServerWorkerTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.apiServerWorkerTimeout);
-        apiServer = new APIServer(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
+        apiServer =
+                new APIServer(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout,
+                        apiServerObserver);
 
         // 2.5 Creating JSON RPC Service
         logger.info("Creating API Server adaptor");
@@ -99,24 +115,35 @@ public final class Server<CONNECTION, API> {
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
         // 2.7 Init observer
+        observer = configuration.getInstance(AtomicFileSystemServerParameter.serverObserver);
+        if (observer == null)
+        {
+            observer = new DummyServerObserver<>();
+        }
         observer.init(apiServer, configuration);
         observer.beforeStartup();
 
         // 3 Startup
         logger.info("=== Server ready ===");
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            public void run()
+            {
+                try
+                {
                     shutdown(true);
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     logger.catching(e);
                 }
             }
         });
     }
 
-    public void shutdown(boolean gracefully) throws Exception {
-        if (!shutdown) {
+    public void shutdown(boolean gracefully) throws Exception
+    {
+        if (!shutdown)
+        {
             observer.beforeShutdown();
             shutdown = true;
             logger.info("Shutting down - http server");
@@ -124,8 +151,10 @@ public final class Server<CONNECTION, API> {
             logger.info("Shutting down - api server");
             apiServer.shutdown();
             logger.info("Shutting down - waiting for api server workers to finish");
-            if (gracefully) {
-                while (apiServer.hasWorkersInUse()) {
+            if (gracefully)
+            {
+                while (apiServer.hasWorkersInUse())
+                {
                     Thread.sleep(100);
                 }
             }

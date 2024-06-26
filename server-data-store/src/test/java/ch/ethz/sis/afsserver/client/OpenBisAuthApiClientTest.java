@@ -26,11 +26,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,9 +42,9 @@ import ch.ethz.sis.afsapi.dto.ExceptionReason;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.exception.ThrowableReason;
 import ch.ethz.sis.afsserver.server.Server;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
@@ -57,6 +59,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
+import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class OpenBisAuthApiClientTest extends BaseApiClientTest
@@ -120,14 +123,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         final Configuration configuration =
                 new Configuration(List.of(AtomicFileSystemServerParameter.class),
                         "src/test/resources/test-server-with-auth-config.properties");
-        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
-
-        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
-        if (apiServerObserver == null)
-        {
-            apiServerObserver = new DummyServerObserver();
-        }
-
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
@@ -140,7 +135,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         IOUtils.createDirectories(storageRoot + "/" + SHARE_2);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_3);
 
-        afsServer = new Server<>(configuration, dummyServerObserver, apiServerObserver);
+        afsServer = new Server<>(configuration);
     }
 
     @Before
@@ -163,7 +158,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -173,7 +168,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of();
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         try
@@ -194,7 +189,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -229,7 +224,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         createTestDataFile(SHARE_2, testExperiment, TEST_FILE_2, TEST_CONTENT_AB.getBytes());
         createTestDataFile(SHARE_3, testExperiment, TEST_FILE_3, TEST_CONTENT_ABC.getBytes());
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -239,7 +234,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of();
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         List<File> files = afsClient.list(testExperiment, "", Boolean.TRUE);
@@ -264,7 +259,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         createTestDataFile(SHARE_2, testSample, TEST_FILE_2, TEST_CONTENT_AB.getBytes());
         createTestDataFile(SHARE_3, testSample, TEST_FILE_3, TEST_CONTENT_ABC.getBytes());
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -274,7 +269,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of();
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         List<File> files = afsClient.list(testSample, "", Boolean.TRUE);
@@ -299,7 +294,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         createTestDataFile(SHARE_2, testDataSet, TEST_FILE_2, TEST_CONTENT_AB.getBytes());
         createTestDataFile(SHARE_3, testDataSet, TEST_FILE_3, TEST_CONTENT_ABC.getBytes());
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -309,7 +304,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of();
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         List<File> files = afsClient.list(testDataSet, "", Boolean.TRUE);
@@ -325,7 +320,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -335,7 +330,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of();
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         try
@@ -356,7 +351,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -384,7 +379,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -393,7 +388,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of(param, new Rights(Set.of()));
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         try
@@ -416,7 +411,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -430,7 +425,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of(param, new Rights(Set.of(Right.CREATE, Right.UPDATE, Right.DELETE)));
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         try
@@ -457,7 +452,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         List<DataSetCreation> dataSetCreations = new ArrayList<>();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -466,7 +461,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return List.of(new DataSetPermId(ownerWithoutFiles));
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
@@ -489,7 +484,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         String ownerWithoutFiles = UUID.randomUUID().toString();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -497,7 +492,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     throw new DataSetAlreadyExistsException();
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         // even though AS throws an exception this does not fail
@@ -533,17 +528,22 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         login();
 
         String ownerWithoutFiles = UUID.randomUUID().toString();
+        Path ownerFolderPath = Path.of(IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase())));
 
+        MutableObject<Boolean> dataSetCreationFailsMutable = new MutableObject<>(dataSetCreationFails);
         List<DataSetCreation> dataSetCreations = new ArrayList<>();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
                 case "createDataSets":
-                    if (dataSetCreationFails)
+                    if (dataSetCreationFailsMutable.getValue())
                     {
                         throw new RuntimeException();
+                    } else if (!dataSetCreations.isEmpty())
+                    {
+                        throw new DataSetAlreadyExistsException();
                     } else
                     {
                         dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
@@ -551,7 +551,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     }
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         UUID transactionId = UUID.randomUUID();
@@ -571,8 +571,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
             assertEquals(0, dataSetCreations.size());
 
             // no files were stored
-            String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
-            assertFalse(Files.exists(Path.of(ownerFolderPath)));
+            assertFalse(Files.exists(ownerFolderPath));
         } else
         {
             if (dataSetCreationFails)
@@ -587,8 +586,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     assertEquals(0, dataSetCreations.size());
 
                     // no files were stored
-                    String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
-                    assertFalse(Files.exists(Path.of(ownerFolderPath)));
+                    assertFalse(Files.exists(ownerFolderPath));
                 }
             } else
             {
@@ -600,29 +598,12 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                 assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
 
                 // files were stored
-                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
-                assertTrue(Files.exists(Path.of(ownerFolderPath)));
+                assertTrue(Files.exists(ownerFolderPath));
             }
         }
 
-        // make AS data set creation succeed unless data set already exists
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
-        {
-            switch (methodName)
-            {
-                case "createDataSets":
-                    if (dataSetCreations.isEmpty())
-                    {
-                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
-                        return List.of(new DataSetPermId(ownerWithoutFiles));
-                    } else
-                    {
-                        throw new DataSetAlreadyExistsException();
-                    }
-            }
-
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
-        });
+        // make AS data set creation succeed
+        dataSetCreationFailsMutable.setValue(false);
 
         UUID transactionId2 = UUID.randomUUID();
 
@@ -632,6 +613,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         // no more than 1 dataset gets created
         assertEquals(1, dataSetCreations.size());
+        assertTrue(Files.exists(ownerFolderPath));
     }
 
     @Test
@@ -663,25 +645,43 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         login();
 
         String ownerWithoutFiles = UUID.randomUUID().toString();
+        Path ownerFolderPath = Path.of(IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase())));
 
+        MutableObject<Boolean> dataSetCreationFailsMutable = new MutableObject<>(dataSetCreationFails);
         List<DataSetCreation> dataSetCreations = new ArrayList<>();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
-            switch (methodName)
+            if (url.endsWith(ITransactionCoordinatorApi.SERVICE_URL))
             {
-                case "createDataSets":
-                    if (dataSetCreationFails)
-                    {
-                        throw new RuntimeException();
-                    } else
-                    {
-                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
-                        return List.of(new DataSetPermId(ownerWithoutFiles));
-                    }
-            }
+                if (methodName.equals("executeOperation"))
+                {
+                    String operationName = (String) methodArguments[4];
+                    Object[] operationArguments = (Object[]) methodArguments[5];
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+                    if (operationName.equals("createDataSets"))
+                    {
+                        if (dataSetCreationFailsMutable.getValue())
+                        {
+                            throw new RuntimeException();
+                        } else if (!dataSetCreations.isEmpty())
+                        {
+                            throw new DataSetAlreadyExistsException();
+                        } else
+                        {
+                            dataSetCreations.addAll((List<DataSetCreation>) operationArguments[1]);
+                            return List.of(new DataSetPermId(ownerWithoutFiles));
+                        }
+                    }
+
+                    return getDefaultOperationExecutor().executeOperation(url, operationName, operationArguments);
+                }
+
+                throw new UnsupportedOperationException(methodName, methodArguments);
+            } else
+            {
+                return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
+            }
         });
 
         UUID transactionId = UUID.randomUUID();
@@ -691,68 +691,53 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         afsClient.begin(transactionId);
         assertEquals(0, dataSetCreations.size());
 
-        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
-        assertEquals(0, dataSetCreations.size());
-
-        if (dataSetCreationFails)
+        try
         {
-            try
+            afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+
+            if (dataSetCreationFails)
             {
-                afsClient.prepare();
                 fail();
-            } catch (Exception e)
-            {
-                // no datasets get created on prepare if AS fails
-                assertEquals(0, dataSetCreations.size());
-
-                // no files were stored
-                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
-                assertFalse(Files.exists(Path.of(ownerFolderPath)));
-            }
-        } else
-        {
-            afsClient.prepare();
-
-            // dataset gets created on prepare (if the transaction is rolled back then it unfortunately stays)
-            assertEquals(1, dataSetCreations.size());
-            assertEquals(ownerWithoutFiles.toUpperCase(), dataSetCreations.get(0).getCode());
-            assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
-
-            if (rollbackTransaction)
-            {
-                afsClient.rollback();
-
-                // no files were stored
-                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
-                assertFalse(Files.exists(Path.of(ownerFolderPath)));
             } else
             {
-                afsClient.commit();
-
-                // files were stored
-                String ownerFolderPath = IOUtils.getPath(storageRoot, getTestDataFolder(ownerWithoutFiles.toUpperCase()));
-                assertTrue(Files.exists(Path.of(ownerFolderPath)));
+                assertEquals(1, dataSetCreations.size());
+                assertEquals(ownerWithoutFiles.toUpperCase(), dataSetCreations.get(0).getCode().toUpperCase());
+                assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+                assertFalse(Files.exists(ownerFolderPath));
+            }
+        } catch (Exception e)
+        {
+            if (dataSetCreationFails)
+            {
+                assertEquals(0, dataSetCreations.size());
+                assertFalse(Files.exists(ownerFolderPath));
+            } else
+            {
+                throw e;
             }
         }
 
-        // make AS data set creation succeed unless data set already exists
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
-        {
-            switch (methodName)
-            {
-                case "createDataSets":
-                    if (dataSetCreations.isEmpty())
-                    {
-                        dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
-                        return List.of(new DataSetPermId(ownerWithoutFiles));
-                    } else
-                    {
-                        throw new DataSetAlreadyExistsException();
-                    }
-            }
+        afsClient.prepare();
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
-        });
+        if (rollbackTransaction)
+        {
+            afsClient.rollback();
+            assertFalse(Files.exists(ownerFolderPath));
+        } else
+        {
+            afsClient.commit();
+
+            if (dataSetCreationFails)
+            {
+                assertFalse(Files.exists(ownerFolderPath));
+            } else
+            {
+                assertTrue(Files.exists(ownerFolderPath));
+            }
+        }
+
+        // make AS data set creation succeed
+        dataSetCreationFailsMutable.setValue(false);
 
         UUID transactionId2 = UUID.randomUUID();
 
@@ -763,6 +748,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         // no more than 1 dataset gets created
         assertEquals(1, dataSetCreations.size());
+        assertTrue(Files.exists(ownerFolderPath));
     }
 
     @Test
@@ -770,7 +756,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
-        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -779,7 +765,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                     return Map.of(param, new Rights(Set.of()));
             }
 
-            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+            return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
         try
@@ -798,7 +784,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
     private DummyOpenBisServer.OperationExecutor getDefaultOperationExecutor()
     {
-        return (methodName, methodArguments) ->
+        return (url, methodName, methodArguments) ->
         {
             switch (methodName)
             {
@@ -843,6 +829,10 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                 case "getRights":
                     Object param = ((List<?>) methodArguments[1]).get(0);
                     return Map.of(param, new Rights(Set.of(Right.UPDATE)));
+                case "searchEvents":
+                    return new SearchResult<>(Collections.emptyList(), 0);
+                case "getSessionInformation":
+                    return null;
             }
 
             throw new UnsupportedOperationException(methodName, methodArguments);

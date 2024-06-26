@@ -15,12 +15,14 @@
  */
 package ch.ethz.sis.afsserver.startup;
 
-public enum AtomicFileSystemServerParameter {
+public enum AtomicFileSystemServerParameter
+{
     //
     // Logging
     //
     logFactoryClass,
     logConfigFile,
+    serverObserver,
     //
     // Parameters from the AFS Library
     //
@@ -54,5 +56,10 @@ public enum AtomicFileSystemServerParameter {
     // openBIS connection
     //
     openBISUrl,
-    openBISTimeout
+    openBISTimeout,
+    openBISUser,
+    openBISPassword,
+    openBISLastSeenDeletionFile,
+    openBISLastSeenDeletionBatchSize,
+    openBISLastSeenDeletionIntervalInSeconds
 }

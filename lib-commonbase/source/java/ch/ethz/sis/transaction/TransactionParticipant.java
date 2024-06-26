@@ -92,6 +92,11 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
         rollbackTransaction(transaction);
     }
 
+    @Override protected boolean isCoordinator()
+    {
+        return false;
+    }
+
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
@@ -110,7 +115,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
             transaction.setTwoPhaseTransaction(transactionCoordinatorKey != null);
             registerTransaction(transaction);
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 try
                 {
@@ -163,7 +168,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
 
-            return transaction.lockOrFail(() ->
+            return transaction.executeWithoutLock(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
@@ -208,7 +213,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
@@ -257,7 +262,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                         preparedTransactions.add(transaction.getTransactionId());
                     } else if (TransactionStatus.COMMIT_STARTED.equals(transaction.getTransactionStatus()))
                     {
-                        transaction.lockOrSkip(() -> preparedTransactions.add(transaction.getTransactionId()), false);
+                        transaction.executeWithLockOrSkip(() -> preparedTransactions.add(transaction.getTransactionId()), false);
                     }
                 }
             }
@@ -286,7 +291,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 commitTransaction(transaction);
@@ -314,7 +319,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
 
-            transaction.lockOrWait(() ->
+            transaction.executeWithLockOrWait(() ->
             {
                 commitTransaction(transaction);
                 return null;
@@ -382,7 +387,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 return;
             }
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 rollbackTransaction(transaction);
@@ -410,7 +415,7 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 return;
             }
 
-            transaction.lockOrWait(() ->
+            transaction.executeWithLockOrWait(() ->
             {
                 rollbackTransaction(transaction);
                 return null;

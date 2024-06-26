@@ -2036,8 +2036,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     return t1.getCode().compareTo(t2.getCode());
                 }
             });
-        assertEquals("CONTAINER_TYPE", types.get(0).getCode());
-        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
+        assertEquals("CONTAINER_TYPE", types.get(1).getCode());
+        assertEquals("[]", types.get(1).getPropertyTypeGroups().toString());
         assertTrue(types.size() > 0);
         boolean guard = false;
         List<PropertyTypeGroup> groups = null;
@@ -2066,15 +2066,15 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]",
                 propertyTypes.get(0).toString());
         assertEquals(1, groups.size());
-        assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(4).getCode());
-        assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
-        assertEquals("LINK_TYPE", types.get(6).getCode());
-        assertEquals("[]", types.get(6).getPropertyTypeGroups().toString());
-        assertEquals("REQUIRES_EXPERIMENT", types.get(7).getCode());
+        assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(5).getCode());
+        assertEquals("[]", types.get(5).getPropertyTypeGroups().toString());
+        assertEquals("LINK_TYPE", types.get(7).getCode());
         assertEquals("[]", types.get(7).getPropertyTypeGroups().toString());
-        assertEquals("UNKNOWN", types.get(8).getCode());
+        assertEquals("REQUIRES_EXPERIMENT", types.get(8).getCode());
         assertEquals("[]", types.get(8).getPropertyTypeGroups().toString());
-        assertEquals(12, types.size());
+        assertEquals("UNKNOWN", types.get(9).getCode());
+        assertEquals("[]", types.get(9).getPropertyTypeGroups().toString());
+        assertEquals(13, types.size());
     }
 
     @Test

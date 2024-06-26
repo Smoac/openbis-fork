@@ -3,74 +3,63 @@ package ch.ethz.sis.afsserver.startup;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 public class AtomicFileSystemServerParameterUtil
 {
 
-    public static IApplicationServerApi getApplicationServerApi(Configuration configuration)
+    public static OpenBIS getOpenBIS(Configuration configuration)
     {
-        String openBISUrl = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
+        String openBISUrl = getStringParameter(configuration, AtomicFileSystemServerParameter.openBISUrl, true);
+        Integer openBISTimeout = getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISTimeout, true);
+        return new OpenBIS(openBISUrl, openBISTimeout);
+    }
 
-        if (openBISUrl == null || openBISUrl.isBlank())
-        {
-            throw new RuntimeException("Configuration parameter '" + AtomicFileSystemServerParameter.openBISUrl + "' cannot be null or empty.");
-        }
+    public static String getOpenBISUser(Configuration configuration)
+    {
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.openBISUser, true);
+    }
 
-        String openBISTimeout = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISTimeout);
+    public static String getOpenBISPassword(Configuration configuration)
+    {
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.openBISPassword, true);
+    }
 
-        if (openBISTimeout == null || openBISTimeout.isBlank())
-        {
-            throw new RuntimeException("Configuration parameter '" + AtomicFileSystemServerParameter.openBISTimeout + "' cannot be null or empty.");
-        }
+    public static String getOpenBISLastSeenDeletionFile(Configuration configuration)
+    {
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.openBISLastSeenDeletionFile, true);
+    }
 
-        int openBISTimeoutInt;
+    public static Integer getOpenBISLastSeenDeletionBatchSize(Configuration configuration)
+    {
+        return getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISLastSeenDeletionBatchSize, true);
+    }
 
-        try
-        {
-            openBISTimeoutInt = Integer.parseInt(openBISTimeout);
-        } catch (NumberFormatException e)
-        {
-            throw new RuntimeException("Configuration parameter '" + AtomicFileSystemServerParameter.openBISTimeout + "' is not a valid integer.");
-        }
-
-        return HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl, openBISTimeoutInt);
+    public static Integer getOpenBISLastSeenDeletionIntervalInSeconds(Configuration configuration)
+    {
+        return getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISLastSeenDeletionIntervalInSeconds, true);
     }
 
     public static String getStorageRoot(Configuration configuration)
     {
-        String storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
-
-        if (storageRoot == null || storageRoot.isBlank())
-        {
-            throw new RuntimeException("Configuration parameter '" + AtomicFileSystemServerParameter.storageRoot + "' cannot be null or empty.");
-        }
-
-        return storageRoot;
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.storageRoot, true);
     }
 
     public static String getStorageUuid(Configuration configuration)
     {
-        String storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
-
-        if (storageUuid == null || storageUuid.isBlank())
-        {
-            throw new RuntimeException("Configuration parameter '" + AtomicFileSystemServerParameter.storageUuid + "' cannot be null or empty.");
-        }
-
-        return storageUuid;
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.storageUuid, true);
     }
 
-    public static String getStorageIncomingShareId(Configuration configuration)
+    public static Integer getStorageIncomingShareId(Configuration configuration)
     {
-        String storageIncomingShareId = configuration.getStringProperty(AtomicFileSystemServerParameter.storageIncomingShareId);
+        Integer storageIncomingShareId = getIntegerParameter(configuration, AtomicFileSystemServerParameter.storageIncomingShareId, false);
         String storageRoot = getStorageRoot(configuration);
-        List<String> shares = Arrays.asList(IOUtils.getShares(storageRoot));
+        List<Integer> shares = Arrays.asList(IOUtils.getShares(storageRoot));
 
-        if (storageIncomingShareId == null || storageIncomingShareId.isBlank())
+        if (storageIncomingShareId == null)
         {
             if (shares.isEmpty())
             {
@@ -88,6 +77,55 @@ public class AtomicFileSystemServerParameterUtil
         }
 
         return storageIncomingShareId;
+    }
+
+    public static JsonObjectMapper getJsonObjectMapper(Configuration configuration) throws Exception
+    {
+        getStringParameter(configuration, AtomicFileSystemServerParameter.jsonObjectMapperClass, true);
+        return configuration.getInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
+    }
+
+    public static String getInteractiveSessionKey(Configuration configuration)
+    {
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, true);
+    }
+
+    private static String getStringParameter(Configuration configuration, AtomicFileSystemServerParameter parameter, boolean mandatory)
+    {
+        String parameterValue = configuration.getStringProperty(parameter);
+
+        if (parameterValue == null || parameterValue.isBlank())
+        {
+            if (mandatory)
+            {
+                throw new RuntimeException("Configuration parameter '" + parameter + "' cannot be null or empty.");
+            } else
+            {
+                return null;
+            }
+        } else
+        {
+            return parameterValue;
+        }
+    }
+
+    private static Integer getIntegerParameter(Configuration configuration, AtomicFileSystemServerParameter parameter, boolean mandatory)
+    {
+        String parameterStringValue = getStringParameter(configuration, parameter, mandatory);
+
+        if (parameterStringValue != null)
+        {
+            try
+            {
+                return Integer.parseInt(parameterStringValue);
+            } catch (NumberFormatException e)
+            {
+                throw new RuntimeException("Configuration parameter '" + parameter + "' is not a valid integer.");
+            }
+        } else
+        {
+            return null;
+        }
     }
 
 }

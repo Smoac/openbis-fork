@@ -25,6 +25,7 @@ import java.util.List;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -43,7 +44,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
-
 import junit.framework.Assert;
 
 /**
@@ -177,6 +177,41 @@ public class DeleteSampleTest extends AbstractDeletionTest
         assertSampleDoesNotExist(samplePermId);
         assertDataSetDoesNotExist(dataSetPermId1);
         assertDataSetDoesNotExist(dataSetPermId2);
+    }
+
+    @Test
+    public void testDeleteSampleWithAfsDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentPermId = createCisdExperiment();
+        SamplePermId samplePermId = createCisdSample(experimentPermId);
+
+        DataSetCreation afsDataSetCreation = physicalDataSetCreation();
+        afsDataSetCreation.setExperimentId(experimentPermId);
+        afsDataSetCreation.setSampleId(samplePermId);
+        afsDataSetCreation.setAfsData(true);
+
+        DataSetCreation nonAfsDataSetCreation = physicalDataSetCreation();
+        nonAfsDataSetCreation.setSampleId(samplePermId);
+        nonAfsDataSetCreation.setExperimentId(experimentPermId);
+
+        final List<DataSetPermId> dataSetPermIds = v3api.createDataSets(sessionToken, List.of(afsDataSetCreation, nonAfsDataSetCreation));
+        assertEquals(dataSetPermIds.size(), 2);
+
+        SampleDeletionOptions options = new SampleDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertSampleExists(samplePermId);
+
+        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
+        Assert.assertNotNull(deletionId);
+
+        v3api.confirmDeletions(sessionToken, List.of(deletionId));
+
+        assertSampleDoesNotExist(samplePermId);
+        assertDataSetDoesNotExist(dataSetPermIds.get(0));
+        assertDataSetDoesNotExist(dataSetPermIds.get(1));
     }
 
     @Test

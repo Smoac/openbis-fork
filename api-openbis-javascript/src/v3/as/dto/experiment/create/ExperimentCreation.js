@@ -16,6 +16,7 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityCreation" ], function(stjs,
 		prototype.attachments = null;
 		prototype.creationId = null;
         prototype.metaData = null;
+        prototype.immutableData = null;
 		prototype.setTypeId = function(typeId) {
 			this.typeId = typeId;
 		};
@@ -57,6 +58,12 @@ define([ "stjs", "as/dto/common/entity/AbstractEntityCreation" ], function(stjs,
         };
         prototype.setMetaData = function(metaData) {
             this.metaData = metaData;
+        };
+        prototype.isImmutableData = function() {
+            return this.immutableData;
+        };
+        prototype.setImmutableData = function(immutableData) {
+            this.immutableData = immutableData;
         };
 	}, {
 		typeId : "IEntityTypeId",

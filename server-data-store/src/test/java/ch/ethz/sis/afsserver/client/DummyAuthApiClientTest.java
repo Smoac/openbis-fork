@@ -19,10 +19,9 @@ package ch.ethz.sis.afsserver.client;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.BeforeClass;
 
 import ch.ethz.sis.afsserver.server.Server;
-import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.shared.startup.Configuration;
 
@@ -40,8 +39,7 @@ public final class DummyAuthApiClientTest extends BaseApiClientTest
         final Configuration configuration =
                 new Configuration(List.of(AtomicFileSystemServerParameter.class),
                         "src/test/resources/test-server-config.properties");
-        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
-        afsServer = new Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        afsServer = new Server<>(configuration);
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
