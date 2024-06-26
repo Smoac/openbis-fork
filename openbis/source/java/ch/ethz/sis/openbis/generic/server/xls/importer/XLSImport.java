@@ -466,7 +466,8 @@ public class XLSImport
                     ZipEntry entry;
                     while ((entry = zip.getNextEntry()) != null)
                     {
-                        final String filePath = entry.getName();
+                        final String filePath = entry.getName().startsWith(XLSX_FOLDER_NAME) ? entry.getName().substring(XLSX_FOLDER_NAME.length())
+                                : entry.getName();
                         if (!entry.isDirectory() && filePath.startsWith(FILE_SERVICES_FOLDER_NAME))
                         {
                             String fileServicePath = PATH_SEPARATOR + filePath.substring(FILE_SERVICES_FOLDER_NAME.length());
