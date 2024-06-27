@@ -1,5 +1,23 @@
 # Pending 20.10 Configuration Changes
 
+## Version 20.10.9
+
+#### 1. Changes to ELN LIMS Dropbox, new configuration keys for DSS service.properties.
+
+- `eln-lims-dropbox-discard-files-patterns`
+
+Allows to specify comma-separated regular expressions of filenames that will be discarded by dropbox script during dataset creation.  
+
+Default setting: `eln-lims-dropbox-discard-files-patterns=` (no files are discarded)
+
+
+- `eln-lims-dropbox-illegal-files-patterns`
+
+Allows to specify comma-separated regular expressions of filenames that will be considered as illegal by the dropbox script. Their presence in the dropbox directory will automatically abort the dataset creation.
+
+Default setting: `eln-lims-dropbox-illegal-files-patterns=desktop\\.ini, IconCache\\.db, thumbs\\.db, \\..*, .*'.*, .*~.*, .*\\$.*, .*%.*`
+
+**Note: regular expressions in this configuration are [Java patterns](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) and special characters need to be escaped**
 
 
 ## Version 20.10.6
