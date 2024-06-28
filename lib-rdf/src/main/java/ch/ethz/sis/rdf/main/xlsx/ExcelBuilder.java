@@ -45,7 +45,7 @@ public class ExcelBuilder {
             createObjectTypesSheet(workbook, headerStyle, rdfParser);
             createExperimentTypesSheet(workbook, headerStyle);
             createSpaceProjExpSheet(workbook, headerStyle, projectIdentifier, rdfParser);
-            createObjectsSheet(workbook, headerStyle, projectIdentifier, rdfParser);
+            //createObjectsSheet(workbook, headerStyle, projectIdentifier, rdfParser);
 
             // Write the output to a file
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
@@ -78,7 +78,9 @@ public class ExcelBuilder {
                     rdfParser.ontVersion,
                     ontClassObject.ontClass.getURI(),
                     ontClassObject.label,
-                    ontClassObject.comment);
+                    ontClassObject.comment,
+                    ontClassObject.skosDefinition,
+                    ontClassObject.skosNote);
 
             // Add object properties section
             rowNumOT = rdfPropertyTypeHelper.addObjectProperties(sheetOT, rowNumOT, headerStyle,
@@ -130,6 +132,7 @@ public class ExcelBuilder {
             rowNum = rdfSampleHelper.createSampleHeaders(sheet, rowNum, headerStyle, objectType, ontClassObject);
 
             for (ResourceRDF resourceRDF : entry.getValue()) {
+                //System.out.println(resourceRDF);
                 rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, resourceRDF, ontClassObject, rdfParser.mappedNamedIndividual);
             }
             // add empty row for readability

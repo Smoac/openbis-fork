@@ -5,12 +5,15 @@ import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.entity.OntClassObject;
 import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.entity.ResourceRDF;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.poi.ss.usermodel.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class RDFSampleHelper {
@@ -90,14 +93,14 @@ public class RDFSampleHelper {
         return rowNum;
     }
 
-    protected int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject) {
+    protected int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject, Map<String, String> mappedNamedIndividual) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
         String resourcePrefix = "https://biomedit.ch/rdf/sphn-resource/";
 
         Row propertyRowValues = sheet.createRow(rowNum);
         //propertyRowValues.createCell(0).setCellValue(""); // $
         //propertyRowValues.createCell(1).setCellValue(""); // Identifier
-        //propertyRowValues.createCell(2).setCellValue(property.getObject()); // Code
+        propertyRowValues.createCell(2).setCellValue(resource.resourceVal); // Code
         propertyRowValues.createCell(3).setCellValue(projectId.split("/")[1]); // Space
         propertyRowValues.createCell(4).setCellValue(projectId); // Project
         propertyRowValues.createCell(5).setCellValue(projectId + resource.type); // Experiment
@@ -115,10 +118,68 @@ public class RDFSampleHelper {
             propertyRowValues.createCell(5).setCellValue(projectId + "/" + Utils.extractLabel(resource.type).toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
             int idx = allColumns.indexOf(Utils.extractLabel(property.getPredicateLabel()));
             if (idx != -1) {
-                propertyRowValues.createCell(idx).setCellValue(projectId + "/" + property.getObject().replace(resourcePrefix, ""));
+                if (mappedNamedIndividual.containsKey(property.getObject())){
+                    propertyRowValues.createCell(idx).setCellValue(mappedNamedIndividual.get(property.getObject()));
+                } else if (property.getObject().contains(resourcePrefix)) {
+                    propertyRowValues.createCell(idx).setCellValue(projectId + "/" + property.getObject().replace(resourcePrefix, ""));
+                } else {
+                    if (!property.getObject().contains("^^")){
+                        propertyRowValues.createCell(idx).setCellValue(property.getObject().replace(resourcePrefix, ""));
+                    } else {
+                        //convertRDFLiteral(property.getObject().replace(resourcePrefix, ""), propertyRowValues, idx);
+                        String rdfLiteral = property.getObject().replace(resourcePrefix, "");
+
+                        int separatorIndex = rdfLiteral.indexOf("^^");
+
+                        String lexicalValue = rdfLiteral.substring(0, separatorIndex);
+                        String datatypeURI = rdfLiteral.substring(separatorIndex + 2);
+
+                        Literal literal = ResourceFactory.createTypedLiteral(lexicalValue);
+
+                        if (XSDDatatype.XSDdateTime.getURI().equals(datatypeURI)) {
+                            Date date = (Date) literal.getValue();
+                            System.out.println("----- DATE: " + date);
+                            propertyRowValues.createCell(idx).setCellValue((Date) literal.getValue());
+                        } else if (XSDDatatype.XSDdouble.getURI().equals(datatypeURI)) {
+                            propertyRowValues.createCell(idx).setCellValue((Double) literal.getValue());
+                        } else if (XSDDatatype.XSDint.getURI().equals(datatypeURI)) {
+                            propertyRowValues.createCell(idx).setCellValue((int) literal.getValue());
+                        } else if (XSDDatatype.XSDboolean.getURI().equals(datatypeURI)) {
+                            propertyRowValues.createCell(idx).setCellValue((boolean) literal.getValue());
+                        }
+                    }
+                }
             }
         }
 
         return rowNum + 1;  // Move to the next row for future entries
+    }
+
+    public void convertRDFLiteral(String rdfLiteral, Row propertyRowValues, int idx) {
+        try {
+            // Example inputs:
+            // "2004-10-16T19:14:57+00:00"^^xsd:dateTime
+            // "5.523E3"^^xsd:double
+
+            int separatorIndex = rdfLiteral.indexOf("^^");
+
+            String lexicalValue = rdfLiteral.substring(0, separatorIndex);
+            String datatypeURI = rdfLiteral.substring(separatorIndex + 2);
+
+            Literal literal = ResourceFactory.createTypedLiteral(lexicalValue);
+
+            if (XSDDatatype.XSDdateTime.getURI().equals(datatypeURI)) {
+                propertyRowValues.createCell(idx).setCellValue((Date) literal.getValue());
+            } else if (XSDDatatype.XSDdouble.getURI().equals(datatypeURI)) {
+                propertyRowValues.createCell(idx).setCellValue((Double) literal.getValue());
+            } else if (XSDDatatype.XSDint.getURI().equals(datatypeURI)) {
+                propertyRowValues.createCell(idx).setCellValue((int) literal.getValue());
+            } else if (XSDDatatype.XSDboolean.getURI().equals(datatypeURI)) {
+                propertyRowValues.createCell(idx).setCellValue((boolean) literal.getValue());
+            }
+
+        } catch (DatatypeFormatException e) {
+            throw new IllegalArgumentException("Failed to parse the RDF literal.", e);
+        }
     }
 }
