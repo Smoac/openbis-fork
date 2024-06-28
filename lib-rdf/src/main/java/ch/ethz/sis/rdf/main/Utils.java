@@ -48,8 +48,9 @@ public class Utils {
     }
 
     public static void connectAndExport(String openbisASURL, String openBISDSSURL, String username, String password, Path tempFile) {
-
-        OpenBIS openBIS = openBISDSSURL == null ? new OpenBIS(openbisASURL, TIMEOUT) : new OpenBIS(openbisASURL, openBISDSSURL, null, TIMEOUT);
+        //TODO: is AFS client needed ? AfsClient class not found exception
+        OpenBIS openBIS = openBISDSSURL == null ? new OpenBIS(openbisASURL + "/openbis/openbis", openbisASURL + "/datastore_server", null, TIMEOUT)
+                : new OpenBIS(openbisASURL, openBISDSSURL, null, TIMEOUT);
 
         // 4. Call openBIS V3 API executeImport with the Excel file
         //IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, serviceURL + IApplicationServerApi.SERVICE_URL, TIMEOUT);
@@ -61,7 +62,7 @@ public class Utils {
         // Call excel import
         ImportData importData = new ImportData();
         importData.setFormat(ImportFormat.EXCEL);
-        importData.setSessionWorkspaceFiles(List.of("output.xlsx").toArray(new String[0])); //List.of(tempFile.toFile().getName()).toArray(new String[0]));
+        importData.setSessionWorkspaceFiles(List.of(uploadId).toArray(new String[0])); //List.of(tempFile.toFile().getName()).toArray(new String[0]));
 
         ImportOptions importOptions = new ImportOptions();
         importOptions.setMode(ImportMode.UPDATE_IF_EXISTS);
