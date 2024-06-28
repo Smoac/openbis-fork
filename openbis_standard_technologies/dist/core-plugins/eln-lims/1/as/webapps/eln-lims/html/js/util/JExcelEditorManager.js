@@ -101,6 +101,7 @@ var JExcelEditorManager = new function() {
                             var entityKindType = entity["@type"] + ":" + entity.type.code;
                             var entityTable = _this.getEntityAsTable(entity);
                             var columnCount = jExcelEditor.getHeaders().split(',').length;
+                            var rowCount = jExcelEditor.getData().length;
                             if(insertHeaders && lastEntityKindType !== entityKindType) {
                                 //Insert Labels
                                 for(var lIdx = 0; lIdx < entityTable.label.length; lIdx++) {
@@ -109,13 +110,15 @@ var JExcelEditorManager = new function() {
                                         for(;columnCount <= x+lIdx; columnCount++) {
                                             jExcelEditor.insertColumn();
                                         }
+                                        for(;rowCount <= y;rowCount++) {
+                                            jExcelEditor.insertRow();
+                                        }
                                         jExcelEditor.setValueFromCoords(x+lIdx, y, label, true);
                                     }
                                 }
                                 y++;
                             }
 
-                            var rowCount = jExcelEditor.getData().length;
                             //Insert Values
                             for(var vIdx = 0; vIdx < entityTable.value.length; vIdx++) {
                                 var value = entityTable.value[vIdx];
@@ -123,14 +126,14 @@ var JExcelEditorManager = new function() {
                                     for(;columnCount <= x+vIdx; columnCount++) {
                                         jExcelEditor.insertColumn();
                                     }
-                                    if(rowCount <= y) {
+                                    for(;rowCount <= y;rowCount++) {
                                         jExcelEditor.insertRow();
-                                        rowCount++;
                                     }
                                     jExcelEditor.setValueFromCoords(x+vIdx, y, value, true);
                                 }
                             }
                             y++;
+                            lastEntityKindType = entityKindType;
                         }
                         Util.unblockUI();
                     } else {
