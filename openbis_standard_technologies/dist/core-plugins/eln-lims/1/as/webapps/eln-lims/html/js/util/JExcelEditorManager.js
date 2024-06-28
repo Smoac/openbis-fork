@@ -106,9 +106,8 @@ var JExcelEditorManager = new function() {
                                 for(var lIdx = 0; lIdx < entityTable.label.length; lIdx++) {
                                     var label = entityTable.label[lIdx];
                                     if(label) {
-                                        if(columnCount <= x+lIdx) {
-                                            jExcelEditor.insertColumn({numOfColumns:1, columnNumber:x+lIdx, insertBefore:false});
-                                            columnCount++;
+                                        for(;columnCount <= x+lIdx; columnCount++) {
+                                            jExcelEditor.insertColumn();
                                         }
                                         jExcelEditor.setValueFromCoords(x+lIdx, y, label, true);
                                     }
@@ -121,9 +120,8 @@ var JExcelEditorManager = new function() {
                             for(var vIdx = 0; vIdx < entityTable.value.length; vIdx++) {
                                 var value = entityTable.value[vIdx];
                                 if(value) {
-                                    if(columnCount <= x+vIdx) {
-                                        jExcelEditor.insertColumn({numOfColumns:1, columnNumber:x+vIdx, insertBefore:false})
-                                        columnCount++;
+                                    for(;columnCount <= x+vIdx; columnCount++) {
+                                        jExcelEditor.insertColumn();
                                     }
                                     if(rowCount <= y) {
                                         jExcelEditor.insertRow();
