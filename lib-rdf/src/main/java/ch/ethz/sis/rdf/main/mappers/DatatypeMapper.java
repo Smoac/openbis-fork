@@ -32,6 +32,7 @@ public class DatatypeMapper {
         datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), "INTEGER");
         datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), "INTEGER");
         datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIMESTAMP");
+        datatypeMappings.put(XSDDatatype.XSDanyURI.getURI(), "VARCHAR");
     }
 
     /**
