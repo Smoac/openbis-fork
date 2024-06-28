@@ -780,6 +780,38 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testMakeDataImmutable()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        creation.setTypeId(new EntityTypePermId("DELETION_TEST"));
+        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+
+        ExperimentUpdate update1 = new ExperimentUpdate();
+        update1.setExperimentId(experimentPermId);
+        update1.makeDataImmutable();
+
+        // When
+        v3api.updateExperiments(sessionToken, Arrays.asList(update1));
+
+        // Then
+        Map<IExperimentId, Experiment> experiments =
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId),
+                        new ExperimentFetchOptions());
+        Experiment experiment1 = experiments.get(experimentPermId);
+        assertEquals(experiment1.getPermId().getPermId(), experimentPermId.getPermId());
+        assertEquals(experiment1.isFrozen(), false);
+        assertEquals(experiment1.isImmutableData(), true);
+        assertEquals(experiment1.isFrozenForDataSets(), false);
+        assertEquals(experiment1.isFrozenForSamples(), false);
+    }
+
+    @Test
     public void testFreezeForSamples()
     {
         // Given
@@ -803,6 +835,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Experiment experiment1 = experiments.get(expId1);
         assertEquals(experiment1.getIdentifier().getIdentifier(), expId1.getIdentifier());
         assertEquals(experiment1.isFrozen(), true);
+        assertEquals(experiment1.isImmutableData(), true);
         assertEquals(experiment1.isFrozenForDataSets(), false);
         assertEquals(experiment1.isFrozenForSamples(), false);
         assertFreezingEvent(TEST_USER, experiment1.getIdentifier().getIdentifier(),
@@ -810,6 +843,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Experiment experiment2 = experiments.get(expId2);
         assertEquals(experiment2.getIdentifier().getIdentifier(), expId2.getIdentifier());
         assertEquals(experiment2.isFrozen(), true);
+        assertEquals(experiment2.isImmutableData(), true);
         assertEquals(experiment2.isFrozenForDataSets(), false);
         assertEquals(experiment2.isFrozenForSamples(), true);
         assertFreezingEvent(TEST_USER, experiment2.getIdentifier().getIdentifier(),
@@ -841,6 +875,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Experiment experiment1 = experiments.get(expId1);
         assertEquals(experiment1.getIdentifier().getIdentifier(), expId1.getIdentifier());
         assertEquals(experiment1.isFrozen(), true);
+        assertEquals(experiment1.isImmutableData(), true);
         assertEquals(experiment1.isFrozenForDataSets(), false);
         assertEquals(experiment1.isFrozenForSamples(), false);
         assertFreezingEvent(TEST_USER, experiment1.getIdentifier().getIdentifier(),
@@ -848,6 +883,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Experiment experiment2 = experiments.get(expId2);
         assertEquals(experiment2.getIdentifier().getIdentifier(), expId2.getIdentifier());
         assertEquals(experiment2.isFrozen(), true);
+        assertEquals(experiment2.isImmutableData(), true);
         assertEquals(experiment2.isFrozenForDataSets(), true);
         assertEquals(experiment2.isFrozenForSamples(), false);
         assertFreezingEvent(TEST_USER, experiment2.getIdentifier().getIdentifier(),

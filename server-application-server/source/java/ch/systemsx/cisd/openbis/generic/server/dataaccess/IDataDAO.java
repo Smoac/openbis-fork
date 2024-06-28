@@ -176,6 +176,18 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     /** Returns ids of data sets connected with experiments specified by given ids. */
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
 
+    /** Returns ids of AFS data sets that are connected with samples deleted in a given deletion */
+    List<TechId> listAfsDataSetIdsBySampleDeletionId(final Long deletionId) throws DataAccessException;
+
+    /** Returns ids of AFS data sets that are connected with experiments deleted in a given deletion */
+    List<TechId> listAfsDataSetIdsByExperimentDeletionId(final Long deletionId) throws DataAccessException;
+
+    /** Returns ids of AFS data sets that are connected with samples with given ids */
+    List<TechId> listAfsDataSetIdsBySampleIds(final Collection<TechId> sampleIds) throws DataAccessException;
+
+    /** Returns ids of AFS data sets that are connected with experiments with given ids */
+    List<TechId> listAfsDataSetIdsByExperimentIds(final Collection<TechId> experimentIds) throws DataAccessException;
+
     /**
      * Delete data sets with given ids by specified registrator with specified reason.
      */

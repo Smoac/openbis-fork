@@ -1377,6 +1377,7 @@ isEmpty
 ISessionInformationId
 isH5arFolders
 isH5Folders
+isImmutableData
 isListable
 isMeasured
 isModified
@@ -1455,6 +1456,7 @@ LongDateFormat
 main
 MAIN_DATA_SET_PATH
 MAIN_DATA_SET_PATTERN
+makeDataImmutable
 MANAGED_PROPERTY
 mangleToplevel
 MATCH_VALUE
@@ -2180,6 +2182,7 @@ setHyperlinkProperty
 setId
 setIdentifier
 setIgnoreVersioning
+setImmutableData
 setImportData
 setImportMode
 setImportOptions

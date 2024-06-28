@@ -137,10 +137,15 @@ public class UpdateSampleExecutor
             {
                 experimentOrProjectSamples.add(entity);
             }
+            if(update.isImmutableData())
+            {
+                entity.setImmutableData(update.isImmutableData());
+            }
             if (update.shouldBeFrozen())
             {
                 authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozen(true);
+                entity.setImmutableData(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForComponents())

@@ -1,7 +1,7 @@
 Optional Application Server Configuration
 =========================================
 
-### The base URL for Web client access to the data store server.
+### The base URL for Web client access to the application server.
 
     download-url = ${host-address}:${port}
 

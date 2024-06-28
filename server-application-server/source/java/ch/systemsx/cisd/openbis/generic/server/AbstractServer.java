@@ -115,6 +115,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     private final static String ETL_SERVER_USERNAME_PREFIX = "etlserver";
 
+    private final static String AFS_SERVER_USERNAME_PREFIX = "afsserver";
+
     protected static final class AuthenticatedPersonBasedPrincipalProvider implements
             IPrincipalProvider
     {
@@ -664,6 +666,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                     } else if (isFirstLoggedETLServer(person, persons))
                     {
                         grantRoleAtFirstLogin(persons, person, RoleCode.ETL_SERVER);
+                    } else if (isFirstLoggedAFSServer(person, persons))
+                    {
+                        grantRoleAtFirstLogin(persons, person, RoleCode.ETL_SERVER);
                     } else
                     {
                         throw createException(person, "has no role assignments");
@@ -757,9 +762,14 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             return false;
         }
 
+        if (isAFSServerUserId(newPerson))
+        {
+            return false;
+        }
+
         for (PersonPE person : persons)
         {
-            if (person.isSystemUser() || isETLServerUserId(person))
+            if (person.isSystemUser() || isETLServerUserId(person) || isAFSServerUserId(person))
             {
                 // system & etl users should not receive INSTANCE_ADMIN rights
                 // upon first login
@@ -788,9 +798,31 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return true;
     }
 
+    private boolean isFirstLoggedAFSServer(PersonPE person, List<PersonPE> persons)
+    {
+        if (false == isAFSServerUserId(person))
+        {
+            return false;
+        }
+
+        for (PersonPE existingPerson : persons)
+        {
+            if (isAFSServerUserId(existingPerson))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean isETLServerUserId(PersonPE person)
     {
         return person.getUserId().startsWith(ETL_SERVER_USERNAME_PREFIX);
+    }
+
+    private boolean isAFSServerUserId(PersonPE person)
+    {
+        return person.getUserId().startsWith(AFS_SERVER_USERNAME_PREFIX);
     }
 
     private SessionContextDTO asDTO(Session session)

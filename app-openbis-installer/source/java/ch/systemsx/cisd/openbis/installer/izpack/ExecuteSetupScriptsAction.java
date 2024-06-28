@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.installer.izpack;
 
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.ADMIN_PASSWORD_VARNAME;
+import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.AFS_SERVER_PASSWORD_VARNAME;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.ETL_SERVER_PASSWORD_VARNAME;
 
 import java.io.File;
@@ -305,6 +306,8 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
         customEnvironment.put(ADMIN_PASSWORD_VARNAME, data.getVariable(ADMIN_PASSWORD_VARNAME));
         customEnvironment.put(ETL_SERVER_PASSWORD_VARNAME,
                 data.getVariable(ETL_SERVER_PASSWORD_VARNAME));
+        customEnvironment.put(AFS_SERVER_PASSWORD_VARNAME,
+                data.getVariable(AFS_SERVER_PASSWORD_VARNAME));
         executeAdminScript(customEnvironment, script);
     }
 

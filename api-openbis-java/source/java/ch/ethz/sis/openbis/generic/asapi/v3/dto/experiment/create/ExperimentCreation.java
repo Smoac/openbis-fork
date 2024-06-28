@@ -60,6 +60,8 @@ public class ExperimentCreation extends AbstractEntityCreation
 
     private Map<String, String> metaData;
 
+    private boolean immutableData;
+
     public void setTypeId(IEntityTypeId typeId)
     {
         this.typeId = typeId;
@@ -131,6 +133,15 @@ public class ExperimentCreation extends AbstractEntityCreation
         this.creationId = creationId;
     }
 
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void setImmutableData(boolean immutableData)
+    {
+        this.immutableData = immutableData;
+    }
 
     @Override
     public String toString()

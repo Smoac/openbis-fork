@@ -268,6 +268,35 @@ public class CreateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testCreateWithImmutableData()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_IMMUTABLE_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        creation.setProperty("DESCRIPTION", "a description");
+        creation.setImmutableData(true);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withProperties();
+
+        List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, permIds, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
+
+        assertEquals(experiments.size(), 1);
+
+        Experiment experiment = experiments.get(0);
+
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/TESTGROUP/TESTPROJ/TEST_IMMUTABLE_EXPERIMENT1");
+        assertEquals(experiment.isImmutableData(), true);
+        assertEquals(experiment.isFrozen(), false);
+        assertEquals(experiment.getProperty("DESCRIPTION"), "a description");
+    }
+
+    @Test
     public void testCreateWithTagExisting()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

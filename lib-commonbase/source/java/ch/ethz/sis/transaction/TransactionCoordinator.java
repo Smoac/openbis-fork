@@ -66,6 +66,11 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
         commitPreparedTransaction(transaction, null, interactiveSessionKey, true);
     }
 
+    @Override protected boolean isCoordinator()
+    {
+        return true;
+    }
+
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
         try
@@ -77,7 +82,7 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
             Transaction transaction = new Transaction(transactionId, sessionToken);
             registerTransaction(transaction);
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 try
                 {
@@ -124,7 +129,7 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
                 throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
 
-            return transaction.lockOrFail(() ->
+            return transaction.executeWithoutLock(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
@@ -218,7 +223,7 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
                 throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
@@ -376,7 +381,7 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
                 return;
             }
 
-            transaction.lockOrFail(() ->
+            transaction.executeWithLockOrFail(() ->
             {
                 checkTransactionAccess(transaction, sessionToken);
                 checkTransactionStatus(transaction, TransactionStatus.BEGIN_STARTED, TransactionStatus.BEGIN_FINISHED,

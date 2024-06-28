@@ -149,6 +149,9 @@ public class Experiment extends AbstractEntity<Experiment>
     @JsonProperty
     private Map<String, String> metaData;
 
+    @JsonProperty
+    private boolean immutableData;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
@@ -611,6 +614,17 @@ public class Experiment extends AbstractEntity<Experiment>
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    @JsonIgnore
+    public boolean isImmutableData()
+    {
+        return immutableData;
+    }
+
+    public void setImmutableData(boolean immutableData)
+    {
+        this.immutableData = immutableData;
     }
 
     // Method automatically generated with DtoGenerator

@@ -1044,7 +1044,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Override
-    @Column(name = "meta_data")
+    @Column(name = ColumnNames.META_DATA)
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
     {
