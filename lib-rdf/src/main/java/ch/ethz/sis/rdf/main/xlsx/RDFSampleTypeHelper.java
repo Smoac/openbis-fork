@@ -5,7 +5,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import java.util.List;
 import java.util.Locale;
 
 public class RDFSampleTypeHelper {
@@ -38,7 +37,7 @@ public class RDFSampleTypeHelper {
     }
 
     protected int addSampleTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle, String ontNamespace, String ontVersion, String ontClassURI,
-            String label, String comment){
+            String label, String comment, String skosDefinition, String skosNote){
         Row sampleTypeRow = sheet.createRow(rowNum++);
         sampleTypeRow.createCell(0).setCellValue("SAMPLE_TYPE");
         sampleTypeRow.getCell(0).setCellStyle(headerStyle);
@@ -53,13 +52,20 @@ public class RDFSampleTypeHelper {
             cell.setCellStyle(headerStyle);
         }
 
+        if (label == null)
+            label = "";
         String code = label.trim().replaceAll(" ", "").toUpperCase(Locale.ROOT);
-        String description = label + "\n" + comment;
+        StringBuilder description = new StringBuilder();
+        description.append(label).append("\n");
+        if (comment != null) description.append(comment).append("\n");
+        if (skosDefinition != null) description.append(skosDefinition).append("\n");
+        if (skosNote != null) description.append(skosNote).append("\n");
+        //StringUtils.defaultString(comment)
 
         Row sampleTypeRowValues = sheet.createRow(rowNum++);
 
         sampleTypeRowValues.createCell(0).setCellValue(code);                   //Code("Code", true),
-        sampleTypeRowValues.createCell(1).setCellValue(description);            //Description("Description", true),
+        sampleTypeRowValues.createCell(1).setCellValue(description.toString());            //Description("Description", true),
         sampleTypeRowValues.createCell(2).setCellValue(1);                      //AutoGenerateCodes("Auto generate codes", true),
         //sampleTypeRowValues.createCell(3).setCellValue("");                       //ValidationScript("Validation script", true),
         sampleTypeRowValues.createCell(4).setCellValue(false);                  //GeneratedCodePrefix("Generated code prefix", true);
