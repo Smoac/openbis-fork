@@ -109,7 +109,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         {
             ownerPermId = foundExperiment.getPermId();
 
-            if (foundExperiment.isFrozen())
+            if (foundExperiment.isImmutableData())
             {
                 ownerSupportedPermissions = Set.of(FilePermission.Read);
             } else
@@ -124,7 +124,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             {
                 ownerPermId = foundSample.getPermId();
 
-                if (foundSample.isFrozen())
+                if (foundSample.isImmutableData())
                 {
                     ownerSupportedPermissions = Set.of(FilePermission.Read);
                 } else
