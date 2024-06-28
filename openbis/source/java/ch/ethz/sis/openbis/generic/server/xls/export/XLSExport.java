@@ -194,7 +194,7 @@ public class XLSExport
                         .filter(propertyAssignment -> propertyAssignment.getPlugin() != null
                                 && propertyAssignment.getPlugin().getScript() != null)
                         .map(PropertyAssignment::getPlugin)
-                        .collect(Collectors.toMap(Plugin::getName, Plugin::getScript));
+                        .collect(Collectors.toMap(Plugin::getName, Plugin::getScript, (s, s2) -> s));
 
                 scripts.putAll(propertyAssignmentPluginScripts);
             }
