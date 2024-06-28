@@ -252,7 +252,8 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
             return new PropertyValue(sb.toString(), Map.of());
         } else
         {
-            return new PropertyValue(propertyValue.toString(), Map.of());
+            return new PropertyValue(propertyValue instanceof Sample
+                    ? ((Sample) propertyValue).getIdentifier().getIdentifier() : propertyValue.toString(), Map.of());
         }
     }
 
