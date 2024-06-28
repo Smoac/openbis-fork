@@ -20,15 +20,18 @@ import static ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper.toObjects;
 
 public class RDFParser {
 
-    public String ontNamespace;
-    public String ontVersion;
-    public Map<String, String> ontMetadata;
-    public Map<String, String> nsPrefixes;
-    public Map<String, OntClassObject> classDetailsMap;
-    public Map<String, List<String>> mappedDataTypes;
-    public Map<String, List<String>> mappedObjectProperty;
-    public Map<String, List<ResourceRDF>> resourcesGroupedByType;
+    public final String ontNamespace;
+    public final String ontVersion;
+    public final Map<String, String> ontMetadata;
+    public final Map<String, String> nsPrefixes;
+    public final Map<String, OntClassObject> classDetailsMap;
+    public final Map<String, List<String>> mappedDataTypes;
+    public final Map<String, List<String>> mappedObjectProperty;
+    public final Map<String, List<ResourceRDF>> resourcesGroupedByType;
+    public final Map<String, String> mappedNamedIndividual;
+    public final Map<String, List<String>> mappedSubClasses;
 
+    private final Map<String, List<String>> chains = new HashMap<>();
     private final String RESOURCE_URI_NS = "resource";
 
     /*public static void main(String[] args) {
@@ -54,18 +57,56 @@ public class RDFParser {
         this.ontMetadata = extractOntologyMetadata(model);
         this.nsPrefixes = model.getNsPrefixMap();
         this.ontMetadata.forEach((key, value) -> System.out.println("\t" + key + ": " + value));
-        this.classDetailsMap = collectClassDetails(model);
+        this.mappedDataTypes = toOpenBISDataTypes(model);
+        this.classDetailsMap = collectClassDetails(model, this.mappedDataTypes);
         //classDetailsMap.forEach((cls, map)->System.out.println(cls.getURI() + " -> " + map));
         this.mappedObjectProperty = toObjects(model);
-        this.mappedDataTypes = toOpenBISDataTypes(model);
         this.resourcesGroupedByType = extractResource(model);
+        this.mappedNamedIndividual = extractNamedIndividual(model);
+
+        getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
+        this.mappedSubClasses = chains;
 
         if (verbose) {
             extractGeneralInfo(model);
         }
     }
 
-    public Map<String, List<ResourceRDF>> extractResource(Model model){
+    public OntModel loadRDFModel(String inputFileName, String inputFormatValue) {
+        InputStream in = FileManager.getInternal().open(inputFileName);
+        if (in == null) {
+            throw new IllegalArgumentException("File: " + inputFileName + " not found");
+        }
+
+        // Create a default RDF model and read the Turtle file
+        //Model model = ModelFactory.createDefaultModel();
+        OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+
+        switch(inputFormatValue){
+            case "TTL":
+                RDFDataMgr.read(model, inputFileName, Lang.TTL);
+                break;
+            case "JSONLD":
+            case "XML":
+            default:
+                throw new IllegalArgumentException("Input format file: " + inputFormatValue + " not supported");
+        }
+        return model;
+    }
+
+    private Map<String, String> extractNamedIndividual(Model model) {
+        Map<String, String> mappedNamedIndividual = new HashMap<>();
+        // List properties for individuals
+        model.listSubjectsWithProperty(RDF.type, OWL2.NamedIndividual).forEachRemaining(individual -> {
+            individual.listProperties(RDFS.label).forEachRemaining(statement -> {
+                mappedNamedIndividual.put(individual.getURI(), statement.getObject().toString());
+            });
+        });
+
+        return mappedNamedIndividual;
+    }
+
+    private Map<String, List<ResourceRDF>> extractResource(Model model){
         // Namespace prefix
         String prefix = model.getNsPrefixURI(RESOURCE_URI_NS);
 
@@ -112,27 +153,6 @@ public class RDFParser {
             });
         }
         return groupedResources;
-    }
-
-    public OntModel loadRDFModel(String inputFileName, String inputFormatValue) {
-        InputStream in = FileManager.getInternal().open(inputFileName);
-        if (in == null) {
-            throw new IllegalArgumentException("File: " + inputFileName + " not found");
-        }
-
-        // Create a default RDF model and read the Turtle file
-        //Model model = ModelFactory.createDefaultModel();
-        OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
-
-        switch(inputFormatValue){
-            case "TTL":
-                RDFDataMgr.read(model, inputFileName, Lang.TTL);
-                break;
-            case "JSONLD":
-            default:
-                throw new IllegalArgumentException("Input format file: " + inputFormatValue + " not supported");
-        }
-        return model;
     }
 
     private void extractGeneralInfo(Model model) {
@@ -248,5 +268,68 @@ public class RDFParser {
         // Logic to determine if a resource is a value set or subset based on specific properties or classes
         return resource.hasProperty(RDF.type, OWL.Restriction) || resource.hasProperty(RDF.type, OWL.Class)
                 && (resource.hasProperty(OWL.unionOf) || resource.hasProperty(OWL.intersectionOf) || resource.hasProperty(OWL.allValuesFrom));
+    }
+
+    public void getSubclassChainsEndingWithClass(Model model, StmtIterator iter) {
+        // Clear previous chains
+        chains.clear();
+
+        // Process each statement
+        while (iter.hasNext()) {
+            Statement stmt = iter.nextStatement();
+            Resource subclassRes = stmt.getSubject();
+            String subclass = subclassRes.isURIResource() ? subclassRes.getURI() : "Anonymous Node";
+
+            if (subclassRes.isURIResource()) {
+                Resource superclass = stmt.getObject().asResource();
+
+                Set<String> visited = new HashSet<>();
+                List<String> chain = new ArrayList<>();
+                chain.add(subclass);
+
+                if (findSubclassChain(model, superclass, visited, chain)) {
+                    chains.put(subclass, new ArrayList<>(chain));
+                }
+            } else {
+                System.out.println("Skipping anonymous subclass: " + subclass);
+            }
+        }
+    }
+
+    private boolean findSubclassChain(Model model, Resource superclass, Set<String> visited, List<String> chain) {
+        if (superclass == null || !superclass.isURIResource()) {
+            //System.out.println("Skipping anonymous superclass.");
+            return false;
+        }
+
+        String superclassURI = superclass.getURI();
+        if (!visited.add(superclassURI)) {
+            // Already visited this class, no valid chain here
+            return false;
+        }
+
+        // Add superclass to chain
+        chain.add(superclass.getURI());
+
+        // Check if the superclass is of type owl:Class or rdfs:Class or owl:DatatypeProperty or owl:DatatypeProperty
+        if (model.contains(superclass, RDF.type, OWL.Class) || model.contains(superclass, RDF.type, RDFS.Class) || model.contains(superclass, RDF.type, OWL2.Class)
+                || model.contains(superclass, RDF.type, OWL.DatatypeProperty)
+                || model.contains(superclass, RDF.type, OWL.ObjectProperty)) {
+            return true;
+        }
+
+        // Recur for each superclass
+        StmtIterator superIter = model.listStatements(superclass, RDFS.subClassOf, (RDFNode) null);
+        while (superIter.hasNext()) {
+            Statement stmt = superIter.nextStatement();
+            Resource nextSuper = stmt.getObject().asResource();
+            if (findSubclassChain(model, nextSuper, visited, chain)) {
+                return true;
+            }
+        }
+
+        // Remove the last element added if no valid chain is found
+        chain.remove(chain.size() - 1);
+        return false;
     }
 }
