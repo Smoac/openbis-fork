@@ -108,7 +108,7 @@ public class ExcelBuilder {
 
         rowNum = rdfSpaceHelper.addSpaceSection(sheet, rowNum, headerStyle, spaceId);
         rowNum = rdfProjectHelper.addProjectSection(sheet, rowNum, headerStyle, spaceId, projectId);
-        rdfExperimentHelper.addExperimentSection(sheet, rowNum, headerStyle, projectId, rdfParser);
+        rowNum = rdfExperimentHelper.addExperimentSection(sheet, rowNum, headerStyle, projectId, rdfParser);
 
     }
 
