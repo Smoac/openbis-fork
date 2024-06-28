@@ -134,7 +134,7 @@ public class ClassCollector {
         });
     }
 
-    private static void collectProperties(OntModel model, OntClass cls, OntClassObject classDetail) {
+    private static void collectProperties(OntModel model, OntClass cls, OntClassObject classDetail, Map<String, List<String>> mappedDataTypes) {
         if (!cls.isAnon()) { // Exclude anonymous classes for intersectionOf
             // Find all properties where the class is the domain
             StmtIterator propIterator = model.listStatements(null, RDFS.domain, (RDFNode) null);
@@ -151,20 +151,36 @@ public class ClassCollector {
                         Resource range = rangeStmt.getObject().asResource();
                         if (range.canAs(UnionClass.class)) {
                             // If the range is a union class, process each operand
+                            //System.out.println("Class [" + prop.getURI() + "] might be of multiple types: " + range.as(UnionClass.class));
                             classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "SAMPLE"));
-                            /*// If the range is a union class, process each operand
+                            // If the range is a union class, process each operand
                             // To add multi ranged properties like hasCode [CODE] and hasCode [TERMINOLOGY]
-                            UnionClass unionRange = range.as(UnionClass.class);
-                            unionRange.listOperands().forEachRemaining(operand -> {
-                                if (operand.isURIResource()) {
-                                    classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), operand.getLocalName().toUpperCase(Locale.ROOT)));
-                                } else {
-                                    classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "UNKNOWN"));
+                            UnionClass unionClass = range.as(UnionClass.class);
+                            List<String> operands = new ArrayList<>();
+                            for(int i=0; i<unionClass.getOperands().size(); i++) {
+                                //System.out.println(unionClass.getOperands().get(i).as(Restriction.class));
+                                RDFNode item = unionClass.getOperands().get(i);
+                                // Check if the current item can be a Restriction and process it
+                                if (item.canAs(OntClass.class)) {
+                                    OntClass ontClass = item.as(OntClass.class);
+                                    if (item.isAnon()) {
+                                        System.out.println("Item at index " + i + " is Anon. " + item);
+                                    }
+                                    // Now, you have OntClass restriction, and you can process it
+                                    //System.out.println("     - Found OntClass operand ["+ontClass+"] at index " + i + " in union: "+unionClass);
+                                    operands.add(ontClass.getURI());
+                                } else  {
+                                    //System.out.println("     - Found not-OntClass operand [" + item + "] at index " +i+ " in union: " + unionClass);
+                                    operands.add(item.toString());
                                 }
-                            });*/
+                            }
+                            //System.out.println("Class <" + prop.getURI() + "> might be of multiple types: " + operands);
                         } else if (range.isURIResource()) {
                             // If the range is a single URI resource
-                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "SAMPLE:"+range.getLocalName().toUpperCase(Locale.ROOT)));
+                            String defaultSampleType = "SAMPLE:"+range.getLocalName().toUpperCase(Locale.ROOT);
+                            String mappedType = mappedDataTypes.getOrDefault(prop.getURI(), List.of(defaultSampleType)).get(0);
+                            //System.out.println("range is a single URI resource: " + prop.getURI() + " -> " + mappedType);
+                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), mappedType));
                         } else {
                             classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "UNKNOWN"));
                         }
@@ -191,7 +207,7 @@ public class ClassCollector {
         return false;
     }
 
-    public static Map<String, OntClassObject> collectClassDetails(OntModel model){
+    public static Map<String, OntClassObject> collectClassDetails(OntModel model, Map<String, List<String>> mappedDataTypes){
         Map<OntClass, OntClassObject> classDetailsMap = new HashMap<>();
 
         model.listClasses().forEachRemaining(cls -> {
@@ -200,8 +216,10 @@ public class ClassCollector {
             }
         });
 
+        //mappedDataTypes.forEach((k, v) -> System.out.println(k + ": " + v));
+
         classDetailsMap.forEach((cls, classDetail) -> {
-            collectProperties(model, cls, classDetail);
+            collectProperties(model, cls, classDetail, mappedDataTypes);
             collectInstances(cls, classDetail);
             //System.out.println("*** Class: " + cls);
             cls.listSuperClasses().forEachRemaining((superClass) -> {
