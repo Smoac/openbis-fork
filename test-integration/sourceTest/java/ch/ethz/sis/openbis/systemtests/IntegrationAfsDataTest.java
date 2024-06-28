@@ -26,9 +26,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 
@@ -206,16 +208,19 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
     @Test
     public void testAccessToWriteDataToSample() throws Exception
     {
-        // TEST space admin user should have WRITE access, TEST space observer and DEFAULT space user should not
+        // TEST space admin user should have WRITE access to mutable sample, TEST space observer and DEFAULT space user should not
         List<List<Object>> testCases =
-                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, false), List.of(DEFAULT_SPACE_ADMIN, false));
+                List.of(List.of(TEST_SPACE_ADMIN, true, true), List.of(TEST_SPACE_ADMIN, false, false), List.of(TEST_SPACE_OBSERVER, true, false),
+                        List.of(TEST_SPACE_OBSERVER, false, false), List.of(DEFAULT_SPACE_ADMIN, true, false),
+                        List.of(DEFAULT_SPACE_ADMIN, false, false));
 
         for (List<Object> testCase : testCases)
         {
             log("Test case: " + testCase);
 
             String userId = (String) testCase.get(0);
-            boolean userHasAccess = (boolean) testCase.get(1);
+            boolean mutableData = (boolean) testCase.get(1);
+            boolean expectedAccess = (boolean) testCase.get(2);
 
             String testFile = "test-file-" + UUID.randomUUID();
             String testData = "test-content-" + UUID.randomUUID();
@@ -225,6 +230,14 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             // create sample in TEST space with instance admin user
             Sample sample = createSample(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+            if (!mutableData)
+            {
+                SampleUpdate sampleUpdate = new SampleUpdate();
+                sampleUpdate.setSampleId(sample.getPermId());
+                sampleUpdate.makeDataImmutable();
+                openBISInstanceAdmin.updateSamples(List.of(sampleUpdate));
+            }
 
             assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
@@ -238,7 +251,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                 openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), testFile, 0L, testData.getBytes());
                 byte[] readData = openBIS.getAfsServerFacade().read(sample.getPermId().getPermId(), testFile, 0L, testData.length());
 
-                if (userHasAccess)
+                if (expectedAccess)
                 {
                     assertEquals(readData, testData.getBytes());
                     assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
@@ -250,7 +263,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                 }
             } catch (Exception e)
             {
-                if (userHasAccess)
+                if (expectedAccess)
                 {
                     fail();
                 } else
@@ -328,16 +341,19 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
     @Test
     public void testAccessToWriteDataToExperiment() throws Exception
     {
-        // TEST space admin user should have WRITE access, TEST space observer and DEFAULT space user should not
+        // TEST space admin user should have WRITE access to mutable experiment, TEST space observer and DEFAULT space user should not
         List<List<Object>> testCases =
-                List.of(List.of(TEST_SPACE_ADMIN, true), List.of(TEST_SPACE_OBSERVER, false), List.of(DEFAULT_SPACE_ADMIN, false));
+                List.of(List.of(TEST_SPACE_ADMIN, true, true), List.of(TEST_SPACE_ADMIN, false, false), List.of(TEST_SPACE_OBSERVER, true, false),
+                        List.of(TEST_SPACE_OBSERVER, false, false), List.of(DEFAULT_SPACE_ADMIN, true, false),
+                        List.of(DEFAULT_SPACE_ADMIN, false, false));
 
         for (List<Object> testCase : testCases)
         {
             log("Test case: " + testCase);
 
             String userId = (String) testCase.get(0);
-            boolean userHasAccess = (boolean) testCase.get(1);
+            boolean mutableData = (boolean) testCase.get(1);
+            boolean expectedAccess = (boolean) testCase.get(2);
 
             String testFile = "test-file-" + UUID.randomUUID();
             String testData = "test-content-" + UUID.randomUUID();
@@ -348,6 +364,14 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
             // create experiment and in TEST space with instance admin user
             Project project = createProject(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
             Experiment experiment = createExperiment(openBISInstanceAdmin, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+            if (!mutableData)
+            {
+                ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+                experimentUpdate.setExperimentId(experiment.getPermId());
+                experimentUpdate.makeDataImmutable();
+                openBISInstanceAdmin.updateExperiments(List.of(experimentUpdate));
+            }
 
             assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
@@ -361,7 +385,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                 openBIS.getAfsServerFacade().write(experiment.getPermId().getPermId(), testFile, 0L, testData.getBytes());
                 byte[] readData = openBIS.getAfsServerFacade().read(experiment.getPermId().getPermId(), testFile, 0L, testData.length());
 
-                if (userHasAccess)
+                if (expectedAccess)
                 {
                     assertEquals(readData, testData.getBytes());
                     assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
@@ -373,7 +397,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                 }
             } catch (Exception e)
             {
-                if (userHasAccess)
+                if (expectedAccess)
                 {
                     fail();
                 } else
