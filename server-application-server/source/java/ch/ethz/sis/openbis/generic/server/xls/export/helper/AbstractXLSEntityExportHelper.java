@@ -215,10 +215,9 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                 }
                             }).toArray(PropertyValue[]::new);
 
-                    Arrays.stream(entityValues).filter(Objects::nonNull)
-                            .forEach(propertyValue ->
+                    Arrays.stream(entityValues).forEach(propertyValue ->
                             {
-                                if (propertyValue.getMiscellaneousFiles() != null)
+                                if (propertyValue != null && propertyValue.getMiscellaneousFiles() != null)
                                 {
                                     miscellaneousFiles.putAll(propertyValue.getMiscellaneousFiles());
                                 }
