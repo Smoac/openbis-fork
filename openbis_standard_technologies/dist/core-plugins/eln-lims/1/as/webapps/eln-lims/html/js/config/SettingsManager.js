@@ -152,7 +152,8 @@ function SettingsManager(serverFacade) {
 				}
 				//
 				if(!SettingsManagerUtils._defaultProfile) { // Save the default profile containing the configuration given by plugins
-				    SettingsManagerUtils._defaultProfile = JSON.parse(JSON.stringify(profile));
+				    json = Util.stringify(profile, /^all.*/, true);
+				    SettingsManagerUtils._defaultProfile = JSON.parse(json);
 				}
 				SettingsManagerUtils._instanceSettings = JSON.parse(JSON.stringify(settingsByPrefix));
 				callback(validSettingObjects);
@@ -476,3 +477,4 @@ function SettingsManager(serverFacade) {
 	}
 
 }
+
