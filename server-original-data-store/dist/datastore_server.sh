@@ -50,27 +50,6 @@ checkNotRoot()
   fi
 }
 
-rotateLogFiles()
-{
-  logfile=$1
-  max=$2
-  if [ -z "$logfile" ]; then
-    echo "Error: rotateLogFiles: logfile argument missing"
-    return 1
-  fi
-  if [ -z "$max" ]; then
-    echo "Error: rotateLogFiles: max argument missing"
-    return 1
-  fi
-  test -f $logfile.$max && rm $logfile.$max
-  n=$max
-  while [ $n -gt 1 ]; do
-    nnew=$(($n-1))
-    test -f $logfile.$nnew && mv $logfile.$nnew $logfile.$n
-    n=$nnew
-  done
-  test -f $logfile && mv $logfile $logfile.1
-}
 
 getStatus()
 {
@@ -181,7 +160,6 @@ case "$command" in
     fi
 
     echo -n "Starting Data Store Server "
-    rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
     "${CMD}" $COMMON_OPTIONS "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then

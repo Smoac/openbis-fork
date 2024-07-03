@@ -50,28 +50,6 @@ checkNotRoot()
   fi
 }
 
-rotateLOG_FILEs()
-{
-  LOG_FILE=$1
-  max=$2
-  if [ -z "$LOG_FILE" ]; then
-    echo "Error: rotateLOG_FILEs: LOG_FILE argument missing"
-    return 1
-  fi
-  if [ -z "$max" ]; then
-    echo "Error: rotateLOG_FILEs: max argument missing"
-    return 1
-  fi
-  test -f $LOG_FILE.$max && rm $LOG_FILE.$max
-  n=$max
-  while [ $n -gt 1 ]; do
-    nnew=$(($n-1))
-    test -f $LOG_FILE.$nnew && mv $LOG_FILE.$nnew $LOG_FILE.$n
-    n=$nnew
-  done
-  test -f $LOG_FILE && mv $LOG_FILE $LOG_FILE.1
-}
-
 getStatus()
 {
   if [ -f $PID_FILE ]; then
@@ -171,7 +149,6 @@ case "$command" in
     fi
 
     echo -n "Starting AFS Server "
-    rotateLOG_FILEs $LOG_FILE $MAXLOGS
     shift 1
     $JAVA_BIN $JAVA_OPTIONS "$@" > $STARTUP_LOG 2>&1 & echo $! > $PID_FILE
     if [ $? -eq 0 ]; then
