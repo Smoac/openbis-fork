@@ -109,6 +109,44 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
+    public void testInlinedImageImport() throws Exception
+    {
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import_inlined_image_cell.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
+        sampleSearchCriteria.withCode().thatEquals("AAA");
+
+        final SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+
+        final SearchResult<Sample> sampleSearchResult = v3api.searchSamples(sessionToken, sampleSearchCriteria, sampleFetchOptions);
+
+        assertEquals(sampleSearchResult.getTotalCount(), 1);
+
+        final String propertyValue = sampleSearchResult.getObjects().get(0).getProperty("NOTES");
+        assertNotNull(propertyValue);
+
+        final String filePathString = "/eln-lims/13/3d/d4/133dd458-9f7f-4ca9-8353-9de3f00f2a55/78397d5b-fe0d-45e8-9f1c-9fa665bc81e3.png";
+        assertTrue(propertyValue.contains(filePathString));
+
+        final Path finalImagePath =
+                FileServerUtils.getFilePath(filePathString);
+        assertTrue(Files.exists(finalImagePath));
+
+        // Cleanup
+        Files.delete(finalImagePath);
+        Files.delete(finalImagePath.getParent());
+        Files.delete(finalImagePath.getParent().getParent());
+        Files.delete(finalImagePath.getParent().getParent().getParent());
+        Files.delete(finalImagePath.getParent().getParent().getParent().getParent());
+    }
+
+    @Test
     public void testImportOptionsUpdateIfExists() throws Exception
     {
         final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.zip");
