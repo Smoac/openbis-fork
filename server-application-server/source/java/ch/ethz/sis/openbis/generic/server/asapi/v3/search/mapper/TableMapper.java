@@ -68,9 +68,6 @@ public enum TableMapper
     DATA_STORE(DATA_STORES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, false, false, false),
 
-    DATA_STORE(DATA_STORES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, false, false, false),
-
     PERSON(PERSONS_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, true, false, false),
 
