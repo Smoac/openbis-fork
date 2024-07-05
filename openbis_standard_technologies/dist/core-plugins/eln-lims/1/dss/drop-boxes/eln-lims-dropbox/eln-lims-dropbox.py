@@ -270,11 +270,8 @@ def stringArrayStrip(sArray):
 
 
 def deleteFilesMatchingPatterns(incoming, discardFilesPatterns):
-    print("||> DUPA delete")
     stringToPatternMap = getStringPatternMap()
-    print(discardFilesPatterns)
     if discardFilesPatterns:
-        print("||> DUPA IF")
         stringPatterns = stringArrayStrip(discardFilesPatterns.split(","))
         patterns = []
         try:
@@ -293,11 +290,9 @@ def deleteFilesMatchingPatterns(incoming, discardFilesPatterns):
 
 
 def validateIllegalFilesMatchingPatterns(incoming, illegalFilesPatterns):
-    print("||> VALIDATE")
     stringToPatternMap = getStringPatternMap()
     if illegalFilesPatterns:
         stringPatterns = stringArrayStrip(illegalFilesPatterns.split(","))
-        print(stringPatterns)
         patterns = []
         try:
             for stringPattern in stringPatterns:
@@ -343,4 +338,5 @@ def getIllegalFilesMatchingPatterns(file, patterns):
         for fileInDirectory in file.listFiles():
             result.extend(getIllegalFilesMatchingPatterns(fileInDirectory, patterns))
     return result
+
 
