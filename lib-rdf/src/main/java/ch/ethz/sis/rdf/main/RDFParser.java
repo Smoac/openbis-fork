@@ -3,6 +3,8 @@ package ch.ethz.sis.rdf.main;
 import ch.ethz.sis.rdf.main.entity.OntClassObject;
 import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.entity.ResourceRDF;
+import ch.ethz.sis.rdf.main.entity.VocabularyType;
+import ch.ethz.sis.rdf.main.parser.NamedIndividualParser;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.rdf.model.*;
@@ -28,7 +30,8 @@ public class RDFParser {
     public final Map<String, List<String>> mappedDataTypes;
     public final Map<String, List<String>> mappedObjectProperty;
     public final Map<String, List<ResourceRDF>> resourcesGroupedByType;
-    public final Map<String, String> mappedNamedIndividual;
+    public final List<VocabularyType> mappedNamedIndividualList;
+    public final Map<String, List<VocabularyType>> mappedNamedIndividual;
     public final Map<String, List<String>> mappedSubClasses;
 
     private final Map<String, List<String>> chains = new HashMap<>();
@@ -62,7 +65,9 @@ public class RDFParser {
         //classDetailsMap.forEach((cls, map)->System.out.println(cls.getURI() + " -> " + map));
         this.mappedObjectProperty = toObjects(model);
         this.resourcesGroupedByType = extractResource(model);
-        this.mappedNamedIndividual = extractNamedIndividual(model);
+        NamedIndividualParser namedIndividualParser = new NamedIndividualParser(model);
+        this.mappedNamedIndividualList = namedIndividualParser.processGroupedNamedIndividuals();
+        this.mappedNamedIndividual = namedIndividualParser.processNamedIndividuals();
 
         getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
         this.mappedSubClasses = chains;
@@ -70,6 +75,20 @@ public class RDFParser {
         if (verbose) {
             extractGeneralInfo(model);
         }
+    }
+
+    public boolean isSubClass(String uri){
+        return mappedSubClasses.containsKey(uri);
+    }
+
+    //TODO implement a non hardcoded way to check this: check if its type in the model is one of the Classes
+    public boolean isResource(String uri){
+        return resourcesGroupedByType.containsKey(uri);
+    }
+
+    //TODO implement a non hardcoded way to check this: check if its type in the model is one of the Classes
+    public boolean isAlias(String uri){
+        return mappedNamedIndividual.containsKey(uri);
     }
 
     public OntModel loadRDFModel(String inputFileName, String inputFormatValue) {
@@ -94,13 +113,28 @@ public class RDFParser {
         return model;
     }
 
-    private Map<String, String> extractNamedIndividual(Model model) {
+    private Map<String, String> extractLabelNamedIndividual(Model model) {
         Map<String, String> mappedNamedIndividual = new HashMap<>();
         // List properties for individuals
         model.listSubjectsWithProperty(RDF.type, OWL2.NamedIndividual).forEachRemaining(individual -> {
             individual.listProperties(RDFS.label).forEachRemaining(statement -> {
                 mappedNamedIndividual.put(individual.getURI(), statement.getObject().toString());
             });
+        });
+
+        model.listStatements(null, RDF.type, OWL2.NamedIndividual).forEachRemaining(triplet -> {
+            Resource subject = triplet.getSubject();
+            System.out.println("Sub: " + subject + " -> from triplet: " + triplet);
+
+            String label = model.getProperty(subject, RDFS.label).getString();
+
+            System.out.println("label: " + label );
+
+            model.listObjectsOfProperty(subject, RDF.type)
+                    .filterDrop(resource -> resource.asResource().equals(OWL2.NamedIndividual.asResource()))
+                    .forEach(resource ->{
+                        System.out.println("    res: " + resource);
+                    });
         });
 
         return mappedNamedIndividual;

@@ -5,6 +5,7 @@ import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.entity.OntClassObject;
 import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.entity.ResourceRDF;
+import ch.ethz.sis.rdf.main.entity.VocabularyType;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -44,6 +45,8 @@ public class RDFSampleHelper {
             return mandatory;
         }
     }
+
+    private final String RESOURCE_PREFIX = "https://biomedit.ch/rdf/sphn-resource/";
 
     private List<String> getAllColumnsList(OntClassObject ontClassObject) {
         //System.out.println("ontClassObject.propertyTuples: " + ontClassObject.propertyTuples);
@@ -93,9 +96,12 @@ public class RDFSampleHelper {
         return rowNum;
     }
 
-    protected int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject, Map<String, String> mappedNamedIndividual) {
+    protected boolean isResource(String uri){
+        return uri.startsWith(RESOURCE_PREFIX);
+    }
+    
+    protected int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject, RDFParser rdfParser) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
-        String resourcePrefix = "https://biomedit.ch/rdf/sphn-resource/";
 
         Row propertyRowValues = sheet.createRow(rowNum);
         //propertyRowValues.createCell(0).setCellValue(""); // $
@@ -112,22 +118,27 @@ public class RDFSampleHelper {
             propertyRowValues.createCell(idxName).setCellValue(resource.resourceVal);
         }
 
+        Map<String, List<VocabularyType>> mappedLabelNamedIndividual = rdfParser.mappedNamedIndividual;
+
         for (PropertyTupleRDF property : resource.properties) {
-            System.out.println(property);
+            boolean isAlias = rdfParser.isAlias(property.getObject());
+            boolean isResource = isResource(property.getObject());
+            boolean isSubClass = rdfParser.isSubClass(property.getObject());
+            System.out.println("PropertyTupleRDF: " + property + ", isAlias: " + isAlias + ", isResource: " + isResource + ", isSubClass: " + isSubClass);
             propertyRowValues.createCell(1).setCellValue(projectId + "/" + resource.resourceVal); // Identifier
             propertyRowValues.createCell(5).setCellValue(projectId + "/" + Utils.extractLabel(resource.type).toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
             int idx = allColumns.indexOf(Utils.extractLabel(property.getPredicateLabel()));
             if (idx != -1) {
-                if (mappedNamedIndividual.containsKey(property.getObject())){
-                    propertyRowValues.createCell(idx).setCellValue(mappedNamedIndividual.get(property.getObject()));
-                } else if (property.getObject().contains(resourcePrefix)) {
-                    propertyRowValues.createCell(idx).setCellValue(projectId + "/" + property.getObject().replace(resourcePrefix, ""));
+                if (mappedLabelNamedIndividual.containsKey(property.getObject())){
+                    propertyRowValues.createCell(idx).setCellValue(mappedLabelNamedIndividual.get(property.getObject()).toString());
+                } else if (property.getObject().contains(RESOURCE_PREFIX)) {
+                    propertyRowValues.createCell(idx).setCellValue(projectId + "/" + property.getObject().replace(RESOURCE_PREFIX, ""));
                 } else {
                     if (!property.getObject().contains("^^")){
-                        propertyRowValues.createCell(idx).setCellValue(property.getObject().replace(resourcePrefix, ""));
+                        propertyRowValues.createCell(idx).setCellValue(property.getObject().replace(RESOURCE_PREFIX, ""));
                     } else {
-                        //convertRDFLiteral(property.getObject().replace(resourcePrefix, ""), propertyRowValues, idx);
-                        String rdfLiteral = property.getObject().replace(resourcePrefix, "");
+                        //convertRDFLiteral(property.getObject().replace(RESOURCE_PREFIX, ""), propertyRowValues, idx);
+                        String rdfLiteral = property.getObject().replace(RESOURCE_PREFIX, "");
 
                         int separatorIndex = rdfLiteral.indexOf("^^");
 

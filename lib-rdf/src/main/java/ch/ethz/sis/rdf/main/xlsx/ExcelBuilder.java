@@ -1,9 +1,11 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
+import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.entity.OntClassObject;
 import ch.ethz.sis.rdf.main.entity.ResourceRDF;
+import ch.ethz.sis.rdf.main.entity.VocabularyType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -11,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+
+import static ch.ethz.sis.rdf.main.Constants.*;
 
 public class ExcelBuilder {
     RDFSampleTypeHelper rdfSampleTypeHelper;
@@ -20,6 +24,7 @@ public class ExcelBuilder {
     RDFProjectHelper rdfProjectHelper;
     RDFExperimentHelper rdfExperimentHelper;
     RDFExperimentTypeHelper rdfExperimentTypeHelper;
+    RDFVocabularyTypeHelper rdfVocabularyTypeHelper;
 
     public ExcelBuilder() {
         this.rdfSampleTypeHelper = new RDFSampleTypeHelper();
@@ -29,6 +34,7 @@ public class ExcelBuilder {
         this.rdfProjectHelper = new RDFProjectHelper();
         this.rdfExperimentHelper = new RDFExperimentHelper();
         this.rdfExperimentTypeHelper = new RDFExperimentTypeHelper();
+        this.rdfVocabularyTypeHelper = new RDFVocabularyTypeHelper();
     }
 
     public void createExcelFile(RDFParser rdfParser, String fileName, String projectIdentifier) {
@@ -41,11 +47,11 @@ public class ExcelBuilder {
             font.setBold(true);
             headerStyle.setFont(font);
 
-            //createVocabularyTypesSheet(workbook, headerStyle);
+            createVocabularyTypesSheet(workbook, headerStyle, rdfParser);
             createObjectTypesSheet(workbook, headerStyle, rdfParser);
             createExperimentTypesSheet(workbook, headerStyle);
             createSpaceProjExpSheet(workbook, headerStyle, projectIdentifier, rdfParser);
-            //createObjectsSheet(workbook, headerStyle, projectIdentifier, rdfParser);
+            createObjectsSheet(workbook, headerStyle, projectIdentifier, rdfParser);
 
             // Write the output to a file
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
@@ -59,14 +65,22 @@ public class ExcelBuilder {
         }
     }
 
-    private void createVocabularyTypesSheet(Workbook workbook, CellStyle headerStyle){
-        Sheet sheet = workbook.createSheet("Vocabulary types");
+    private void createVocabularyTypesSheet(Workbook workbook, CellStyle headerStyle, RDFParser rdfParser){
+        Sheet sheet = workbook.createSheet(SHEET_TITLE_VOCAB);
         int rowNum = 0;
-        //addVocabularyTypes(sheetVT, rowNumVT, headerStyle);
+
+        List<VocabularyType> vocabularyTypeList = rdfParser.mappedNamedIndividualList;
+
+        for(VocabularyType vocabularyType: vocabularyTypeList){
+            rowNum = rdfVocabularyTypeHelper.addVocabularyTypes(sheet, rowNum, headerStyle, vocabularyType);
+        }
+
     }
 
+
+
     private void createObjectTypesSheet(Workbook workbook, CellStyle headerStyle, RDFParser rdfParser){
-        Sheet sheetOT = workbook.createSheet("Object types");  // Create a sheet named "OBJ PROP"
+        Sheet sheetOT = workbook.createSheet(SHEET_TITLE_OBJ_TYPES);
 
         int rowNumOT = 0;
 
@@ -93,7 +107,7 @@ public class ExcelBuilder {
     }
 
     private void createExperimentTypesSheet(Workbook workbook, CellStyle headerStyle){
-        Sheet sheet = workbook.createSheet("Experiment types");  // Create a sheet named "OBJ PROP"
+        Sheet sheet = workbook.createSheet(Constants.SHEET_TITLE_EXP);  // Create a sheet named "OBJ PROP"
         int rowNum = 0;
 
         rowNum = rdfExperimentTypeHelper.addExperimentTypeSection(sheet, rowNum, headerStyle);
@@ -102,9 +116,9 @@ public class ExcelBuilder {
     }
 
     private void createSpaceProjExpSheet(Workbook workbook, CellStyle headerStyle, String projectId, RDFParser rdfParser){
-        Sheet sheet = workbook.createSheet("Space Project Experiment");  // Create a sheet named "OBJ PROP"
+        Sheet sheet = workbook.createSheet(SHEET_TITLE_SPACES);  // Create a sheet named "OBJ PROP"
         int rowNum = 0;
-        String spaceId = projectId.split("/")[1];
+        String spaceId = projectId.split(SEP)[1];
 
         rowNum = rdfSpaceHelper.addSpaceSection(sheet, rowNum, headerStyle, spaceId);
         rowNum = rdfProjectHelper.addProjectSection(sheet, rowNum, headerStyle, spaceId, projectId);
@@ -113,11 +127,21 @@ public class ExcelBuilder {
     }
 
     private void createObjectsSheet(Workbook workbook, CellStyle headerStyle, String projectId, RDFParser rdfParser) {
-        Sheet sheet = workbook.createSheet("Objects");
+        Sheet sheet = workbook.createSheet(SHEET_TITLE_OBJS);
         int rowNum = 0;
         List<String> skippedSampleTypes = new ArrayList<>();
+        Map<String, List<ResourceRDF>> additionalResources = new HashMap<>();
 
         for (Map.Entry<String, List<ResourceRDF>> entry : rdfParser.resourcesGroupedByType.entrySet()) {
+
+            boolean isAlias = rdfParser.isAlias(entry.getKey());
+            boolean isResource = rdfParser.isResource(entry.getKey());
+            boolean isSubClass = rdfParser.isSubClass(entry.getKey());
+            System.out.println("Entry: " + entry.getKey() + ", isAlias: " + isAlias + ", isResource: " + isResource + ", isSubClass: " + isSubClass);
+
+            if (isSubClass) {
+                System.out.println("    Subclass: " + rdfParser.mappedSubClasses.getOrDefault(entry.getKey(), new ArrayList<>()));
+            }
             if (!rdfParser.classDetailsMap.containsKey(entry.getKey()) || !rdfParser.mappedSubClasses.containsKey(entry.getKey())) {
                 skippedSampleTypes.add(entry.getKey());
                 continue;
@@ -133,7 +157,7 @@ public class ExcelBuilder {
 
             for (ResourceRDF resourceRDF : entry.getValue()) {
                 //System.out.println(resourceRDF);
-                rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, resourceRDF, ontClassObject, rdfParser.mappedNamedIndividual);
+                rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, resourceRDF, ontClassObject, rdfParser);
             }
             // add empty row for readability
             sheet.createRow(rowNum++);
