@@ -27,8 +27,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractSearchCriteria", "as/d
 		prototype.dataStoreKinds = null;
 
 		prototype.thatIn = function(dataStoreKinds) {
-			this.dataStoreKinds = new Set(dataStoreKinds);
-			// this.dataStoreKinds = dataStoreKinds;
+			this.dataStoreKinds = dataStoreKinds;
 		};
 
 		prototype.getDataStoreKinds = function() {
@@ -36,12 +35,8 @@ define([ "require", "stjs", "as/dto/common/search/AbstractSearchCriteria", "as/d
 		};
 	}, {
 		dataStoreKinds: {
-			name: "Set",
-			arguments: ["Enum"]
+			name: "Enum[]"
 		}
-		// dataStoreKinds: {
-		// 	name: "String[]"
-		// }
 	});
 	return DataStoreKindSearchCriteria;
 })

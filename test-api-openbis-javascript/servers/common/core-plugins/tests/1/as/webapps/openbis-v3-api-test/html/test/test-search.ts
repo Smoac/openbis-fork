@@ -2694,18 +2694,73 @@ exports.default = new Promise((resolve) => {
 
                 var fSearch = function (facade: openbis.openbis) {
                     var criteria = new dtos.DataStoreSearchCriteria()
-                    // criteria.withKind().thatIn(<openbis.DataStoreKind[]>[])
-                    criteria.withKind().thatIn(["DSS"])
+                    criteria.withKind().thatIn([])
                     return facade.searchDataStores(criteria, new dtos.DataStoreFetchOptions())
                 }
 
                 var fCheck = function (facade: openbis.openbis, dataStores: openbis.DataStore[]) {
-                    var codes: Set<string> = new Set(dataStores.map((dataStore: openbis.DataStore): string => dataStore.getCode()))
-                    c.assertEqual(codes, "STANDARD")
+                    var codes: string[] = dataStores.map((dataStore: openbis.DataStore): string => dataStore.getCode())
+                    c.assertEqual(codes.length, 0)
                 }
 
                 testSearch(c, fSearch, fCheck)
             })
+
+            QUnit.test("testSearchDataStore() withKind DSS", function (assert) {
+                var c = new common(assert, dtos)
+
+                var fSearch = function (facade: openbis.openbis) {
+                    var criteria = new dtos.DataStoreSearchCriteria()
+                    criteria.withKind().thatIn([dtos.DataStoreKind.DSS])
+                    return facade.searchDataStores(criteria, new dtos.DataStoreFetchOptions())
+                }
+
+                var fCheck = function (facade: openbis.openbis, dataStores: openbis.DataStore[]) {
+                    var codes: string[] = dataStores.map((dataStore: openbis.DataStore): string => dataStore.getCode())
+                    c.assertTrue(arraySetsEqual(codes, ["DSS1", "DSS2"]))
+                }
+
+                testSearch(c, fSearch, fCheck)
+            })
+
+            QUnit.test("testSearchDataStore() withKind AFS", function (assert) {
+                var c = new common(assert, dtos)
+
+                var fSearch = function (facade: openbis.openbis) {
+                    var criteria = new dtos.DataStoreSearchCriteria()
+                    criteria.withKind().thatIn([dtos.DataStoreKind.AFS])
+                    return facade.searchDataStores(criteria, new dtos.DataStoreFetchOptions())
+                }
+
+                var fCheck = function (facade: openbis.openbis, dataStores: openbis.DataStore[]) {
+                    var codes: string[] = dataStores.map((dataStore: openbis.DataStore): string => dataStore.getCode())
+                    c.assertTrue(arraySetsEqual(codes, ["AFS"]))
+                }
+
+                testSearch(c, fSearch, fCheck)
+            })
+
+            QUnit.test("testSearchDataStore() withKind AFS and DSS", function (assert) {
+                var c = new common(assert, dtos)
+
+                var fSearch = function (facade: openbis.openbis) {
+                    var criteria = new dtos.DataStoreSearchCriteria()
+                    criteria.withKind().thatIn([dtos.DataStoreKind.AFS, dtos.DataStoreKind.DSS])
+                    return facade.searchDataStores(criteria, new dtos.DataStoreFetchOptions())
+                }
+
+                var fCheck = function (facade: openbis.openbis, dataStores: openbis.DataStore[]) {
+                    var codes: string[] = dataStores.map((dataStore: openbis.DataStore): string => dataStore.getCode())
+                    c.assertTrue(arraySetsEqual(codes, ["AFS", "DSS1", "DSS2"]))
+                }
+
+                testSearch(c, fSearch, fCheck)
+            })
+
+            function arraySetsEqual(arr1, arr2) {
+                return new Set(arr1).size === new Set(arr2).size &&
+                  [...new Set(arr1)].every(value => arr2.includes(value));
+            }
 
             function checkExceptionsThrown(assert, dataTypes, createCriteria) {
                 var c = new common(assert, dtos)
