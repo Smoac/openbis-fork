@@ -89,6 +89,8 @@ class DatabaseComponent extends React.PureComponent {
           [new openbis.DataSetPermId(object.id)],
           fetchOptions
         )
+        //TODO: ask Viktor if this case is ok for his implementation
+        //showDataBrowser = true
         json = dataSets[object.id]
       }
 

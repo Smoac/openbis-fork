@@ -30,6 +30,7 @@ import AddToQueueIcon from "@material-ui/icons/AddToQueue";
 import SaveIcon from "@material-ui/icons/Save";
 import DeleteIcon from "@material-ui/icons/Delete";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import CreateIcon from '@material-ui/icons/Create';
 
 import messages from '@src/js/common/messages.js'
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
@@ -124,6 +125,10 @@ class ImagingDataSetViewer extends React.PureComponent {
         try {
             const updatedImagingDataset = await new ImagingFacade(extOpenbis)
                 .updateImagingDataset(objId, activeImageIdx, imagingDataset.images[activeImageIdx].previews[activePreviewIdx]);
+            if (imagingDataset.config.inputs.length === 0) {
+                this.handleError("Page will be reloaded.");
+                window.location.reload();
+            }
             if (updatedImagingDataset.error) {
                 this.setState({open: false, isChanged: true, isSaved: false});
                 this.handleError(updatedImagingDataset.error);
@@ -488,13 +493,16 @@ class ImagingDataSetViewer extends React.PureComponent {
                 <PaperBox className={classes.noBorderNoShadow}>
                     <Grid item xs>
                         <Grid container justifyContent="space-between" alignItems="center">
-                            <Button label={messages.get(messages.UPDATE)}
+                            {configInputs.length === 0 ? <Button label={messages.get(messages.GENERATE_CONTROLS)}
+                                    variant='outlined'
+                                    color='primary'
+                                    startIcon={<CreateIcon/>}
+                                    onClick={this.handleUpdate}/> : <Button label={messages.get(messages.UPDATE)}
                                     variant='outlined'
                                     color='primary'
                                     startIcon={<RefreshIcon/>}
                                     onClick={this.handleUpdate}
-                                    disabled={!isChanged || isUploadedPreview}/>
-
+                                    disabled={!isChanged || isUploadedPreview}/>}
                             {isChanged && !isUploadedPreview && (
                                 <Message type='info'>
                                     {messages.get(messages.UPDATE_CHANGES)}
