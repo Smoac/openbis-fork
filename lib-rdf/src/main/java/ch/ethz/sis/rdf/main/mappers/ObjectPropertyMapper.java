@@ -14,6 +14,16 @@ import java.util.Map;
  */
 public class ObjectPropertyMapper {
 
+    public Map<String, List<String>> mappedObjectProperty;
+
+    public ObjectPropertyMapper(OntModel model){
+        this.mappedObjectProperty = toObjects(model);
+    }
+
+    public Map<String, List<String>> getMappedObjectProperty() {
+        return mappedObjectProperty;
+    }
+
     /**
      * Maps object properties to their respective ranges in the given ontology model.
      *
@@ -24,7 +34,7 @@ public class ObjectPropertyMapper {
      *      https://biomedit.ch/rdf/sphn-schema/sphn#hasOriginLocation --> [https://biomedit.ch/rdf/sphn-schema/sphn#Location]
      *      https://biomedit.ch/rdf/sphn-schema/sphn#hasDrug --> [https://biomedit.ch/rdf/sphn-schema/sphn#Drug]
      */
-    public static Map<String, List<String>> toObjects(OntModel model) {
+    private Map<String, List<String>> toObjects(OntModel model) {
         Map<String, List<String>> mappedObjectProperty = new HashMap<>();
 
         model.listObjectProperties().forEachRemaining(property -> {
