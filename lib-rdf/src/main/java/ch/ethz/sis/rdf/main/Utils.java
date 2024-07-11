@@ -16,7 +16,7 @@ public class Utils {
 
     public static final String XLSX_EXTENSION = ".xlsx";
     public static final String PREFIX = "UID";
-    private static final int TIMEOUT = 300000;
+
 
     public static Path createTemporaryFile() {
         Path tempFile = null;
@@ -47,28 +47,4 @@ public class Utils {
         }
     }
 
-    public static void connectAndExport(String openbisASURL, String openBISDSSURL, String username, String password, Path tempFile) {
-        //TODO: is AFS client needed ? AfsClient class not found exception
-        OpenBIS openBIS = openBISDSSURL == null ? new OpenBIS(openbisASURL + "/openbis/openbis", openbisASURL + "/datastore_server", null, TIMEOUT)
-                : new OpenBIS(openbisASURL, openBISDSSURL, null, TIMEOUT);
-
-        String sessionToken = openBIS.login(username, password);
-        System.out.println("Retrived sessionToken: " + sessionToken);
-
-        String uploadId = openBIS.uploadToSessionWorkspace(tempFile);
-        System.out.println("Retrived uploadId: " + uploadId);
-        // Call excel import
-        ImportData importData = new ImportData();
-        importData.setFormat(ImportFormat.EXCEL);
-        importData.setSessionWorkspaceFiles(List.of("output.xlsx").toArray(new String[0])); //List.of(tempFile.toFile().getName()).toArray(new String[0]));
-
-        ImportOptions importOptions = new ImportOptions();
-        importOptions.setMode(ImportMode.UPDATE_IF_EXISTS);
-
-        System.out.println("Starting import...");
-
-        openBIS.executeImport(importData, importOptions);
-
-        System.out.println("Import complete.");
-    }
 }
