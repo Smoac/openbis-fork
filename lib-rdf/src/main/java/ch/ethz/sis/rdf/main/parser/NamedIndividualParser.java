@@ -15,14 +15,25 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class NamedIndividualParser {
-    private final Model model;
+
+    public List<VocabularyType> vocabularyTypeList;
+    public Map<String, List<VocabularyType>> vocabularyTypeListGroupedByType;
 
     public NamedIndividualParser(Model model) {
-        this.model = model;
+        this.vocabularyTypeList = processGroupedNamedIndividuals(model);
+        this.vocabularyTypeListGroupedByType = processNamedIndividuals(model);
     }
 
-    public List<VocabularyType> processGroupedNamedIndividuals() {
-        Map<String, List<VocabularyType>> groupedByCode = processNamedIndividuals();
+    public List<VocabularyType> getVocabularyTypeList() {
+        return vocabularyTypeList;
+    }
+
+    public Map<String, List<VocabularyType>> getVocabularyTypeListGroupedByType() {
+        return vocabularyTypeListGroupedByType;
+    }
+
+    public List<VocabularyType> processGroupedNamedIndividuals(Model model) {
+        Map<String, List<VocabularyType>> groupedByCode = processNamedIndividuals(model);
 
         List<VocabularyType> mergedList = groupedByCode.entrySet().stream().map(entry -> {
             String code = entry.getKey();
@@ -40,15 +51,15 @@ public class NamedIndividualParser {
         return mergedList;
     }
 
-    public Map<String, List<VocabularyType>> processNamedIndividuals() {
+    public Map<String, List<VocabularyType>> processNamedIndividuals(Model model) {
         List<VocabularyType> vocabularyTypeList = new ArrayList<>();
         model.listSubjectsWithProperty(RDF.type, OWL2.NamedIndividual).forEachRemaining(subject -> {
-            processIndividual(subject, vocabularyTypeList);
+            processIndividual(model, subject, vocabularyTypeList);
         });
         return vocabularyTypeList.stream().collect(Collectors.groupingBy(VocabularyType::getCode));
     }
 
-    private void processIndividual(Resource subject, List<VocabularyType> vocabularyTypeList) {
+    private void processIndividual(Model model, Resource subject, List<VocabularyType> vocabularyTypeList) {
         try {
             String optionLabel = model.getProperty(subject, RDFS.label).getString();
             VocabularyTypeOption option = new VocabularyTypeOption(
@@ -60,7 +71,7 @@ public class NamedIndividualParser {
                     .filterKeep(rdfNode -> rdfNode.canAs(Resource.class))
                     .filterDrop(rdfNode -> rdfNode.asResource().equals(OWL2.NamedIndividual.asResource()))
                     .forEach(rdfNode -> {
-                        VocabularyType vocabularyType = createVocabularyType((Resource) rdfNode, option);
+                        VocabularyType vocabularyType = createVocabularyType(model, (Resource) rdfNode, option);
                         vocabularyTypeList.add(vocabularyType);
                     });
         } catch (Exception e) {
@@ -68,9 +79,9 @@ public class NamedIndividualParser {
         }
     }
 
-    private VocabularyType createVocabularyType(Resource resource, VocabularyTypeOption option) {
-        String description = getPropertySafely(resource, SKOS.definition, "");
-        String subClassOf = getPropertySafely(resource, RDFS.subClassOf, resource.toString());
+    private VocabularyType createVocabularyType(Model model, Resource resource, VocabularyTypeOption option) {
+        String description = getPropertySafely(model, resource, SKOS.definition, "");
+        String subClassOf = getPropertySafely(model, resource, RDFS.subClassOf, resource.toString());
 
         return new VocabularyType(
                 resource.getLocalName().toUpperCase(Locale.ROOT),
@@ -79,7 +90,7 @@ public class NamedIndividualParser {
         );
     }
 
-    private String getPropertySafely(Resource resource, Property property, String defaultValue) {
+    private String getPropertySafely(Model model, Resource resource, Property property, String defaultValue) {
         Statement statement = model.getProperty(resource, property);
         return statement != null ? statement.getObject().toString() : defaultValue;
     }
