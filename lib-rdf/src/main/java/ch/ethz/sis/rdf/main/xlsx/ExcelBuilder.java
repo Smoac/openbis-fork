@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
 import ch.ethz.sis.rdf.main.Constants;
-import ch.ethz.sis.rdf.main.RDFParser;
+import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.entity.OntClassObject;
 import ch.ethz.sis.rdf.main.entity.ResourceRDF;
@@ -39,7 +39,7 @@ public class ExcelBuilder {
 
     public void createExcelFile(RDFParser rdfParser, String fileName, String projectIdentifier) {
 
-        projectIdentifier = projectIdentifier == null ? "/DEFAULT/DEFAULT" : projectIdentifier;
+        projectIdentifier = projectIdentifier == null ? DEFAULT_PRJ : projectIdentifier;
         try (Workbook workbook = new XSSFWorkbook()) {  // Create a new workbook
             // Define a style for headers
             CellStyle headerStyle = workbook.createCellStyle();
@@ -76,8 +76,6 @@ public class ExcelBuilder {
         }
 
     }
-
-
 
     private void createObjectTypesSheet(Workbook workbook, CellStyle headerStyle, RDFParser rdfParser){
         Sheet sheetOT = workbook.createSheet(SHEET_TITLE_OBJ_TYPES);

@@ -1,6 +1,6 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.RDFParser;
+import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
 import org.apache.jena.atlas.lib.Pair;
 import org.apache.poi.ss.usermodel.Cell;

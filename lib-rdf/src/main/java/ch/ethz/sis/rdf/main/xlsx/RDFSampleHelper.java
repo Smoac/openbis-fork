@@ -1,19 +1,17 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.RDFParser;
+import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.entity.OntClassObject;
 import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.entity.ResourceRDF;
 import ch.ethz.sis.rdf.main.entity.VocabularyType;
 import org.apache.jena.datatypes.DatatypeFormatException;
-import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.poi.ss.usermodel.*;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
