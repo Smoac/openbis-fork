@@ -400,7 +400,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     protected String getShareId()
     {
-        if (this.shareId != null)
+        if (this.shareId != null && !this.shareId.trim().isEmpty())
         {
             return this.shareId;
         } else

@@ -158,7 +158,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     private List<Loader> createLoaders(Properties properties)
     {
         String property = properties.getProperty(ENTITY_SEQUENCE_PROPERTIES_PROPERTY);
-        if (property == null)
+        if (property == null || property.trim().isEmpty())
         {
             return Collections.emptyList();
         }
@@ -204,7 +204,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     private void setUpBlastTempFolder(Properties properties)
     {
         String tempFolderProperty = properties.getProperty(BLAST_TEMP_FOLDER_PROPERTY);
-        if (tempFolderProperty == null)
+        if (tempFolderProperty == null || tempFolderProperty.trim().isEmpty())
         {
             tmpFolder = new File(blastDatabasesFolder, "tmp");
         } else
