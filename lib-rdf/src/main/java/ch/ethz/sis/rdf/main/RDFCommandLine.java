@@ -1,5 +1,6 @@
 package ch.ethz.sis.rdf.main;
 
+import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.xlsx.ExcelBuilder;
 import org.apache.commons.cli.*;
 
@@ -208,7 +209,8 @@ public class RDFCommandLine {
         System.out.println(
                 "Connect to openBIS instance " + openbisURL + " with username[" + username + "]"); //and password[" + new String(password) +"]");
 
-        Utils.connectAndExport(openbisURL, null, username, password, tempFile);
+        new Importer(openbisURL, username, password, tempFile).connect();
+        //Utils.connectAndExport(openbisURL, null, username, password, tempFile);
     }
 
     private static void handleOpenBISDevOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String openBISDSSURL,
@@ -225,6 +227,7 @@ public class RDFCommandLine {
 
         System.out.println("Connect to openBIS-DEV instance AS[" + openbisASURL + "] DSS[" + openBISDSSURL + "] with username[" + username + "]"); //and password[" + new String(password) +"]");
 
-        Utils.connectAndExport(openbisASURL, openBISDSSURL, username, password, tempFile);
+        new Importer(openbisASURL, openBISDSSURL, username, password, tempFile).connect();
+        //Utils.connectAndExport(openbisASURL, openBISDSSURL, username, password, tempFile);
     }
 }
