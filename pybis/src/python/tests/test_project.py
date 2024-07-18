@@ -1,12 +1,22 @@
-import json
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+import os
 import random
-import re
+import time
 
 import pytest
-import time
-import os
-from pybis import DataSet
-from pybis import Openbis
 
 
 def test_create_delete_project(space):
@@ -41,7 +51,7 @@ def test_create_project_with_attachment(space):
 
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
     project_name = "project_" + timestamp + "_" + str(random.randint(0, 1000))
-    filename = os.path.join(os.path.dirname(__file__), "testfile")
+    filename = os.path.join(os.path.dirname(__file__), "testdir/testfile")
 
     if not os.path.exists(filename):
         raise ValueError("File not found: {}".format(filename))
@@ -53,3 +63,19 @@ def test_create_project_with_attachment(space):
     project_exists = o.get_project(project_name)
     assert project_exists is not None
     assert project_exists.attachments is not None
+
+
+def test_get_project_by_code(space):
+    o = space.openbis
+
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
+
+    space_code_1 = "space_1_" + timestamp + "_" + str(random.randint(0, 1000))
+    project_code = "project_" + timestamp
+
+    o.new_space(code=space_code_1).save()
+
+    o.new_project(space=space_code_1, code=project_code).save()
+    project_exists = o.get_project(project_code)
+    assert project_exists is not None
+

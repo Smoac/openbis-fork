@@ -1,12 +1,28 @@
-from .property import PropertyHolder
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+from collections import defaultdict
+
 from .attribute import AttrHolder
-from .utils import VERBOSE
 from .definitions import (
     get_definition_for_entity,
     get_type_for_entity,
     get_method_for_entity,
 )
-from collections import defaultdict
+from .property import PropertyHolder
+from .property_reformatter import PropertyReformatter
+from .utils import VERBOSE
 
 
 class OpenBisObject:
@@ -25,6 +41,7 @@ class OpenBisObject:
         self.__dict__["type"] = type
         self.__dict__["p"] = PropertyHolder(openbis_obj, type)
         self.__dict__["a"] = AttrHolder(openbis_obj, self._entity, type)
+        self.__dict__["formatter"] = PropertyReformatter(openbis_obj)
 
         # existing OpenBIS object
         if data is not None:
@@ -54,6 +71,29 @@ class OpenBisObject:
         # put the properties in the self.p namespace (without checking them)
         if "properties" in data:
             for key, value in data["properties"].items():
+                if self.p.type:
+                    property_type = self.p._property_names[key.lower()]
+                    data_type = property_type['dataType']
+                    if "multiValue" in property_type:
+                        if property_type['multiValue'] is True:
+                            if type(value) is not list:
+                                value = [value]
+                            if data_type in (
+                            "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                                value = [self.formatter.to_array(data_type, x) for x in value]
+                            else:
+                                value = self.formatter.to_array(data_type, value)
+                        else:
+                            if type(value) is list and data_type not in (
+                            "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                                raise ValueError(
+                                    f'Property type {property_type} is not a multi-value property!')
+                            if data_type in (
+                            "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                                value = self.formatter.to_array(data_type, value)
+                    else:
+                        if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                            value = self.formatter.to_array(data_type, value)
                 self.p.__dict__[key.lower()] = value
 
         # object is already saved to openBIS, so it is not new anymore
@@ -139,18 +179,23 @@ class OpenBisObject:
     def is_marked_to_be_deleted(self):
         return self.__dict__.get("mark_to_be_deleted", False)
 
-    def delete(self, reason):
+    def delete(self, reason, permanently=False):
         """Delete this openbis entity.
         A reason is mandatory to delete any entity.
         """
         if not self.data:
             return
 
-        self.openbis.delete_openbis_entity(
+        deletion_id = self.openbis.delete_openbis_entity(
             entity=self._entity, objectId=self.data["permId"], reason=reason
         )
         if VERBOSE:
-            print("{} {} successfully deleted.".format(self._entity, self.permId))
+            print(f"{self._entity} {self.permId} successfully deleted.")
+
+        if permanently:
+            self.openbis.confirm_deletions([deletion_id])
+            if VERBOSE:
+                print(f"{self._entity} {self.permId} successfully deleted permanently.")
 
     def _get_single_item_method(self):
         single_item_method = None
@@ -174,23 +219,37 @@ class OpenBisObject:
                         or getattr(self.props, prop_name) == ""
                     ):
                         raise ValueError(
-                            "Property '{}' is mandatory and must not be None".format(
-                                prop_name
-                            )
+                            f"Property '{prop_name}' is mandatory and must not be None"
                         )
 
-            props = self.p._all_props()
+            props = self.formatter.format(self.p._all_props())
 
         # NEW
         if self.is_new:
             request = self._new_attrs()
+
+            version = self.openbis.get_server_information().openbis_version
+            if version is not None:
+                if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
+                    if request['method'] == 'createPropertyTypes' and 'multiValue' in request['params'][1][0]:
+                        del request['params'][1][0]['multiValue']
+                    if (request['method'] in ('createSampleTypes', 'createSamples',
+                                              'createExperimentTypes', 'createExperiments',
+                                              'createDataSetTypes', 'createDataSets')
+                            and 'metaData' in request['params'][1][0]):
+                        del request['params'][1][0]['metaData']
+                    if "pattern" in request['params'][1][0]:
+                        del request['params'][1][0]['pattern']
+                    if "patternType" in request['params'][1][0]:
+                        del request['params'][1][0]['patternType']
+
             if props:
                 request["params"][1][0]["properties"] = props
 
             resp = self.openbis._post_request(self.openbis.as_v3, request)
 
             if VERBOSE:
-                print("{} successfully created.".format(self.entity))
+                print(f"{self.entity} successfully created.")
             new_entity_data = get_single_item(resp[0]["permId"], only_data=True)
             self._set_data(new_entity_data)
             return self
@@ -199,12 +258,25 @@ class OpenBisObject:
         else:
             request = self._up_attrs(method_name=None, permId=self._permId)
 
+            version = self.openbis.get_server_information().openbis_version
+            if version is not None:
+                if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
+                    if (request['method'] in ('updateSampleTypes', 'updateSamples',
+                                              'updateExperimentTypes', 'updateExperiments',
+                                              'updateDataSetTypes', 'updateDataSets')
+                            and 'metaData' in request['params'][1][0]):
+                        del request['params'][1][0]['metaData']
+                    if "pattern" in request['params'][1][0]:
+                        del request['params'][1][0]['pattern']
+                    if "patternType" in request['params'][1][0]:
+                        del request['params'][1][0]['patternType']
+
             if props:
                 request["params"][1][0]["properties"] = props
 
             resp = self.openbis._post_request(self.openbis.as_v3, request)
             if VERBOSE:
-                print("{} successfully updated.".format(self.entity))
+                print(f"{self.entity} successfully updated.")
             new_entity_data = get_single_item(
                 self.permId, only_data=True, use_cache=False
             )
@@ -241,6 +313,11 @@ class Transaction:
         }
         """
 
+        if entity_obj.entity == "dataSet" and entity_obj.is_new:
+            raise ValueError(
+                "pyBIS currently does not support transactions for new dataSets yet."
+            )
+
         if not entity_obj.entity in self.entities:
             self.entities[entity_obj.entity] = defaultdict(list)
 
@@ -262,11 +339,14 @@ class Transaction:
 
         import copy
 
+        version = None
         for entity_type in self.entities:
             for mode in self.entities[entity_type]:
 
                 request_coll = []
                 for entity in self.entities[entity_type][mode]:
+                    if version is None:
+                        version = entity.openbis.get_server_information().openbis_version
                     if mode == "delete":
                         delete_options = get_type_for_entity(entity_type, "delete")
                         delete_options["reason"] = self.reason
@@ -290,9 +370,7 @@ class Transaction:
                                     or getattr(entity.props, prop_name) == ""
                                 ):
                                     raise ValueError(
-                                        "Property '{}' is mandatory and must not be None".format(
-                                            prop_name
-                                        )
+                                        f"Property '{prop_name}' is mandatory and must not be None"
                                     )
                     props = entity.p._all_props()
 
@@ -311,6 +389,22 @@ class Transaction:
                     else:
                         raise ValueError(f"Unkown mode: {mode}")
 
+                    if version is not None:
+                        if 'SNAPSHOT' not in version and not version.startswith(
+                                '7') and 'UNKNOWN' not in version:
+                            if request['method'] == 'createPropertyTypes' and 'multiValue' in \
+                                    request['params'][1][0]:
+                                del request['params'][1][0]['multiValue']
+                            if (request['method'] in ('createSampleTypes', 'createSamples',
+                                                      'createExperimentTypes', 'createExperiments',
+                                                      'createDataSetTypes', 'createDataSets',
+                                                      'updateSampleTypes', 'updateSamples',
+                                                      'updateExperimentTypes', 'updateExperiments',
+                                                      'updateDataSetTypes', 'updateDataSets'
+                                                      )
+                                    and 'metaData' in request['params'][1][0]):
+                                del request['params'][1][0]['metaData']
+
                     request_coll.append(request)
 
                 if request_coll:
@@ -323,6 +417,25 @@ class Transaction:
                         batch_request["params"][1].append(request["params"][1][0])
 
                     try:
+                        def remove_at_id(request):
+                            if request is not None:
+                                if type(request) == dict:
+                                    for key in list(request.keys()):
+                                        if key == '@id':
+                                            del request[key]
+                                        else:
+                                            request[key] = remove_at_id(request[key])
+                                    return request
+                                elif type(request) == str:
+                                    return request
+                                elif type(request) == list:
+                                    tmp = []
+                                    for element in request:
+                                        tmp += [remove_at_id(element)]
+                                    return tmp
+                            return request
+                        batch_request = remove_at_id(batch_request)
+
                         resp = entity.openbis._post_request(
                             entity.openbis.as_v3, batch_request
                         )

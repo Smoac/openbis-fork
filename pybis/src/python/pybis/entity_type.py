@@ -1,26 +1,38 @@
-from tabulate import tabulate
-from texttable import Texttable
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+import copy
+
 from pandas import DataFrame
-from .openbis_object import OpenBisObject
-from .things import Things
-from .utils import (
-    check_datatype,
-    split_identifier,
-    format_timestamp,
-    is_identifier,
-    is_permid,
-    nvl,
-    extract_permid,
-    extract_code,
-    extract_name,
-    VERBOSE,
-)
+from tabulate import tabulate
+
 from .definitions import (
     get_method_for_entity,
     get_type_for_entity,
     get_definition_for_entity,
 )
+from .openbis_object import OpenBisObject
 from .semantic_annotation import SemanticAnnotation
+from .things import Things
+from .utils import (
+    format_timestamp,
+    extract_code,
+    extract_data_type,
+    extract_name,
+    VERBOSE,
+    nvl,
+)
 
 
 class EntityType:
@@ -74,6 +86,8 @@ class EntityType:
             "get_validationPlugin()",
             "save()",
             "delete()",
+            "get_next_sequence()",
+            "get_next_code()",
         ]
         if self.is_new:
             return attrs + defs["attrs_new"]
@@ -96,6 +110,7 @@ class EntityType:
     def get_property_assignments(self):
         attrs = [
             "propertyType",
+            "dataType",
             "section",
             "ordinal",
             "mandatory",
@@ -112,8 +127,12 @@ class EntityType:
         def create_data_frame(attrs, props, response):
             df = DataFrame(response, columns=attrs)
 
+            if "dataType" in df:
+                df["dataType"] = df["propertyType"].map(extract_data_type)
+
             if "propertyType" in df:
-                df["propertyType"] = df["propertyType"].map(extract_code)
+                df = df.rename(columns={"propertyType": "code"})
+                df["code"] = df["code"].map(extract_code)
 
             if "plugin" in df:
                 df["plugin"] = df["plugin"].map(extract_name)
@@ -122,6 +141,17 @@ class EntityType:
                 df["registrationDate"] = df["registrationDate"].map(format_timestamp)
 
             return df
+
+        def create_objects(response):
+            result = []
+            for element in response:
+                obj = copy.deepcopy(element)
+                obj["dataType"] = extract_data_type(obj["propertyType"])
+                obj["code"] = extract_code(obj["propertyType"])
+                obj["plugin"] = extract_name(obj["plugin"])
+                obj["registrationDate"] = format_timestamp(obj["registrationDate"])
+                result += [PropertyAssignment(openbis_obj=self.openbis, data=obj)]
+            return result
 
         return Things(
             openbis_obj=self.openbis,
@@ -132,7 +162,9 @@ class EntityType:
             count=len(pas),
             totalCount=len(pas),
             response=pas,
-            df_initializer=create_data_frame
+            df_initializer=create_data_frame,
+            objects_initializer=create_objects,
+            attrs=attrs
         )
 
     def assign_property(
@@ -153,7 +185,7 @@ class EntityType:
         «initialValueForExistingEntities» too.
         """
         if self.is_new:
-            raise ValueError("Please save {} first".format(self.entity))
+            raise ValueError(f"Please save {self.entity} first")
 
         if isinstance(prop, str):
             property_type = self.openbis.get_property_type(prop.upper())
@@ -177,7 +209,10 @@ class EntityType:
         # assign plugin
         if plugin is not None:
             plugin_obj = self.openbis.get_plugin(plugin)
-            new_assignment["plugin"] = plugin_obj.name
+            new_assignment["pluginId"] = {
+                "@type": 'as.dto.plugin.id.PluginPermId',
+                "permId": plugin_obj.permId
+            }
 
         request = self._get_request_for_pa(new_assignment, "Add")
         try:
@@ -213,11 +248,11 @@ class EntityType:
         }
         request = self._get_request_for_pa(items, "Remove", force)
         resp = self.openbis._post_request(self.openbis.as_v3, request)
-        if not resp and VERBOSE:
+        if not resp:
             new_data = self._get_method(self.permId, only_data=True)
             self._set_entity_data(new_data)
-
-            print(f"Property {property_type} revoked from {self.permId}")
+            if VERBOSE:
+                print(f"Property {property_type} revoked from {self.permId}")
 
     def _get_request_for_pa(self, items, item_action, force=False):
 
@@ -276,6 +311,39 @@ class EntityType:
         for pa in self.data["propertyAssignments"]:
             codes.append(pa["propertyType"]["code"].lower())
         return codes
+
+    def get_next_sequence(self):
+        request = {
+            "method": "executeCustomASService",
+            "params": [
+                self.openbis.token,
+                {
+                    "permId": "as-eln-lims-api",
+                    "@type": "as.dto.service.id.CustomASServiceCode",
+                },
+                {
+                    "parameters": {
+                        "method": "getNextSequenceForType",
+                        "sampleTypeCode": self.code,
+                    },
+                    "@type": "as.dto.service.CustomASServiceExecutionOptions",
+                },
+            ],
+        }
+
+        try:
+            resp = self.openbis._post_request(self.openbis.as_v3, request)
+        except Exception:
+            return None
+        return resp
+
+    def get_next_code(self):
+        """Returns the next possible code for a new instance for this entity type."""
+        seq = self.get_next_sequence()
+        if seq:
+            return self.generatedCodePrefix + str(seq)
+        else:
+            raise ValueError("Could not generate next code.")
 
 
 class SampleType(
@@ -394,3 +462,51 @@ class ExperimentType(
 
     def __dir__(self):
         return [] + EntityType.__dir__(self) + OpenBisObject.__dir__(self)
+
+
+class PropertyType(
+    OpenBisObject, entity="propertyType", single_item_method_name="get_property_type"
+):
+    pass
+
+
+class PropertyAssignment:
+    def __init__(
+            self, openbis_obj, data=None, **kwargs
+    ):
+        self.openbis = openbis_obj
+        self.data = data
+
+    def __getattr__(self, name):
+        if name in self._attrs():
+            if name in self.data:
+                return self.data[name]
+            else:
+                return ""
+
+    def __repr__(self):
+        """same thing as _repr_html_() but for IPython"""
+        headers = ["attribute", "value"]
+        lines = []
+        for attr in self._attrs():
+            lines.append([attr, nvl(getattr(self, attr, ""))])
+
+        return tabulate(lines, headers=headers)
+
+    def get_property_type(self):
+        return PropertyType(openbis_obj=self, data=self.data["propertyType"])
+
+    def _attrs(self):
+        return [
+            "code",
+            "dataType",
+            "section",
+            "ordinal",
+            "mandatory",
+            "initialValueForExistingEntities",
+            "showInEditView",
+            "showRawValueInForms",
+            "registrator",
+            "registrationDate",
+            "plugin",
+        ]

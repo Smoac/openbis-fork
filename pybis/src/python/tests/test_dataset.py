@@ -1,27 +1,90 @@
-from pybis.things import Things
-
-import json
-import random
-import re
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+# 
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+#   
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+import datetime
 import os
+import re
+import time
+import uuid
 
 import pytest
-import time
+
+from pybis.things import Things
 
 
-def test_get_datasets(space):
-    # test paging
+def test_get_datasets_count(space):
     o = space.openbis
-    current_datasets = o.get_datasets(start_with=1, count=1)
-    assert current_datasets is not None
-    # we cannot assert == 1, because search is delayed due to lucene search...
-    assert len(current_datasets) <= 1
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    dataset = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    try:
+        current_datasets = o.get_datasets(count=1)
+        assert current_datasets is not None
+        assert len(current_datasets) == 1
+    finally:
+        dataset.delete("test_get_datasets_count", True)
+
+
+def test_get_datasets_paging(space):
+    o = space.openbis
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    dataset1 = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset1.save()
+
+    dataset2 = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset2.save()
+
+    try:
+        current_datasets = o.get_datasets(start_with=1, count=1)
+        assert current_datasets is not None
+        assert len(current_datasets) == 1
+    finally:
+        dataset1.delete("test_get_datasets_paging", True)
+        dataset2.delete("test_get_datasets_paging", True)
+
+
+def test_create_datasets_no_file(space):
+    o = space.openbis
+    with pytest.raises(Exception) as exc:
+        o.new_dataset(
+            type="RAW_DATA",
+            experiment="/DEFAULT/DEFAULT/DEFAULT",
+            props={"$name": "some good name"},
+        )
+    assert str(exc.value) == "please provide at least one file"
 
 
 def test_create_delete_dataset(space):
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
     o = space.openbis
-    testfile_path = os.path.join(os.path.dirname(__file__), "testfile")
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
 
     dataset = o.new_dataset(
         type="RAW_DATA",
@@ -70,15 +133,21 @@ def test_create_delete_dataset(space):
     assert dataset_by_permId.registrationDate is not None
     # check date format: 2019-03-22 11:36:40
     assert (
-        re.search(
-            r"^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}$",
-            dataset_by_permId.registrationDate,
-        )
-        is not None
+            re.search(
+                r"^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}$",
+                dataset_by_permId.registrationDate,
+            )
+            is not None
     )
 
     # delete datasets
-    dataset.delete("dataset creation test on " + timestamp)
+    dataset.delete("dataset creation test on " + timestamp, True)
+
+    # Give openbis some time to process it
+    time.sleep(1)
+    # check that permanent deletion is working
+    deletions = o.get_deletions(0, 10)
+    assert len(deletions) == 0
 
     # get by permId should now throw an error
     with pytest.raises(Exception):
@@ -108,6 +177,7 @@ def test_create_dataset_with_code(space):
 
     dataset.delete("dataset creation test on {}".format(timestamp))
 
+
 def test_things_initialization(space):
     data_frame_result = [1, 2, 3]
     objects_result = [4, 5, 6]
@@ -119,9 +189,9 @@ def test_things_initialization(space):
         return objects_result
 
     things = Things(
-        openbis_obj = None,
-        entity = 'dataset',
-        identifier_name = 'permId',
+        openbis_obj=None,
+        entity='dataset',
+        identifier_name='permId',
         start_with=0,
         count=10,
         totalCount=10,
@@ -138,3 +208,106 @@ def test_things_initialization(space):
 
     assert things.is_df_initialised()
     assert things.is_objects_initialised()
+
+
+def test_create_new_dataset_v1(space):
+    """Create dataset and upload file using upload scheme from before 3.6 api version"""
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    # It is a hack to force old way of upload for testing.
+    openbis_instance.get_server_information()._info["api-version"] = "3.5"
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["original/testfile"]
+
+
+def test_create_new_dataset_v3_single_file(space):
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["original/testfile"]
+
+
+def test_create_new_dataset_v3_directory(space):
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir")
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert len(dataset.file_list) == 1
+    assert dataset.file_list[0].endswith('testdir/testfile')
+
+
+def test_dataset_property_in_isoformat_date(space):
+    o = space.openbis
+
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+
+    # Create custom TIMESTAMP property type
+    property_type_code = "test_property_type_" + timestamp + "_" + str(uuid.uuid4())
+    pt_date = o.new_property_type(
+        code=property_type_code,
+        label='custom property of data type timestamp',
+        description='custom property created in unit test',
+        dataType='TIMESTAMP',
+    )
+    pt_date.save()
+
+    # Create new dataset type
+    type_code = "test_dataset_type_" + timestamp + "_" + str(uuid.uuid4())
+    dataset_type = o.new_dataset_type(code=type_code)
+    dataset_type.save()
+
+    # Assign created property to new dataset type
+    dataset_type.assign_property(property_type_code)
+
+    # Create new dataset with timestamp property in non-supported format
+    timestamp_property = datetime.datetime.now().isoformat()
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    dataset = o.new_dataset(
+        type=type_code,
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={property_type_code: timestamp_property},
+    )
+    dataset.save()
+
+    # New dataset case
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None
+
+    # Update dataset case
+    dataset.p[property_type_code] = timestamp_property
+    dataset.save()
+
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None

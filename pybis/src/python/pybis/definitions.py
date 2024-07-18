@@ -1,3 +1,17 @@
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
 import copy
 
 
@@ -11,6 +25,9 @@ def openbis_definitions(entity):
     (Entity-Name in camel-case, starting with lowercase letter, with Id added)
     """
     entities = {
+        "sessionInformation": {
+            "attrs": "sessionToken userName homeGroupCode personalAccessTokenSession personalAccessTokenSessionName person creatorPerson".split(),
+        },
         "space": {
             "attrs_new": "code description".split(),
             "attrs_up": "description freeze freezeForProjects freezeForSamples".split(),
@@ -25,7 +42,7 @@ def openbis_definitions(entity):
         "project": {
             "attrs_new": "code description space attachments".split(),
             "attrs_up": "description space attachments freeze freezeForExperiments freezeForSamples".split(),
-            "attrs": "code description permId identifier space leader registrator registrationDate modifier modificationDate attachments frozen frozenForExperiments frozenForSamples".split(),
+            "attrs": "code permId identifier space description leader registrator registrationDate modifier modificationDate attachments frozen frozenForExperiments frozenForSamples".split(),
             "multi": "".split(),
             "identifier": "projectId",
             "create": {"@type": "as.dto.project.create.ProjectCreation"},
@@ -106,6 +123,14 @@ def openbis_definitions(entity):
             "delete": {"@type": "as.dto.dataset.delete.DataSetTypeDeletionOptions"},
             "identifier": "typeId",
         },
+        "personalAccessToken": {
+            "attrs_new": "sessionName validFromDate validToDate accessDate".split(),
+            "attrs_up": "".split(),
+            "attrs": "permId sessionName validFromDate validToDate accessDate owner registrator registrationDate modifier modificationDate".split(),
+            "search": {"@type": "as.dto.pat.search.PersonalAccessTokenSearchCriteria"},
+            "delete": {"@type": "as.dto.pat.delete.PersonalAccessTokenDeletionOptions"},
+            "identifier": "permId",
+        },
         "experimentType": {
             "attrs_new": "code description validationPlugin".split(),
             "attrs_up": "description modificationDate validationPlugin".split(),
@@ -137,11 +162,13 @@ def openbis_definitions(entity):
                 "MULTILINE_VARCHAR",
                 "REAL",
                 "TIMESTAMP",
+                "DATE",
                 "BOOLEAN",
                 "CONTROLLEDVOCABULARY",
                 "MATERIAL",
                 "HYPERLINK",
                 "XML",
+                "SAMPLE"
             ],
             "identifier": "typeId",
         },
@@ -296,6 +323,9 @@ get_definition_for_entity = openbis_definitions  # Alias
 
 
 fetch_option = {
+    "personalAccessToken": {
+        "@type": "as.dto.pat.fetchoptions.PersonalAccessTokenFetchOptions"
+    },
     "space": {"@type": "as.dto.space.fetchoptions.SpaceFetchOptions"},
     "project": {
         "@type": "as.dto.project.fetchoptions.ProjectFetchOptions",
@@ -309,7 +339,10 @@ fetch_option = {
     "modifier": {"@type": "as.dto.person.fetchoptions.PersonFetchOptions"},
     "leader": {"@type": "as.dto.person.fetchoptions.PersonFetchOptions"},
     "authorizationGroup": {
-        "@type": "as.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions"
+        "@type": "as.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions",
+         "roleAssignments": {
+            "@type": "as.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions",
+        }
     },
     "experiment": {
         "@type": "as.dto.experiment.fetchoptions.ExperimentFetchOptions",
@@ -464,7 +497,7 @@ def get_fetchoption_for_entity(entity):
 
 def get_type_for_entity(entity, action, parents_or_children=""):
     if action not in "create update delete search".split():
-        raise ValueError("unknown action: {}".format(action))
+        raise ValueError(f"unknown action: {action}")
 
     definition = openbis_definitions(entity)
     if action in definition and not parents_or_children:
@@ -481,19 +514,11 @@ def get_type_for_entity(entity, action, parents_or_children=""):
 
         if parents_or_children:
             return {
-                "@type": "as.dto.{}.{}.{}{}{}".format(
-                    entity.lower(),
-                    action,
-                    cap_entity,
-                    parents_or_children,
-                    noun[action],
-                )
+                "@type": f"as.dto.{entity.lower()}.{action}.{cap_entity}{parents_or_children}{noun[action]}"
             }
         else:
             return {
-                "@type": "as.dto.{}.{}.{}{}".format(
-                    entity.lower(), action, cap_entity, noun[action]
-                )
+                "@type": f"as.dto.{entity.lower()}.{action}.{cap_entity}{noun[action]}"
             }
 
 
@@ -512,12 +537,12 @@ def get_fetchoptions(entity, including=None):
     return fo
 
 
-def get_method_for_entity(entity, action):
+def get_method_for_entity(entity: str, action: str) -> str:
     action = action.lower()
 
     if entity == "vocabulary":
-        return "{}Vocabularies".format(action)
+        return f"{action}Vocabularies"
 
     cap_entity = entity[:1].upper() + entity[1:]
 
-    return "{}{}s".format(action, cap_entity)
+    return f"{action}{cap_entity}s"
