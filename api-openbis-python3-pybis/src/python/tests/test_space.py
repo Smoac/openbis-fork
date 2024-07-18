@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -12,13 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import json
-import re
+
+import time
 
 import pytest
-import time
-from pybis import DataSet
-from pybis import Openbis
 
 
 def test_create_delete_space(openbis_instance):

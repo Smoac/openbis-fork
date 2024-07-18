@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -12,9 +12,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
-from .utils import VERBOSE, is_identifier, is_permid
+from .utils import is_identifier, is_permid
 
 
 class Project(OpenBisObject, entity="project", single_item_method_name="get_project"):

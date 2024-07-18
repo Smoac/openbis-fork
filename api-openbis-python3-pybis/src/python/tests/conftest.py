@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@ import pytest
 
 from pybis import Openbis
 
-openbis_url = "https://localhost:8443"
+# openbis_url = "https://alaskowski:8443/openbis"
+openbis_url = "http://localhost:8888/openbis"
+# openbis_url = "https://alaskowski:8443/openbis"
+openbis_url = "https://openbis-sis-ci-sprint.ethz.ch/"
 admin_username = "admin"
-admin_password = "admin"
+admin_password = "changeit"
 
 @pytest.fixture(scope="module")
 def openbis_instance():
     instance = Openbis(
         url=openbis_url,
         verify_certificates=False,
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     print("\nLOGGING IN...")
     instance.login(admin_username, admin_password)
@@ -40,7 +44,7 @@ def other_openbis_instance():
     instance = Openbis(
         url=openbis_url,
         verify_certificates=False,
-
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     print("\nLOGGING IN...")
     instance.login(admin_username, admin_password)
@@ -54,7 +58,7 @@ def space():
     o = Openbis(
         url=openbis_url,
         verify_certificates=False,
-
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     o.login(admin_username, admin_password)
 

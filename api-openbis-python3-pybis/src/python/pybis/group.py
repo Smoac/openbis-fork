@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from .attribute import AttrHolder
-from .openbis_object import OpenBisObject
-from .utils import VERBOSE, extract_permid, extract_nested_permid, format_timestamp
-from .things import Things
 from pandas import DataFrame
+
+from .openbis_object import OpenBisObject
+from .things import Things
+from .utils import VERBOSE, extract_permid, extract_nested_permid, format_timestamp
 
 
 class Group(
