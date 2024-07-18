@@ -15,25 +15,12 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.AccessMode;
-import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream;
+import java.nio.file.*;
 import java.nio.file.DirectoryStream.Filter;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystem;
-import java.nio.file.LinkOption;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.ProviderMismatchException;
-import java.nio.file.ReadOnlyFileSystemException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
@@ -44,24 +31,10 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.security.cert.CertificateFactory;
+import java.util.*;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -116,6 +89,19 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileW
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.python27.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.python27.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.python27.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.python27.bouncycastle.openssl.PEMKeyPair;
+import org.python27.bouncycastle.openssl.PEMParser;
+import org.python27.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
+import org.python27.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.python27.bouncycastle.operator.InputDecryptorProvider;
+import org.python27.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.python27.bouncycastle.pkcs.PKCSException;
+import org.python27.bouncycastle.pkcs.jcajce.JcePKCSPBEInputDecryptorProviderBuilder;
 
 /**
  * Controls the lifecycle of an FTP server built into DSS.
@@ -250,7 +236,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
     private SshServer createSftpServer()
     {
         SshServer s = SshServer.setUpDefaultServer();
-        KeyPairProvider keyPairProvider = new KeystoreBasedKeyPairProvider(config, operationLog);
+        KeyPairProvider keyPairProvider;
+        if(config.getCustomCertificate() != null) {
+            keyPairProvider = new FileBasedKeyPairProvider(config, operationLog);
+        } else {
+            keyPairProvider = new KeystoreBasedKeyPairProvider(config, operationLog);
+        }
         s.setKeyPairProvider(keyPairProvider);
         s.setPort(config.getSftpPort());
         s.setSubsystemFactories(creatSubsystemFactories());
@@ -799,6 +790,100 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         {
             return modifiedTime + " " + (directory ? "DIR" : (regularFile ? "FILE" : "?")) + " " + size;
         }
+    }
+
+    private static final class FileBasedKeyPairProvider extends AbstractKeyPairProvider
+    {
+        private final KeyPair[] keyPairs;
+
+        private FileBasedKeyPairProvider(FtpServerConfig config, Logger operationLog)
+        {
+            File certificateFile = config.getCustomCertificate();
+            String keyPassword = config.getKeyPassword();
+            try
+            {
+                PublicKey publicKey = readPublicKey(certificateFile);
+                PrivateKey privateKey = readPrivateKey(certificateFile, keyPassword);
+                keyPairs = new KeyPair[] {new KeyPair(publicKey, privateKey)};
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            operationLog.info("Key pair loaded from the file: " + certificateFile);
+        }
+
+        @Override
+        public Iterable<KeyPair> loadKeys(SessionContext sessionContext)
+                throws IOException, GeneralSecurityException
+        {
+            return Arrays.asList(keyPairs);
+        }
+
+        private PublicKey readPublicKey(File certificateFile) throws Exception
+        {
+            PublicKey publicKey = null;
+            try (FileReader keyReader = new FileReader(certificateFile);
+                    PemReader pemReader = new PemReader(keyReader))
+            {
+                PemObject pemObject = pemReader.readPemObject();
+                while(pemObject != null)
+                {
+                    String type = pemObject.getType();
+                    if (type.equals("CERTIFICATE"))
+                    {
+                        CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+                        Certificate certificate = certificateFactory.generateCertificate(new ByteArrayInputStream(pemObject.getContent()));
+                        publicKey = certificate.getPublicKey();
+                    }
+                    pemObject = pemReader.readPemObject();
+                }
+            }
+            if(publicKey == null)
+            {
+                throw new ConfigurationFailureException("No supported public key was found!");
+            }
+            return publicKey;
+        }
+
+        private PrivateKey readPrivateKey(File s, String password)
+                throws IOException, PKCSException
+        {
+            PrivateKeyInfo pki = null;
+            try (PEMParser pemParser = new PEMParser(new FileReader(s))) {
+
+                Object o = pemParser.readObject();
+                while(o != null)
+                {
+                    if (o instanceof PKCS8EncryptedPrivateKeyInfo)
+                    {
+                        PKCS8EncryptedPrivateKeyInfo epki = (PKCS8EncryptedPrivateKeyInfo) o;
+
+                        JcePKCSPBEInputDecryptorProviderBuilder builder =
+                                new JcePKCSPBEInputDecryptorProviderBuilder().setProvider(BouncyCastleProvider.PROVIDER_NAME);
+
+                        InputDecryptorProvider idp = builder.build(password.toCharArray());
+
+                        pki = epki.decryptPrivateKeyInfo(idp);
+                    } else if (o instanceof PEMEncryptedKeyPair)
+                    {
+
+                        PEMEncryptedKeyPair epki = (PEMEncryptedKeyPair) o;
+                        PEMKeyPair pkp = epki.decryptKeyPair(
+                                new BcPEMDecryptorProvider(password.toCharArray()));
+
+                        pki = pkp.getPrivateKeyInfo();
+                    }
+                    o = pemParser.readObject();
+                }
+                if(pki == null) {
+                    throw new ConfigurationFailureException("No supported private key was found!");
+                }
+                JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
+                return converter.getPrivateKey(pki);
+            }
+        }
+
+
     }
 
     private static final class KeystoreBasedKeyPairProvider extends AbstractKeyPairProvider
