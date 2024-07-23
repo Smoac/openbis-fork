@@ -7,7 +7,7 @@ TEMP_DIR=${CURRENT_DIR}/temp
 V3_DIR=${CURRENT_DIR}/../src/v3
 NODE_DIR=$(echo ${CURRENT_DIR}/../node/nodejs/node-*/bin)
 
-export PATH=$PATH:${NODE_DIR}
+export PATH=${NODE_DIR}:$PATH
 
 # create an empty temporary folder
 rm -rvf $TEMP_DIR
