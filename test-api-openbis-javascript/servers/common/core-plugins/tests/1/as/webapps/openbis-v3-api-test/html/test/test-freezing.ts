@@ -164,9 +164,10 @@ exports.default = new Promise((resolve) => {
                 }
 
                 testUpdate(c, "EXPERIMENT", fCreate, fUpdate, fFind, {
-                    freeze: { frozen: true, frozenForDataSets: false, frozenForSamples: false },
-                    freezeForDataSets: { frozen: true, frozenForDataSets: true, frozenForSamples: false },
-                    freezeForSamples: { frozen: true, frozenForDataSets: false, frozenForSamples: true },
+                    freeze: { frozen: true, frozenForDataSets: false, frozenForSamples: false, immutableData: true },
+                    freezeForDataSets: { frozen: true, frozenForDataSets: true, frozenForSamples: false, immutableData: true },
+                    freezeForSamples: { frozen: true, frozenForDataSets: false, frozenForSamples: true, immutableData: true },
+                    makeDataImmutable: { frozen: false, frozenForDataSets: false, frozenForSamples: false, immutableData: true },
                 })
             })
 
@@ -201,13 +202,14 @@ exports.default = new Promise((resolve) => {
                 }
 
                 testUpdate(c, "SAMPLE", fCreate, fUpdate, fFind, {
-                    freeze: { frozen: true, frozenForDataSets: false, frozenForComponents: false, frozenForChildren: false, frozenForParents: false },
+                    freeze: { frozen: true, frozenForDataSets: false, frozenForComponents: false, frozenForChildren: false, frozenForParents: false, immutableData: true },
                     freezeForDataSets: {
                         frozen: true,
                         frozenForDataSets: true,
                         frozenForComponents: false,
                         frozenForChildren: false,
                         frozenForParents: false,
+                        immutableData: true
                     },
                     freezeForComponents: {
                         frozen: true,
@@ -215,6 +217,7 @@ exports.default = new Promise((resolve) => {
                         frozenForComponents: true,
                         frozenForChildren: false,
                         frozenForParents: false,
+                        immutableData: true
                     },
                     freezeForChildren: {
                         frozen: true,
@@ -222,6 +225,7 @@ exports.default = new Promise((resolve) => {
                         frozenForComponents: false,
                         frozenForChildren: true,
                         frozenForParents: false,
+                        immutableData: true
                     },
                     freezeForParents: {
                         frozen: true,
@@ -229,6 +233,15 @@ exports.default = new Promise((resolve) => {
                         frozenForComponents: false,
                         frozenForChildren: false,
                         frozenForParents: true,
+                        immutableData: true
+                    },
+                    makeDataImmutable: {
+                        frozen: false,
+                        frozenForDataSets: false,
+                        frozenForComponents: false,
+                        frozenForChildren: false,
+                        frozenForParents: false,
+                        immutableData: true
                     },
                 })
             })
