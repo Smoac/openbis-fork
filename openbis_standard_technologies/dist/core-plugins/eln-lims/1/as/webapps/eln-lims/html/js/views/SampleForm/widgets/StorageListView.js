@@ -247,7 +247,8 @@ function StorageListView(storageListController, storageListModel) {
                             delete sampleChild.newSampleJustCreated;
                             var postFix = "";
                             if(storageSpaceCode.length > "STORAGE".length) {
-                                postFix = storageSpaceCode.substring("STORAGE".length + 1);
+															  var start = storageSpaceCode.indexOf("_");
+															  postFix = storageSpaceCode.substring((start + 1) + "STORAGE".length + 1);
                             }
                             sampleChild.experimentIdentifier = "/" + storageSpaceCode + "/STORAGE_POSITIONS" + postFix + "/STORAGE_POSITIONS_COLLECTION" + postFix;
                         } else {
