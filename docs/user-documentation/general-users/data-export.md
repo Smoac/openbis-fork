@@ -142,7 +142,7 @@ We export the same Space as described in Example 1, with all options selected, b
  ![image info](img/space-export-all-options-non-import-compatible.png)
 
  
-In this case the exported zip file contains only 2 folders: **hierarchy** and **xlsx**. Data are exported inside the hierachy folder, instead of being in a separate **data** folder.
+In this case the exported zip file contains only 2 folders: **hierarchy** and **xlsx**. Data are exported inside the **hierachy** folder, instead of being in a separate **data** folder.
 
 **A.** **hierarchy** folder
 
