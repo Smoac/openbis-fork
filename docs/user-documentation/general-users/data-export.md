@@ -63,7 +63,6 @@ _Note: ensure that pop-ups are not disabled in your browser_.
 Server](../../system-documentation/configuration/optional-datastore-server-configuration.md)
 
 
-> ![image info](img/warning.png) **Known limitation of openBIS 20.10.8**: images embedded in text fields are not currently exported. This limitation will be fixed in the release after 20.10.8. 
 
 
 
@@ -91,22 +90,21 @@ The exported zip file contains 3 folders:
 This contains the datasets in the correct format to be uploaded via eln-lims dropbox, as shown below.
 
 
-![image info](img/IC-data-folder-1.png)
+![image info](img/IC-20109-export-data-folder.png)
 
-![image info](img/IC-data-folder-2.png)
 
-**B.** **pdf** folder
+**B.** **hiearchy** folder
 
 This contains folders that match the openBIS hierarchy (Space/Project/Experiment/Object).
 
 In this case 2 Space folders are present:
 
 1. **CATERINA**: is the exported space.
-2. **METHODS**: contains an Object which is parent of an Object in the space CATERINA. This was exported because the option **Include Objects and Datasets parents and children from different spaces** was selected for export.
+2. **METHODS**: contains an Object which is parent of an Object in the Space CATERINA. This was exported because the option **Include Objects and Datasets parents and children from different spaces** was selected for export.
 
-![image info](img/IC-pdf-folder-1.png)
+![image info](img/IC-20109-export-hierarchy-1.png)
 
-![image info](img/IC-pdf-folder-2.png)
+![image info](img/IC-20109-export-hierarchy-2.png)
 
 
 Inside each folder, there is a pdf of the corresponding entity. Example: 
@@ -114,7 +112,7 @@ Inside each folder, there is a pdf of the corresponding entity. Example:
 - in the Space folder **CATERINA** there is a **CATERINA.pdf** file that contains the metadata of the Space;
 - in the Project folder **PROJECT_1** there is a **PROJECT_1.pdf** file that contains the metadata of the Project;
 - in the Experiment folder **My second experiment (PROJECT_1_EXP_1)** there is a **My second experiment (PROJECT_1_EXP_1).pdf** file with the metadata of the Experiment;
-- in the Object folder **Step A (EXP4)**  there is a **Step A(EXP4).pdf** file with the metadata of the Object and a **20240523100301019-55.pdf** file that contains the metadata of the dataset that belongs to this Object.
+- in the Object folder **Step A (EXP4)**  there is a **Step A(EXP4).pdf** file with the metadata of the Object and a **20240726094631217-68.pdf** file that contains the metadata of the dataset that belongs to this Object.
 
 
 **C.** **xlsx** folder. 
@@ -122,13 +120,16 @@ Inside each folder, there is a pdf of the corresponding entity. Example:
 This contains:
 
 - a **metadata.xlsx** file which has the metadata of the exported entities and the corresponding masterdata (types and properties) in the correct format to be re-imported in another openBIS instance;
-- a **scripts** folder that contains evaluation plugins associated to two types defined in the metadata.xlsx file;
-- a **data** folder that contains the information stored in the spreadsheet field of one of the Objects in this Space.
+- a **scripts** folder that contains evaluation plugins associated to two types defined in the metadata.xlsx file. This folder is present only if the exported types have plugins associated with them.
+- a **data** folder that contains the information stored in the spreadsheet field of one of the Objects in this Space. This folder is present only if the exported entities contain information in spreadsheet or if there are text fields with more than 32,767 characters (this is the limit of the Excel cells).
+- a **miscellaneous** folder that contains images that are embedded in text fields of the exported entities. This folder is present only if exported entities contain images embedded in text.
 
-![image info](img/IC-xlsx-folder-data.png)
+![image info](img/IC-20109-export-xlsx-scripts.png)
 
-![image info](img/IC-xlsx-folder-scripts.png)
+![image info](img/IC-20109-export-xlsx-data.png)
 
+
+![image info](img/IC-20109-export-xlsx-miscellaneous.png)
 
 
 ### **2. Non import-compatible export of a Space selecting all options**
@@ -138,23 +139,24 @@ We export the same Space as described in Example 1, with all options selected, b
  ![image info](img/space-export-all-options-non-import-compatible.png)
 
  
-In this case the exported zip file contains only 2 folders: **pdf** and **xlsx**. Data are exported inside the pdf folder, instead of being in a separate **data** folder.
+In this case the exported zip file contains only 2 folders: **hierarchy** and **xlsx**. Data are exported inside the hierachy folder, instead of being in a separate **data** folder.
 
-**A.** **pdf** folder
+**A.** **hierarchy** folder
 
 This contains the same folder structure as described above. In addition, in this case, inside the Object **Step A (EXP4)** folder there is a **data** folder that contains the dataset belonging to this Object, as shown below. The metadata of the dataset is provided as a metadata.json file inside the data folder and as pdf file inside the Object folder (**Step A (EXP4)**).
 
 
-![image info](img/NIC-pdf-folder.png)
+![image info](img/NIC-20109-hiearchy-folder.png)
 
 **B.** **xlsx** folder 
 
 This contains the same files and folders as described in Example 1 (see below). The only difference in this case is that the metadata.xlsx is not import-compatible. It contains some fields which are not compatible with openBIS re-import, as explained above.
 
-![image info](img/NIC-xlsx-folder-data.png)
+![image info](img/NIC-20109-xlsx-scripts.png)
 
-![image info](img/NIC-xlsx-folder-scripts.png)
+![image info](img/NIC-20109-xlsx-data.png)
 
+![image info](img/NIC-20109-xlsx-miscellaneous.png)
  
 ## Export to Zenodo
 
