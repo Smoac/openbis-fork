@@ -107,7 +107,7 @@ In this case 2 Space folders are present:
 
 ![image info](img/IC-20109-export-hierarchy-1.png)
 
-![image info](img/IC-20109-export-hierarchy-2.png)
+![image info](img/IC-20109-export-hiearchy-2.png)
 
 
 Inside each folder, there is a pdf of the corresponding entity. Example: 
