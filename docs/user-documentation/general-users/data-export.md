@@ -132,7 +132,7 @@ This contains:
 ![image info](img/IC-20109-export-xlsx-data.png)
 
 
-![image info](img/IC-20109-export-xlsx-miscellaneous.png)
+![image info](img/IC-20109-export-miscellaneous.png)
 
 
 ### **2. Non import-compatible export of a Space selecting all options**
@@ -159,7 +159,7 @@ This contains the same files and folders as described in Example 1 (see below). 
 
 ![image info](img/NIC-20109-xlsx-data.png)
 
-![image info](img/NIC-20109-xlsx-miscellaneous.png)
+![image info](img/NIC-20109-miscellaneous.png)
  
 ## Export to Zenodo
 
