@@ -90,7 +90,7 @@ The exported zip file contains 3 folders:
 This contains the datasets in the correct format to be uploaded via eln-lims dropbox, as shown below.
 
 
-![image info](img/IC-20109-export-data-folder.png)
+![image info](img/IC-20109-export-data-folder-v2.png)
 
 
 **B.** **hiearchy** folder
