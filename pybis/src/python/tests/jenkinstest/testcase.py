@@ -23,8 +23,8 @@ import traceback
 
 import util as util
 
-INSTALLER_PROJECT = 'app-openbis-installer'
-OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'core-plugin-openbis'
+INSTALLER_PROJECT = 'installation'
+OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis_standard_technologies'
 DATAMOVER_PROJECT = 'datamover'
 
 PSQL_EXE = 'psql'
