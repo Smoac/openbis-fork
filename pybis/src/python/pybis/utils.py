@@ -20,7 +20,8 @@ from datetime import datetime
 try:
     get_ipython()
 except Exception:
-    VERBOSE = False
+    # VERBOSE = False
+    VERBOSE = True
 else:
     VERBOSE = True
 

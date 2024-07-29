@@ -243,7 +243,7 @@ def test_create_new_dataset_v3_single_file(space):
         props={"$name": "some good name"},
     )
     dataset.save()
-
+    print(dataset)
     assert dataset.permId is not None
     assert dataset.file_list == ["original/testfile"]
 
@@ -260,7 +260,7 @@ def test_create_new_dataset_v3_directory(space):
         props={"$name": "some good name"},
     )
     dataset.save()
-
+    print(dataset)
     assert dataset.permId is not None
     assert len(dataset.file_list) == 1
     assert dataset.file_list[0].endswith('testdir/testfile')
