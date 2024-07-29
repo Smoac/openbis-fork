@@ -234,7 +234,7 @@ public class ZipImportTest extends AbstractImportTest
         final String propertyValue = sampleSearchResult.getObjects().get(0).getStringProperty("NOTES");
         assertNotNull(propertyValue);
 
-        final String filePathString = "/eln-lims/13/3d/d4/133dd458-9f7f-4ca9-8353-9de3f00f2a55/78397d5b-fe0d-45e8-9f1c-9fa665bc81e3.png";
+        final String filePathString = "/eln-lims/98/05/3b/98053b86-36cb-4a74-a603-893a9a1c53bb/98053b86-36cb-4a74-a603-893a9a1c53bb.png";
         assertTrue(propertyValue.contains(filePathString));
 
         final Path finalImagePath =
