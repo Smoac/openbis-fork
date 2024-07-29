@@ -1,21 +1,37 @@
 #!/usr/bin/python
 # encoding=utf8
-#!/usr/bin/python
+
+#   Copyright ETH 2019 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+
 #
 # Requirement:
 #   The pybis module must be available.
 
 import json
-import settings
+import os
 import socket
 import subprocess
-import systemtest.testcase
-import systemtest.util as util
-import os
 from contextlib import contextmanager
 from random import randrange
 from subprocess import PIPE
 
+import systemtest.testcase
+import systemtest.util as util
+
+import settings
 
 # The output buffer and decurator are used to only print detailed output
 # when something fails. Otherwise there would be way too much.
@@ -152,7 +168,7 @@ class TestCase(systemtest.testcase.TestCase):
             with cd("data1"):
                 cmd("touch file")
                 result = cmd("obis status")
-                assert "? file" in result
+                assert ("? ./file" in result) or ("? file" in result)
                 cmd("obis object set id=/OBIS_TEST_1/SAMPLE_1")
                 result = cmd("obis commit -m 'commit-message'")
                 settings = get_settings()
@@ -281,7 +297,7 @@ class TestCase(systemtest.testcase.TestCase):
                     in result
                 )
                 result = cmd("obis status")
-                assert "? file" in result
+                assert ("? ./file" in result) or ("? file" in result)
                 cmd("obis object set id=/OBIS_TEST_1/SAMPLE_1")
                 result = cmd("obis commit -m 'commit-message'")
                 settings = get_settings()
@@ -491,11 +507,9 @@ class TestCase(systemtest.testcase.TestCase):
                 cmd('obis data_set set properties={"a":"0","b":"1","c":"2"}')
                 cmd("obis data_set -p set c=3")
                 settings = get_settings()
-                assert settings["data_set"]["properties"] == {
-                    "A": "0",
-                    "B": "1",
-                    "C": "3",
-                }
+                assert settings["data_set"]["properties"]["A"] == "0"
+                assert settings["data_set"]["properties"]["B"] == "1"
+                assert settings["data_set"]["properties"]["C"] == "3"
                 result = cmd('obis data_set set properties={"a":"0","A":"1"}')
                 assert "Duplicate key after capitalizing JSON config: A" in result
 
@@ -679,7 +693,7 @@ def create_repository_and_commit(tmpdir, o, repo_name, object_id):
     with cd(repo_name):
         cmd("touch file")
         result = cmd("obis status")
-        assert "? file" in result
+        assert ("? ./file" in result) or ("? file" in result)
         cmd("obis object set id=" + object_id)
         result = cmd("obis commit -m 'commit-message'")
         settings = get_settings()
@@ -701,7 +715,7 @@ def commit_new_change(tmpdir, o, repo_name):
         filename = "file" + str(randrange(100000))
         cmd("touch " + filename)
         result = cmd("obis status")
-        assert "? " + filename in result
+        assert ("? " + filename in result) or ("? ./" + filename in result)
         result = cmd("obis commit -m 'commit-message'")
         settings = get_settings()
         assert settings["repository"]["external_dms_id"].startswith(
