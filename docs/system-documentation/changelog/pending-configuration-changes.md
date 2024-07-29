@@ -1,5 +1,11 @@
 # Pending 20.10 Configuration Changes
 
+## Version 20.10.10
+
+#### 1. Changes to Datastore logs configuration
+
+Datastore server will no longer create a separate log file everytime it starts up. 
+
 ## Version 20.10.9
 
 #### 1. Changes to ELN LIMS Dropbox, new configuration keys for DSS service.properties.
