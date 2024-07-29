@@ -39,6 +39,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.Glob
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.buildFullIdentifierConcatenationString;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
@@ -360,22 +361,18 @@ public class OrderTranslator
         {
             final String fullPropertyName = trimFieldName(sorting.getField());
 
-            final String entityTypePropertyTypesTableAlias = "etpt";
-            final String attributeTypesTableAlias = "at";
-
-            final String result = WHERE + SP + MAIN_TABLE_ALIAS + PERIOD
-                    + tableMapper.getValuesTableEntityTypeAttributeTypeIdField() + SP + IN + NL
-                    + LP + NL
-                    + '\t' + SELECT + SP + entityTypePropertyTypesTableAlias + PERIOD + ID_COLUMN + NL
-                    + '\t' + FROM + SP + tableMapper.getEntityTypesAttributeTypesTable() + SP
-                    + entityTypePropertyTypesTableAlias + NL
-                    + '\t' + LEFT_JOIN + SP + tableMapper.getAttributeTypesTable() + SP + attributeTypesTableAlias
-                    + SP + ON + SP
-                    + entityTypePropertyTypesTableAlias + PERIOD
-                    + tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()
-                    + SP + EQ + SP + attributeTypesTableAlias + PERIOD + ID_COLUMN + NL
-                    + '\t' + WHERE + SP + attributeTypesTableAlias + PERIOD + CODE_COLUMN + SP + EQ + SP + QU
-                    + NL + RP;
+            final String result =
+                    String.format("WHERE %s.%s IN\n"
+                                    + "(\n"
+                                        + "\tSELECT etpt.id\n"
+                                        + "\tFROM %s etpt\n"
+                                        + "\tLEFT JOIN %s at ON etpt.%s = at.id\n"
+                                        + "\tWHERE at.code = ?\n"
+                                    + ") AND COALESCE(%s.value, '') != '%s'", // This part is to prevent an SQL error for non-yet calculated dynamic properties.
+                            MAIN_TABLE_ALIAS, tableMapper.getValuesTableEntityTypeAttributeTypeIdField(),
+                            tableMapper.getEntityTypesAttributeTypesTable(),
+                            tableMapper.getAttributeTypesTable(), tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField(),
+                            MAIN_TABLE_ALIAS, DYNAMIC_PROPERTY_PLACEHOLDER_VALUE);
             translationContext.getArgs().add(TranslatorUtils.normalisePropertyName(fullPropertyName));
             return result;
         } else
