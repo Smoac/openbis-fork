@@ -149,10 +149,7 @@ def test_empty_data_frame(openbis_instance):
         "showRawValueInForms",
         "registrator",
         "registrationDate",
-        "plugin",
-        "unique",
-        "pattern",
-        "patternType"
+        "plugin"
     ]
 
     pd.testing.assert_frame_equal(pa.df, pd.DataFrame(columns=attrs))
@@ -432,8 +429,7 @@ def test_create_sample_clear_property_values(space):
         code=property_type_code_1,
         label='custom property of INTEGER type',
         description='custom property created in unit test',
-        dataType='INTEGER',
-        multiValue=False
+        dataType='INTEGER'
     )
     pt_integer.save()
 
@@ -442,8 +438,7 @@ def test_create_sample_clear_property_values(space):
         code=property_type_code_2,
         label='custom property of BOOLEAN type',
         description='custom property created in unit test',
-        dataType='BOOLEAN',
-        multiValue=False
+        dataType='BOOLEAN'
     )
     pt_integer_2.save()
 

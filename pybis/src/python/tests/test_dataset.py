@@ -226,7 +226,7 @@ def test_create_new_dataset_v1(space):
         props={"$name": "some good name"},
     )
     dataset.save()
-
+    print(dataset)
     assert dataset.permId is not None
     assert dataset.file_list == ["original/testfile"]
 

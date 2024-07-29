@@ -30,11 +30,11 @@ def test_token(openbis_instance):
 
 def test_http_only(openbis_instance):
     with pytest.raises(Exception):
-        new_instance = Openbis("http://localhost")
+        new_instance = Openbis("http://localhost:8443")
         assert new_instance is None
 
     new_instance = Openbis(
-        url="http://localhost",
+        url="http://localhost:8443",
         allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True,
     )
     assert new_instance is not None

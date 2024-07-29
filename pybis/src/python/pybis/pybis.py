@@ -1337,7 +1337,7 @@ class Openbis:
         }
         token = self._post_request(self.as_v3, login_request)
         if token is None or (is_different_login() and token == self.token):
-            raise ValueError("login to openBIS failed:" + str(token))
+            raise ValueError("login to openBIS failed")
         self.token = token
         if save_token:
             self._save_token_to_disk()
