@@ -396,7 +396,7 @@ class DataSet(
 
     def get_dataset_files(self, start_with=None, count=None, **properties):
 
-        search_criteria = get_type_for_entity("dataSetFile", "search")
+        search_criteria = get_type_for_entity('dataSetFile', 'search')
         search_criteria["operator"] = "AND"
         search_criteria["criteria"] = [
             {
@@ -406,17 +406,17 @@ class DataSet(
                         "fieldType": "ATTRIBUTE",
                         "fieldValue": {
                             "value": self.permId,
-                            "@type": "as.dto.common.search.StringEqualToValue",
+                            "@type": "as.dto.common.search.StringEqualToValue"
                         },
-                        "@type": "as.dto.common.search.CodeSearchCriteria",
+                        "@type": "as.dto.common.search.CodeSearchCriteria"
                     }
                 ],
                 "operator": "OR",
-                "@type": "as.dto.dataset.search.DataSetSearchCriteria",
+                "@type": "as.dto.dataset.search.DataSetSearchCriteria"
             }
         ]
 
-        fetchopts = get_fetchoption_for_entity("dataSetFile")
+        fetchopts = get_fetchoption_for_entity('dataSetFile')
 
         request = {
             "method": "searchFiles",
@@ -430,19 +430,14 @@ class DataSet(
         resp = self.openbis._post_request_full_url(full_url, request)
 
         def create_data_frame(attrs, props, response):
-            objects = response["objects"]
+            objects = response['objects']
             parse_jackson(objects)
 
             attrs = [
-                "dataSetPermId",
-                "dataStore",
-                "downloadUrl",
-                "path",
-                "directory",
-                "fileLength",
-                "checksumCRC32",
-                "checksum",
-                "checksumType",
+                'dataSetPermId', 'dataStore', 'downloadUrl',
+                'path', 'directory',
+                'fileLength',
+                'checksumCRC32', 'checksum', 'checksumType'
             ]
 
             dataSetFiles = None
@@ -450,30 +445,20 @@ class DataSet(
                 dataSetFiles = DataFrame(columns=attrs)
             else:
                 dataSetFiles = DataFrame(objects)
-                dataSetFiles["downloadUrl"] = dataSetFiles["dataStore"].map(
-                    extract_downloadUrl
-                )
-                dataSetFiles["checksumCRC32"] = (
-                    dataSetFiles["checksumCRC32"]
-                    .fillna(0.0)
-                    .astype(int)
-                    .map(signed_to_unsigned)
-                )
-                dataSetFiles["dataStore"] = dataSetFiles["dataStore"].map(extract_code)
-                dataSetFiles["dataSetPermId"] = dataSetFiles["dataSetPermId"].map(
-                    extract_permid
-                )
+                dataSetFiles['downloadUrl'] = dataSetFiles['dataStore'].map(extract_downloadUrl)
+                dataSetFiles['dataStore'] = dataSetFiles['dataStore'].map(extract_code)
+                dataSetFiles['dataSetPermId'] = dataSetFiles['dataSetPermId'].map(extract_permid)
             return dataSetFiles[attrs]
 
         return Things(
             openbis_obj=self.openbis,
-            entity="dataSetFile",
-            identifier_name="dataSetPermId",
+            entity='dataSetFile',
+            identifier_name='dataSetPermId',
             start_with=start_with,
             count=count,
-            totalCount=resp.get("totalCount"),
+            totalCount=resp.get('totalCount'),
             response=resp,
-            df_initializer=create_data_frame,
+            df_initializer=create_data_frame
         )
 
     def download(
