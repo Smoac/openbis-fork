@@ -426,15 +426,15 @@ class DataSet(
                 fetchopts,
             ],
         }
-        print(f'REQUEST: {request}')
+        print(f'||> REQUEST: {request}')
         full_url = urljoin(self._get_download_url(), DSS_ENDPOINT)
         resp = self.openbis._post_request_full_url(full_url, request)
-        print(f'RESPONSE: {resp}')
+        print(f'||> RESPONSE: {resp}')
         def create_data_frame(attrs, props, response):
             objects = response["objects"]
-            print(f'OBJECTS1: {objects}')
+            print(f'||> OBJECTS1: {objects}')
             parse_jackson(objects)
-            print(f'OBJECTS2: {objects}')
+            print(f'||> OBJECTS2: {objects}')
             attrs = [
                 "dataSetPermId",
                 "dataStore",
@@ -450,7 +450,7 @@ class DataSet(
             dataSetFiles = None
             if len(objects) == 0:
                 dataSetFiles = DataFrame(columns=attrs)
-                print(f'FILES1: {dataSetFiles}')
+                print(f'||> FILES1: {dataSetFiles}')
             else:
                 dataSetFiles = DataFrame(objects)
                 dataSetFiles["downloadUrl"] = dataSetFiles["dataStore"].map(
@@ -466,8 +466,9 @@ class DataSet(
                 dataSetFiles["dataSetPermId"] = dataSetFiles["dataSetPermId"].map(
                     extract_permid
                 )
-                print(f'FILES2: {dataSetFiles}')
-            print(f'FILES2: {dataSetFiles[attrs]}')
+                print(f'||> FILES2: {dataSetFiles}')
+                dataSetFiles.to_csv(None)
+            print(f'||> FILES3: {dataSetFiles[attrs]}')
             return dataSetFiles[attrs]
 
         return Things(
@@ -696,6 +697,9 @@ class DataSet(
             return self.files
         else:
             fl = self.get_dataset_files().df
+            print(f'||> GET DATASET FILES1:{fl}')
+            print(f'||> GET DATASET FILES2:{fl[fl["directory"] == False]}')
+            print(f'||> GET DATASET FILES2:{fl[fl["directory"] == False]["path"]}')
             return fl[fl["directory"] == False]["path"].to_list()
 
     @property
