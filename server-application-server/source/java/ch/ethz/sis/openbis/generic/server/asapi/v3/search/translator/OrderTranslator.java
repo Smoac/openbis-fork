@@ -241,7 +241,9 @@ public class OrderTranslator
                 final String casting = translationContext.getDataTypeByPropertyName().get(propertyName);
                 if (casting != null)
                 {
-                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN).append(DOUBLE_COLON)
+                    sqlBuilder.append(NULLIF).append(LP).append(MAIN_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN).append(COMMA).append(SP)
+                            .append(SQ).append(DYNAMIC_PROPERTY_PLACEHOLDER_VALUE).append(SQ).append(RP)// This part is to prevent an SQL error for non-yet calculated dynamic properties.
+                            .append(DOUBLE_COLON)
                             .append(casting.toLowerCase());
                 } else
                 {
@@ -368,11 +370,10 @@ public class OrderTranslator
                                         + "\tFROM %s etpt\n"
                                         + "\tLEFT JOIN %s at ON etpt.%s = at.id\n"
                                         + "\tWHERE at.code = ?\n"
-                                    + ") AND COALESCE(%s.value, '') != '%s'", // This part is to prevent an SQL error for non-yet calculated dynamic properties.
+                                    + ")",
                             MAIN_TABLE_ALIAS, tableMapper.getValuesTableEntityTypeAttributeTypeIdField(),
                             tableMapper.getEntityTypesAttributeTypesTable(),
-                            tableMapper.getAttributeTypesTable(), tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField(),
-                            MAIN_TABLE_ALIAS, DYNAMIC_PROPERTY_PLACEHOLDER_VALUE);
+                            tableMapper.getAttributeTypesTable(), tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
             translationContext.getArgs().add(TranslatorUtils.normalisePropertyName(fullPropertyName));
             return result;
         } else

@@ -42,6 +42,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMap
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.*;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
@@ -762,6 +763,7 @@ public class TranslatorUtils
     public static void appendPropertyValueCoalesceForOrder(final StringBuilder sqlBuilder, final TableMapper tableMapper,
             final Map<String, JoinInformation> joinInformationMap)
     {
+        sqlBuilder.append(NULLIF).append(LP);
         sqlBuilder.append(COALESCE).append(LP);
         sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN);
         sqlBuilder.append(COMMA).append(SP);
@@ -777,6 +779,7 @@ public class TranslatorUtils
                     .append(CODE_COLUMN);
         }
         sqlBuilder.append(RP);
+        sqlBuilder.append(COMMA).append(SP).append(SQ).append(DYNAMIC_PROPERTY_PLACEHOLDER_VALUE).append(SQ).append(RP);// This part is to prevent an SQL error for non-yet calculated dynamic properties.
     }
 
     public static void appendSampleSubselectConstraint(final List<Object> args, final StringBuilder sqlBuilder,

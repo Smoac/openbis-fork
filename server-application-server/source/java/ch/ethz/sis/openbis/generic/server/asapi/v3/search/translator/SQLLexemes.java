@@ -138,6 +138,8 @@ public class SQLLexemes
 
     public static final String NULL = "NULL";
 
+    public static final String NULLIF = "NULLIF";
+
     public static final String NULLS_LAST = "NULLS LAST";
 
     public static final String TRUE = Boolean.TRUE.toString();
