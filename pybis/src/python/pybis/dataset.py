@@ -702,7 +702,7 @@ class DataSet(
             print(f'||> GET DATASET FILESS1:{fl.to_string()}')
             print(f'||> GET DATASET FILES2:{fl[fl["directory"] == False]}')
             print(f'||> GET DATASET FILES3:{fl[fl["directory"] == False]["path"]}')
-            print(f'||> GET DATASET FILES3:{fl[fl["directory"] == False]["path"].to_list()}')
+            print(f'||> GET DATASET FILES3:{list(fl[fl["directory"] == False]["path"])}')
             return list(fl[fl["directory"] == False]["path"])
 
     @property
