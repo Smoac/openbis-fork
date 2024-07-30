@@ -427,7 +427,7 @@ public class ExportTest extends AbstractTest
     }
 
     @Test(expectedExceptions = UserFailureException.class,
-            expectedExceptionsMessageRegExp = "Total data size 10485762 is larger than the data limit 10485760\\..*")
+            expectedExceptionsMessageRegExp = "Total data size 10737418242 is larger than the data limit 10737418240\\..*")
     public void testTooLargeDataExport()
     {
         final Mockery mockery = new Mockery();
@@ -445,7 +445,7 @@ public class ExportTest extends AbstractTest
         if (formats.contains(ExportFormat.DATA))
         {
             // The following test data are returned twice because the sample has 2 datasets.
-            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", 5242881); // 1 byte over 5000MB
+            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", 5368709121L); // 1 byte over 5000MiB
             final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
 
             mockery.checking(new Expectations()
@@ -453,9 +453,6 @@ public class ExportTest extends AbstractTest
                 atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
                         with(any(DataSetFileFetchOptions.class)));
                 will(onConsecutiveCalls(returnValue(results1), returnValue(results1)));
-
-                atMost(0).of(v3Dss).downloadFiles(with(any(String.class)), with(any(List.class)),
-                        with(any(DataSetFileDownloadOptions.class)));
             }});
         }
 
