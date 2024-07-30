@@ -213,6 +213,8 @@ def test_things_initialization(space):
 def test_create_new_dataset_v1(space):
     """Create dataset and upload file using upload scheme from before 3.6 api version"""
     openbis_instance = space.openbis
+    import pandas
+    print(pandas.__version__)
 
     testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
 
@@ -228,8 +230,6 @@ def test_create_new_dataset_v1(space):
     dataset.save()
     print(dataset)
     assert dataset.permId is not None
-    dataset2 = openbis_instance.get_dataset(dataset.permId)
-    print(dataset2.file_list)
     assert dataset.file_list == ["original/testfile"]
 
 

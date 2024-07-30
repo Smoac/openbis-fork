@@ -700,11 +700,10 @@ class DataSet(
             fl = self.get_dataset_files().df
             print(f'||> GET DATASET FILES1:{fl}')
             print(f'||> GET DATASET FILESS1:{fl.to_string()}')
-            print(f'||> GET DATASET FILESS2:{fl.to_markdown()}')
             print(f'||> GET DATASET FILES2:{fl[fl["directory"] == False]}')
             print(f'||> GET DATASET FILES3:{fl[fl["directory"] == False]["path"]}')
             print(f'||> GET DATASET FILES3:{fl[fl["directory"] == False]["path"].to_list()}')
-            return fl[fl["directory"] == False]["path"].to_list()
+            return list(fl[fl["directory"] == False]["path"])
 
     @property
     def file_links(self):
