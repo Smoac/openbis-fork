@@ -8,7 +8,7 @@ Optional Application Server Configuration
 
 ### Export data limit in bytes, default to 10Gib
 
-    export.data-limit=10485760
+    export.data-limit=10737418240
 
 
 ### Deleted Entity History
