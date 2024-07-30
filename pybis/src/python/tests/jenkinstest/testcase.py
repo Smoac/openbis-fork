@@ -267,9 +267,12 @@ class TestCase(object):
         consolePropertiesFile = "%s/%s/console.properties" % (
             self.playgroundFolder, installerFileName)
         consoleProperties = util.readProperties(consolePropertiesFile)
+        print(f"CONSOLE_PROPERTIES_FILE:{consolePropertiesFile}")
         installPath = self._getInstallPath(instanceName)
         consoleProperties['INSTALL_PATH'] = installPath
         consoleProperties['DSS_ROOT_DIR'] = "%s/data" % installPath
+        consoleProperties['KEY_STORE_PASSWORD'] = "admin"
+        consoleProperties['KEY_PASSWORD'] = "admin"
         for technology in technologies:
             consoleProperties[technology.upper()] = True
         print(f"CONSOLE_PROPERTIES:{consoleProperties}")
