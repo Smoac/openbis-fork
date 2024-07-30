@@ -23,7 +23,6 @@
 - Improvement: ELN UI - ELN UI: GFB - Notes taking Widget for Experiments (BIS-1003)
 - Improvement: ELN UI - GFB - Object/Experiment Links in spreadsheet (BIS-1004)
 - Improvement: ELN UI - Customise ELN Welcome Page (BIS-1087)
-- Improvement: ELN UI - Introduction of collection for the storage positions (BIS-1298)
 - Improvement: ELN UI - Change behavior of eln-lims-dropbox script with hidden files (BIS-1093)
 - Bugfix: ELN UI - Blanc Sample Form (BIS-1369)
 - Bugfix: ELN UI - ELN-LIMS Dropbox dataset with metadata.json containing UTF-8 Characters fails (BIS-1052)
