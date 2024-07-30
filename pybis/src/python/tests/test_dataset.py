@@ -228,6 +228,8 @@ def test_create_new_dataset_v1(space):
     dataset.save()
     print(dataset)
     assert dataset.permId is not None
+    dataset2 = openbis_instance.get_dataset(dataset.permId)
+    print(dataset2.file_list)
     assert dataset.file_list == ["original/testfile"]
 
 
