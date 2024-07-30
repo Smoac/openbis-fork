@@ -41,10 +41,10 @@ public class SampleTypeImportHelper extends BasicImportHelper
     private enum Attribute implements IAttribute {
         Version("Version", false),
         Code("Code", true),
-        Description("Description", true),
+        Description("Description", false),
         AutoGenerateCodes("Auto generate codes", true),
-        ValidationScript("Validation script", true),
-        GeneratedCodePrefix("Generated code prefix", true),
+        ValidationScript("Validation script", false),
+        GeneratedCodePrefix("Generated code prefix", false),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false);
@@ -89,11 +89,6 @@ public class SampleTypeImportHelper extends BasicImportHelper
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
-
         String version = getValueByColumnName(header, values, Attribute.Version);
 
         if (version == null || version.isEmpty()) {
@@ -117,14 +112,13 @@ public class SampleTypeImportHelper extends BasicImportHelper
         VersionUtils.updateVersion(version, versions, ImportTypes.SAMPLE_TYPE.getType(), code);
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
 
         EntityTypePermId id = new EntityTypePermId(code);
 

@@ -72,6 +72,10 @@ public class ProjectImportHelper extends BasicImportHelper
         return ImportTypes.PROJECT;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         String identifier = getValueByColumnName(header, values, Attribute.Identifier);

@@ -135,6 +135,10 @@ public class SampleImportHelper extends BasicImportHelper
         return ImportTypes.SAMPLE;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         SampleFetchOptions fetchOptions = new SampleFetchOptions();

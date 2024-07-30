@@ -58,10 +58,10 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         Mandatory("Mandatory", true),
         DefaultValue("Default Value", false),
         ShowInEditViews("Show in edit views", true),
-        Section("Section", true),
+        Section("Section", false),
         PropertyLabel("Property label", true),
         DataType("Data type", true),
-        VocabularyCode("Vocabulary code", true),
+        VocabularyCode("Vocabulary code", false),
         Description("Description", true),
         Metadata("Metadata", false),
         DynamicScript("Dynamic script", false),
@@ -120,14 +120,13 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         return ImportTypes.PROPERTY_TYPE;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
 
         String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
 

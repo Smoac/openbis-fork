@@ -69,6 +69,10 @@ public class SpaceImportHelper extends BasicImportHelper
         return ImportTypes.SPACE;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);

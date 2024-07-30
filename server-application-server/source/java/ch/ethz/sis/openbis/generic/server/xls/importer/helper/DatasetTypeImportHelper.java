@@ -40,8 +40,8 @@ public class DatasetTypeImportHelper extends BasicImportHelper
     private enum Attribute implements IAttribute {
         Version("Version", false),
         Code("Code", true),
-        Description("Description", true),
-        ValidationScript("Validation script", true),
+        Description("Description", false),
+        ValidationScript("Validation script", false),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false);
@@ -82,14 +82,13 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         return ImportTypes.DATASET_TYPE;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
 
         String version = getValueByColumnName(header, values, Attribute.Version);
 

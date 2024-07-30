@@ -34,15 +34,14 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class ExperimentTypeImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
         Version("Version", false),
         Code("Code", true),
-        Description("Description", true),
-        ValidationScript("Validation script", true),
+        Description("Description", false),
+        ValidationScript("Validation script", false),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false);
@@ -83,14 +82,13 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
         return ImportTypes.EXPERIMENT_TYPE;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
 
         String version = getValueByColumnName(header, values, Attribute.Version);
 

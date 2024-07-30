@@ -136,6 +136,10 @@ public class ExperimentImportHelper extends BasicImportHelper
         return experimentIdentifier;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();

@@ -62,7 +62,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         Section("Section", false),
         PropertyLabel("Property label", true),
         DataType("Data type", true),
-        VocabularyCode("Vocabulary code", true),
+        VocabularyCode("Vocabulary code", false),
         Description("Description", true),
         Metadata("Metadata", false),
         DynamicScript("Dynamic script", false),
@@ -117,6 +117,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     @Override
     protected void validateLine(Map<String, Integer> headers, List<String> values)
     {
+        attributeValidator.validateHeadersValues(Attribute.values(), headers, values);
+
         // Validate Unambiguous
         String code = getValueByColumnName(headers, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(headers, values, Attribute.PropertyLabel);
@@ -148,11 +150,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
 
         boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
         boolean isSystem = delayedExecutor.isSystem();

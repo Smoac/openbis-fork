@@ -37,7 +37,7 @@ public class VocabularyImportHelper extends BasicImportHelper
     private enum Attribute implements IAttribute {
         Version("Version", false),
         Code("Code", true),
-        Description("Description", true);
+        Description("Description", false);
 
         private final String headerName;
 
@@ -75,15 +75,14 @@ public class VocabularyImportHelper extends BasicImportHelper
         return ImportTypes.VOCABULARY_TYPE;
     }
 
+    protected void validateLine(Map<String, Integer> header, List<String> values) {
+        attributeValidator.validateHeadersValues(Attribute.values(), header, values);
+    }
+
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
 
         boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
         boolean isSystem = delayedExecutor.isSystem();

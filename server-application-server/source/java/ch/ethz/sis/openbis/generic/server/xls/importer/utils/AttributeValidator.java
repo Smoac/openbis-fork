@@ -16,10 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AttributeValidator<E extends IAttribute> {
     private final Set<String> headerNames;
@@ -51,6 +48,24 @@ public class AttributeValidator<E extends IAttribute> {
         for (IAttribute attribute: attributes) {
             if (attribute.isMandatory() && !headers.containsKey(attribute.getHeaderName())) {
                 throw new UserFailureException("Header '" + attribute.getHeaderName() + "' is missing.");
+            }
+        }
+    }
+
+    public void validateHeadersValues(E[] attributes, Map<String, Integer> headers, List<String> values) {
+        // Validate headers again? No, it should have been done already
+        //validateHeaders(attributes, headers);
+
+        for (IAttribute attribute: attributes) {
+            if (attribute.isMandatory()) {
+                Integer index = headers.get(attribute.getHeaderName());
+                String value = null;
+                if (values.size() > index) {
+                    value = values.get(index);
+                }
+                if (value == null || value.isEmpty()) {
+                    throw new UserFailureException("Mandatory field is missing or empty: " + attribute.getHeaderName() + ". For headers: " + headers + " And Values: " + values);
+                }
             }
         }
     }
