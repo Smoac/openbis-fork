@@ -1287,6 +1287,7 @@ class Openbis:
                 "Certificate validation failed. Use o=Openbis(url, verify_certificates=False) if you are using self-signed certificates."
             ) from exc
         except requests.ConnectionError as exc:
+            print(f'||> ERROR: {exc}')
             raise requests.ConnectionError(
                 "Could not connecto to the openBIS server. Please check your internet connection, the specified hostname and port."
             ) from exc
