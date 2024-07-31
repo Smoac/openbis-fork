@@ -62,6 +62,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.Sear
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.DATE_HOURS_MINUTES_SECONDS_FORMAT;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.ERROR_PROPERTY_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.IS_MANAGED_INTERNALLY;
@@ -1067,8 +1068,8 @@ public class TranslatorUtils
     {
         if (castingType != null)
         {
-            sqlBuilder.append(String.format("NULLIF(%s.value, '%s')::%s", tableAlias, DYNAMIC_PROPERTY_PLACEHOLDER_VALUE,
-                    castingType.toLowerCase()));
+            sqlBuilder.append(String.format("CASE WHEN LEFT(%s.value, 1) != '%s' THEN %s.value::%s ELSE NULL END", tableAlias, ERROR_PROPERTY_PREFIX,
+                    tableAlias, castingType.toLowerCase()));
         }
     }
 
