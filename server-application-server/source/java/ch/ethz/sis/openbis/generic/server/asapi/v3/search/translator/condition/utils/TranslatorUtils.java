@@ -15,13 +15,77 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.IAliasFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITHOUT_TZ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AND;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ASTERISK;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AT_TIME_ZONE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.BACKSLASH;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.BARS;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.COALESCE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.COMMA;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.DOUBLE_AT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.DOUBLE_COLON;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.GE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.GT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ILIKE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IS_NOT_NULL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.JOIN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LEFT_JOIN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NULLIF;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ON;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.OR;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERCENT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SELECT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.TO_TSQUERY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.TSQUERY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.UNDERSCORE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.DATE_FORMAT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.DATE_HOURS_MINUTES_FORMAT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.DATE_HOURS_MINUTES_SECONDS_FORMAT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.IS_MANAGED_INTERNALLY;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MATERIAL_PROP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PART_OF_SAMPLE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERM_ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERSON_MODIFIER_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERSON_REGISTERER_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PROJECT_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.RELATIONSHIP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_IDENTIFIER_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_PROP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SPACE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.TS_VECTOR_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.VALUE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.VOCABULARY_TERM_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIALS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PERSONS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.RELATIONSHIP_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLES_VIEW;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SPACES_TABLE;
 
 import java.text.ParseException;
 import java.time.ZoneId;
@@ -34,17 +98,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITHOUT_TZ;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.*;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractDateObjectValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractDateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractNumberValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AnyStringValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateEarlierThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateEarlierThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateLaterThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateLaterThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectEarlierThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectEarlierThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectLaterThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectLaterThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IDate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ITimeZone;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberGreaterThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberGreaterThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberLessThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberLessThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ShortDateFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringContainsExactlyValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringContainsValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringEndsWithValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringGreaterThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringGreaterThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringLessThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringLessThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringStartsWithValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.TimeZone;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.IAliasFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 
 public class TranslatorUtils
 {
@@ -969,6 +1061,15 @@ public class TranslatorUtils
     public static void appendPropertiesExist(final StringBuilder sqlBuilder, final String propertiesTableAlias)
     {
         sqlBuilder.append(propertiesTableAlias).append(PERIOD).append(ID_COLUMN).append(SP).append(IS_NOT_NULL);
+    }
+
+    public static void appendDynamicPropertyCheck(final StringBuilder sqlBuilder, final String tableAlias, final String castingType)
+    {
+        if (castingType != null)
+        {
+            sqlBuilder.append(String.format("NULLIF(%s.value, '%s')::%s", tableAlias, DYNAMIC_PROPERTY_PLACEHOLDER_VALUE,
+                    castingType.toLowerCase()));
+        }
     }
 
 }
