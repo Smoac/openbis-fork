@@ -15,12 +15,27 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
+import java.nio.file.AccessMode;
+import java.nio.file.CopyOption;
+import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.ProviderMismatchException;
+import java.nio.file.ReadOnlyFileSystemException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
@@ -31,10 +46,25 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -77,18 +107,6 @@ import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.server.SftpErrorStatusDataHandler;
 import org.apache.sshd.sftp.server.SftpSubsystemEnvironment;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.ExtendedProperties;
-import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileWithContent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
-import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.python27.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -103,9 +121,21 @@ import org.python27.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.python27.bouncycastle.pkcs.PKCSException;
 import org.python27.bouncycastle.pkcs.jcajce.JcePKCSPBEInputDecryptorProviderBuilder;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileWithContent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+
 /**
  * Controls the lifecycle of an FTP server built into DSS.
- * 
+ *
  * @author Kaloyan Enimanev
  */
 public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file.FileSystemFactory
@@ -189,27 +219,27 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             sslConfigFactory.setKeyPassword(config.getKeyPassword());
             factory.setSslConfiguration(sslConfigFactory.createSslConfiguration());
             factory.setImplicitSsl(config.isImplicitSSL());
-            serverFactory.setFtplets(Collections.<String, Ftplet> singletonMap("",
+            serverFactory.setFtplets(Collections.<String, Ftplet>singletonMap("",
                     new DefaultFtplet()
+                    {
+                        @Override
+                        public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
+                                throws FtpException, IOException
                         {
-                            @Override
-                            public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
-                                    throws FtpException, IOException
+                            String cmd = request.getCommand().toUpperCase();
+                            if ("USER".equals(cmd))
                             {
-                                String cmd = request.getCommand().toUpperCase();
-                                if ("USER".equals(cmd))
+                                if (session.isSecure() == false)
                                 {
-                                    if (session.isSecure() == false)
-                                    {
-                                        session.write(new DefaultFtpReply(500,
-                                                "Control channel is not secure. "
-                                                        + "Please, issue AUTH command first."));
-                                        return FtpletResult.SKIP;
-                                    }
+                                    session.write(new DefaultFtpReply(500,
+                                            "Control channel is not secure. "
+                                                    + "Please, issue AUTH command first."));
+                                    return FtpletResult.SKIP;
                                 }
-                                return super.beforeCommand(session, request);
                             }
-                        }));
+                            return super.beforeCommand(session, request);
+                        }
+                    }));
         }
 
         DataConnectionConfigurationFactory dccFactory = new DataConnectionConfigurationFactory();
@@ -237,9 +267,11 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
     {
         SshServer s = SshServer.setUpDefaultServer();
         KeyPairProvider keyPairProvider;
-        if(config.getCustomCertificate() != null) {
+        if (config.getCustomCertificate() != null)
+        {
             keyPairProvider = new FileBasedKeyPairProvider(config, operationLog);
-        } else {
+        } else
+        {
             keyPairProvider = new KeystoreBasedKeyPairProvider(config, operationLog);
         }
         s.setKeyPairProvider(keyPairProvider);
@@ -247,33 +279,33 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         s.setSubsystemFactories(creatSubsystemFactories());
         s.setFileSystemFactory(this);
         s.setPasswordAuthenticator(new PasswordAuthenticator()
+        {
+            @Override
+            public boolean authenticate(String username, String password, ServerSession session)
+                    throws PasswordChangeRequiredException, AsyncAuthException
             {
-                @Override
-                public boolean authenticate(String username, String password, ServerSession session)
-                        throws PasswordChangeRequiredException, AsyncAuthException
+                try
                 {
-                    try
-                    {
-                        UsernamePasswordAuthentication authentication =
-                                new UsernamePasswordAuthentication(username, password);
-                        User user = userManager.authenticate(authentication);
-                        session.setAttribute(USER_KEY, user);
-                        operationLog.info("User " + user + " authenticated. Session: " + session);
-                        return true;
-                    } catch (AuthenticationFailedException ex)
-                    {
-                        return false;
-                    }
+                    UsernamePasswordAuthentication authentication =
+                            new UsernamePasswordAuthentication(username, password);
+                    User user = userManager.authenticate(authentication);
+                    session.setAttribute(USER_KEY, user);
+                    operationLog.info("User " + user + " authenticated. Session: " + session);
+                    return true;
+                } catch (AuthenticationFailedException ex)
+                {
+                    return false;
                 }
-            });
+            }
+        });
         s.addSessionListener(new SessionListener()
+        {
+            @Override
+            public void sessionException(Session session, Throwable t)
             {
-                @Override
-                public void sessionException(Session session, Throwable t)
-                {
-                    operationLog.error("Session exception", t);
-                }
-            });
+                operationLog.error("Session exception", t);
+            }
+        });
         return s;
     }
 
@@ -281,35 +313,36 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
     {
         SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
         factory.setErrorStatusDataHandler(new SftpErrorStatusDataHandler()
-            {
-                private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
-                        SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
-                private Set<Integer> subStatiForDebugLogging = new HashSet<>(Arrays.asList(
-                        SftpConstants.SSH_FX_EOF));
+        {
+            private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
+                    SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
 
-                @Override
-                public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
-                        Throwable e, int subStatus, int cmd, Object... args)
+            private Set<Integer> subStatiForDebugLogging = new HashSet<>(Arrays.asList(
+                    SftpConstants.SSH_FX_EOF));
+
+            @Override
+            public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
+                    Throwable e, int subStatus, int cmd, Object... args)
+            {
+                String message = SftpErrorStatusDataHandler.super.resolveErrorMessage(sftpSubsystem, id, e, subStatus, cmd, args);
+                User user = sftpSubsystem.getSessionContext().getAttribute(USER_KEY);
+                String logMessage = "user: " + user + ", id=" + id + ", substatus=" + subStatus
+                        + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd)
+                        + "), args=" + Arrays.asList(args);
+                if (subStatiForErrorLogging.contains(subStatus))
                 {
-                    String message = SftpErrorStatusDataHandler.super.resolveErrorMessage(sftpSubsystem, id, e, subStatus, cmd, args);
-                    User user = sftpSubsystem.getSessionContext().getAttribute(USER_KEY);
-                    String logMessage = "user: " + user + ", id=" + id + ", substatus=" + subStatus
-                            + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd)
-                            + "), args=" + Arrays.asList(args);
-                    if (subStatiForErrorLogging.contains(subStatus))
-                    {
-                        operationLog.error(logMessage, e);
-                    } else if (subStatiForDebugLogging.contains(subStatus))
-                    {
-                        operationLog.debug(logMessage + ": " + e);
-                    } else
-                    {
-                        operationLog.warn(logMessage + ": " + e);
-                    }
-                    return message;
+                    operationLog.error(logMessage, e);
+                } else if (subStatiForDebugLogging.contains(subStatus))
+                {
+                    operationLog.debug(logMessage + ": " + e);
+                } else
+                {
+                    operationLog.warn(logMessage + ": " + e);
                 }
-            });
-        return Arrays.<SubsystemFactory> asList(factory);
+                return message;
+            }
+        });
+        return Arrays.<SubsystemFactory>asList(factory);
     }
 
     /**
@@ -341,7 +374,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             String sessionToken = ((FtpUser) user).getSessionToken();
             DSSFileSystemView fileSystemView = new DSSFileSystemView(sessionToken, openBisService, generalInfoService,
                     v3api, pathResolverRegistry);
-            operationLog.info("Get file system views set for session " + sessionToken + " (" 
+            operationLog.info("Get file system views set for session " + sessionToken + " ("
                     + fileSystemViewsBySessionToken.size() + " sessions are cached)");
             Set<DSSFileSystemView> views = fileSystemViewsBySessionToken.get(sessionToken);
             if (views == null)
@@ -531,18 +564,18 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                 children.add(dir.getFileSystem().getPath(file.getAbsolutePath()));
             }
             return new DirectoryStream<Path>()
+            {
+                @Override
+                public void close() throws IOException
                 {
-                    @Override
-                    public void close() throws IOException
-                    {
-                    }
+                }
 
-                    @Override
-                    public Iterator<Path> iterator()
-                    {
-                        return children.iterator();
-                    }
-                };
+                @Override
+                public Iterator<Path> iterator()
+                {
+                    return children.iterator();
+                }
+            };
         }
 
         @Override
@@ -657,6 +690,18 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         @Override
         public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) throws IOException
         {
+            if (path instanceof OpenBisPath)
+            {
+                OpenBisPath openBISPath = (OpenBisPath) path;
+                if (openBISPath.getAttributes() != null)
+                {
+                    OpenBisFileAttributes openBISAttributes = openBISPath.getAttributes();
+                    return Map.of("isRegularFile", openBISAttributes.isRegularFile(), "isDirectory", openBISAttributes.isDirectory(),
+                            "isSymbolicLink", openBISAttributes.isSymbolicLink(), "permissions", openBISAttributes.permissions(), "size",
+                            openBISAttributes.size(), "lastModifiedTime", openBISAttributes.lastModifiedTime(), "lastAccessTime",
+                            openBISAttributes.lastAccessTime());
+                }
+            }
             return null;
         }
 
@@ -804,7 +849,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             {
                 PublicKey publicKey = readPublicKey(certificateFile);
                 PrivateKey privateKey = readPrivateKey(certificateFile, keyPassword);
-                keyPairs = new KeyPair[] {new KeyPair(publicKey, privateKey)};
+                keyPairs = new KeyPair[] { new KeyPair(publicKey, privateKey) };
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -826,7 +871,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                     PemReader pemReader = new PemReader(keyReader))
             {
                 PemObject pemObject = pemReader.readPemObject();
-                while(pemObject != null)
+                while (pemObject != null)
                 {
                     String type = pemObject.getType();
                     if (type.equals("CERTIFICATE"))
@@ -838,7 +883,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                     pemObject = pemReader.readPemObject();
                 }
             }
-            if(publicKey == null)
+            if (publicKey == null)
             {
                 throw new ConfigurationFailureException("No supported public key was found!");
             }
@@ -849,10 +894,11 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                 throws IOException, PKCSException
         {
             PrivateKeyInfo pki = null;
-            try (PEMParser pemParser = new PEMParser(new FileReader(s))) {
+            try (PEMParser pemParser = new PEMParser(new FileReader(s)))
+            {
 
                 Object o = pemParser.readObject();
-                while(o != null)
+                while (o != null)
                 {
                     if (o instanceof PKCS8EncryptedPrivateKeyInfo)
                     {
@@ -875,14 +921,14 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                     }
                     o = pemParser.readObject();
                 }
-                if(pki == null) {
+                if (pki == null)
+                {
                     throw new ConfigurationFailureException("No supported private key was found!");
                 }
                 JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
                 return converter.getPrivateKey(pki);
             }
         }
-
 
     }
 
