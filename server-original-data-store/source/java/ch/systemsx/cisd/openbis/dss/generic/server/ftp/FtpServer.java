@@ -46,13 +46,10 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,6 +63,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import javax.crypto.Cipher;
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
@@ -109,17 +110,6 @@ import org.apache.sshd.sftp.server.SftpSubsystemEnvironment;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.python27.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.python27.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.python27.bouncycastle.openssl.PEMEncryptedKeyPair;
-import org.python27.bouncycastle.openssl.PEMKeyPair;
-import org.python27.bouncycastle.openssl.PEMParser;
-import org.python27.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
-import org.python27.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.python27.bouncycastle.operator.InputDecryptorProvider;
-import org.python27.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
-import org.python27.bouncycastle.pkcs.PKCSException;
-import org.python27.bouncycastle.pkcs.jcajce.JcePKCSPBEInputDecryptorProviderBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -847,9 +837,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             String keyPassword = config.getKeyPassword();
             try
             {
-                PublicKey publicKey = readPublicKey(certificateFile);
-                PrivateKey privateKey = readPrivateKey(certificateFile, keyPassword);
-                keyPairs = new KeyPair[] { new KeyPair(publicKey, privateKey) };
+                keyPairs = new KeyPair[] {readKeys(certificateFile, keyPassword)};
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -864,14 +852,15 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             return Arrays.asList(keyPairs);
         }
 
-        private PublicKey readPublicKey(File certificateFile) throws Exception
+        private KeyPair readKeys(File certificateFile, String keyPassword) throws Exception
         {
             PublicKey publicKey = null;
+            PrivateKey privateKey = null;
             try (FileReader keyReader = new FileReader(certificateFile);
                     PemReader pemReader = new PemReader(keyReader))
             {
                 PemObject pemObject = pemReader.readPemObject();
-                while (pemObject != null)
+                while(pemObject != null)
                 {
                     String type = pemObject.getType();
                     if (type.equals("CERTIFICATE"))
@@ -879,55 +868,26 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                         CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
                         Certificate certificate = certificateFactory.generateCertificate(new ByteArrayInputStream(pemObject.getContent()));
                         publicKey = certificate.getPublicKey();
+                    } else if(type.equals("ENCRYPTED PRIVATE KEY")) {
+                        EncryptedPrivateKeyInfo encryptPKInfo = new EncryptedPrivateKeyInfo(pemObject.getContent());
+                        Cipher cipher = Cipher.getInstance(encryptPKInfo.getAlgName());
+                        PBEKeySpec pbeKeySpec = new PBEKeySpec(keyPassword.toCharArray());
+                        SecretKeyFactory secFac = SecretKeyFactory.getInstance(encryptPKInfo.getAlgName());
+                        Key pbeKey = secFac.generateSecret(pbeKeySpec);
+                        AlgorithmParameters algParams = encryptPKInfo.getAlgParameters();
+                        cipher.init(Cipher.DECRYPT_MODE, pbeKey, algParams);
+                        KeySpec pkcs8KeySpec = encryptPKInfo.getKeySpec(cipher);
+                        KeyFactory kf = KeyFactory.getInstance("RSA");
+                        privateKey = kf.generatePrivate(pkcs8KeySpec);
                     }
                     pemObject = pemReader.readPemObject();
                 }
             }
-            if (publicKey == null)
+            if(publicKey == null)
             {
-                throw new ConfigurationFailureException("No supported public key was found!");
+                throw new ConfigurationFailureException("No supported keys were found!");
             }
-            return publicKey;
-        }
-
-        private PrivateKey readPrivateKey(File s, String password)
-                throws IOException, PKCSException
-        {
-            PrivateKeyInfo pki = null;
-            try (PEMParser pemParser = new PEMParser(new FileReader(s)))
-            {
-
-                Object o = pemParser.readObject();
-                while (o != null)
-                {
-                    if (o instanceof PKCS8EncryptedPrivateKeyInfo)
-                    {
-                        PKCS8EncryptedPrivateKeyInfo epki = (PKCS8EncryptedPrivateKeyInfo) o;
-
-                        JcePKCSPBEInputDecryptorProviderBuilder builder =
-                                new JcePKCSPBEInputDecryptorProviderBuilder().setProvider(BouncyCastleProvider.PROVIDER_NAME);
-
-                        InputDecryptorProvider idp = builder.build(password.toCharArray());
-
-                        pki = epki.decryptPrivateKeyInfo(idp);
-                    } else if (o instanceof PEMEncryptedKeyPair)
-                    {
-
-                        PEMEncryptedKeyPair epki = (PEMEncryptedKeyPair) o;
-                        PEMKeyPair pkp = epki.decryptKeyPair(
-                                new BcPEMDecryptorProvider(password.toCharArray()));
-
-                        pki = pkp.getPrivateKeyInfo();
-                    }
-                    o = pemParser.readObject();
-                }
-                if (pki == null)
-                {
-                    throw new ConfigurationFailureException("No supported private key was found!");
-                }
-                JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
-                return converter.getPrivateKey(pki);
-            }
+            return new KeyPair(publicKey, privateKey);
         }
 
     }
