@@ -1,9 +1,42 @@
 # OpenBIS Change Log
 
+## Version 20.10.9 (31 Jun 2024)
+
+### Core
+- Improvement: V3 API - Allow to use existing sessionToken with Java and JS facade (BIS-1336)
+- Improvement: PDF Export - Formulas within spreadsheets are not converted to calculated values (BIS-1076)
+- Improvement: PDF Export - Added section names in exported pdfs (BIS-1335)
+- Improvement: Excel Import - Import the exported image data (BIS-1050)
+- Improvement: Excel Import - Masterdata import, existing plugins support (BIS-1096)
+- Improvement: Excel Import - Large imports support (BIS-1059)
+- Improvement: Excel Export - "pdf" folder from exports renamed to "hierarchy" (BIS-1338)
+- Improvement: Excel Export - Empty Experiment folders from export removed (BIS-1337)
+- Improvement: Excel Export - Use identifiers instead of PermID in object properties for exported pdf (BIS-1055)
+- Bugfix: PDF Export - Failed PDF export when there are several colored spans (BIS-1371)
+- Bugfix: Excel Import - Exception during variable substitution (BIS-1058, BIS-1373)
+- Bugfix: Excel Import - Issue with import of exported object with data in spreadsheet (BIS-1049)
+- Bugfix: Excel Export - Object Properties References missing on xlsx (BIS-1051)
+
+### ELN
+- Improvement: ELN UI - Spreadsheet Improvements (BIS-1025)
+- Improvement: ELN UI - Object/Experiment Links in word processor (BIS-1029)
+- Improvement: ELN UI - ELN UI: GFB - Notes taking Widget for Experiments (BIS-1003)
+- Improvement: ELN UI - GFB - Object/Experiment Links in spreadsheet (BIS-1004)
+- Improvement: ELN UI - Customise ELN Welcome Page (BIS-1087)
+- Improvement: ELN UI - Change behavior of eln-lims-dropbox script with hidden files (BIS-1093)
+- Bugfix: ELN UI - Blanc Sample Form (BIS-1369)
+- Bugfix: ELN UI - ELN-LIMS Dropbox dataset with metadata.json containing UTF-8 Characters fails (BIS-1052)
+- Bugfix: ELN UI - Large Configurations Support ~ large vocabularies fail (BIS-1389)
+- Bugfix: ELN UI - ELN-LIMS URL Encoding Issues (BIS-1057)
+- Bugfix: ELN UI - ELN-LIMS loading without DSS (BIS-1028)
+
+### Admin
+- Improvement: Admin UI - Show identifier (name) for object property in Tables (BIS-1261)
+- Improvement: Admin UI - Show user account in admin UI (BIS-776)
+
 ## Version 20.10.8 (29 May 2024)
 
 ### Core
-
 - New Feature: Additional configuration parameters for MultiDataSetArchiveSanityCheckMaintenanceTask (SSDM-14098)
 - New Feature: Registration of shared/space objects can be prevented at the system level (SSDM-14067)
 - New Feature: Extend User and Email field length in PersonPE and Database (BIS-799)
@@ -26,7 +59,6 @@
 - Bugfix: DSS threads do not release data set locks before dying (SSDM-14204)
 
 ### ELN
-
 - Bugfix: Problem with selecting checkboxes at Object Browser > Register Objects popup in Firefox (SSDM-14195)
 - Bugfix: ELN: not clickable checkboxes in multi-select dropdowns in popups (SSDM-14226)
 - Bugfix: Typo in create inventory space form (SSDM-14133)
