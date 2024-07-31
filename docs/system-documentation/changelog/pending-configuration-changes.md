@@ -1,6 +1,42 @@
 # Pending 20.10 Configuration Changes
 
+## Version 20.10.10
 
+#### 1. Changes to Datastore logs configuration
+
+Datastore server will no longer create a separate log file everytime it starts up. 
+
+## Version 20.10.9
+
+#### 1. Changes to ELN LIMS Dropbox, new configuration keys for DSS service.properties.
+The ELN-LIMS dropbox validation has been overhauled so that it can happen in two widely configurable steps. 
+- First, files are allowed to be removed; this is aimed at removing files that are knowingly considered unnecessary. 
+- Secondly, the remains were validated for acceptability. This should allow administrators to choose the level of strictness in every particular environment. 
+
+The current default configuration matches previous behavior.
+
+##### Configuration:
+
+- `eln-lims-dropbox-discard-files-patterns`
+
+Allows to specify comma-separated regular expressions of filenames that will be discarded by dropbox script during dataset creation.  
+
+Default setting: `eln-lims-dropbox-discard-files-patterns=` (no files are discarded)
+
+
+- `eln-lims-dropbox-illegal-files-patterns`
+
+Allows to specify comma-separated regular expressions of filenames that will be considered as illegal by the dropbox script. Their presence in the dropbox directory will automatically abort the dataset creation.
+
+Default setting: `eln-lims-dropbox-illegal-files-patterns=desktop\\.ini, IconCache\\.db, thumbs\\.db, \\..*, .*'.*, .*~.*, .*\\$.*, .*%.*`
+
+**Note: regular expressions in this configuration are [Java patterns](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) and special characters need to be escaped**
+
+#### 2. Configuration of download-url for Application Server service.properties
+The ELN-LIMS "Print PDF" functionality has been reworked and to produce proper PDFs a `download-url` parameter (which is a base URL for Web client access to the application server) in AS service.properties needs to be set. 
+When the machine is behind a reverse proxy, it needs to match the actual domain of the server
+
+`download-url` - Base URL. Contains protocol, domain, and port. (e.g https://localhost:8443)
 
 ## Version 20.10.6
 #### 1. Changes on ELN LIMS Dropbox, new configuration key for DSS service.properties. This change is OPTIONAL.
