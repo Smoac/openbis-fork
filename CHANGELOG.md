@@ -1,6 +1,6 @@
 # OpenBIS Change Log
 
-## Version 20.10.9 (To be announced)
+## Version 20.10.9 (31 Jun 2024)
 
 ### Core
 - Improvement: V3 API - Allow to use existing sessionToken with Java and JS facade (BIS-1336)
