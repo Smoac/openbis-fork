@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.TextAttributeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -45,6 +46,11 @@ public class DataSetSearchCriteria extends AbstractDataSetSearchCriteria<DataSet
     public DataSetContainerSearchCriteria withContainer()
     {
         return with(new DataSetContainerSearchCriteria());
+    }
+
+    public DataStoreSearchCriteria withDataStore()
+    {
+        return with(new DataStoreSearchCriteria());
     }
 
     public DataSetSearchCriteria withSubcriteria()

@@ -89,6 +89,12 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     @Override
     public List<DataStorePE> listDataStores()
     {
+        return listDataStores(true, false);
+    }
+
+    @Override
+    public List<DataStorePE> listDataStores(final boolean includeDss, final boolean includeAfs)
+    {
         return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<List<DataStorePE>>()
         {
 
@@ -96,7 +102,21 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
             public List<DataStorePE> doInHibernate(Session session) throws HibernateException
             {
                 final Criteria criteria = session.createCriteria(ENTITY_CLASS);
-                criteria.add(Restrictions.ne("code", AFS_DATA_STORE_CODE));
+
+                if (includeAfs)
+                {
+                    if (!includeDss)
+                    {
+                        criteria.add(Restrictions.eq("code", AFS_DATA_STORE_CODE));
+                    }
+                } else if (includeDss)
+                {
+                    criteria.add(Restrictions.ne("code", AFS_DATA_STORE_CODE));
+                } else
+                {
+                    return List.of();
+                }
+
                 criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
                 criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
                 final List<DataStorePE> list = cast(criteria.list());

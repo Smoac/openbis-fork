@@ -277,6 +277,13 @@
 		<constructor-arg ref="identity-translator"/>
 	</bean>
 
+	<bean id="data-store-search-manager" class="ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.DataStoreSearchManager"
+		  lazy-init="true">
+		<constructor-arg ref="postgres-search-dao"/>
+		<constructor-arg ref="information-provider-dao"/>
+		<constructor-arg ref="identity-translator"/>
+	</bean>
+
 	<bean id="person-search-manager" class="ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.PersonSearchManager" lazy-init="true">
 		<constructor-arg ref="postgres-search-dao"/>
 		<constructor-arg ref="information-provider-dao"/>
