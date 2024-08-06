@@ -14,9 +14,9 @@ Exported metadata (and masterdata) are contained in a **xlsx** folder, as shown 
 
 
 Metadata and masterdata are contained in the **metadata.xlsx** file. In addition to the metadata.xlsx file, the **xlsx** folder might contain additional folders:
-    - a **scripts** folder: contains scripts associated with types in the metadata.xlsx file, if these are present;
-    - a **data** folder: holds the content of spreadsheet fields and large text fields that exceed the size of an Excel cell (32767 characters) and would not fit in the masterdata.xlsx file;
-    - a **miscellaneous** folder: contain images embedded in text of exported entries, if present.
+- a **scripts** folder: contains scripts associated with types in the metadata.xlsx file, if these are present; 
+- a **data** folder: holds the content of spreadsheet fields and large text fields that exceed the size of an Excel cell (32767 characters) and would not fit in the masterdata.xlsx file;
+- a **miscellaneous** folder: contain images embedded in text of exported entries, if present.
 
 
 If a **data**, **scripts** and/or **miscellaneous** folders are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped and the **xlsx.zip** file can be imported via admin UI.
