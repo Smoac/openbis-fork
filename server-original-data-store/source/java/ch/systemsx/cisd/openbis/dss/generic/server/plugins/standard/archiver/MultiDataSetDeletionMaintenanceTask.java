@@ -388,6 +388,7 @@ public class MultiDataSetDeletionMaintenanceTask
         simpleDataSet.setDataSetSize(dataSet1.getPhysicalData().getSize());
         simpleDataSet.setDataSetCode(dataSet1.getCode());
         simpleDataSet.setDataSetLocation(dataSet1.getPhysicalData().getLocation());
+        simpleDataSet.setDataSetShareId(dataSet1.getPhysicalData().getShareId());
 
         if (dataSet1.getExperiment() != null)
         {

@@ -15,13 +15,12 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 
 /**
  * Resolves the content of the data set. Assumes that the first part of the path is data set code
- * 
+ *
  * @author Jakub Straszewski
  */
 public class DataSetContentResolver implements IResolver
@@ -46,18 +45,24 @@ public class DataSetContentResolver implements IResolver
     @Override
     public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
-
-        Cache cache = ((ResolverContext) context).getCache();
-
+        ResolverContext resolverContext = (ResolverContext) context;
+        Cache cache = resolverContext.getCache();
         Boolean hasAccess = cache.getAccess(dataSetCode);
+
         if (hasAccess == null)
         {
             // this fetching of data set is for authorization purposes, as content provider doesn't check if user has access to data set
-            IDataSetId id = new DataSetPermId(dataSetCode);
-            Map<IDataSetId, DataSet> dataSets =
-                    context.getApi().getDataSets(context.getSessionToken(), Collections.singletonList(id), new DataSetFetchOptions());
+            DataSetSearchCriteria dataSetSearchCriteria = new DataSetSearchCriteria();
+            dataSetSearchCriteria.withCode().thatEquals(dataSetCode);
+            if (resolverContext.isShowAfsDataSets())
+            {
+                dataSetSearchCriteria.withDataStore().withKind().thatIn(DataStoreKind.DSS, DataStoreKind.AFS);
+            }
 
-            hasAccess = dataSets.containsKey(id);
+            List<DataSet> dataSets =
+                    context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, new DataSetFetchOptions()).getObjects();
+
+            hasAccess = !dataSets.isEmpty();
             cache.putAccess(dataSetCode, hasAccess);
         }
 

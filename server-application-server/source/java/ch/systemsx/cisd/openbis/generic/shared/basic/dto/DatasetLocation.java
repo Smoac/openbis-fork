@@ -32,6 +32,8 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
 
     private String dataSetLocation;
 
+    private String dataSetShareId;
+
     private String dataStoreCode;
 
     private String dataStoreUrl;
@@ -89,6 +91,16 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
     public void setDatasetCode(String datasetCode)
     {
         this.datasetCode = datasetCode;
+    }
+
+    @Override public String getDataSetShareId()
+    {
+        return dataSetShareId;
+    }
+
+    public void setDataSetShareId(final String dataSetShareId)
+    {
+        this.dataSetShareId = dataSetShareId;
     }
 
     @Override

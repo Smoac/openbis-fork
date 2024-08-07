@@ -54,6 +54,7 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
         datasetLocation.setDatasetCode(externalData.getCode());
         PhysicalDataSet dataSet = externalData.tryGetAsDataSet();
         datasetLocation.setDataSetLocation(dataSet == null ? null : dataSet.getLocation());
+        datasetLocation.setDataSetShareId(dataSet == null ? null : dataSet.getShareId());
         datasetLocation.setDataStoreCode(externalData.getDataStore().getCode());
         datasetLocation.setDataStoreUrl(externalData.getDataStore().getHostUrl());
         datasetLocation.setOrderInContainer(orderInParentContainer);

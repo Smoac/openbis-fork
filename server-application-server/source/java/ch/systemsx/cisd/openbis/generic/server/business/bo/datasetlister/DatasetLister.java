@@ -1423,6 +1423,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 location = new LinkDataSetLocation();
             }
             location.setDatasetCode(record.code);
+            location.setDataSetShareId(record.share_id);
             location.setDataStoreCode(record.data_store_code);
             location.setDataStoreUrl(record.data_store_url);
             location.setOrderInContainer(record.ordinal);

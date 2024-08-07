@@ -48,4 +48,6 @@ public class Constants
 
     public static final String SWITCH_AAI_LABEL = "switch-aai.label";
 
+    public static final String AFS_DATA_STORE_CODE = "AFS";
+
 }

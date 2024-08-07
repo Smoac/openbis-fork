@@ -17,12 +17,17 @@ package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
@@ -30,7 +35,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewRe
 
 /**
  * @author Franz-Josef Elmer
- *
  */
 class SampleLevelResolver implements IResolver
 {
@@ -39,19 +43,18 @@ class SampleLevelResolver implements IResolver
     public SampleLevelResolver(ISampleId sampleId)
     {
         this.sampleId = sampleId;
-        
+
     }
 
     @Override
     public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
+        ResolverContext resolverContext = (ResolverContext) context;
+
         if (subPath.length == 0)
         {
-            SampleFetchOptions fetchOptions = new SampleFetchOptions();
-            fetchOptions.withDataSets();
-
             Map<ISampleId, Sample> samples =
-                    context.getApi().getSamples(context.getSessionToken(), Collections.singletonList(sampleId), fetchOptions);
+                    context.getApi().getSamples(context.getSessionToken(), Collections.singletonList(sampleId), new SampleFetchOptions());
             Sample sample = samples.get(sampleId);
 
             if (sample == null)
@@ -60,10 +63,22 @@ class SampleLevelResolver implements IResolver
             }
 
             IDirectoryResponse response = context.createDirectoryResponse();
-            for (DataSet dataSet : sample.getDataSets())
+
+            DataSetSearchCriteria dataSetSearchCriteria = new DataSetSearchCriteria();
+            dataSetSearchCriteria.withSample().withId().thatEquals(sampleId);
+            if (resolverContext.isShowAfsDataSets())
+            {
+                dataSetSearchCriteria.withDataStore().withKind().thatIn(DataStoreKind.DSS, DataStoreKind.AFS);
+            }
+
+            List<DataSet> dataSets =
+                    context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, new DataSetFetchOptions()).getObjects();
+
+            for (DataSet dataSet : dataSets)
             {
                 response.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
             }
+
             return response;
         } else
         {

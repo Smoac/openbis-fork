@@ -17,12 +17,17 @@ package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
@@ -40,13 +45,12 @@ class ExperimentLevelResolver implements IResolver
     @Override
     public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
+        ResolverContext resolverContext = (ResolverContext) context;
+
         if (subPath.length == 0)
         {
-            ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-            fetchOptions.withDataSets();
-
             Map<IExperimentId, Experiment> experiments =
-                    context.getApi().getExperiments(context.getSessionToken(), Collections.singletonList(experimentId), fetchOptions);
+                    context.getApi().getExperiments(context.getSessionToken(), Collections.singletonList(experimentId), new ExperimentFetchOptions());
             Experiment exp = experiments.get(experimentId);
 
             if (exp == null)
@@ -55,10 +59,22 @@ class ExperimentLevelResolver implements IResolver
             }
 
             IDirectoryResponse response = context.createDirectoryResponse();
-            for (DataSet dataSet : exp.getDataSets())
+
+            DataSetSearchCriteria dataSetSearchCriteria = new DataSetSearchCriteria();
+            dataSetSearchCriteria.withExperiment().withId().thatEquals(experimentId);
+            if (resolverContext.isShowAfsDataSets())
+            {
+                dataSetSearchCriteria.withDataStore().withKind().thatIn(DataStoreKind.DSS, DataStoreKind.AFS);
+            }
+
+            List<DataSet> dataSets =
+                    context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, new DataSetFetchOptions()).getObjects();
+
+            for (DataSet dataSet : dataSets)
             {
                 response.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
             }
+
             return response;
         } else
         {

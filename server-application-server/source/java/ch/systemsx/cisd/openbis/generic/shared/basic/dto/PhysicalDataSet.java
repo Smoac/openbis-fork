@@ -176,6 +176,11 @@ public class PhysicalDataSet extends AbstractExternalData implements IDatasetLoc
         return getCode();
     }
 
+    @Override public String getDataSetShareId()
+    {
+        return getShareId();
+    }
+
     @Override
     public String getDataStoreUrl()
     {

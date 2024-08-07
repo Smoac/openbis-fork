@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -26,12 +27,17 @@ import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.NonExistingFileRespon
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * @author Jakub Straszewski
  */
 public class ResolverContext implements ISessionTokenProvider, IResolverContext
 {
+    private static final String SHOW_AFS_DATA_SETS = "ftp.show-afs-data-sets";
+
+    private static final boolean SHOW_AFS_DATA_SETS_DEFAULT = false;
+
     private final String sessionToken;
 
     private final Cache cache;
@@ -42,12 +48,16 @@ public class ResolverContext implements ISessionTokenProvider, IResolverContext
 
     private final String fullPath;
 
+    private final boolean showAfsDataSets;
+
     public ResolverContext(String sessionToken, Cache cache, IApplicationServerApi api, String fullPath)
     {
         this.sessionToken = sessionToken;
         this.cache = cache;
         this.api = api;
         this.fullPath = fullPath;
+        this.showAfsDataSets =
+                PropertyUtils.getBoolean(DssPropertyParametersUtil.loadServiceProperties(), SHOW_AFS_DATA_SETS, SHOW_AFS_DATA_SETS_DEFAULT);
     }
 
     @Override
@@ -99,4 +109,8 @@ public class ResolverContext implements ISessionTokenProvider, IResolverContext
         return cache;
     }
 
+    public boolean isShowAfsDataSets()
+    {
+        return showAfsDataSets;
+    }
 }

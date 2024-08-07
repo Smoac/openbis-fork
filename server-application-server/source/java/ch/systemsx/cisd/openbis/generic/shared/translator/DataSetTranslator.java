@@ -97,6 +97,7 @@ public class DataSetTranslator
         if (dataSet != null)
         {
             description.setDataSetLocation(dataSet.getLocation());
+            description.setDataSetShareId(dataSet.getShareId());
             description.setSpeedHint(dataSet.getSpeedHint());
             description.setFileFormatType(dataSet.getFileFormatType().getCode());
             description.setH5Folders(dataSet.isH5Folders());
@@ -528,6 +529,7 @@ public class DataSetTranslator
         {
             ExternalDataPE externalData = dataSet.tryAsExternalData();
             description.setDataSetLocation(externalData.getLocation());
+            description.setDataSetShareId(externalData.getShareId());
             description.setDataSetSize(externalData.getSize());
             description.setSpeedHint(externalData.getSpeedHint());
             description.setFileFormatType(externalData.getFileFormatType().getCode());

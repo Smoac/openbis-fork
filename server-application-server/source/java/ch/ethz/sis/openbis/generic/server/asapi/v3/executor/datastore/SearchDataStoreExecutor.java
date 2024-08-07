@@ -15,8 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.datastore;
 
-import static ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DataStoreDAO.AFS_DATA_STORE_CODE;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -40,6 +38,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodeMa
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.CodesMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
@@ -73,7 +72,7 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
         if (criteria.getCriteria() == null || criteria.getCriteria().isEmpty())
         {
             // For backwards compatibility, by default, AFS should be filtered out
-            return dataStorePES.stream().filter(dataStorePE -> !Objects.equals(dataStorePE.getCode(), AFS_DATA_STORE_CODE))
+            return dataStorePES.stream().filter(dataStorePE -> !Objects.equals(dataStorePE.getCode(), Constants.AFS_DATA_STORE_CODE))
                     .collect(Collectors.toList());
         } else
         {
@@ -117,7 +116,7 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
                 return dataStorePES.stream().filter(dataStorePE ->
                 {
                     final String code = dataStorePE.getCode();
-                    return Objects.equals(code, AFS_DATA_STORE_CODE) ?
+                    return Objects.equals(code, Constants.AFS_DATA_STORE_CODE) ?
                             dataStoreKinds != null && dataStoreKinds.contains(DataStoreKind.AFS) :
                             dataStoreKinds == null || dataStoreKinds.contains(DataStoreKind.DSS);
                 }).collect(Collectors.toList());

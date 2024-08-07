@@ -288,6 +288,11 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     return null;
                 }
 
+                @Override public String getDataSetShareId()
+                {
+                    return null;
+                }
+
                 @Override
                 public Integer getOrderInContainer(String containerDataSetCode)
                 {
