@@ -347,7 +347,9 @@ var JExcelEditorManager = new function() {
                                     callback(links);
                                 });
                             }
-                        })
+                        }).fail(function(result) {
+                            callback({});
+                        });
                     });
 
 	}
