@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main;
 
 import ch.ethz.sis.rdf.main.parser.RDFParser;
-import ch.ethz.sis.rdf.main.xlsx.ExcelBuilder;
+import ch.ethz.sis.rdf.main.xlsx.write.XLSXWriter;
 import org.apache.commons.cli.*;
 
 import java.io.Console;
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 public class RDFCommandLine {
 
-    private static final String openBISURL = "http://localhost:8888";
+    //private static final String openBISURL = "http://localhost:8888";
 
     //private static final String openBISURL = "https://openbis-sis-ci-sprint.ethz.ch";
 
@@ -190,8 +190,8 @@ public class RDFCommandLine {
 
         // Write model to an Excel file (apache POI dependency)
         System.out.println("Writing XLSX file...");
-        ExcelBuilder excelBuilder = new ExcelBuilder();
-        excelBuilder.createExcelFile(rdfParser, outputFilePath, projectIdentifier);
+        XLSXWriter XLSXWriter = new XLSXWriter();
+        XLSXWriter.createExcelFile(rdfParser, outputFilePath, projectIdentifier);
 
         System.out.println("XLSX created successfully!");
     }

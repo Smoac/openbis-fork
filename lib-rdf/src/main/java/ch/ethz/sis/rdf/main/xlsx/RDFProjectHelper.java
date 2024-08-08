@@ -32,7 +32,7 @@ public class RDFProjectHelper
         }
     }
 
-    protected int addProjectSection(Sheet sheet, int rowNum, CellStyle headerStyle, String spaceId, String projectId){
+    public int addProjectSection(Sheet sheet, int rowNum, CellStyle headerStyle, String spaceId, String projectId){
         Row row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue(PROJECT);
         row.getCell(0).setCellStyle(headerStyle);
