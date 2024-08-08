@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -977,6 +977,9 @@ class DataSet(
             files=self.files,
             wait_until_finished=True,
         )
+        type_code = self.type.code
+        if type_code.startswith('$'):
+            type_code = type_code[1:]
 
         props = self.formatter.format(self.props.all_nonempty())
         param = {
@@ -985,7 +988,7 @@ class DataSet(
             "typeId": {
                 "@type": "as.dto.entitytype.id.EntityTypePermId",
                 "@id": "2",
-                "permId": self.type.code,
+                "permId": type_code,
                 "entityKind": "DATA_SET"},
 
             "properties": props,

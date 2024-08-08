@@ -239,7 +239,7 @@ public class BlastUtils
     public File getFile(Properties properties, String pathProperty, String defaultPath, File storeRoot)
     {
         String path = properties.getProperty(pathProperty);
-        return path == null ? new File(storeRoot, defaultPath) : new File(path);
+        return (path == null || path.trim().isEmpty()) ? new File(storeRoot, defaultPath) : new File(path);
     }
 
     public void logMissingTools(String configuredBlastPath)

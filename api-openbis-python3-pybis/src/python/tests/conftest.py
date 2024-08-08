@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ def openbis_instance():
     instance = Openbis(
         url=openbis_url,
         verify_certificates=False,
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     print("\nLOGGING IN...")
     instance.login(admin_username, admin_password)
@@ -40,7 +41,7 @@ def other_openbis_instance():
     instance = Openbis(
         url=openbis_url,
         verify_certificates=False,
-
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     print("\nLOGGING IN...")
     instance.login(admin_username, admin_password)
@@ -54,7 +55,7 @@ def space():
     o = Openbis(
         url=openbis_url,
         verify_certificates=False,
-
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     o.login(admin_username, admin_password)
 

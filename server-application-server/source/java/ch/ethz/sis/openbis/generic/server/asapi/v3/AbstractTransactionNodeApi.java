@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -21,6 +22,8 @@ public abstract class AbstractTransactionNodeApi implements ApplicationListener<
     private static final String FINISH_TRANSACTIONS_THREAD_NAME = "finish-transactions";
 
     protected final TransactionConfiguration transactionConfiguration;
+
+    private Timer finishTransactionsTimer;
 
     public AbstractTransactionNodeApi(final TransactionConfiguration transactionConfiguration)
     {
@@ -39,19 +42,20 @@ public abstract class AbstractTransactionNodeApi implements ApplicationListener<
             AbstractApplicationContext appContext = (AbstractApplicationContext) source;
             if ((event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent))
             {
-                if (appContext.getParent() != null)
+                if (appContext.getParent() != null && finishTransactionsTimer == null)
                 {
                     if (transactionConfiguration.isEnabled())
                     {
                         recoverTransactionsFromTransactionLog();
 
-                        new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
-                                                                                  {
-                                                                                      @Override public void run()
-                                                                                      {
-                                                                                          finishFailedOrAbandonedTransactions();
-                                                                                      }
-                                                                                  },
+                        finishTransactionsTimer = new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true);
+                        finishTransactionsTimer.schedule(new TimerTask()
+                                                         {
+                                                             @Override public void run()
+                                                             {
+                                                                 finishFailedOrAbandonedTransactions();
+                                                             }
+                                                         },
                                 transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
                                 transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
                     } else
@@ -59,6 +63,12 @@ public abstract class AbstractTransactionNodeApi implements ApplicationListener<
                         operationLog.info(
                                 "Transactions are disabled in service.properties file. No transactions will be recovered from the transaction log. No tasks will be scheduled to periodically finish failed or abandoned transactions.");
                     }
+                }
+            } else if (event instanceof ContextClosedEvent)
+            {
+                if (appContext.getParent() == null && finishTransactionsTimer != null)
+                {
+                    finishTransactionsTimer.cancel();
                 }
             }
         }

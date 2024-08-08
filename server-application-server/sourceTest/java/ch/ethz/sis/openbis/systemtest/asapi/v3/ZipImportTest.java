@@ -16,6 +16,14 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.junit.Assert.assertNotNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +56,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.FileServerUtils;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
-import static org.testng.Assert.*;
-import static org.testng.Assert.fail;
 
 public class ZipImportTest extends AbstractImportTest
 {
@@ -203,6 +209,44 @@ public class ZipImportTest extends AbstractImportTest
         assertNotNull(propertyValue);
         assertTrue(propertyValue.startsWith("Lorem ipsum dolor sit amet"));
         assertTrue(propertyValue.length() > Short.MAX_VALUE);
+    }
+
+    @Test
+    public void testInlinedImageImport() throws Exception
+    {
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import_inlined_image_cell.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
+        sampleSearchCriteria.withCode().thatEquals("AAA");
+
+        final SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+
+        final SearchResult<Sample> sampleSearchResult = v3api.searchSamples(sessionToken, sampleSearchCriteria, sampleFetchOptions);
+
+        assertEquals(sampleSearchResult.getTotalCount(), 1);
+
+        final String propertyValue = sampleSearchResult.getObjects().get(0).getStringProperty("NOTES");
+        assertNotNull(propertyValue);
+
+        final String filePathString = "/eln-lims/98/05/3b/98053b86-36cb-4a74-a603-893a9a1c53bb/98053b86-36cb-4a74-a603-893a9a1c53bb.png";
+        assertTrue(propertyValue.contains(filePathString));
+
+        final Path finalImagePath =
+                FileServerUtils.getFilePath(filePathString);
+        assertTrue(Files.exists(finalImagePath));
+
+        // Cleanup
+        Files.delete(finalImagePath);
+        Files.delete(finalImagePath.getParent());
+        Files.delete(finalImagePath.getParent().getParent());
+        Files.delete(finalImagePath.getParent().getParent().getParent());
+        Files.delete(finalImagePath.getParent().getParent().getParent().getParent());
     }
 
     @Test

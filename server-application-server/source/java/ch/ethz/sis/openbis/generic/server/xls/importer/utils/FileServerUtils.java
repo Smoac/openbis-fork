@@ -1,8 +1,5 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 
-import ch.ethz.sis.openbis.generic.server.FileServiceServlet;
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +7,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
+
+import ch.ethz.sis.openbis.generic.server.FileServiceServlet;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 public class FileServerUtils
 {
@@ -21,9 +21,10 @@ public class FileServerUtils
             "/eln-lims/46/63/05/466305f0-4842-441f-b21c-777ea82079b4/466305f0-4842-441f-b21c-777ea82079b4.jpg",
             "/eln-lims/c0/1b/2e/c01b2e1f-8212-4562-ae8a-9072bf92e687/c01b2e1f-8212-4562-ae8a-9072bf92e687.jpg",
             "/eln-lims/c1/b2/91/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c.jpg",
-            "/eln-lims/f3/e4/0c/f3e40c2e-109c-4191-bed0-2cf931de185a/f3e40c2e-109c-4191-bed0-2cf931de185a.jpg");
+            "/eln-lims/f3/e4/0c/f3e40c2e-109c-4191-bed0-2cf931de185a/f3e40c2e-109c-4191-bed0-2cf931de185a.jpg",
+            "/eln-lims/98/05/3b/98053b86-36cb-4a74-a603-893a9a1c53bb/98053b86-36cb-4a74-a603-893a9a1c53bb.png");
 
-    private static Path getFilePath(String filePath) throws IOException
+    public static Path getFilePath(String filePath) throws IOException
     {
         if (!TEST_FILE_PATHS.contains(filePath))
         {
@@ -63,12 +64,14 @@ public class FileServerUtils
     public static long write(final InputStream src, final String dst) throws IOException
     {
         final Path filePathAsPath = getFilePath(dst);
+        Files.createDirectories(filePathAsPath.getParent());
         return Files.copy(src, filePathAsPath);
     }
 
     public static OutputStream newOutputStream(String dst) throws IOException
     {
         final Path filePathAsPath = getFilePath(dst);
+        Files.createDirectories(filePathAsPath.getParent());
         return Files.newOutputStream(filePathAsPath);
     }
 

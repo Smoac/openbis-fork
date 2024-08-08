@@ -532,7 +532,7 @@ public class ExportExecutor implements IExportExecutor
         {
             final String dataLimitString = ((ExposablePropertyPlaceholderConfigurer) CommonServiceProvider
                     .tryToGetBean(PROPERTY_CONFIGURER_BEAN_NAME))
-                    .getResolvedProps().getProperty("export.data-limit", "10485760");
+                    .getResolvedProps().getProperty("export.data-limit", "10737418240");
 
             try
             {

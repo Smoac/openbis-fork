@@ -619,7 +619,7 @@ PAT generation is explained in depth in `token` command section.
 The Big Data Link Services can be used to download files which are contained in an obis repository.
 The services are included in the installation folder of openBIS,
 under `servers/big_data_link_services`. For how to configure and run them, consult
-the [README.md](https://sissource.ethz.ch/sispub/openbis/blob/master/big_data_link_server/README.md)
+the [README.md](https://sissource.ethz.ch/sispub/openbis/-/blob/master/server-external-data-store/README.md)
 file.
 
 ## 8. Rationale for obis
