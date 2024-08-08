@@ -1,8 +1,6 @@
-package ch.ethz.sis.rdf.main.entity;
+package ch.ethz.sis.rdf.main.model.xlsx;
 
 import ch.ethz.sis.rdf.main.Utils;
-
-import java.util.Objects;
 
 public class VocabularyTypeOption {
     public String code;

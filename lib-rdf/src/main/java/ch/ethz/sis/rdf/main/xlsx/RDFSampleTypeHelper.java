@@ -36,7 +36,7 @@ public class RDFSampleTypeHelper {
         }
     }
 
-    protected int addSampleTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle, String ontNamespace, String ontVersion, String ontClassURI,
+    public int addSampleTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle, String ontNamespace, String ontVersion, String ontClassURI,
             String label, String comment, String skosDefinition, String skosNote){
         Row sampleTypeRow = sheet.createRow(rowNum++);
         sampleTypeRow.createCell(0).setCellValue("SAMPLE_TYPE");

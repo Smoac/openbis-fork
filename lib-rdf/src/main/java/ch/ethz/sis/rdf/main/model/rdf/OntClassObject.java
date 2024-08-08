@@ -1,7 +1,6 @@
-package ch.ethz.sis.rdf.main.entity;
+package ch.ethz.sis.rdf.main.model.rdf;
 
 import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.ontology.UnionClass;
 import org.apache.jena.rdf.model.Property;

@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main.parser;
 
-import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
-import ch.ethz.sis.rdf.main.entity.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
+import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
 

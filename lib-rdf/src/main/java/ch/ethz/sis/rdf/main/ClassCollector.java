@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main;
 
-import ch.ethz.sis.rdf.main.entity.OntClassObject;
-import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDFS;

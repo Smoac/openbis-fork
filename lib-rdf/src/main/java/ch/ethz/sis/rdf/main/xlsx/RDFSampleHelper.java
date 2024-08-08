@@ -2,10 +2,10 @@ package ch.ethz.sis.rdf.main.xlsx;
 
 import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
-import ch.ethz.sis.rdf.main.entity.OntClassObject;
-import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
-import ch.ethz.sis.rdf.main.entity.ResourceRDF;
-import ch.ethz.sis.rdf.main.entity.VocabularyType;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
+import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.rdf.model.Literal;
@@ -62,7 +62,7 @@ public class RDFSampleHelper {
         return defaultCols;
     }
 
-    protected int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassObject ontClassObject) {
+    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassObject ontClassObject) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         // Create header row for SAMPLE
@@ -98,7 +98,7 @@ public class RDFSampleHelper {
         return uri.startsWith(RESOURCE_PREFIX);
     }
     
-    protected int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject, RDFParser rdfParser) {
+    public int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject, RDFParser rdfParser) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         Row propertyRowValues = sheet.createRow(rowNum);

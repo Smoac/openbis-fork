@@ -1,9 +1,8 @@
 package ch.ethz.sis.rdf.main.parser;
 
-import ch.ethz.sis.rdf.main.entity.OntClassObject;
-import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
-import ch.ethz.sis.rdf.main.entity.ResourceRDF;
-import ch.ethz.sis.rdf.main.entity.VocabularyType;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import org.apache.jena.ontology.OntModel;

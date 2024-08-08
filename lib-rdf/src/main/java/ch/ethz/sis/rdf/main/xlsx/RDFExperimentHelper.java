@@ -41,7 +41,7 @@ public class RDFExperimentHelper
         }
     }
 
-    protected int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle, String projectId, RDFParser rdfParser){
+    public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle, String projectId, RDFParser rdfParser){
         Row row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue(EXPERIMENT);
         row.getCell(0).setCellStyle(headerStyle);

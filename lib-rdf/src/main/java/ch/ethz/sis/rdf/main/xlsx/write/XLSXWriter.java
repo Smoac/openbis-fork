@@ -1,11 +1,12 @@
-package ch.ethz.sis.rdf.main.xlsx;
+package ch.ethz.sis.rdf.main.xlsx.write;
 
 import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
-import ch.ethz.sis.rdf.main.entity.OntClassObject;
-import ch.ethz.sis.rdf.main.entity.ResourceRDF;
-import ch.ethz.sis.rdf.main.entity.VocabularyType;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.xlsx.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -16,7 +17,8 @@ import java.util.*;
 
 import static ch.ethz.sis.rdf.main.Constants.*;
 
-public class ExcelBuilder {
+public class XLSXWriter
+{
     RDFSampleTypeHelper rdfSampleTypeHelper;
     RDFPropertyTypeHelper rdfPropertyTypeHelper;
     RDFSampleHelper rdfSampleHelper;
@@ -26,7 +28,7 @@ public class ExcelBuilder {
     RDFExperimentTypeHelper rdfExperimentTypeHelper;
     RDFVocabularyTypeHelper rdfVocabularyTypeHelper;
 
-    public ExcelBuilder() {
+    public XLSXWriter() {
         this.rdfSampleTypeHelper = new RDFSampleTypeHelper();
         this.rdfPropertyTypeHelper = new RDFPropertyTypeHelper();
         this.rdfSampleHelper = new RDFSampleHelper();

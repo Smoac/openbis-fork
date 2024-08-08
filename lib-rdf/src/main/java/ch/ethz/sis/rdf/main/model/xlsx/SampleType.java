@@ -1,6 +1,5 @@
-package ch.ethz.sis.rdf.main.entity;
+package ch.ethz.sis.rdf.main.model.xlsx;
 
-import java.util.List;
 import java.util.Map;
 
 public class SampleType {

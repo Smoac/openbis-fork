@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main.parser;
 
-import ch.ethz.sis.rdf.main.entity.VocabularyType;
-import ch.ethz.sis.rdf.main.entity.VocabularyTypeOption;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyTypeOption;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;

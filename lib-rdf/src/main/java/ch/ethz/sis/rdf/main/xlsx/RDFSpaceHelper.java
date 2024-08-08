@@ -29,7 +29,7 @@ public class RDFSpaceHelper
         }
     }
 
-    protected int addSpaceSection(Sheet sheet, int rowNum, CellStyle headerStyle, String spaceId){
+    public int addSpaceSection(Sheet sheet, int rowNum, CellStyle headerStyle, String spaceId){
         Row row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("SPACE");
         row.getCell(0).setCellStyle(headerStyle);

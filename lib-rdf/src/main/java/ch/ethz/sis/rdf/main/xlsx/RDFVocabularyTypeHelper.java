@@ -1,14 +1,11 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.entity.VocabularyType;
-import ch.ethz.sis.rdf.main.entity.VocabularyTypeOption;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyTypeOption;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class RDFVocabularyTypeHelper {
 

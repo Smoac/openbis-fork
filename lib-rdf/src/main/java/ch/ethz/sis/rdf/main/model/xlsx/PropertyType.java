@@ -1,6 +1,4 @@
-package ch.ethz.sis.rdf.main.entity;
-
-import java.util.List;
+package ch.ethz.sis.rdf.main.model.xlsx;
 
 public class PropertyType {
     public String code;

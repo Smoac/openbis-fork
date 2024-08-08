@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.entity.OntClassObject;
-import ch.ethz.sis.rdf.main.entity.PropertyTupleRDF;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.ontology.UnionClass;
@@ -125,7 +125,7 @@ public class RDFPropertyTypeHelper {
         //resRow.createCell(16).setCellValue("No");  // PatternType("Pattern Type", false);
     }
 
-    protected int addObjectProperties(Sheet sheet, int rowNum, CellStyle headerStyle,
+    public int addObjectProperties(Sheet sheet, int rowNum, CellStyle headerStyle,
             OntClassObject ontClassObject,
             Map<String, List<String>> mappedObjectProperty,
             Map<String, List<String>> mappedDataTypes,

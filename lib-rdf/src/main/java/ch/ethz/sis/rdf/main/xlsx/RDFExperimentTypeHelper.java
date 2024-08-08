@@ -57,7 +57,7 @@ public class RDFExperimentTypeHelper {
         }
     }
 
-    protected int addExperimentTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle){
+    public int addExperimentTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle){
         Row row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue("EXPERIMENT_TYPE");
         row.getCell(0).setCellStyle(headerStyle);
@@ -111,7 +111,7 @@ public class RDFExperimentTypeHelper {
         return rowNum;
     }
 
-    protected int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle){
+    public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle){
         Row rowHeaders = sheet.createRow(rowNum++);
 
         // Populate header row with enum values

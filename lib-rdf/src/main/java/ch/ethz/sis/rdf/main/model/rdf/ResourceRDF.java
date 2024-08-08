@@ -1,4 +1,4 @@
-package ch.ethz.sis.rdf.main.entity;
+package ch.ethz.sis.rdf.main.model.rdf;
 
 import java.util.ArrayList;
 import java.util.List;
