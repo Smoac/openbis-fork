@@ -23,7 +23,7 @@ import java.util.*;
  *      check for a good explanation https://answers.knowledgegraph.tech/t/rdfs-class-vs-owl-thing/4698
  */
 
-public class OntClassObject
+public class OntClassExtension
 {
     public OntClass ontClass;
     public OntClass superClass;
@@ -37,7 +37,7 @@ public class OntClassObject
     public List<PropertyTupleRDF> propertyTuples;
     public List<String> instances; //all NameIndividuals where the current class is present
 
-    public OntClassObject(OntClass ontClass) {
+    public OntClassExtension(OntClass ontClass) {
         this.ontClass = ontClass;
         this.restrictions = new HashMap<>();
         this.unions = new HashMap<>();

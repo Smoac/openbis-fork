@@ -1,6 +1,6 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.Restriction;
@@ -66,14 +66,14 @@ public class RDFPropertyTypeHelper {
         return rowNum;
     }
 
-    private boolean evaluateRestrictions(List<Restriction> restrictions, boolean isMultivalued, Map<String, String> metadata, OntClassObject ontClassObject) {
+    private boolean evaluateRestrictions(List<Restriction> restrictions, boolean isMultivalued, Map<String, String> metadata, OntClassExtension ontClassObject) {
         for (Restriction restriction : restrictions) {
             isMultivalued = evaluateRestriction(restriction, isMultivalued, metadata, ontClassObject);
         }
         return isMultivalued;
     }
 
-    private boolean evaluateRestriction(Restriction restriction, boolean isMultivalued, Map<String, String> metadata, OntClassObject ontClassObject){
+    private boolean evaluateRestriction(Restriction restriction, boolean isMultivalued, Map<String, String> metadata, OntClassExtension ontClassObject){
         if (restriction.isMinCardinalityRestriction()) {
             //System.out.println("   - Min Cardinality Restriction on " + restriction.getOnProperty().getURI() + " value: " + restriction.asMinCardinalityRestriction().getMinCardinality());
             return true;
@@ -126,7 +126,7 @@ public class RDFPropertyTypeHelper {
     }
 
     public int addObjectProperties(Sheet sheet, int rowNum, CellStyle headerStyle,
-            OntClassObject ontClassObject,
+            OntClassExtension ontClassObject,
             Map<String, List<String>> mappedObjectProperty,
             Map<String, List<String>> mappedDataTypes,
             String ontNamespace, String ontVersion) {

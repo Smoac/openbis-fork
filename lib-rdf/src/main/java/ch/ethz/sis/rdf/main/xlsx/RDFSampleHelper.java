@@ -2,7 +2,7 @@ package ch.ethz.sis.rdf.main.xlsx;
 
 import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
-import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
@@ -46,7 +46,7 @@ public class RDFSampleHelper {
 
     private final String RESOURCE_PREFIX = "https://biomedit.ch/rdf/sphn-resource/";
 
-    private List<String> getAllColumnsList(OntClassObject ontClassObject) {
+    private List<String> getAllColumnsList(OntClassExtension ontClassObject) {
         //System.out.println("ontClassObject.propertyTuples: " + ontClassObject.propertyTuples);
 
         List<String> sampleTypeCols =  ontClassObject.propertyTuples.stream().map(PropertyTupleRDF::getPredicateLabel).toList();
@@ -62,7 +62,7 @@ public class RDFSampleHelper {
         return defaultCols;
     }
 
-    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassObject ontClassObject) {
+    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassExtension ontClassObject) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         // Create header row for SAMPLE
@@ -98,7 +98,7 @@ public class RDFSampleHelper {
         return uri.startsWith(RESOURCE_PREFIX);
     }
     
-    public int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassObject ontClassObject, RDFParser rdfParser) {
+    public int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassExtension ontClassObject, RDFParser rdfParser) {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         Row propertyRowValues = sheet.createRow(rowNum);

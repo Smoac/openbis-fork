@@ -3,7 +3,7 @@ package ch.ethz.sis.rdf.main.xlsx.write;
 import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
-import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import ch.ethz.sis.rdf.main.xlsx.*;
@@ -84,7 +84,7 @@ public class XLSXWriter
 
         int rowNumOT = 0;
 
-        for (OntClassObject ontClassObject : rdfParser.classDetailsMap.values()) {
+        for (OntClassExtension ontClassObject : rdfParser.classDetailsMap.values()) {
 
             // Add SAMPLE_TYPE header row for ClassDetails
             rowNumOT = rdfSampleTypeHelper.addSampleTypeSection(sheetOT, rowNumOT, headerStyle,
@@ -100,7 +100,7 @@ public class XLSXWriter
             rowNumOT = rdfPropertyTypeHelper.addObjectProperties(sheetOT, rowNumOT, headerStyle,
                     ontClassObject,
                     rdfParser.mappedObjectProperty,
-                    rdfParser.mappedDataTypes,
+                    rdfParser.RDFtoOpenBISDataType,
                     rdfParser.ontNamespace,
                     rdfParser.ontVersion);
         }
@@ -147,7 +147,7 @@ public class XLSXWriter
                 continue;
             }
 
-            OntClassObject ontClassObject = rdfParser.classDetailsMap.get(entry.getKey());
+            OntClassExtension ontClassObject = rdfParser.classDetailsMap.get(entry.getKey());
 
             //System.out.println(ontClassObject);
 

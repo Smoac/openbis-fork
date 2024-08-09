@@ -4,10 +4,10 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.OWL;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+//import org.jsoup.Jsoup;
+//import org.jsoup.nodes.Document;
+//import org.jsoup.nodes.Element;
+//import org.jsoup.select.Elements;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -70,23 +70,23 @@ public class ExtOntologyParser {
                 RDFDataMgr.read(model, in, null, org.apache.jena.riot.Lang.RDFXML);
                 return model;
             } catch (RiotException e) {
-                // Handle case where content might be HTML with embedded RDF/XML
-                System.err.println("RiotException, trying to parse as HTML: " + e.getMessage());
-                try (InputStream htmlIn = conn.getInputStream()) {
-                    Document doc = Jsoup.parse(htmlIn, "UTF-8", "");
-                    Elements rdfElements = doc.select("rdf\\:RDF");
-                    if (!rdfElements.isEmpty()) {
-                        Element rdfElement = rdfElements.first();
-                        String rdfContent = rdfElement.outerHtml();
-                        RDFDataMgr.read(model, InputStream.nullInputStream(), null, org.apache.jena.riot.Lang.RDFXML);
-                        return model;
-                    } else {
-                        if (invalidLinks != null) {
-                            invalidLinks.add(url);
-                        }
-                        System.err.println("No RDF/XML content found in HTML for URL: " + url);
-                    }
-                }
+//                // Handle case where content might be HTML with embedded RDF/XML
+//                System.err.println("RiotException, trying to parse as HTML: " + e.getMessage());
+//                try (InputStream htmlIn = conn.getInputStream()) {
+//                    Document doc = Jsoup.parse(htmlIn, "UTF-8", "");
+//                    Elements rdfElements = doc.select("rdf\\:RDF");
+//                    if (!rdfElements.isEmpty()) {
+//                        Element rdfElement = rdfElements.first();
+//                        String rdfContent = rdfElement.outerHtml();
+//                        RDFDataMgr.read(model, InputStream.nullInputStream(), null, org.apache.jena.riot.Lang.RDFXML);
+//                        return model;
+//                    } else {
+//                        if (invalidLinks != null) {
+//                            invalidLinks.add(url);
+//                        }
+//                        System.err.println("No RDF/XML content found in HTML for URL: " + url);
+//                    }
+//                }
             }
         } catch (Exception e) {
             if (invalidLinks != null) {

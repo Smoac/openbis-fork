@@ -1,12 +1,10 @@
 package ch.ethz.sis.rdf.main.mappers;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.UnionClass;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.vocabulary.OWL;
-import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +25,7 @@ public class DatatypeMapper {
         //datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), "MONTH");
         //datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), "YEAR");
         //datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIME");
-        datatypeMappings.put(XSDDatatype.XSDstring.getURI(), "VARCHAR");
+        datatypeMappings.put(XSDDatatype.XSDstring.getURI(), DataType.VARCHAR.name());
         datatypeMappings.put(XSDDatatype.XSDdouble.getURI(), "REAL");
         datatypeMappings.put(XSDDatatype.XSDdateTime.getURI(), "TIMESTAMP");
         datatypeMappings.put(XSDDatatype.XSDgDay.getURI(), "INTEGER");
@@ -36,16 +34,16 @@ public class DatatypeMapper {
         datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIMESTAMP");
         datatypeMappings.put(XSDDatatype.XSDanyURI.getURI(), "VARCHAR");
     }
-
-    public Map<String, List<String>> mappedDataTypes = new HashMap<>();
-
-    public DatatypeMapper(OntModel model) {
-        this.mappedDataTypes = toOpenBISDataTypes(model);
-    }
-
-    public Map<String, List<String>> getMappedDataTypes() {
-        return mappedDataTypes;
-    }
+//
+//    public Map<String, List<String>> mappedDataTypes = new HashMap<>();
+//
+//    public DatatypeMapper(OntModel model) {
+//        this.mappedDataTypes = toOpenBISDataTypes(model);
+//    }
+//
+//    public Map<String, List<String>> getMappedDataTypes() {
+//        return mappedDataTypes;
+//    }
 
     /**
      * Maps datatype properties to their respective openBIS data types in the given ontology model.
@@ -58,7 +56,7 @@ public class DatatypeMapper {
      *      https://biomedit.ch/rdf/sphn-schema/sphn#hasTemplateIdentifier --> [VARCHAR]
      *      https://biomedit.ch/rdf/sphn-schema/sphn#hasMonth --> [INTEGER]
      */
-    private Map<String, List<String>> toOpenBISDataTypes(OntModel model) {
+    public static Map<String, List<String>> getRDFtoOpenBISDataTypeMap(OntModel model) {
         Map<String, List<String>> mappedDataTypes = new HashMap<>();
 
         model.listDatatypeProperties().forEachRemaining(property -> {

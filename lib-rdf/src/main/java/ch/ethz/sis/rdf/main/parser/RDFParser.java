@@ -1,6 +1,6 @@
 package ch.ethz.sis.rdf.main.parser;
 
-import ch.ethz.sis.rdf.main.model.rdf.OntClassObject;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
@@ -16,7 +16,7 @@ import org.apache.jena.vocabulary.*;
 import java.io.InputStream;
 import java.util.*;
 
-import static ch.ethz.sis.rdf.main.ClassCollector.collectClassDetails;
+import static ch.ethz.sis.rdf.main.ClassCollector.getOntClass2OntClassExtensionMap;
 
 public class RDFParser {
 
@@ -26,8 +26,8 @@ public class RDFParser {
     public final String ontVersion;
     public final Map<String, String> ontMetadata;
     public final Map<String, String> nsPrefixes;
-    public Map<String, OntClassObject> classDetailsMap;
-    public Map<String, List<String>> mappedDataTypes;
+    public Map<String, OntClassExtension> classDetailsMap;
+    public Map<String, List<String>> RDFtoOpenBISDataType;
     public Map<String, List<String>> mappedObjectProperty;
     public final Map<String, List<ResourceRDF>> resourcesGroupedByType;
     public final List<VocabularyType> mappedNamedIndividualList;
@@ -58,8 +58,8 @@ public class RDFParser {
         if(canCreateOntModel(model)){
             OntModel ontModel = loadRDFOntModel(inputFileName, inputFormatValue);
 
-            this.mappedDataTypes = new DatatypeMapper(ontModel).getMappedDataTypes();
-            this.classDetailsMap = collectClassDetails(ontModel, this.mappedDataTypes);
+            this.RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+            this.classDetailsMap = getOntClass2OntClassExtensionMap(ontModel, this.RDFtoOpenBISDataType);
             //classDetailsMap.forEach((cls, map)->System.out.println(cls.getURI() + " -> " + map));
             this.mappedObjectProperty = new ObjectPropertyMapper(ontModel).getMappedObjectProperty();
         }
@@ -67,7 +67,7 @@ public class RDFParser {
         boolean modelContainsResources = parserUtils.containsResources(model);
         System.out.println("Model contains Resources: " + (modelContainsResources ? "YES" : "NO"));
         this.resourcesGroupedByType = modelContainsResources ? parserUtils.extractResource(model) : new HashMap<>();
-        this.resourcesGroupedByType.keySet().forEach(key ->{
+        this.resourcesGroupedByType.keySet().forEach(key -> {
             System.out.println(key + " -> " + this.resourcesGroupedByType.get(key));
         });
 
@@ -97,7 +97,7 @@ public class RDFParser {
         return mappedNamedIndividual.containsKey(uri);
     }
 
-    public Model loadRDFModel(String inputFileName, String inputFormatValue) {
+    private Model loadRDFModel(String inputFileName, String inputFormatValue) {
         InputStream in = FileManager.getInternal().open(inputFileName);
         if (in == null) {
             throw new IllegalArgumentException("File: " + inputFileName + " not found");
@@ -118,7 +118,7 @@ public class RDFParser {
         return model;
     }
 
-    public OntModel loadRDFOntModel(String inputFileName, String inputFormatValue) {
+    private OntModel loadRDFOntModel(String inputFileName, String inputFormatValue) {
         InputStream in = FileManager.getInternal().open(inputFileName);
         if (in == null) {
             throw new IllegalArgumentException("File: " + inputFileName + " not found");
@@ -138,7 +138,7 @@ public class RDFParser {
         return model;
     }
 
-    public boolean canCreateOntModel(Model model) {
+    private boolean canCreateOntModel(Model model) {
         // Count RDFS Classes
         int rdfsClassCount = model.listSubjectsWithProperty(RDF.type, RDFS.Class).filterDrop(RDFNode::isAnon).toList().size();
         // Count OWL Classes
@@ -150,7 +150,7 @@ public class RDFParser {
         return (rdfsClassCount == 0 && owlClassCount > 0);
     }
 
-    public void getSubclassChainsEndingWithClass(Model model, StmtIterator iter) {
+    private void getSubclassChainsEndingWithClass(Model model, StmtIterator iter) {
         // Clear previous chains
         chains.clear();
 
