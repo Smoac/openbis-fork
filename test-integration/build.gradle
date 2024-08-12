@@ -8,6 +8,7 @@ dependencies {
             project(':lib-transactional-file-system'),
             project(':server-application-server'),
             project(path: ':server-application-server', configuration: 'tests'),
+            project(':server-original-data-store'),
             project(':server-data-store'),
             'eclipse:jetty-proxy:9.4.44.v20210927'
 }

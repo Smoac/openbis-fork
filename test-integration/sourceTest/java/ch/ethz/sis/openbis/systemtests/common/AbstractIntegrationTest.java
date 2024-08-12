@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtests.common;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -112,6 +113,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
@@ -164,6 +168,7 @@ public abstract class AbstractIntegrationTest
         startApplicationServer(true);
         startApplicationServerProxy();
         createApplicationServerData();
+        startDataStoreServer();
         startAfsServer();
         startAfsServerProxy();
     }
@@ -171,10 +176,11 @@ public abstract class AbstractIntegrationTest
     @AfterSuite
     public void afterSuite() throws Exception
     {
-        shutdownApplicationServer();
-        shutdownApplicationServerProxy();
         shutdownAfsServer();
         shutdownAfsServerProxy();
+        shutdownDataStoreServer();
+        shutdownApplicationServer();
+        shutdownApplicationServerProxy();
     }
 
     @BeforeMethod
@@ -362,6 +368,15 @@ public abstract class AbstractIntegrationTest
         createUser(openBIS, DEFAULT_SPACE_ADMIN, DEFAULT_SPACE, Role.ADMIN);
     }
 
+    private void startDataStoreServer() throws Exception
+    {
+        log("Starting data store server.");
+        Properties configuration = getDataStoreServerConfiguration();
+        QueueingPathRemoverService.start(new File(configuration.getProperty("root-dir")), ETLDaemon.shredderQueueFile);
+        DataStoreServer.main(new String[0]);
+        log("Started data store server.");
+    }
+
     private void startAfsServer() throws Exception
     {
         log("Starting afs server.");
@@ -454,6 +469,12 @@ public abstract class AbstractIntegrationTest
         log("Shut down application server proxy.");
     }
 
+    private void shutdownDataStoreServer()
+    {
+        DataStoreServer.stop();
+        log("Shut down data store server.");
+    }
+
     private void shutdownAfsServer() throws Exception
     {
         afsServer.shutdown(false);
@@ -489,6 +510,18 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
         configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
                 TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
+        return configuration;
+    }
+
+    public static Properties getDataStoreServerConfiguration() throws Exception
+    {
+        Properties configuration = new Properties();
+        configuration.load(new FileInputStream("etc/dss/service.properties"));
+        configuration.setProperty("server-url", TestInstanceHostUtils.getOpenBISProxyUrl());
+        configuration.setProperty("port", String.valueOf(TestInstanceHostUtils.getDSSPort()));
+        configuration.setProperty("download-url", TestInstanceHostUtils.getDSSUrl());
+        configuration.store(new FileOutputStream(new File("etc/service.properties")),
+                "This file has been generated. DSS has service.properties location hardcoded, without this file it won't start up");
         return configuration;
     }
 

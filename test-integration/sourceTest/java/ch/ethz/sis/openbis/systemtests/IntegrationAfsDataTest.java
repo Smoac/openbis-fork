@@ -5,24 +5,32 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
@@ -32,6 +40,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 
 public class IntegrationAfsDataTest extends AbstractIntegrationTest
@@ -581,6 +595,111 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         // we need to wait for both AS events-search-task and AFS serverObserver
         Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
         assertDataExistsInStore(sample.getPermId().getPermId(), false);
+    }
+
+    @Test
+    public void testSearchAfsDataSetFilesViaDataStoreServerWithDefaultStoreKind() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+
+        DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+        DataSetSearchCriteria dataSetCriteria = criteria.withDataSet();
+        dataSetCriteria.withCode().thatEquals(sample.getPermId().getPermId());
+
+        SearchResult<DataSetFile> result = openBIS.getDataStoreFacade().searchFiles(criteria, new DataSetFileFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
+    }
+
+    @Test
+    public void testSearchAfsDataSetFilesViaDataStoreServerWithDssStoreKind() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+
+        DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+        DataSetSearchCriteria dataSetCriteria = criteria.withDataSet();
+        dataSetCriteria.withDataStore().withKind().thatIn(DataStoreKind.DSS);
+        dataSetCriteria.withCode().thatEquals(sample.getPermId().getPermId());
+
+        SearchResult<DataSetFile> result = openBIS.getDataStoreFacade().searchFiles(criteria, new DataSetFileFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
+    }
+
+    @Test
+    public void testSearchAfsDataSetFilesViaDataStoreServerWithAfsStoreKind() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+
+        DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+        DataSetSearchCriteria dataSetCriteria = criteria.withDataSet();
+        dataSetCriteria.withDataStore().withKind().thatIn(DataStoreKind.AFS);
+        dataSetCriteria.withCode().thatEquals(sample.getPermId().getPermId());
+
+        SearchResult<DataSetFile> result = openBIS.getDataStoreFacade().searchFiles(criteria, new DataSetFileFetchOptions());
+        assertEquals(result.getObjects().size(), 3);
+        assertEquals(result.getObjects().get(0).getPath(), "");
+        assertEquals(result.getObjects().get(1).getPath(), "test-file-2.txt");
+        assertEquals(result.getObjects().get(2).getPath(), "test-file.txt");
+    }
+
+    @Test
+    public void testDownloadAfsDataSetFilesViaDataStoreServer() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        Sample sample = createSample(openBIS, new SpacePermId(DEFAULT_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+        openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
+
+        DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+        DataSetSearchCriteria dataSetCriteria = criteria.withDataSet();
+        dataSetCriteria.withDataStore().withKind().thatIn(DataStoreKind.AFS);
+        dataSetCriteria.withCode().thatEquals(sample.getPermId().getPermId());
+
+        SearchResult<DataSetFile> result = openBIS.getDataStoreFacade().searchFiles(criteria, new DataSetFileFetchOptions());
+
+        InputStream stream =
+                openBIS.getDataStoreFacade().downloadFiles(result.getObjects().stream().map(DataSetFile::getPermId).collect(Collectors.toList()),
+                        new DataSetFileDownloadOptions());
+        DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
+        DataSetFileDownload file;
+
+        Map<String, String> downloadedFiles = new HashedMap<>();
+
+        while ((file = reader.read()) != null)
+        {
+            if (file.getDataSetFile().isDirectory())
+            {
+                downloadedFiles.put(file.getDataSetFile().getPath(), "");
+            } else
+            {
+                downloadedFiles.put(file.getDataSetFile().getPath(), IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
+            }
+        }
+
+        assertEquals(downloadedFiles.size(), 3);
+        assertEquals(downloadedFiles.get(""), "");
+        assertEquals(downloadedFiles.get("test-file.txt"), "test-content");
+        assertEquals(downloadedFiles.get("test-file-2.txt"), "test-content-2");
     }
 
     private void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
