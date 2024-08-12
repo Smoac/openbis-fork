@@ -79,18 +79,15 @@ Please test this is available in your instance by opening such URL in your brows
 
 You will be asked with the openBIS user and password you want to access the service and the service will return an XML file.
 
-## Use case: One Datasource - Many Harvester
+## Use case: One Datasource - One or more Harvester
 
 The key is the fact that the XML file contains only the information visible for the selected user.
 
 It is recommended to create a ```user``` on the `Data Source` that can only see the set of data needed for a `Harvester`.
 
 This way is possible to shared different sets of data, using different ```users```, for example:
-
-```
-sync-datasource-user-inventory: This user is OBSERVER of all inventory SPACE.
-sync-datasource-user-project-a: This user is OBSERVER of project a.
-```
+- sync-datasource-user-inventory: This user is OBSERVER of all inventory SPACE.
+- sync-datasource-user-project-a: This user is OBSERVER of project A.
 
 Is recommended that technical users are created on the file authentication system of the instance and their 
 rights configured on  the admin UI.
