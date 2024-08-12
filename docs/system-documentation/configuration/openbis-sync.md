@@ -189,7 +189,7 @@ verbose = true
 
 -   The configuration file can have one or many section for each openBIS
     instance. Each section start with an arbitrary name in square
-    brackets.
+    brackets. This name becomes the alias of the instance.
 -   `<data source host>`, `<DSS port>` and `<AS port>` have to be host
     name and ports of the Data Source openBIS instance as seen by the
     Harvester instance.
