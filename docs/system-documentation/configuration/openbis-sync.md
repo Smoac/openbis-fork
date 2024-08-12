@@ -3,69 +3,118 @@ openBIS Sync
 
 ## Introduction
 
-This allows to synchronize two openBIS instances. One instance (called
-Data Source) provides the data (meta-data and data sets). The other
-instance (called Harvester) grabs these data and makes them available.
-In regular time intervals the harvester instance will synchronize its
-data with the data on the data source instance. That is, synchronization
-will delete/add data from/to the harvester instance. The harvester
-instance can synchronize only partially. It is also possible to gather
-data from several data-source instances.
+Sync is a service of openBIS and comes with every instance.
+Sync allows to synchronize two openBIS instances using the OAI-PMH protocol.
 
-## Data Source
+One instance (called `Data Source`) provides the data (types, meta-data and data sets).
+Another instance (called `Harvester`) grabs these data and makes them available.
 
-The Data Source instance provides a service based on the ResourceSync Framework Specification (see <http://www.openarchives.org/rs/1.1/resourcesync>). This service is provided as [core plugin](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) module `openbis-sync` which has a DSS service based on [Service Plugins](../../uncategorized/service-plugins.md).
+In regular time intervals, the `Harvester` instance will synchronize its data with the data on the `Data Source` instance.
+Synchronization will add and/or delete data to the `Harvester` instance.
 
-This DSS service access the main openBIS database directly. If the name of this database isn't {{openbis\_prod}} the property `database.kind` in DSS service.properties should be defined with the same value as the same property in AS service.properties. Example:
+The `Data Source` instance can decide what data to share with each `Harvester`.
 
-**servers/openBIS-server/jetty/etc/plugin.properties**
+It is also possible for a `Harvester` to collect data from several `Data Source` instances.
 
-```html
-...
-database.kind = production
-...
+An openBIS instance can be both `Data Source` and `Harvester` since these are different services.
 
-**servers/datastore\_server/etc/plugin.properties**
+## Data Source Service Configuration
 
-...
-database.kind = production
-...
+The `Data Source` instance provides a service based on the ResourceSync Framework Specification (see <http://www.openarchives.org/rs/1.1/resourcesync>). 
+
+This service is configured by default in all new installations as a core plugin as [core plugin](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) module `openbis-sync`.
+
+So in theory all openBIS instances are by default a `Data Source`. This should not worry admins, since users cannot access any data though the `Data Source` endpoint that they could not already with the UI or standard API.
+
+As a `Data Source`  is key to learn to configure the module `openbis-sync`, this module has two config files:
+
+```bash
+# Main Configuration File
+./core-plugins/openbis-sync/2/dss/servlet-services/resource-sync/plugin.properties 
+# Configuration file providing an AS datasource to the DSS
+./core-plugins/openbis-sync/2/dss/data-sources/openbis-db/plugin.properties
 ```
 
+Is strongly encouraged that any overrides to the values of any configuration file should be done forwarding 
+such properties to AS service.properties keys.
 
-The URL of the service is `<DSS base URL>/datastore_server/re-sync`. The
-returned XML document looks like the following:
+The main configuration file defines the URL where the `Data Source` will be available.
+When using the default settings for the openBIS installation is not necessary to modify it.
+
+Special attention to ```request-handler.file-service-repository-path``` that should point to the `file-server`.
+
+```properties
+# ./core-plugins/openbis-sync/2/dss/servlet-services/resource-sync/plugin.properties 
+class = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.OaipmhServlet
+path = ${openbis-sync.servlet-services.resource-sync.path:/datastore_server/re-sync/*}
+request-handler = ${openbis-sync.servlet-services.resource-sync.request-handler:ch.ethz.sis.openbis.generic.server.dss.plugins.sync.datasource.DataSourceRequestHandler}
+request-handler.server-url = ${server-url}/openbis 
+request-handler.download-url = ${download-url}
+request-handler.file-service-repository-path = ${openbis-sync.servlet-services.resource-sync.request-handler.file-service-repository-path:../../data/file-server}
+authentication-handler = ${openbis-sync.servlet-services.resource-sync.authentication-handler:ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.BasicHttpAuthenticationHandler}
+```
+
+The second configuration file is just there to create an AS database data source. 
+
+Special attention to ```databaseKind```, if is not the default `prod`.
+
+```properties
+# ./core-plugins/openbis-sync/2/dss/data-sources/openbis-db/plugin.properties
+#
+# Data source used to determine which entities have been deleted
+#
+databaseEngineCode = ${openbis-sync.data-sources.openbis-db.databaseEngineCode:postgresql}
+basicDatabaseName = ${openbis-sync.data-sources.openbis-db.basicDatabaseName:openbis}
+# This needs to match the databaseKind in the openBIS service.properties
+databaseKind = ${database.kind:prod}
+```
+
+In practice by default the service should be available at `<DSS base URL>/datastore_server/re-sync`.
+Please test this is available in your instance by opening such URL in your browser, using one of the 3 verbs available: 
+- `https://openbis-sis-ci-sprint.ethz.ch/datastore_server/re-sync/?verb=about.xml`
+- `https://openbis-sis-ci-sprint.ethz.ch/datastore_server/re-sync/?verb=capabilitylist.xml`
+- `https://openbis-sis-ci-sprint.ethz.ch:443/datastore_server/re-sync/?verb=resourcelist.xml`
+
+You will be asked with the openBIS user and password you want to access the service and the service will return an XML file.
+
+## Use case: One Datasource - Many Harvester
+
+The key is the fact that the XML file contains only the information visible for the selected user.
+
+It is recommended to create a ```user``` on the `Data Source` that can only see the set of data needed for a `Harvester`.
+
+This way is possible to shared different sets of data, using different ```users```, for example:
+
+```
+sync-datasource-user-inventory: This user is OBSERVER of all inventory SPACE.
+sync-datasource-user-project-a: This user is OBSERVER of project a.
+```
+
+Is recommended that technical users are created on the file authentication system of the instance and their 
+rights configured on  the admin UI.
+
+## Data Source Service Document
+
+By default, the URL of the service is `<DSS base URL>/datastore_server/re-sync` and supports the verbs mentioned previously. 
+
+For example for `https://openbis-sis-ci-sprint.ethz.ch/datastore_server/re-sync/?verb=about.xml` we get:
 
 ```xml
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
-    <rs:ln href="https://localhost:8444/datastore_server/re-sync/?verb=about.xml" rel="describedby"/>
-    <rs:md capability="description"/>
-    <url>
-    <loc>https://localhost:8444/datastore_server/re-sync/?verb=capabilitylist.xml</loc>
-    <rs:md capability="capabilitylist"/>
-    </url>
+<urlset xsi:schemaLocation="https://sis.id.ethz.ch/software/#openbis/xdterms/ ./xml/xdterms.xsd https://sis.id.ethz.ch/software/#openbis/xmdterms/">
+<rs:ln href="https://openbis-sis-ci-sprint.ethz.ch:443/datastore_server/re-sync/?verb=about.xml" rel="describedby"/>
+<rs:md capability="description"/>
+<url>
+<loc>
+https://openbis-sis-ci-sprint.ethz.ch:443/datastore_server/re-sync/?verb=capabilitylist.xml
+</loc>
+<rs:md capability="capabilitylist"/>
+</url>
 </urlset>
 ```
 
-
-The loc element contains the URL which delivers a list of all
-capabilities:
-
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
-    <rs:ln href="https://localhost:8444/datastore_server/re-sync/?verb=about.xml" rel="up"/>
-    <rs:md capability="capabilitylist" from="2013-02-07T22:39:00"/>
-    <url>
-    <loc>https://localhost:8444/datastore_server/re-sync/?verb=resourcelist.xml</loc>
-    <rs:md capability="resourcelist"/>
-    </url>
-</urlset>
-```
-
-
-From capabilities described in the ResourceSync Framework Specification
-only `resourcelist` is supported. The resourcelist returns an XML with
-all metadata of the data source openBIS instance. This includes master
-data, meta data including file meta data.
+From capabilities described in the ResourceSync Framework Specification only `resourcelist` is supported. 
+The resourcelist returns an XML with all metadata of the data source openBIS instance. 
+This includes master data, meta data including file meta data.
 
 Two optional URL parameters filter the data by spaces:
 
