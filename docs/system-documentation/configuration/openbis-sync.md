@@ -6,17 +6,16 @@ openBIS Sync
 Sync is a service of openBIS and comes with every instance.
 Sync allows to synchronize two openBIS instances using the OAI-PMH protocol.
 
-One instance (called `Data Source`) provides the data (types, meta-data and data sets).
-Another instance (called `Harvester`) grabs these data and makes them available.
+This protocol has two participants:
+- One instance (called `Data Source`) provides the data (types, meta-data and data sets).
+- Another instance (called `Harvester`) grabs these data and makes them available.
 
 In regular time intervals, the `Harvester` instance will synchronize its data with the data on the `Data Source` instance.
 Synchronization will add and/or delete data to the `Harvester` instance.
 
-The `Data Source` instance can decide what data to share with each `Harvester`.
-
-It is also possible for a `Harvester` to collect data from several `Data Source` instances.
-
-An openBIS instance can be both `Data Source` and `Harvester` since these are different services.
+An openBIS instance can be one or both `Data Source` and `Harvester` since these are separate services.
+- An openBIS instance only needs one `Data Source` service. Even with many participants since it decides what to share depending on the user requesting the information.
+- An openBIS instance only needs one `Harvester` service. Even with many participants since it goes through a list of `Data Source`.
 
 ## Data Source Service Configuration
 
@@ -160,7 +159,7 @@ Here is an example of a typical configuration:
 **harvester-config.txt**
 
 ```properties
-[DS1]
+[LAB1]
 
 resource-list-url = https://<data source host>:<DSS port>/datastore_server/re-sync
 
@@ -170,7 +169,7 @@ data-source-auth-realm = OAI-PMH
 data-source-auth-user = <data source user id>
 data-source-auth-pass = <data source password>
 space-black-list = SYSTEM
-space-white-list = ABC_.*
+space-white-list = LAB1.*
 
 harvester-user = <harvester user id>
 harvester-pass = <harvester user password>
