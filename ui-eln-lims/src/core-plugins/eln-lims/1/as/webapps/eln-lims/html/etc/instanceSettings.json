@@ -1,0 +1,26 @@
+[
+  {
+    "variableName": "minBarcodeLength",
+    "label": "Minimal barcode length",
+    "type": "INTEGER",
+    "default": 10
+  },
+  {
+    "variableName": "barcodePattern",
+    "label": "Barcode pattern",
+    "type": "REGEX",
+    "default": "/^[-a-z0-9]+$/i"
+  },
+  {
+    "variableName": "docuBaseUrl",
+    "label": "Documentation base URL",
+    "type": "STRING",
+    "default": "https://unlimited.ethz.ch/display/openBISDoc2010"
+  },
+  {
+    "variableName": "showUserManagementConfig",
+    "label": "Show user management config",
+    "type": "BOOLEAN",
+    "default": false
+  }
+]

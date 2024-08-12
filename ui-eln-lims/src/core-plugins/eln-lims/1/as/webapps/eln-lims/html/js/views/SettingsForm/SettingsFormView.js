@@ -83,6 +83,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             var isNoGroup = this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS";
 
             if(isNoGroup) {
+            // TODO work here!!!!
                 $formColumn.append($("<h2>").append("Instance Settings"));
                 if(profile.isMultiGroup()) {
                     $formColumn.append(FormUtil.getWarningText("These Settings apply to the whole openBIS instance and affect all groups. "));
@@ -90,6 +91,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
 	            this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
+	            this._paintMiscellaneousSection($formColumn, texts.miscellaneous);
 			}
 
             if(isNoGroup) {
@@ -129,8 +131,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             mainMenu : this._mainMenuItemsTableModel.getValues(),
             sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
             showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
-            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
-            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+//            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
+//            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
             inventorySpaces : this._inventorySpacesTableModel.getValues(),
             inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues()
         };
@@ -139,6 +141,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             settings.dataSetTypeForFileNameMap = this._datasetTypesTableModel.getValues();
             settings.forceMonospaceFont = this._forcedMonospaceTableModel.getValues();
             settings.forcedDisableRTF = this._forcedDisableRTFTableModel.getValues();
+            settings.instanceSettings = this._instanceSettingsWidget.getValues();
         }
 
 		return settings;
@@ -446,6 +449,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._datasetTypesTableModel = this._getDatasetTypesTableModel();
 		$fieldset.append(this._getTable(this._datasetTypesTableModel));
+	}
+
+	this._paintMiscellaneousSection = function($formColumn, text) {
+        var $fieldset = this._getFieldset($formColumn, text.title, "settings-section-miscellaneous", true);
+        $fieldset.append(FormUtil.getInfoText(text.info));
+        this._instanceSettingsWidget = new InstanceSettingsController(this._settingsFormModel.mode, this._profileToEdit);
+        this._instanceSettingsWidget.init($fieldset);
 	}
 
 	this._getDatasetTypesTableModel = function() {

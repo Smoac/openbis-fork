@@ -77,6 +77,7 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	    }
 
 	    var _this = this;
+	    var valuess = _this._settingsFormView._instanceSettingsWidget.getValues();
 	    var reloadApplication = null;
 	        reloadApplication = function() {
 	        if(_this._mainController.currentView &&
