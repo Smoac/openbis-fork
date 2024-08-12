@@ -43,6 +43,7 @@ When using the default settings for the openBIS installation is not necessary to
 
 Special attention to ```request-handler.file-service-repository-path``` that should point to the `file-server`.
 
+**plugin.properties**
 ```properties
 # ./core-plugins/openbis-sync/2/dss/servlet-services/resource-sync/plugin.properties 
 class = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.OaipmhServlet
@@ -58,6 +59,7 @@ The second configuration file is just there to create an AS database data source
 
 Special attention to ```databaseKind```, if is not the default `prod`.
 
+**plugin.properties**
 ```properties
 # ./core-plugins/openbis-sync/2/dss/data-sources/openbis-db/plugin.properties
 #
@@ -112,7 +114,7 @@ https://openbis-sis-ci-sprint.ethz.ch:443/datastore_server/re-sync/?verb=capabil
 </urlset>
 ```
 
-From capabilities described in the ResourceSync Framework Specification only `resourcelist` is supported. 
+From capabilities described in the ResourceSync Framework Specification only `resourcelist` is supported. 
 The resourcelist returns an XML with all metadata of the data source openBIS instance. 
 This includes master data, meta data including file meta data.
 
@@ -132,57 +134,35 @@ Remarks:
 -   The resourcelist capability returns only data visible for the user
     which did the authentication.
 
-## Harvester
+## Harvester Service Configuration
 
-In order to get the data and meta-data from a Data Source openBIS instance a DSS harvester [maintenance task](./maintenance-tasks.md#maintenance-tasks) has to be configured on the Harvester openBIS instance. This maintenance task reads another configuration file each time the task is executed.
+This service needs to be configured in a case by case basis.
+A `Harvester` can sync with one or more `Data Source` openBIS instances.
+For that a `Harvester` [maintenance task](./maintenance-tasks.md#maintenance-tasks) has to be configured 
+on the `Harvester` openBIS instance. 
+
+The `Harvester` is a DSS maintenance task. An example config file follows:
 
 **plugin.properties**
 
-```
+```properties
 class = ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.HarvesterMaintenanceTask
 interval = 1 d
 harvester-config-file = ../../data/harvester-config.txt
 ```
 
-
 The only specific property of `HarvesterMaintenanceTask` is
 `harvester-config-file` which is absolute or relative path to the actual
 configuration file. This separation in two configuration files has been
-done because `plugin.properties` is only read once (at start up of DSS).
+done because `plugin.properties` is only read once (at start up of DSS).
 Thus changes in Harvester configuration would be possible without
 restarting DSS.
-
-This DSS service access the main openBIS database directly in order to
-synchronize timestamps and users. If the name of this database isn't
-{{openbis\_prod}} the property `database.kind` in DSS service.properties
-should be defined with the same value as the same property in AS
-service.properties. Example:
-
-**servers/openBIS-server/jetty/etc/plugin.properties**
-
-```
-...
-database.kind = production
-...
-```
-
-
-**servers/datastore\_server/etc/plugin.properties**
-
-```
-...
-database.kind = production
-...
-```
-
-
-### Harvester Config File
 
 Here is an example of a typical configuration:
 
 **harvester-config.txt**
 
-```
+```properties
 [DS1]
 
 resource-list-url = https://<data source host>:<DSS port>/datastore_server/re-sync
@@ -210,34 +190,33 @@ verbose = true
 #dry-run = true
 ```
 
-
 -   The configuration file can have one or many section for each openBIS
     instance. Each section start with an arbitrary name in square
     brackets.
--   `<data source host>`, `<DSS port>` and `<AS port>` have to be host
+-   `<data source host>`, `<DSS port>` and `<AS port>` have to be host
     name and ports of the Data Source openBIS instance as seen by the
     Harvester instance.
--   `<data source user id>` and `<data source password>` are the
+-   `<data source user id>` and `<data source password>` are the
     credential to access the Data Source openBIS instance. Only data
     seen by this user is harvested.
--   `space-black-list` and `space-white-list` have the same meaning
-    as `black_list` and `white_list` as specified above in the Data
+-   `space-black-list` and `space-white-list` have the same meaning
+    as `black_list` and `white_list` as specified above in the Data
     Source section.
--   `<harvester user id>` and `<harvester user password>` are the
+-   `<harvester user id>` and `<harvester user password>` are the
     credential to access the Harvester openBIS instance. It has to be a
     user with instance admin rights.
 -   `Temporary `files created during harvesting are stored
     in` harvester-tmp-dir` which is a path relative to the root of the
     data store. The root store is specified by `storeroot-dir` in
-    DSS `service.properties`. The default value is `temp`.
+    DSS `service.properties`. The default value is `temp`.
 -   By default the original timestamps (registration timestamps and
     modification timestamps) and users (registrator and modifier) are
     synchronized. If necessary users will be created. With the
-    configuration property  `keep-original-timestamps-and-users = false`
-    no timestamps and users will be synchronized. 
--   The `last-sync-timestamp-file` is a relative or absolute path to the
+    configuration property  `keep-original-timestamps-and-users = false`
+    no timestamps and users will be synchronized. 
+-   The `last-sync-timestamp-file` is a relative or absolute path to the
     file which store the last timestamp of synchronization.
--   The `log-file` is a relative or absolute path to the file where
+-   The `log-file` is a relative or absolute path to the file where
     synchronization information is logged. This information does not
     appear in the standard DSS log file.
 -   In case of an error an e-mail is sent to the specified e-mail
@@ -247,33 +226,38 @@ verbose = true
     If true the prefix will be the name in the square bracket followed
     by an underscore. The default value of this flag is false.
 -   `verbose` flag adds to the synchronization log added, updated and
-    deleted items. Default: `false` or `true` if `dry-run` flag is set.
--   `dry-run` flag allows to run without changing Harvester openBIS
+    deleted items. Default: `false` or `true` if `dry-run` flag is set.
+-   `dry-run` flag allows to run without changing Harvester openBIS
     instance. This allows to check config errors or errors with the Data
     Source openBIS instance. A dry run will be performed even if this
-    flag is set. Default: `false`
+    flag is set. Default: `false`
 -   `master-data-update-allowed` flag allows to update master data as
     plugins, property types, entity types and entity assignments. Note,
-    that master data can still be added if this flag is `false`.
-    Default: `false`
+    that master data can still be added if this flag is `false`.
+    Default: `false`
 -   `property-unassignment-allowed` flag allows to unassign property
     assignments, that is, removing property types from entity types.
-    Default: `false`
+    Default: `false`
 -   `deletion-allowed` flag allows deletion of entities on the Harvester
-    openBIS instance. Default: `false`
+    openBIS instance. Default: `false`
 -   `keep-original-timestamps-and-users` flag yields that time stamps
     and users are copied from the Data Source to the Harvester.
     Otherwise the entities will have harvester user and the actual
-    registration time stamp. Default: `true`
+    registration time stamp. Default: `true`
 -   `keep-original-frozen-flags` flag yields that the frozen flags are
     copied from the Data Source to the Harvester. Otherwise entities
     which are frozen on the Data Source are not frozen on the Harvester.
-    Default: `true`
+    Default: `true`
+
+This DSS service access the main openBIS database directly in order to
+synchronize timestamps and users. If the name of this database isn't
+{{openbis\_prod}} the property `database.kind` in DSS service.properties
+should be defined with the same value as the same property in AS service.properties.
 
 ### What HarvesterMaintenanceTask does
 
 In the first step it reads the configuration file from the file path
-specified by `harvester-config-file` in `plugins.properties`. Next, the
+specified by `harvester-config-file` in `plugins.properties`. Next, the
 following steps will be performed in DRY RUN mode. That is, all data are
 read, parsed and checked but nothing is changed on the Harvester. If no
 error occured and the `dry-run` flag isn't set the same steps are
@@ -298,7 +282,7 @@ Harvester.
     modification timestamp which is after the last time the
     HarvesterMaintenanceTask has been performed
 -   If `translate-using-data-source-alias` flag is set a prefix is added
-    to spaces, types and materials when created. 
+    to spaces, types and materials when created. 
 -   To find out if an entity already exist on the Harvester the perm ID
     is used.
 
