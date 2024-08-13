@@ -55,11 +55,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
 import org.springframework.remoting.support.RemoteInvocation;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -721,16 +716,6 @@ public abstract class AbstractIntegrationTest
         Person person = openBIS.getPersons(List.of(personId), new PersonFetchOptions()).get(personId);
         log("Created " + person.getUserId() + " user.");
         return person;
-    }
-
-    public static void executeInApplicationServerTransaction(TransactionCallback<?> callback)
-    {
-        PlatformTransactionManager manager = applicationServerSpringContext.getBean(PlatformTransactionManager.class);
-        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
-        definition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        definition.setReadOnly(false);
-        TransactionTemplate template = new TransactionTemplate(manager, definition);
-        template.execute(callback);
     }
 
     public static void log(String message)
