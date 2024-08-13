@@ -14,16 +14,6 @@ import java.util.Map;
  */
 public class ObjectPropertyMapper {
 
-    public Map<String, List<String>> mappedObjectProperty;
-
-    public ObjectPropertyMapper(OntModel model){
-        this.mappedObjectProperty = toObjects(model);
-    }
-
-    public Map<String, List<String>> getMappedObjectProperty() {
-        return mappedObjectProperty;
-    }
-
     /**
      * Maps object properties to their respective ranges in the given ontology model.
      *
@@ -34,8 +24,8 @@ public class ObjectPropertyMapper {
      *      https://biomedit.ch/rdf/sphn-schema/sphn#hasOriginLocation --> [https://biomedit.ch/rdf/sphn-schema/sphn#Location]
      *      https://biomedit.ch/rdf/sphn-schema/sphn#hasDrug --> [https://biomedit.ch/rdf/sphn-schema/sphn#Drug]
      */
-    private Map<String, List<String>> toObjects(OntModel model) {
-        Map<String, List<String>> mappedObjectProperty = new HashMap<>();
+    public static Map<String, List<String>> getObjectPropToOntClassMap(OntModel model) {
+        Map<String, List<String>> objectPropertyMap = new HashMap<>();
 
         model.listObjectProperties().forEachRemaining(property -> {
             if (property.isURIResource()) {
@@ -59,12 +49,12 @@ public class ObjectPropertyMapper {
                     }
 
                     if (!objectPropertyRange.isEmpty()) {
-                        mappedObjectProperty.put(property.getURI(), objectPropertyRange);
+                        objectPropertyMap.put(property.getURI(), objectPropertyRange);
                     }
                 }
             }
         });
 
-        return mappedObjectProperty;
+        return objectPropertyMap;
     }
 }

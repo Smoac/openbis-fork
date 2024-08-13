@@ -8,5 +8,8 @@ public class Constants {
     public static final String SHEET_TITLE_OBJS = "Objects";
 
     public static final String SEP = "/";
+    public static final String COLON = ":";
     public static final String DEFAULT_PRJ = "/DEFAULT/DEFAULT";
+
+    public static final String UNKNOWN = "UNKNOWN";
 }

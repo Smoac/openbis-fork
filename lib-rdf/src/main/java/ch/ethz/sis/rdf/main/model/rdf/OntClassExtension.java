@@ -35,14 +35,12 @@ public class OntClassExtension
     public Map<String, List<Restriction>> restrictions;
     public Map<UnionClass, List<String>> unions;
     public List<PropertyTupleRDF> propertyTuples;
-    public List<String> instances; //all NameIndividuals where the current class is present
 
     public OntClassExtension(OntClass ontClass) {
         this.ontClass = ontClass;
         this.restrictions = new HashMap<>();
         this.unions = new HashMap<>();
         this.propertyTuples = new ArrayList<>();
-        this.instances = new ArrayList<>();
         // Parsing standard annotations
         this.label = getAnnotation(ontClass, RDFS.label);
         this.comment = getAnnotation(ontClass, RDFS.comment);
@@ -60,17 +58,6 @@ public class OntClassExtension
             }
         });
     }
-
-    /*public void addRestriction(OntProperty property, Restriction restriction) {
-        this.restrictions.compute(property, (p, existingRestrictions) -> {
-            if (existingRestrictions == null) {
-                return new ArrayList<>(Collections.singletonList(restriction));
-            } else {
-                existingRestrictions.add(restriction);
-                return existingRestrictions;
-            }
-        });
-    }*/
 
     public void addUnion(UnionClass unionClass, List<String> operands) {
         this.unions.put(unionClass, operands);

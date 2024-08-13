@@ -1,112 +1,83 @@
 package ch.ethz.sis.rdf.main.parser;
 
-import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
-import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
-import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.ClassCollector;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.FileManager;
-import org.apache.jena.vocabulary.*;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.OWL2;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 
 import java.io.InputStream;
 import java.util.*;
 
 import static ch.ethz.sis.rdf.main.ClassCollector.getOntClass2OntClassExtensionMap;
 
-public class RDFParser {
+public class RDFReader {
 
     private final ParserUtils parserUtils = new ParserUtils();
-
-    public final String ontNamespace;
-    public final String ontVersion;
-    public final Map<String, String> ontMetadata;
-    public final Map<String, String> nsPrefixes;
-    public Map<String, OntClassExtension> classDetailsMap;
-    public Map<String, List<String>> RDFtoOpenBISDataType;
-    public Map<String, List<String>> mappedObjectProperty;
-    public final Map<String, List<ResourceRDF>> resourcesGroupedByType;
-    public final List<VocabularyType> mappedNamedIndividualList;
-    public final Map<String, List<VocabularyType>> mappedNamedIndividual;
-    public final Map<String, List<String>> mappedSubClasses;
-
-    private final Map<String, List<String>> chains = new HashMap<>();
-
-    public RDFParser(String inputFileName, String inputFormatValue){
-        this(inputFileName, inputFormatValue, false);
+    private final Map<String, List<String>> chainsMap = new HashMap<>();
+    
+    public ModelRDF read(String inputFileName, String inputFormatValue){
+        return read(inputFileName, inputFormatValue, false);
     }
-
-    public RDFParser(String inputFileName, String inputFormatValue, boolean verbose) {
+     
+    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose){
+        ModelRDF modelRDF = new ModelRDF();
 
         Model model = loadRDFModel(inputFileName, inputFormatValue);
 
-        //ExtOntologyParser extOntologyParser = new ExtOntologyParser(model);
-        //System.out.println("External links to import: " + extOntologyParser.getImportLinks());
-        //System.out.println("Invalid external links: " + extOntologyParser.getInvalidLinks());
-
-        this.ontNamespace = model.getNsPrefixURI("");
-        this.ontVersion = parserUtils.extractVersionIRI(model);
-        this.ontMetadata = parserUtils.extractOntologyMetadata(model);
-        this.nsPrefixes = model.getNsPrefixMap();
-
-        //this.ontMetadata.forEach((key, value) -> System.out.println("\t" + key + ": " + value));
+        modelRDF.ontNamespace = model.getNsPrefixURI("");
+        modelRDF.ontVersion = parserUtils.getVersionIRI(model);
+        modelRDF.ontMetadata = parserUtils.getOntologyMetadataMap(model);
+        modelRDF.nsPrefixes = model.getNsPrefixMap();
 
         if(canCreateOntModel(model)){
             OntModel ontModel = loadRDFOntModel(inputFileName, inputFormatValue);
 
-            this.RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
-            this.classDetailsMap = getOntClass2OntClassExtensionMap(ontModel, this.RDFtoOpenBISDataType);
-            //classDetailsMap.forEach((cls, map)->System.out.println(cls.getURI() + " -> " + map));
-            this.mappedObjectProperty = new ObjectPropertyMapper(ontModel).getMappedObjectProperty();
+            modelRDF.RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+            modelRDF.classDetailsMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
+            modelRDF.mappedObjectProperty = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
         }
 
         boolean modelContainsResources = parserUtils.containsResources(model);
         System.out.println("Model contains Resources: " + (modelContainsResources ? "YES" : "NO"));
-        this.resourcesGroupedByType = modelContainsResources ? parserUtils.extractResource(model) : new HashMap<>();
-        this.resourcesGroupedByType.keySet().forEach(key -> {
-            System.out.println(key + " -> " + this.resourcesGroupedByType.get(key));
+
+        modelRDF.resourcesGroupedByType = modelContainsResources ? parserUtils.getResourceMap(model) : new HashMap<>();
+        modelRDF.resourcesGroupedByType.keySet().forEach(key -> {
+            System.out.println(key + " -> " + modelRDF.resourcesGroupedByType.get(key));
         });
 
         NamedIndividualParser namedIndividualParser = new NamedIndividualParser(model);
-        this.mappedNamedIndividualList = namedIndividualParser.getVocabularyTypeList();
-        this.mappedNamedIndividual = namedIndividualParser.getVocabularyTypeListGroupedByType();
+        modelRDF.mappedNamedIndividualList = namedIndividualParser.getVocabularyTypeList();
+        modelRDF.mappedNamedIndividual = namedIndividualParser.getVocabularyTypeListGroupedByType();
 
         getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
-        this.mappedSubClasses = chains;
+        modelRDF.mappedSubClasses = chainsMap;
 
         if (verbose) {
             parserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
         }
+
+        return modelRDF;
     }
 
-    public boolean isSubClass(String uri){
-        return mappedSubClasses.containsKey(uri);
-    }
-
-    //TODO implement a non hardcoded way to check this: check if its type in the model is one of the Classes
-    public boolean isResource(String uri){
-        return resourcesGroupedByType.containsKey(uri);
-    }
-
-    //TODO implement a non hardcoded way to check this: check if its type in the model is one of the Classes
-    public boolean isAlias(String uri){
-        return mappedNamedIndividual.containsKey(uri);
-    }
-
-    private Model loadRDFModel(String inputFileName, String inputFormatValue) {
+    private void fileExists(String inputFileName) {
         InputStream in = FileManager.getInternal().open(inputFileName);
         if (in == null) {
             throw new IllegalArgumentException("File: " + inputFileName + " not found");
         }
+    }
 
-        // Create a default RDF model and read the Turtle file
-        Model model = ModelFactory.createDefaultModel();
-
-        switch(inputFormatValue){
+    private void loadRDFData(Model model, String inputFileName, String inputFormatValue) {
+        switch (inputFormatValue) {
             case "TTL":
                 RDFDataMgr.read(model, inputFileName, Lang.TTL);
                 break;
@@ -115,26 +86,19 @@ public class RDFParser {
             default:
                 throw new IllegalArgumentException("Input format file: " + inputFormatValue + " not supported");
         }
+    }
+
+    private Model loadRDFModel(String inputFileName, String inputFormatValue) {
+        fileExists(inputFileName);
+        Model model = ModelFactory.createDefaultModel();
+        loadRDFData(model, inputFileName, inputFormatValue);
         return model;
     }
 
     private OntModel loadRDFOntModel(String inputFileName, String inputFormatValue) {
-        InputStream in = FileManager.getInternal().open(inputFileName);
-        if (in == null) {
-            throw new IllegalArgumentException("File: " + inputFileName + " not found");
-        }
-
+        fileExists(inputFileName);
         OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
-
-        switch(inputFormatValue){
-            case "TTL":
-                RDFDataMgr.read(model, inputFileName, Lang.TTL);
-                break;
-            case "JSONLD":
-            case "XML":
-            default:
-                throw new IllegalArgumentException("Input format file: " + inputFormatValue + " not supported");
-        }
+        loadRDFData(model, inputFileName, inputFormatValue);
         return model;
     }
 
@@ -152,7 +116,7 @@ public class RDFParser {
 
     private void getSubclassChainsEndingWithClass(Model model, StmtIterator iter) {
         // Clear previous chains
-        chains.clear();
+        chainsMap.clear();
 
         // Process each statement
         while (iter.hasNext()) {
@@ -168,7 +132,7 @@ public class RDFParser {
                 chain.add(subclass);
 
                 if (findSubclassChain(model, superclass, visited, chain)) {
-                    chains.put(subclass, new ArrayList<>(chain));
+                    chainsMap.put(subclass, new ArrayList<>(chain));
                 }
             } else {
                 System.out.println("Skipping anonymous subclass: " + subclass);
@@ -178,7 +142,6 @@ public class RDFParser {
 
     private boolean findSubclassChain(Model model, Resource superclass, Set<String> visited, List<String> chain) {
         if (superclass == null || !superclass.isURIResource()) {
-            //System.out.println("Skipping anonymous superclass.");
             return false;
         }
 

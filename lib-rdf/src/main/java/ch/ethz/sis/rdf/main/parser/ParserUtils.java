@@ -18,10 +18,10 @@ public class ParserUtils {
 
     //---------- RESOURCE PREFIX EXTRACTION ------------------
 
-    public Map<String, List<ResourceRDF>> extractResource(Model model){
+    public Map<String, List<ResourceRDF>> getResourceMap(Model model){
         // Namespace prefix
         //String prefix = model.getNsPrefixURI(RESOURCE_URI_NS);
-        List<String> resourcePrefixes = extractResourcesPrefixList(model);
+        List<String> resourcePrefixes = getResourcesPrefixList(model);
 
         // Map to store the resources grouped by type
         Map<String, List<ResourceRDF>> groupedResources = new HashMap<>();
@@ -69,11 +69,11 @@ public class ParserUtils {
         return groupedResources;
     }
 
-    public List<String> extractResourcesPrefixList(Model model){
+    public List<String> getResourcesPrefixList(Model model){
         Set<String> resourcePossibleNSs = new HashSet<>();
-        resourcePossibleNSs.addAll(extractClassResources(model, RDFS.Class));
-        resourcePossibleNSs.addAll(extractClassResources(model, OWL.Class));
-        resourcePossibleNSs.addAll(extractSubClassOfResources(model));
+        resourcePossibleNSs.addAll(getClassResources(model, RDFS.Class));
+        resourcePossibleNSs.addAll(getClassResources(model, OWL.Class));
+        resourcePossibleNSs.addAll(getSubClassOfResources(model));
         return resourcePossibleNSs.stream().toList();
     }
 
@@ -104,7 +104,7 @@ public class ParserUtils {
     }
 
     //Can't avoid overlapping with the extractClassResources because all classes are subClassOf SPHNConcept
-    private Set<String> extractSubClassOfResources(Model model) {
+    private Set<String> getSubClassOfResources(Model model) {
         Set<String> resourcePossibleNSs = new HashSet<>();
         model.listSubjectsWithProperty(RDF.type, OWL.Class).forEachRemaining(cls -> {
             if (!cls.isAnon()) {
@@ -123,7 +123,7 @@ public class ParserUtils {
         return resourcePossibleNSs;
     }
 
-    private Set<String> extractClassResources(Model model, RDFNode rdfNode) {
+    private Set<String> getClassResources(Model model, RDFNode rdfNode) {
         Set<String> resourcePossibleNSs = new HashSet<>();
         model.listSubjectsWithProperty(RDF.type, rdfNode).forEachRemaining(cls -> {
             if(!cls.isAnon()) {
@@ -141,7 +141,7 @@ public class ParserUtils {
 
     //---------- GENERAL INFO ------------------
 
-    public Map<String, String> extractOntologyMetadata(Model model) {
+    public Map<String, String> getOntologyMetadataMap(Model model) {
         Map<String, String> ontMetadata = new HashMap<>();
         // Extract ontology metadata by checking for owl:Ontology
         ResIterator ontologies = model.listResourcesWithProperty(RDF.type, OWL.Ontology);
@@ -163,7 +163,7 @@ public class ParserUtils {
         return ontMetadata;
     }
 
-    public String extractVersionIRI(Model model){
+    public String getVersionIRI(Model model){
         StmtIterator iter = model.listStatements(null, OWL2.versionIRI, (RDFNode) null);
         if (iter.hasNext()) {
             Statement stmt = iter.nextStatement();
@@ -185,7 +185,7 @@ public class ParserUtils {
         System.out.println("\tTotal Objects with types starting with default namespace <" + ontNamespace + ">: " + countNamespaceTypes);
 
         // Count subjects with a specific prefix
-        List<String> resourcePrefixes = extractResourcesPrefixList(model);
+        List<String> resourcePrefixes = getResourcesPrefixList(model);
         for (String prefix: resourcePrefixes){
             int countSubjectsWithPrefix = 0;
             if (prefix != null) {

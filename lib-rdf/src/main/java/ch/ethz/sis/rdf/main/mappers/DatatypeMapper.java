@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ch.ethz.sis.rdf.main.Constants.UNKNOWN;
+
 /**
  * Utility class for mapping datatype properties to openBIS data types in an ontology model.
  */
@@ -18,32 +20,15 @@ public class DatatypeMapper {
     private static final Map<String, String> datatypeMappings = new HashMap<>();
 
     static {
-        //datatypeMappings.put(XSDDatatype.XSDstring.getURI(), "STRING");
-        //datatypeMappings.put(XSDDatatype.XSDdouble.getURI(), "DOUBLE");
-        //datatypeMappings.put(XSDDatatype.XSDdateTime.getURI(), "DATETIME");
-        //datatypeMappings.put(XSDDatatype.XSDgDay.getURI(), "DAY");
-        //datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), "MONTH");
-        //datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), "YEAR");
-        //datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIME");
         datatypeMappings.put(XSDDatatype.XSDstring.getURI(), DataType.VARCHAR.name());
-        datatypeMappings.put(XSDDatatype.XSDdouble.getURI(), "REAL");
-        datatypeMappings.put(XSDDatatype.XSDdateTime.getURI(), "TIMESTAMP");
-        datatypeMappings.put(XSDDatatype.XSDgDay.getURI(), "INTEGER");
-        datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), "INTEGER");
-        datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), "INTEGER");
-        datatypeMappings.put(XSDDatatype.XSDtime.getURI(), "TIMESTAMP");
-        datatypeMappings.put(XSDDatatype.XSDanyURI.getURI(), "VARCHAR");
+        datatypeMappings.put(XSDDatatype.XSDdouble.getURI(), DataType.REAL.name());
+        datatypeMappings.put(XSDDatatype.XSDdateTime.getURI(), DataType.TIMESTAMP.name());
+        datatypeMappings.put(XSDDatatype.XSDgDay.getURI(), DataType.INTEGER.name());
+        datatypeMappings.put(XSDDatatype.XSDgMonth.getURI(), DataType.INTEGER.name());
+        datatypeMappings.put(XSDDatatype.XSDgYear.getURI(), DataType.INTEGER.name());
+        datatypeMappings.put(XSDDatatype.XSDtime.getURI(), DataType.TIMESTAMP.name());
+        datatypeMappings.put(XSDDatatype.XSDanyURI.getURI(), DataType.VARCHAR.name());
     }
-//
-//    public Map<String, List<String>> mappedDataTypes = new HashMap<>();
-//
-//    public DatatypeMapper(OntModel model) {
-//        this.mappedDataTypes = toOpenBISDataTypes(model);
-//    }
-//
-//    public Map<String, List<String>> getMappedDataTypes() {
-//        return mappedDataTypes;
-//    }
 
     /**
      * Maps datatype properties to their respective openBIS data types in the given ontology model.
@@ -73,17 +58,12 @@ public class DatatypeMapper {
                         for(int i=0; i<unionRange.getOperands().size(); i++) {
                             RDFNode item = unionRange.getOperands().get(i);
                             if (item.isURIResource()) {
-                                openBISDataTypeRange.add(datatypeMappings.getOrDefault(item.asResource().getURI(), "UNKNOWN"));
+                                openBISDataTypeRange.add(datatypeMappings.getOrDefault(item.asResource().getURI(), UNKNOWN));
                             }
                         }
-                        /*unionRange.listOperands().forEachRemaining(operand -> {
-                            if (operand.isURIResource()) {
-                                openBISDataTypeRange.add(datatypeMappings.getOrDefault(operand.getURI(), "UNKNOWN"));
-                            }
-                        });*/
                     } else if (range.isURIResource()) {
                         // If the range is a single URI resource
-                        openBISDataTypeRange.add(datatypeMappings.getOrDefault(range.getURI(), "UNKNOWN"));
+                        openBISDataTypeRange.add(datatypeMappings.getOrDefault(range.getURI(), UNKNOWN));
                     }
 
                     if (!openBISDataTypeRange.isEmpty()) {

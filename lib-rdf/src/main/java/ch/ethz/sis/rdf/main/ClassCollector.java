@@ -1,5 +1,6 @@
 package ch.ethz.sis.rdf.main;
 
+import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import org.apache.jena.ontology.*;
@@ -8,7 +9,25 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType.SAMPLE;
+import static ch.ethz.sis.rdf.main.Constants.COLON;
+import static ch.ethz.sis.rdf.main.Constants.UNKNOWN;
+
 public class ClassCollector {
+
+    public final Map<String, List<String>> RDFtoOpenBISDataType;
+    public Map<String, OntClassExtension> ontClass2OntClassExtensionMap;
+
+    public ClassCollector(final OntModel ontModel)
+    {
+        this.RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+        this.ontClass2OntClassExtensionMap = getOntClass2OntClassExtensionMap(ontModel);
+    }
+
+    public Map<String, OntClassExtension> getOntClass2OntClassExtensionMap()
+    {
+        return ontClass2OntClassExtensionMap;
+    }
 
     private static void parseRestriction(Restriction restriction, OntClassExtension ontClassObject) {
         try {
@@ -126,63 +145,66 @@ public class ClassCollector {
         }
     }
 
-    private static void collectInstances(OntClass cls, OntClassExtension classDetail){
-        cls.listInstances().forEach(instance -> {
-            if (instance.isAnon()) {
-                classDetail.instances.add(instance.getURI());
-            }
-        });
-    }
-
-    private static void collectProperties(OntModel model, OntClass cls, OntClassExtension classDetail, Map<String, List<String>> mappedDataTypes) {
-        if (!cls.isAnon()) { // Exclude anonymous classes for intersectionOf
+    private static void ontClassPropertiesParser(OntModel model, OntClass cls, OntClassExtension ontClassExtension, Map<String, List<String>> mappedDataTypes)
+    {
+        if (!cls.isAnon())
+        { // Exclude anonymous classes for intersectionOf
             // Find all properties where the class is the domain
             StmtIterator propIterator = model.listStatements(null, RDFS.domain, (RDFNode) null);
-            while (propIterator.hasNext()) {
+            while (propIterator.hasNext())
+            {
                 Statement stmt = propIterator.nextStatement();
                 Property prop = stmt.getSubject().as(Property.class);
                 Resource domain = stmt.getObject().asResource();
 
-                if (isClassInDomain(cls, domain)) {
+                if (isClassInDomain(cls, domain))
+                {
                     // Find the range of the property
                     StmtIterator rangeIterator = model.listStatements(prop, RDFS.range, (RDFNode) null);
                     while (rangeIterator.hasNext()) {
                         Statement rangeStmt = rangeIterator.nextStatement();
                         Resource range = rangeStmt.getObject().asResource();
-                        if (range.canAs(UnionClass.class)) {
+                        if (range.canAs(UnionClass.class))
+                        {
                             // If the range is a union class, process each operand
                             //System.out.println("Class [" + prop.getURI() + "] might be of multiple types: " + range.as(UnionClass.class));
-                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "SAMPLE"));
+                            ontClassExtension.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), SAMPLE.name()));
                             // If the range is a union class, process each operand
                             // To add multi ranged properties like hasCode [CODE] and hasCode [TERMINOLOGY]
                             UnionClass unionClass = range.as(UnionClass.class);
                             List<String> operands = new ArrayList<>();
-                            for(int i=0; i<unionClass.getOperands().size(); i++) {
+                            for(int i=0; i<unionClass.getOperands().size(); i++)
+                            {
                                 //System.out.println(unionClass.getOperands().get(i).as(Restriction.class));
                                 RDFNode item = unionClass.getOperands().get(i);
                                 // Check if the current item can be a Restriction and process it
-                                if (item.canAs(OntClass.class)) {
+                                if (item.canAs(OntClass.class))
+                                {
                                     OntClass ontClass = item.as(OntClass.class);
-                                    if (item.isAnon()) {
+                                    if (item.isAnon())
+                                    {
                                         System.out.println("Item at index " + i + " is Anon. " + item);
                                     }
                                     // Now, you have OntClass restriction, and you can process it
                                     //System.out.println("     - Found OntClass operand ["+ontClass+"] at index " + i + " in union: "+unionClass);
                                     operands.add(ontClass.getURI());
-                                } else  {
+                                } else
+                                {
                                     //System.out.println("     - Found not-OntClass operand [" + item + "] at index " +i+ " in union: " + unionClass);
                                     operands.add(item.toString());
                                 }
                             }
                             //System.out.println("Class <" + prop.getURI() + "> might be of multiple types: " + operands);
-                        } else if (range.isURIResource()) {
+                        } else if (range.isURIResource())
+                        {
                             // If the range is a single URI resource
-                            String defaultSampleType = "SAMPLE:"+range.getLocalName().toUpperCase(Locale.ROOT);
+                            String defaultSampleType = SAMPLE.name() + COLON + range.getLocalName().toUpperCase(Locale.ROOT);
                             String mappedType = mappedDataTypes.getOrDefault(prop.getURI(), List.of(defaultSampleType)).get(0);
                             //System.out.println("range is a single URI resource: " + prop.getURI() + " -> " + mappedType);
-                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), mappedType));
-                        } else {
-                            classDetail.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), "UNKNOWN"));
+                            ontClassExtension.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), mappedType));
+                        } else
+                        {
+                            ontClassExtension.propertyTuples.add(new PropertyTupleRDF(prop.getURI(), UNKNOWN));
                         }
                     }
                 }
@@ -190,13 +212,6 @@ public class ClassCollector {
         }
     }
 
-    /**
-     * Checks if the given class is included in the domain of a property.
-     *
-     * @param cls the class to check
-     * @param domain the domain of the property
-     * @return true if the class is in the domain, false otherwise
-     */
     private static boolean isClassInDomain(OntClass cls, Resource domain) {
         if (domain.equals(cls)) {
             return true;
@@ -207,80 +222,64 @@ public class ClassCollector {
         return false;
     }
 
-    public static Map<String, OntClassExtension> getOntClass2OntClassExtensionMap(final OntModel model, final Map<String, List<String>> RDFtoOpenBISDataType) {
-        Map<OntClass, OntClassExtension> ontClass2OntClassExtension = new HashMap<>();
+    private static Map<OntClass, OntClassExtension> getInitOntClass2OntClassExtension(final OntModel ontModel)
+    {
+        Map<OntClass, OntClassExtension> ontClass2OntClassExtensionMap = new HashMap<>();
 
-        model.listClasses().forEachRemaining(cls -> {
+        ontModel.listClasses().forEachRemaining(cls -> {
             if (!cls.isAnon()) { // Esclude anonymous classes for intersectionOf
-                ontClass2OntClassExtension.put(cls, new OntClassExtension(cls));
+                ontClass2OntClassExtensionMap.put(cls, new OntClassExtension(cls));
             }
         });
 
-        //mappedDataTypes.forEach((k, v) -> System.out.println(k + ": " + v));
+        return ontClass2OntClassExtensionMap;
+    }
+    
+    private static Map<String, OntClassExtension> toOntClass2StringOntClassExtension(
+            final Map<OntClass, OntClassExtension> ontClass2OntClassExtension)
+    {
+        Map<String, OntClassExtension> ontClass2StringOntClassExtension = new HashMap<>();
+        ontClass2OntClassExtension.forEach((key, value) -> ontClass2StringOntClassExtension.put(key.getURI(), value));
 
-        ontClass2OntClassExtension.forEach((cls, classDetail) -> {
-            collectProperties(model, cls, classDetail, RDFtoOpenBISDataType);
-            collectInstances(cls, classDetail);
-            //System.out.println("*** Class: " + cls);
-            cls.listSuperClasses().forEachRemaining((superClass) -> {
-                try {
-                    // Check if the superclass is an anonymous class
-                    if (superClass.isAnon()) {
-                        // Now, handle different types of anonymous superclasses
-                        parseAnonymousClass(superClass.as(OntClass.class), classDetail);
+        return ontClass2StringOntClassExtension;    
+    }
+    
+    private static void ontClassesParser(OntClass cls, OntClassExtension ontClassExtension)
+    {
+        cls.listSuperClasses().forEachRemaining((superClass) -> {
+            try {
+                // Check if the superclass is an anonymous class
+                if (superClass.isAnon()) {
+                    // Now, handle different types of anonymous superclasses
+                    parseAnonymousClass(superClass.as(OntClass.class), ontClassExtension);
+                } else {
+                    // Check if the superClass can be cast to OntClass
+                    if (superClass.canAs(OntClass.class)) {
+                        OntClass superOntClass = superClass.as(OntClass.class);
+                        //System.out.println("* Not-Anon superClass: " + superOntClass);
+                        ontClassExtension.setSuperClass(superOntClass);
                     } else {
-                        // Check if the superClass can be cast to OntClass
-                        if (superClass.canAs(OntClass.class)) {
-                            OntClass superOntClass = superClass.as(OntClass.class);
-                            //System.out.println("* Not-Anon superClass: " + superOntClass);
-                            classDetail.setSuperClass(superOntClass);
-                        } else {
-                            System.err.println("Cannot convert node " + superClass + " to OntClass");
-                        }
+                        System.err.println("Cannot convert node " + superClass + " to OntClass");
                     }
-                } catch (Exception e) {
-                    System.err.println("Error handling superClass " + superClass + ": " + e.getMessage());
                 }
-            });
+            } catch (Exception e) {
+                System.err.println("Error handling superClass " + superClass + ": " + e.getMessage());
+            }
         });
 
-        Map<String, OntClassExtension> classDetailsMapS = new HashMap<>();
-        ontClass2OntClassExtension.forEach((key, value) -> classDetailsMapS.put(key.getURI(), value));
-
-        return classDetailsMapS;
     }
 
-   /* private static void processDomain(RDFNode domain, OntProperty property, Map<OntClass, ClassDetails> classDetailsMap, OntModel model) {
-        if (domain.isResource()) {
-            Resource res = domain.asResource();
-            // Check if the resource is of type owl:Class before casting
-            if (model.contains(res, RDF.type, OWL.Class)) {
-                OntClass ontClass = res.as(OntClass.class);
-                ClassDetails details = classDetailsMap.getOrDefault(ontClass, new ClassDetails(ontClass));
-                details.addProperty(property);
-                classDetailsMap.putIfAbsent(ontClass, details);
-            }
-            *//*if (res.canAs(OntClass.class)) {
-                OntClass ontClass = res.as(OntClass.class);
-                ClassDetails details = classDetailsMap.get(ontClass);
-                if (details != null) {
-                    details.addProperty(property);
-                }
-            }*//*
-        }
+    public static Map<String, OntClassExtension> getOntClass2OntClassExtensionMap(final OntModel ontModel)
+    {
+        Map<OntClass, OntClassExtension> ontClass2OntClassExtensionMap = getInitOntClass2OntClassExtension(ontModel);
+        final Map<String, List<String>> RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+
+        ontClass2OntClassExtensionMap.forEach((cls, ontClassExtension) -> {
+            ontClassPropertiesParser(ontModel, cls, ontClassExtension, RDFtoOpenBISDataType);
+            //System.out.println("*** Class: " + cls);
+            ontClassesParser(cls, ontClassExtension);
+        });
+
+        return toOntClass2StringOntClassExtension(ontClass2OntClassExtensionMap);
     }
-
-    private static void processInheritance(OntClass subCls, OntClass superCls, Map<OntClass, ClassDetails> classDetailsMap) {
-        ClassDetails superClassDetails = classDetailsMap.get(superCls);
-        ClassDetails subClassDetails = classDetailsMap.get(subCls);
-
-        if (superClassDetails != null && subClassDetails != null) {
-            // Copy all properties from superClassDetails to subClassDetails, avoiding duplicates
-            for (OntProperty superProperty : superClassDetails.properties) {
-                if (!subClassDetails.properties.contains(superProperty)) {
-                    subClassDetails.addProperty(superProperty);
-                }
-            }
-        }
-    }*/
 }
