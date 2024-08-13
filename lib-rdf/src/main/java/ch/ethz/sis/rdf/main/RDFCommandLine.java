@@ -47,7 +47,6 @@ public class RDFCommandLine {
                 formatter.printHelp(helperCommand, options);
                 return;
             }
-            validateAndExecute(cmd);
             validateCommandLine(cmd);
             executeCommandLine(cmd);
         } catch (ParseException e) {
@@ -188,70 +187,6 @@ public class RDFCommandLine {
                 handleOpenBISOutput(inputFormatValue, inputFilePath, openbisASURL, username, new String(password), projectIdentifier, verbose);
                 break;
             case "OPENBIS-DEV":
-                username = cmd.getOptionValue("user");
-                password = getPassword(cmd);
-                inputFilePath = remainingArgs[0];
-                openbisASURL = remainingArgs[1];
-                openBISDSSURL = remainingArgs[2];
-
-                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password), projectIdentifier, verbose);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported output type: " + outputFormatValue.toUpperCase());
-        }
-    }
-
-    private static void validateAndExecute(CommandLine cmd)
-    {
-        String inputFormatValue = cmd.getOptionValue("input");
-        String outputFormatValue = cmd.getOptionValue("output");
-        String inputFilePath = null;
-        String username = null;
-        String password = null;
-        String openbisASURL = null;
-        String openBISDSSURL = null;
-        String projectIdentifier = cmd.getOptionValue("project");
-        boolean verbose = cmd.hasOption("verbose");
-
-        String[] remainingArgs = cmd.getArgs();
-        //Arrays.stream(remainingArgs).forEach(System.out::println);
-        switch (outputFormatValue.toUpperCase())
-        {
-            case "XLSX":
-                if (remainingArgs.length != 2)
-                {
-                    throw new IllegalArgumentException(
-                            "For XLSX output, specify the input and output file path. \n " +
-                                    "Usage: java -jar lib-rdf-tool.jar -i <input format> -o XLSX <<input format> file path> <XLSX output file path> \n");
-                }
-                inputFilePath = remainingArgs[0];
-                String outputFilePath = remainingArgs[1];
-                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath, projectIdentifier, verbose);
-                break;
-            case "OPENBIS":
-                if (remainingArgs.length != 2 && !cmd.hasOption("username") && !cmd.hasOption("password"))
-                {
-                    throw new IllegalArgumentException("For OPENBIS output, specify input file path, username, password and openBIS URL. \n " +
-                            "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS <<input format> file path> -u <username> -p <openBIS URL> \n");
-                }
-                username = cmd.getOptionValue("user");
-                password = getPassword(cmd);
-                inputFilePath = remainingArgs[0];
-                openbisASURL = remainingArgs[1];
-
-                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                System.out.println("Connect to openBIS instance " + openbisASURL + " with username[" + username + "]"); // and password[" + new String(password) + "]");
-                handleOpenBISOutput(inputFormatValue, inputFilePath, openbisASURL, username, new String(password), projectIdentifier, verbose);
-                break;
-            case "OPENBIS-DEV":
-                if (remainingArgs.length != 3 && !cmd.hasOption("username") && !cmd.hasOption("password"))
-                {
-                    throw new IllegalArgumentException(
-                            "For OPENBIS-DEV output, specify input file path, username, password, AS openBIS URL and DSS openBIS URL. \n " +
-                                    "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS-DEV <<input format> file path> -u <username> -p <openBIS AS URL> <openBIS DSS URL> \n");
-                }
                 username = cmd.getOptionValue("user");
                 password = getPassword(cmd);
                 inputFilePath = remainingArgs[0];
