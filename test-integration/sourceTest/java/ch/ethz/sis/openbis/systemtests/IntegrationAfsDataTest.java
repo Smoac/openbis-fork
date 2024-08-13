@@ -7,7 +7,6 @@ import static org.testng.Assert.fail;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -692,7 +691,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                 downloadedFiles.put(file.getDataSetFile().getPath(), "");
             } else
             {
-                downloadedFiles.put(file.getDataSetFile().getPath(), IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
+                downloadedFiles.put(file.getDataSetFile().getPath(), IOUtils.toString(file.getInputStream()));
             }
         }
 

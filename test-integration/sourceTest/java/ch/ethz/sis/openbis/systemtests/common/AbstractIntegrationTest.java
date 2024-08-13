@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,8 +42,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.proxy.ProxyServlet;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -164,6 +163,7 @@ public abstract class AbstractIntegrationTest
 
         cleanupApplicationServerFolders();
         cleanupAfsServerFolders();
+        cleanupDataStoreServerFolders();
 
         startApplicationServer(true);
         startApplicationServerProxy();
@@ -224,6 +224,12 @@ public abstract class AbstractIntegrationTest
         String storageIncomingShareId = configuration.getStringProperty(AtomicFileSystemServerParameter.storageIncomingShareId);
 
         new File(storageRoot, storageIncomingShareId).mkdirs();
+    }
+
+    private void cleanupDataStoreServerFolders() throws Exception
+    {
+        cleanupFolderSafely("targets/storage");
+        new File("targets/incoming-default").mkdirs();
     }
 
     private void cleanupFolderSafely(String folderPath) throws Exception
@@ -414,12 +420,8 @@ public abstract class AbstractIntegrationTest
                         }
                     } else if (HttpMethod.POST.is(proxyRequest.getMethod()))
                     {
-                        String parametersString = IOUtils.toString(proxyRequest.getInputStream(), StandardCharsets.UTF_8);
-                        List<NameValuePair> parametersList = URLEncodedUtils.parse(parametersString, StandardCharsets.UTF_8);
-                        for (NameValuePair parameterItem : parametersList)
-                        {
-                            parameters.put(parameterItem.getName(), parameterItem.getValue());
-                        }
+                        String parametersString = IOUtils.toString(proxyRequest.getInputStream());
+                        parameters = parseUrlQuery(parametersString);
                     }
 
                     System.out.println(
@@ -756,6 +758,20 @@ public abstract class AbstractIntegrationTest
     public static void log(String message)
     {
         System.out.println("[TEST] " + message);
+    }
+
+    private static Map<String, String> parseUrlQuery(String url) throws Exception
+    {
+        Map<String, String> parameters = new HashMap<>();
+        String[] namesAndValues = url.split("&");
+        for (String nameAndValue : namesAndValues)
+        {
+            int index = nameAndValue.indexOf("=");
+            String name = nameAndValue.substring(0, index);
+            String value = nameAndValue.substring(index + 1);
+            parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
+        }
+        return parameters;
     }
 
 }
