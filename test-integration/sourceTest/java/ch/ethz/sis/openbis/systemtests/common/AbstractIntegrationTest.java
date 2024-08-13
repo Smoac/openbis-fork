@@ -115,8 +115,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -126,7 +124,7 @@ public abstract class AbstractIntegrationTest
 {
     public static final String TEST_INTERACTIVE_SESSION_KEY = "integration-test-interactive-session-key";
 
-    public static final String TEST_DATA_STORE_CODE = "TEST";
+    public static final String TEST_DATA_STORE_CODE = "STANDARD";
 
     public static final String DEFAULT_SPACE = "DEFAULT";
 
@@ -361,8 +359,6 @@ public abstract class AbstractIntegrationTest
 
         OpenBIS openBIS = createOpenBIS();
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
-
-        createDataStore(TEST_DATA_STORE_CODE);
 
         String afsServerUser = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUser);
         createUser(openBIS, afsServerUser, null, Role.ETL_SERVER);
@@ -603,24 +599,6 @@ public abstract class AbstractIntegrationTest
         return new OpenBIS(TestInstanceHostUtils.getOpenBISUrl() + TestInstanceHostUtils.getOpenBISPath(),
                 TestInstanceHostUtils.getDSSUrl() + TestInstanceHostUtils.getDSSPath(),
                 TestInstanceHostUtils.getAFSUrl() + TestInstanceHostUtils.getAFSPath());
-    }
-
-    public static void createDataStore(String dataStoreCode)
-    {
-        DataStorePE testDataStore = new DataStorePE();
-        testDataStore.setCode(dataStoreCode);
-        testDataStore.setDownloadUrl("");
-        testDataStore.setRemoteUrl("");
-        testDataStore.setDatabaseInstanceUUID("");
-        testDataStore.setSessionToken("");
-        testDataStore.setArchiverConfigured(false);
-
-        executeInApplicationServerTransaction((status) ->
-        {
-            IDAOFactory daoFactory = applicationServerSpringContext.getBean(IDAOFactory.class);
-            daoFactory.getDataStoreDAO().createOrUpdateDataStore(testDataStore);
-            return null;
-        });
     }
 
     public static Space createSpace(OpenBIS openBIS, String spaceCode)
