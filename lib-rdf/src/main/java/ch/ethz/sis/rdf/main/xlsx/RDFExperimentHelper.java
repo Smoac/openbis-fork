@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.parser.RDFParser;
 import ch.ethz.sis.rdf.main.Utils;
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import org.apache.jena.atlas.lib.Pair;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -11,11 +11,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import java.util.List;
 import java.util.Locale;
 
+import static ch.ethz.sis.rdf.main.Constants.COLLECTION_TYPE;
+
 public class RDFExperimentHelper
 {
     private static final String EXPERIMENT_TYPE_FIELD = "Experiment type";
     private static final String EXPERIMENT = "EXPERIMENT";
-    private static final String COLLECTION_TYPE = "COLLECTION";
 
     private enum Attribute { //implements IAttribute {
         Identifier("Identifier", false),
@@ -41,7 +42,8 @@ public class RDFExperimentHelper
         }
     }
 
-    public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle, String projectId, RDFParser rdfParser){
+    public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle, String projectId, ModelRDF modelRDF)
+    {
         Row row = sheet.createRow(rowNum++);
         row.createCell(0).setCellValue(EXPERIMENT);
         row.getCell(0).setCellStyle(headerStyle);
@@ -64,7 +66,7 @@ public class RDFExperimentHelper
             cell.setCellStyle(headerStyle);
         }
 
-        List<Pair> classes = rdfParser.classDetailsMap.values()
+        List<Pair> classes = modelRDF.stringOntClassExtensionMap.values()
                 .stream()
                 .map(ontClassObject -> new Pair(ontClassObject.ontClass.getLocalName(), ontClassObject.label))
                 .toList();

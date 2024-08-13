@@ -2,6 +2,7 @@ package ch.ethz.sis.rdf.main.parser;
 
 import ch.ethz.sis.rdf.main.ClassCollector;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
+import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import org.apache.jena.ontology.OntModel;
@@ -18,10 +19,8 @@ import org.apache.jena.vocabulary.RDFS;
 import java.io.InputStream;
 import java.util.*;
 
-import static ch.ethz.sis.rdf.main.ClassCollector.getOntClass2OntClassExtensionMap;
-
-public class RDFReader {
-
+public class RDFReader
+{
     private final ParserUtils parserUtils = new ParserUtils();
     private final Map<String, List<String>> chainsMap = new HashMap<>();
     
@@ -29,7 +28,8 @@ public class RDFReader {
         return read(inputFileName, inputFormatValue, false);
     }
      
-    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose){
+    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose)
+    {
         ModelRDF modelRDF = new ModelRDF();
 
         Model model = loadRDFModel(inputFileName, inputFormatValue);
@@ -43,24 +43,23 @@ public class RDFReader {
             OntModel ontModel = loadRDFOntModel(inputFileName, inputFormatValue);
 
             modelRDF.RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
-            modelRDF.classDetailsMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
-            modelRDF.mappedObjectProperty = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
+            modelRDF.stringOntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
+            modelRDF.objectPropertyMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
         }
 
         boolean modelContainsResources = parserUtils.containsResources(model);
-        System.out.println("Model contains Resources: " + (modelContainsResources ? "YES" : "NO"));
+        //System.out.println("Model contains Resources: " + (modelContainsResources ? "YES" : "NO"));
 
         modelRDF.resourcesGroupedByType = modelContainsResources ? parserUtils.getResourceMap(model) : new HashMap<>();
-        modelRDF.resourcesGroupedByType.keySet().forEach(key -> {
+        /*modelRDF.resourcesGroupedByType.keySet().forEach(key -> {
             System.out.println(key + " -> " + modelRDF.resourcesGroupedByType.get(key));
-        });
+        });*/
 
-        NamedIndividualParser namedIndividualParser = new NamedIndividualParser(model);
-        modelRDF.mappedNamedIndividualList = namedIndividualParser.getVocabularyTypeList();
-        modelRDF.mappedNamedIndividual = namedIndividualParser.getVocabularyTypeListGroupedByType();
+        modelRDF.vocabularyTypeList = NamedIndividualMapper.getVocabularyTypeList(model);
+        modelRDF.vocabularyTypeListGroupedByType = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
 
         getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
-        modelRDF.mappedSubClasses = chainsMap;
+        modelRDF.subClassChanisMap = chainsMap;
 
         if (verbose) {
             parserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
@@ -69,14 +68,16 @@ public class RDFReader {
         return modelRDF;
     }
 
-    private void fileExists(String inputFileName) {
+    private void checkFileExists(String inputFileName)
+    {
         InputStream in = FileManager.getInternal().open(inputFileName);
         if (in == null) {
             throw new IllegalArgumentException("File: " + inputFileName + " not found");
         }
     }
 
-    private void loadRDFData(Model model, String inputFileName, String inputFormatValue) {
+    private void loadRDFData(Model model, String inputFileName, String inputFormatValue)
+    {
         switch (inputFormatValue) {
             case "TTL":
                 RDFDataMgr.read(model, inputFileName, Lang.TTL);
@@ -88,21 +89,24 @@ public class RDFReader {
         }
     }
 
-    private Model loadRDFModel(String inputFileName, String inputFormatValue) {
-        fileExists(inputFileName);
+    private Model loadRDFModel(String inputFileName, String inputFormatValue)
+    {
+        checkFileExists(inputFileName);
         Model model = ModelFactory.createDefaultModel();
         loadRDFData(model, inputFileName, inputFormatValue);
         return model;
     }
 
-    private OntModel loadRDFOntModel(String inputFileName, String inputFormatValue) {
-        fileExists(inputFileName);
+    private OntModel loadRDFOntModel(String inputFileName, String inputFormatValue)
+    {
+        checkFileExists(inputFileName);
         OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
         loadRDFData(model, inputFileName, inputFormatValue);
         return model;
     }
 
-    private boolean canCreateOntModel(Model model) {
+    private boolean canCreateOntModel(Model model)
+    {
         // Count RDFS Classes
         int rdfsClassCount = model.listSubjectsWithProperty(RDF.type, RDFS.Class).filterDrop(RDFNode::isAnon).toList().size();
         // Count OWL Classes
@@ -114,7 +118,8 @@ public class RDFReader {
         return (rdfsClassCount == 0 && owlClassCount > 0);
     }
 
-    private void getSubclassChainsEndingWithClass(Model model, StmtIterator iter) {
+    private void getSubclassChainsEndingWithClass(Model model, StmtIterator iter)
+    {
         // Clear previous chains
         chainsMap.clear();
 
@@ -140,7 +145,8 @@ public class RDFReader {
         }
     }
 
-    private boolean findSubclassChain(Model model, Resource superclass, Set<String> visited, List<String> chain) {
+    private boolean findSubclassChain(Model model, Resource superclass, Set<String> visited, List<String> chain)
+    {
         if (superclass == null || !superclass.isURIResource()) {
             return false;
         }

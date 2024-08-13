@@ -1,6 +1,7 @@
 package ch.ethz.sis.rdf.main;
 
-public class Constants {
+public class Constants
+{
     public static final String SHEET_TITLE_EXP = "Experiment types";
     public static final String SHEET_TITLE_SPACES = "Space Project Experiment";
     public static final String SHEET_TITLE_VOCAB = "Vocabulary types";
@@ -11,5 +12,6 @@ public class Constants {
     public static final String COLON = ":";
     public static final String DEFAULT_PRJ = "/DEFAULT/DEFAULT";
 
+    public static final String COLLECTION_TYPE = "COLLECTION";
     public static final String UNKNOWN = "UNKNOWN";
 }

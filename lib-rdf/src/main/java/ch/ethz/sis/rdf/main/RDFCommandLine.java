@@ -1,6 +1,7 @@
 package ch.ethz.sis.rdf.main;
 
-import ch.ethz.sis.rdf.main.parser.RDFParser;
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
+import ch.ethz.sis.rdf.main.parser.RDFReader;
 import ch.ethz.sis.rdf.main.xlsx.write.XLSXWriter;
 import org.apache.commons.cli.*;
 
@@ -47,6 +48,8 @@ public class RDFCommandLine {
                 return;
             }
             validateAndExecute(cmd);
+            validateCommandLine(cmd);
+            executeCommandLine(cmd);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             formatter.printHelp(helperCommand, options);
@@ -117,7 +120,90 @@ public class RDFCommandLine {
         return String.valueOf(password);
     }
 
-    private static void validateAndExecute(CommandLine cmd) throws IOException {
+    private static void validateCommandLine(CommandLine cmd)
+    {
+        String outputFormatValue = cmd.getOptionValue("output");
+        String[] remainingArgs = cmd.getArgs();
+        //Arrays.stream(remainingArgs).forEach(System.out::println);
+        switch (outputFormatValue.toUpperCase())
+        {
+            case "XLSX":
+                if (remainingArgs.length != 2)
+                {
+                    throw new IllegalArgumentException(
+                            "For XLSX output, specify the input and output file path. \n " +
+                                    "Usage: java -jar lib-rdf-tool.jar -i <input format> -o XLSX <<input format> file path> <XLSX output file path> \n");
+                }
+                break;
+            case "OPENBIS":
+                if (remainingArgs.length != 2 && !cmd.hasOption("username") && !cmd.hasOption("password"))
+                {
+                    throw new IllegalArgumentException("For OPENBIS output, specify input file path, username, password and openBIS URL. \n " +
+                            "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS <<input format> file path> -u <username> -p <openBIS URL> \n");
+                }
+                break;
+            case "OPENBIS-DEV":
+                if (remainingArgs.length != 3 && !cmd.hasOption("username") && !cmd.hasOption("password"))
+                {
+                    throw new IllegalArgumentException(
+                            "For OPENBIS-DEV output, specify input file path, username, password, AS openBIS URL and DSS openBIS URL. \n " +
+                                    "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS-DEV <<input format> file path> -u <username> -p <openBIS AS URL> <openBIS DSS URL> \n");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported output type: " + outputFormatValue.toUpperCase());
+        }
+    }
+
+    private static void executeCommandLine(CommandLine cmd)
+    {
+        String inputFormatValue = cmd.getOptionValue("input");
+        String outputFormatValue = cmd.getOptionValue("output");
+        String inputFilePath = null;
+        String username = null;
+        String password = null;
+        String openbisASURL = null;
+        String openBISDSSURL = null;
+        String projectIdentifier = cmd.getOptionValue("project");
+        boolean verbose = cmd.hasOption("verbose");
+
+        String[] remainingArgs = cmd.getArgs();
+        //Arrays.stream(remainingArgs).forEach(System.out::println);
+        switch (outputFormatValue.toUpperCase())
+        {
+            case "XLSX":
+                inputFilePath = remainingArgs[0];
+                String outputFilePath = remainingArgs[1];
+                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
+                handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath, projectIdentifier, verbose);
+                break;
+            case "OPENBIS":
+                username = cmd.getOptionValue("user");
+                password = getPassword(cmd);
+                inputFilePath = remainingArgs[0];
+                openbisASURL = remainingArgs[1];
+
+                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
+                System.out.println("Connect to openBIS instance " + openbisASURL + " with username[" + username + "]"); // and password[" + new String(password) + "]");
+                handleOpenBISOutput(inputFormatValue, inputFilePath, openbisASURL, username, new String(password), projectIdentifier, verbose);
+                break;
+            case "OPENBIS-DEV":
+                username = cmd.getOptionValue("user");
+                password = getPassword(cmd);
+                inputFilePath = remainingArgs[0];
+                openbisASURL = remainingArgs[1];
+                openBISDSSURL = remainingArgs[2];
+
+                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
+                handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password), projectIdentifier, verbose);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported output type: " + outputFormatValue.toUpperCase());
+        }
+    }
+
+    private static void validateAndExecute(CommandLine cmd)
+    {
         String inputFormatValue = cmd.getOptionValue("input");
         String outputFormatValue = cmd.getOptionValue("output");
         String inputFilePath = null;
@@ -183,7 +269,8 @@ public class RDFCommandLine {
     private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath, String projectIdentifier, boolean verbose) {
         System.out.println("Creating Ontology Model...");
 
-        RDFParser rdfParser = new RDFParser(inputFilePath, inputFormatValue, verbose);
+        RDFReader rdfReader = new RDFReader();
+        ModelRDF modelRDF = rdfReader.read(inputFilePath, inputFormatValue, verbose);
 
         // Collect and map all RDF classes in JAVA obj
         System.out.println("Collecting RDF classes...");
@@ -191,7 +278,7 @@ public class RDFCommandLine {
         // Write model to an Excel file (apache POI dependency)
         System.out.println("Writing XLSX file...");
         XLSXWriter XLSXWriter = new XLSXWriter();
-        XLSXWriter.createExcelFile(rdfParser, outputFilePath, projectIdentifier);
+        XLSXWriter.write(modelRDF, outputFilePath, projectIdentifier);
 
         System.out.println("XLSX created successfully!");
     }

@@ -1,4 +1,4 @@
-package ch.ethz.sis.rdf.main.parser;
+package ch.ethz.sis.rdf.main.mappers;
 
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyTypeOption;
@@ -14,26 +14,11 @@ import org.apache.jena.vocabulary.SKOS;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NamedIndividualParser {
-
-    public List<VocabularyType> vocabularyTypeList;
-    public Map<String, List<VocabularyType>> vocabularyTypeListGroupedByType;
-
-    public NamedIndividualParser(Model model) {
-        this.vocabularyTypeList = processGroupedNamedIndividuals(model);
-        this.vocabularyTypeListGroupedByType = processNamedIndividuals(model);
-    }
-
-    public List<VocabularyType> getVocabularyTypeList() {
-        return vocabularyTypeList;
-    }
-
-    public Map<String, List<VocabularyType>> getVocabularyTypeListGroupedByType() {
-        return vocabularyTypeListGroupedByType;
-    }
-
-    public List<VocabularyType> processGroupedNamedIndividuals(Model model) {
-        Map<String, List<VocabularyType>> groupedByCode = processNamedIndividuals(model);
+public class NamedIndividualMapper
+{
+    public static List<VocabularyType> getVocabularyTypeList(Model model)
+    {
+        Map<String, List<VocabularyType>> groupedByCode = getVocabularyTypeListGroupedByType(model);
 
         List<VocabularyType> mergedList = groupedByCode.entrySet().stream().map(entry -> {
             String code = entry.getKey();
@@ -51,7 +36,8 @@ public class NamedIndividualParser {
         return mergedList;
     }
 
-    public Map<String, List<VocabularyType>> processNamedIndividuals(Model model) {
+    public static Map<String, List<VocabularyType>> getVocabularyTypeListGroupedByType(Model model)
+    {
         List<VocabularyType> vocabularyTypeList = new ArrayList<>();
         model.listSubjectsWithProperty(RDF.type, OWL2.NamedIndividual).forEachRemaining(subject -> {
             processIndividual(model, subject, vocabularyTypeList);
@@ -59,7 +45,8 @@ public class NamedIndividualParser {
         return vocabularyTypeList.stream().collect(Collectors.groupingBy(VocabularyType::getCode));
     }
 
-    private void processIndividual(Model model, Resource subject, List<VocabularyType> vocabularyTypeList) {
+    private static void processIndividual(Model model, Resource subject, List<VocabularyType> vocabularyTypeList)
+    {
         try {
             String optionLabel = model.getProperty(subject, RDFS.label).getString();
             VocabularyTypeOption option = new VocabularyTypeOption(
@@ -79,7 +66,8 @@ public class NamedIndividualParser {
         }
     }
 
-    private VocabularyType createVocabularyType(Model model, Resource resource, VocabularyTypeOption option) {
+    private static VocabularyType createVocabularyType(Model model, Resource resource, VocabularyTypeOption option)
+    {
         String description = getPropertySafely(model, resource, SKOS.definition, "");
         String subClassOf = getPropertySafely(model, resource, RDFS.subClassOf, resource.toString());
 
@@ -90,7 +78,8 @@ public class NamedIndividualParser {
         );
     }
 
-    private String getPropertySafely(Model model, Resource resource, Property property, String defaultValue) {
+    private static String getPropertySafely(Model model, Resource resource, Property property, String defaultValue)
+    {
         Statement statement = model.getProperty(resource, property);
         return statement != null ? statement.getObject().toString() : defaultValue;
     }

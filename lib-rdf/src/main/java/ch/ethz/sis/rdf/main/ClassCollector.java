@@ -24,12 +24,8 @@ public class ClassCollector {
         this.ontClass2OntClassExtensionMap = getOntClass2OntClassExtensionMap(ontModel);
     }
 
-    public Map<String, OntClassExtension> getOntClass2OntClassExtensionMap()
+    private static void parseRestriction(Restriction restriction, OntClassExtension ontClassObject)
     {
-        return ontClass2OntClassExtensionMap;
-    }
-
-    private static void parseRestriction(Restriction restriction, OntClassExtension ontClassObject) {
         try {
             if (restriction.isCardinalityRestriction()) {
                 addRestrictionSafely(ontClassObject, restriction.getOnProperty(), restriction.asCardinalityRestriction());
@@ -55,7 +51,8 @@ public class ClassCollector {
         }
     }
 
-    private static void addRestrictionSafely(OntClassExtension ontClassObject, Property onProperty, Restriction restriction) {
+    private static void addRestrictionSafely(OntClassExtension ontClassObject, Property onProperty, Restriction restriction)
+    {
         if (onProperty.canAs(OntProperty.class)) {
             //ontClassObject.addRestriction(onProperty.as(OntProperty.class), restriction);
             ontClassObject.addRestriction(onProperty.getURI(), restriction);
@@ -64,7 +61,8 @@ public class ClassCollector {
         }
     }
 
-    private static void parseSomeValuesFromRestriction(SomeValuesFromRestriction svfRestriction, OntClassExtension ontClassObject) {
+    private static void parseSomeValuesFromRestriction(SomeValuesFromRestriction svfRestriction, OntClassExtension ontClassObject)
+    {
         RDFNode someValuesFrom = svfRestriction.getSomeValuesFrom();
         if (someValuesFrom.isAnon()) { // Directly handle anonymous cases
             OntClass someValuesClass = someValuesFrom.as(OntClass.class);
@@ -81,7 +79,8 @@ public class ClassCollector {
         }
     }
 
-    private static void parseIntersection(IntersectionClass intersectionClass, OntClassExtension ontClassObject) {
+    private static void parseIntersection(IntersectionClass intersectionClass, OntClassExtension ontClassObject)
+    {
         intersectionClass.listOperands().forEachRemaining(operand -> {
             if (operand.isAnon()) {
                 // Now, handle different types of anonymous superclasses
@@ -93,7 +92,8 @@ public class ClassCollector {
         });
     }
 
-    private static void parseUnion(UnionClass unionClass, OntClassExtension ontClassObject) {
+    private static void parseUnion(UnionClass unionClass, OntClassExtension ontClassObject)
+    {
         List<String> operands = new ArrayList<>();
         for(int i=0; i<unionClass.getOperands().size(); i++) {
             //System.out.println(unionClass.getOperands().get(i).as(Restriction.class));
@@ -116,7 +116,8 @@ public class ClassCollector {
         ontClassObject.addUnion(unionClass, operands);
     }
 
-    private static void parseAnonymousClass(OntClass anonClass, OntClassExtension ontClassObject) {
+    private static void parseAnonymousClass(OntClass anonClass, OntClassExtension ontClassObject)
+    {
         //TODO implement missing classes
         if (anonClass.isRestriction()) {
             Restriction restriction = anonClass.asRestriction();
@@ -212,7 +213,8 @@ public class ClassCollector {
         }
     }
 
-    private static boolean isClassInDomain(OntClass cls, Resource domain) {
+    private static boolean isClassInDomain(OntClass cls, Resource domain)
+    {
         if (domain.equals(cls)) {
             return true;
         } else if (domain.canAs(UnionClass.class)) {
@@ -268,6 +270,7 @@ public class ClassCollector {
         });
 
     }
+
 
     public static Map<String, OntClassExtension> getOntClass2OntClassExtensionMap(final OntModel ontModel)
     {

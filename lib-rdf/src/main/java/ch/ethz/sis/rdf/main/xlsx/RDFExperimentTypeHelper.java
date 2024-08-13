@@ -1,11 +1,16 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-public class RDFExperimentTypeHelper {
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind.EXPERIMENT_TYPE;
+import static ch.ethz.sis.rdf.main.Constants.COLLECTION_TYPE;
+
+public class RDFExperimentTypeHelper
+{
     private enum Attribute { //implements IAttribute {
         Code("Code", true),
         Description("Description", true),
@@ -57,9 +62,10 @@ public class RDFExperimentTypeHelper {
         }
     }
 
-    public int addExperimentTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle){
+    public int addExperimentTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle)
+    {
         Row row = sheet.createRow(rowNum++);
-        row.createCell(0).setCellValue("EXPERIMENT_TYPE");
+        row.createCell(0).setCellValue(EXPERIMENT_TYPE.name());
         row.getCell(0).setCellStyle(headerStyle);
 
         Row rowHeaders = sheet.createRow(rowNum++);
@@ -74,21 +80,22 @@ public class RDFExperimentTypeHelper {
 
         Row rowValues = sheet.createRow(rowNum++);
 
-        rowValues.createCell(0).setCellValue("COLLECTION");     //Code("Code", true),
+        rowValues.createCell(0).setCellValue(COLLECTION_TYPE);     //Code("Code", true),
         rowValues.createCell(1).setCellValue("");               //Description("Description", true),
         rowValues.createCell(2).setCellValue("");               //ValidationScript("Validation script", true)
 
         return rowNum;
     }
 
-    private int addNameRow(Sheet sheet, int rowNum){
+    private int addNameRow(Sheet sheet, int rowNum)
+    {
         Row resRow = sheet.createRow(rowNum++);
         resRow.createCell(0).setCellValue("NAME");  // Code("Code", true),
         resRow.createCell(1).setCellValue(0);  // Mandatory("Mandatory", true),
         resRow.createCell(2).setCellValue(1);  // ShowInEditViews("Show in edit views", true),
         resRow.createCell(3).setCellValue("General info");  // Section("Section", true),
         resRow.createCell(4).setCellValue("Name");  // PropertyLabel("Property label", true),
-        resRow.createCell(5).setCellValue("VARCHAR");  // DataType("Data type", true),
+        resRow.createCell(5).setCellValue(DataType.VARCHAR.name());  // DataType("Data type", true),
         //resRow.createCell(6).setCellValue("");          // VocabularyCode("Vocabulary code", true),
         resRow.createCell(7).setCellValue("Name");      // Description("Description", true),
         //resRow.createCell(1).setCellValue("");               // Metadata("Metadata", false),
@@ -96,14 +103,15 @@ public class RDFExperimentTypeHelper {
         return rowNum;
     }
 
-    private int addObjctTypeRow(Sheet sheet, int rowNum){
+    private int addObjctTypeRow(Sheet sheet, int rowNum)
+    {
         Row resRow = sheet.createRow(rowNum++);
         resRow.createCell(0).setCellValue("DEFAULT_OBJECT_TYPE");  // Code("Code", true),
         resRow.createCell(1).setCellValue(0);  // Mandatory("Mandatory", true),
         resRow.createCell(2).setCellValue(1);  // ShowInEditViews("Show in edit views", true),
         resRow.createCell(3).setCellValue("General info");  // Section("Section", true),
         resRow.createCell(4).setCellValue("Default object type");  // PropertyLabel("Property label", true),
-        resRow.createCell(5).setCellValue("VARCHAR");  // DataType("Data type", true),
+        resRow.createCell(5).setCellValue(DataType.VARCHAR.name());  // DataType("Data type", true),
         //resRow.createCell(6).setCellValue("");          // VocabularyCode("Vocabulary code", true),
         resRow.createCell(7).setCellValue("Enter the code of the object type for which the collection is used");      // Description("Description", true),
         //resRow.createCell(1).setCellValue("");               // Metadata("Metadata", false),
@@ -111,7 +119,8 @@ public class RDFExperimentTypeHelper {
         return rowNum;
     }
 
-    public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle){
+    public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle)
+    {
         Row rowHeaders = sheet.createRow(rowNum++);
 
         // Populate header row with enum values

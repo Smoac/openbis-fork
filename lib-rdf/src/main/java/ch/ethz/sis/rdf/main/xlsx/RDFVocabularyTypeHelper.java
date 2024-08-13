@@ -7,8 +7,10 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-public class RDFVocabularyTypeHelper {
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind.VOCABULARY_TYPE;
 
+public class RDFVocabularyTypeHelper
+{
     private enum Attribute { // implements IAttribute {
         Code("Code", true),
         Description("Description", true);
@@ -52,9 +54,10 @@ public class RDFVocabularyTypeHelper {
         }
     }
 
-    protected int addVocabularyTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle, VocabularyType vocabularyType){
+    protected int addVocabularyTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle, VocabularyType vocabularyType)
+    {
         Row row = sheet.createRow(rowNum++);
-        row.createCell(0).setCellValue("VOCABULARY_TYPE");
+        row.createCell(0).setCellValue(VOCABULARY_TYPE.name());
         row.getCell(0).setCellStyle(headerStyle);
 
         Row rowHeaders = sheet.createRow(rowNum++);
@@ -76,7 +79,8 @@ public class RDFVocabularyTypeHelper {
         return rowNum;
     }
 
-    public int addVocabularyTypes(Sheet sheet, int rowNum, CellStyle headerStyle, VocabularyType vocabularyType){
+    public int addVocabularyTypes(Sheet sheet, int rowNum, CellStyle headerStyle, VocabularyType vocabularyType)
+    {
 
         rowNum = addVocabularyTypeSection(sheet, rowNum, headerStyle, vocabularyType);
 

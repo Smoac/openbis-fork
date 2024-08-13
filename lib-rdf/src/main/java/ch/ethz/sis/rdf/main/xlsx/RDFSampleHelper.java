@@ -1,6 +1,6 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
-import ch.ethz.sis.rdf.main.parser.RDFParser;
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
@@ -15,7 +15,8 @@ import org.apache.poi.ss.usermodel.*;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class RDFSampleHelper {
+public class RDFSampleHelper
+{
     public enum Attribute { // implements IAttribute {
         $("$", false),
         Identifier("Identifier", false),
@@ -46,7 +47,8 @@ public class RDFSampleHelper {
 
     private final String RESOURCE_PREFIX = "https://biomedit.ch/rdf/sphn-resource/";
 
-    private List<String> getAllColumnsList(OntClassExtension ontClassObject) {
+    private List<String> getAllColumnsList(OntClassExtension ontClassObject)
+    {
         //System.out.println("ontClassObject.propertyTuples: " + ontClassObject.propertyTuples);
 
         List<String> sampleTypeCols =  ontClassObject.propertyTuples.stream().map(PropertyTupleRDF::getPredicateLabel).toList();
@@ -62,7 +64,8 @@ public class RDFSampleHelper {
         return defaultCols;
     }
 
-    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassExtension ontClassObject) {
+    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassExtension ontClassObject)
+    {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         // Create header row for SAMPLE
@@ -98,7 +101,8 @@ public class RDFSampleHelper {
         return uri.startsWith(RESOURCE_PREFIX);
     }
     
-    public int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassExtension ontClassObject, RDFParser rdfParser) {
+    public int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassExtension ontClassObject, ModelRDF modelRDF)
+    {
         List<String> allColumns = getAllColumnsList(ontClassObject);
 
         Row propertyRowValues = sheet.createRow(rowNum);
@@ -116,12 +120,13 @@ public class RDFSampleHelper {
             propertyRowValues.createCell(idxName).setCellValue(resource.resourceVal);
         }
 
-        Map<String, List<VocabularyType>> mappedLabelNamedIndividual = rdfParser.mappedNamedIndividual;
+        Map<String, List<VocabularyType>> mappedLabelNamedIndividual = modelRDF.vocabularyTypeListGroupedByType;
 
-        for (PropertyTupleRDF property : resource.properties) {
-            boolean isAlias = rdfParser.isAlias(property.getObject());
+        for (PropertyTupleRDF property : resource.properties)
+        {
+            boolean isAlias = modelRDF.isPresentInVocType(property.getObject());
             boolean isResource = isResource(property.getObject());
-            boolean isSubClass = rdfParser.isSubClass(property.getObject());
+            boolean isSubClass = modelRDF.isSubClass(property.getObject());
             System.out.println("PropertyTupleRDF: " + property + ", isAlias: " + isAlias + ", isResource: " + isResource + ", isSubClass: " + isSubClass);
             propertyRowValues.createCell(1).setCellValue(projectId + "/" + resource.resourceVal); // Identifier
             propertyRowValues.createCell(5).setCellValue(projectId + "/" + Utils.extractLabel(resource.type).toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
@@ -164,7 +169,8 @@ public class RDFSampleHelper {
         return rowNum + 1;  // Move to the next row for future entries
     }
 
-    public void convertRDFLiteral(String rdfLiteral, Row propertyRowValues, int idx) {
+    public void convertRDFLiteral(String rdfLiteral, Row propertyRowValues, int idx)
+    {
         try {
             // Example inputs:
             // "2004-10-16T19:14:57+00:00"^^xsd:dateTime
