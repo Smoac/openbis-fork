@@ -29,14 +29,14 @@ public class DataStoreKindSearchCriteria extends AbstractSearchCriteria
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private Set<DataStoreKind> dataStoreKinds = Set.of();
+    private DataStoreKind[] dataStoreKinds = new DataStoreKind[0];
 
     public void thatIn(final DataStoreKind... dataStoreKinds)
     {
-        this.dataStoreKinds = Set.of(dataStoreKinds);
+        this.dataStoreKinds = Set.of(dataStoreKinds).toArray(new DataStoreKind[0]);
     }
 
-    public Set<DataStoreKind> getDataStoreKinds()
+    public DataStoreKind[] getDataStoreKinds()
     {
         return dataStoreKinds;
     }

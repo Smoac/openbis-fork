@@ -50,7 +50,7 @@ public class DataStoreKindSearchConditionTranslator implements IConditionTransla
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases,
             final Map<String, String> dataTypeByPropertyCode)
     {
-        final Set<DataStoreKind> dataStoreKinds = criterion.getDataStoreKinds();
+        final Set<DataStoreKind> dataStoreKinds = Set.of(criterion.getDataStoreKinds());
         final boolean includeAfs = dataStoreKinds.contains(DataStoreKind.AFS);
         final boolean includeDss = dataStoreKinds.contains(DataStoreKind.DSS);
 

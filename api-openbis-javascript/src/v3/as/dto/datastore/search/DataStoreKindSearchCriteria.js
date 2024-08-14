@@ -35,7 +35,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractSearchCriteria", "as/d
 		};
 	}, {
 		dataStoreKinds: {
-			name: "Enum[]"
+			name: "DataStoreKind[]"
 		}
 	});
 	return DataStoreKindSearchCriteria;

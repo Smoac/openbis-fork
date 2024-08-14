@@ -2875,19 +2875,19 @@ exports.default = new Promise((resolve) => {
 
         resolve(function () {
             executeModule("Search tests (RequireJS)", new openbisRequireJS(), dtos)
-            // executeModule("Search tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
-            // executeModule("Search tests (module VAR)", new window.openbis.openbis(), window.openbis)
-            // executeModule(
-            //     "Search tests (module VAR - executeOperations)",
-            //     new openbisExecuteOperations(new window.openbis.openbis(), window.openbis),
-            //     window.openbis
-            // )
-            // executeModule("Search tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM)
-            // executeModule(
-            //     "Search tests (module ESM - executeOperations)",
-            //     new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM),
-            //     window.openbisESM
-            // )
+            executeModule("Search tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
+            executeModule("Search tests (module VAR)", new window.openbis.openbis(), window.openbis)
+            executeModule(
+                "Search tests (module VAR - executeOperations)",
+                new openbisExecuteOperations(new window.openbis.openbis(), window.openbis),
+                window.openbis
+            )
+            executeModule("Search tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM)
+            executeModule(
+                "Search tests (module ESM - executeOperations)",
+                new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM),
+                window.openbisESM
+            )
         })
     })
 })

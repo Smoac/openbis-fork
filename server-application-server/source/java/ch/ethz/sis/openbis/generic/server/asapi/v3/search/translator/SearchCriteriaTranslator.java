@@ -547,7 +547,7 @@ public class SearchCriteriaTranslator
                         final Set<DataStoreKind> identity = andOperator ? Set.of(DataStoreKind.DSS, DataStoreKind.AFS) : Set.of();
 
                         return dataStoreSearchCriteria.getCriteria().stream().filter(c -> c instanceof DataStoreKindSearchCriteria)
-                                .map(c -> ((DataStoreKindSearchCriteria) c).getDataStoreKinds()).reduce(identity,
+                                .map(c -> Set.of(((DataStoreKindSearchCriteria) c).getDataStoreKinds())).reduce(identity,
                                         (dataStoreKinds1, dataStoreKinds2) -> joinSets(dataStoreKinds1, dataStoreKinds2, operator)).stream();
                     } else
                     {

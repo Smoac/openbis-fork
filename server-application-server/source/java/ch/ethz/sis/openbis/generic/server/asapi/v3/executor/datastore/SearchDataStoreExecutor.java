@@ -112,14 +112,13 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
             if (criteria instanceof DataStoreKindSearchCriteria)
             {
                 final DataStoreKindSearchCriteria dataStoreKindSearchCriteria = (DataStoreKindSearchCriteria) criteria;
-                final Set<DataStoreKind> dataStoreKinds = dataStoreKindSearchCriteria.getDataStoreKinds();
+                final Set<DataStoreKind> dataStoreKinds = Set.of(dataStoreKindSearchCriteria.getDataStoreKinds());
 
                 return dataStorePES.stream().filter(dataStorePE ->
                 {
                     final String code = dataStorePE.getCode();
-                    return Objects.equals(code, AFS_DATA_STORE_CODE) ?
-                            dataStoreKinds != null && dataStoreKinds.contains(DataStoreKind.AFS) :
-                            dataStoreKinds == null || dataStoreKinds.contains(DataStoreKind.DSS);
+                    return Objects.equals(code, AFS_DATA_STORE_CODE) ? dataStoreKinds.contains(DataStoreKind.AFS)
+                            : dataStoreKinds.contains(DataStoreKind.DSS);
                 }).collect(Collectors.toList());
             } else
             {
