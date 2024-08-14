@@ -1410,7 +1410,9 @@ var FormUtil = new function() {
                                     callback(links);
                                 });
                             }
-                        })
+                        }).fail(function(result) {
+                            callback({});
+                        });
                     });
     }
 
