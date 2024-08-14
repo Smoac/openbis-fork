@@ -1,0 +1,10 @@
+{
+  "name": "openbis.esm",
+  "version": "1.0.0",
+  "main": "openbis.esm.js",
+  "types": "openbis.esm.d.ts",
+  "scripts": {},
+  "author": "openbis-team",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "description": "openBIS V3 API bundle in ESM format that contains V3 API JavaScript facade and V3 API JavaScript DTOs"
+}
