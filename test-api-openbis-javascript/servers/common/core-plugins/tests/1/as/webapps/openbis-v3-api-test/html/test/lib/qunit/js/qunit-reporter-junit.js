@@ -92,12 +92,10 @@
 	});
 
 	QUnit.testDone(function(data) {
-		if (currentTest) {
-			currentTest.time = (new Date()).getTime() - currentTest.start.getTime();  // ms
-			currentTest.total = data.total;
-			currentTest.passed = data.passed;
-			currentTest.failed = data.failed;
-		}
+		currentTest.time = (new Date()).getTime() - currentTest.start.getTime();  // ms
+		currentTest.total = data.total;
+		currentTest.passed = data.passed;
+		currentTest.failed = data.failed;
 
 		currentTest = null;
 	});
