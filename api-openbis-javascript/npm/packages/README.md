@@ -4,7 +4,7 @@
 
 * generate ESM bundle by running `:api-openbis-javascript:bundleOpenbisStaticResources` gradle task
 * generate TypeScript ESM definition file by running `:api-openbis-typescript:generateTypeScript` gradle task
-* copy `openbis.esm.*` files from `api-openbis-javascript/src/v3` to `api-openbis-javascript/npm/packages/openbis.esm/` folder
+* copy all `openbis.esm.*` files (.d.ts, .js, .js.LICENSE.txt, .js.map) from `api-openbis-javascript/src/v3` to `api-openbis-javascript/npm/packages/openbis.esm/` folder
 * in openbis.esm folder execute `npm link`
 
 ## How to test the package
@@ -24,7 +24,7 @@
 
 ## How to publish the package
 
-- increase version value in openbis.esm/package.json file
-- in "openbis.esm" folder execute:
+- update version in openbis.esm/package.json file (already published versions cannot be published again)
+- in openbis.esm folder execute:
   - `npm login` (this will open a web browser window and ask you to login to NPM, the credentials can be found in "openbis-team" mailbox in "accounts" folder, see: https://unlimited.ethz.ch/display/IDSIS/openBIS+Team+Email)
   - `npm publish --access public`
