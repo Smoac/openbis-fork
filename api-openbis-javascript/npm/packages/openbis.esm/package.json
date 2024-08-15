@@ -1,5 +1,5 @@
 {
-  "name": "openbis.esm",
+  "name": "@openbis/openbis.esm",
   "version": "1.0.0",
   "main": "openbis.esm.js",
   "types": "openbis.esm.d.ts",

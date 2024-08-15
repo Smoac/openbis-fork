@@ -1,4 +1,4 @@
-import openbis from 'openbis.esm';
+import openbis from '@openbis/openbis.esm';
 
 function App() {
   async function searchSpaces() {
