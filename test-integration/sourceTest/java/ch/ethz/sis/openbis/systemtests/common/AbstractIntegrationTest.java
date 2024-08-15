@@ -51,7 +51,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
@@ -443,8 +442,8 @@ public abstract class AbstractIntegrationTest
 
     private void shutdownApplicationServer() throws Exception
     {
-        // manually destroy EHCache (without it the new AS won't start in the same VM)
-        applicationServerSpringContext.getBean(EhCacheManagerFactoryBean.class).destroy();
+        applicationServerSpringContext.close();
+        ((ClassPathXmlApplicationContext) applicationServerSpringContext.getParent()).close();
         applicationServer.stop();
         log("Shut down application server.");
     }

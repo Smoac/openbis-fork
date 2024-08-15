@@ -97,7 +97,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         filterKey = properties.getProperty(LDAP_FILTER_KEY_PROPERTY, DEFAULT_LDAP_FILTER_KEY);
         groupQueryTemplateOrNull = properties.getProperty(LDAP_GROUP_QUERY_TEMPLATE);
         String shareIdsMappingFilePath = properties.getProperty(SHARES_MAPPING_FILE_PATH_PROPERTY);
-        if (shareIdsMappingFilePath != null)
+        if (shareIdsMappingFilePath != null && !shareIdsMappingFilePath.trim().isEmpty())
         {
             shareIdsMappingFile = new File(shareIdsMappingFilePath);
             if (shareIdsMappingFile.isDirectory())

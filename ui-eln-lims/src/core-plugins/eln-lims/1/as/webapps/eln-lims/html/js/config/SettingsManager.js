@@ -257,6 +257,12 @@ function SettingsManager(serverFacade) {
                 }
             }
 
+            if(settings.instanceSettings) {
+                for(settingName of Object.keys(settings.instanceSettings)) {
+                    targetProfile[settingName] = settings.instanceSettings[settingName];
+                }
+            }
+
              // Forced Disable RTF
              if(isMergeGroup) { // Merge found values
                 targetProfile["forcedDisableRTF"] = targetProfile["forcedDisableRTF"].concat(settings["forcedDisableRTF"]).unique();

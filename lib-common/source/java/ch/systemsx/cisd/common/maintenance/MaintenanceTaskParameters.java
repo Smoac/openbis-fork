@@ -90,7 +90,7 @@ public class MaintenanceTaskParameters
         List<Long> intervals = getRetryIntervals(properties);
         this.retryIntervals = intervals;
         String runScheduleDescription = properties.getProperty(RUN_SCHEDULE_KEY, null);
-        if (runScheduleDescription != null)
+        if (runScheduleDescription != null && !runScheduleDescription.trim().isEmpty())
         {
             nextTimestampProvider = createNextTimestampProvider(runScheduleDescription);
             String defaultPath = getPersistenNextDateFile(pluginName, className).getAbsolutePath();

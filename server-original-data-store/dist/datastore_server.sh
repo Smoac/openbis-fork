@@ -181,7 +181,7 @@ case "$command" in
     fi
 
     echo -n "Starting Data Store Server "
-    rotateLogFiles $LOGFILE $MAXLOGS
+#    rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
     "${CMD}" $COMMON_OPTIONS "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then

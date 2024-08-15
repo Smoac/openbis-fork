@@ -171,7 +171,7 @@ case "$command" in
     fi
 
     echo -n "Starting AFS Server "
-    rotateLOG_FILEs $LOG_FILE $MAXLOGS
+#    rotateLOG_FILEs $LOG_FILE $MAXLOGS
     shift 1
     $JAVA_BIN $JAVA_OPTIONS "$@" > $STARTUP_LOG 2>&1 & echo $! > $PID_FILE
     if [ $? -eq 0 ]; then

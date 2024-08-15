@@ -215,8 +215,7 @@ public class AnyFieldSearchConditionTranslator implements IConditionTranslator<A
             final StringBuilder sqlBuilder,
             final Map<String, JoinInformation> aliases, final boolean useWildcards)
     {
-        final JoinInformation joinInformation = aliases.get(ENTITY_TYPE_JOIN_INFORMATION_KEY);
-        sqlBuilder.append(joinInformation.getSubTableAlias())
+        sqlBuilder.append(aliases.get(ENTITY_TYPE_JOIN_INFORMATION_KEY).getSubTableAlias())
                 .append(PERIOD).append(CODE_COLUMN).append(SP);
         TranslatorUtils.appendStringComparatorOp(value.getClass(),
                 TranslatorUtils.stripQuotationMarks(value.getValue()), useWildcards,

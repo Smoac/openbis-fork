@@ -55,6 +55,8 @@ public class FtpServerConfig
 
     final static String PASSIVE_MODE_PORT_RANGE_KEY = PREFIX + "passivemode.port.range";
 
+    final static String CUSTOM_CERTIFICATE = PREFIX + "certificate";
+
     private static final int DEFAULT_ACTIVE_PORT = 2122;
 
     private static final boolean DEFAULT_USE_SSL = true;
@@ -82,6 +84,8 @@ public class FtpServerConfig
     private boolean implicitSSL;
 
     private File keyStore;
+
+    private File customCertificate;
 
     private String keyPassword;
 
@@ -130,6 +134,11 @@ public class FtpServerConfig
         String keyStoreFileName =
                 PropertyUtils.getMandatoryProperty(props, ConfigParameters.KEYSTORE_PATH_KEY);
         keyStore = new File(keyStoreFileName);
+        String customCertificateFileName = PropertyUtils.getProperty(props, CUSTOM_CERTIFICATE, null);
+        if(customCertificateFileName != null && !customCertificateFileName.trim().isEmpty())
+        {
+            customCertificate = new File(customCertificateFileName);
+        }
         keyStorePassword =
                 PropertyUtils.getMandatoryProperty(props, ConfigParameters.KEYSTORE_PASSWORD_KEY);
         keyPassword =
@@ -176,6 +185,11 @@ public class FtpServerConfig
     public File getKeyStore()
     {
         return keyStore;
+    }
+
+    public File getCustomCertificate()
+    {
+        return customCertificate;
     }
 
     public String getKeyPassword()
