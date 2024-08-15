@@ -373,7 +373,7 @@ VAR bundle can be loaded at an HTML page using a standard script tag.
 </html>
 ```
 
-#### ESM bundle
+#### ESM bundle (also available in NPM)
 
 Similar to VAR bundle, ESM bundle (ECMAScript module) is a bundle that contains the V3 API facade and all V3 API classes. It also exposes the V3 API
 classes via both their simple names and their full names. The main difference between VAR and ESM is the format of the bundle and how and where it can
@@ -381,6 +381,8 @@ be imported.
 
 ESM bundle can be loaded at an HTML page using a standard script tag with type="module". It is also well suited for webapps that bundle all their
 resources with tools like Webpack.
+
+ESM bundle together with our TypeScript type declarations are also available in the NPM registry at: https://www.npmjs.com/package/@openbis/openbis.esm 
 
 **V3ConnectionExampleUsingESMBundle.html**
 
@@ -513,6 +515,8 @@ it as well.
 
 openBIS V3 JavaScript API is compatible with TypeScript. All V3 API types are described in "openbis.esm.d.ts" TypeScript declaration file (located next to "openbis.esm.js").
 Thanks to that file your TypeScript webapps can take advantage of V3 API without giving up on the type safety.
+
+TypeScript type declarations are also available together with our ESM bundle in the NPM registry at: https://www.npmjs.com/package/@openbis/openbis.esm
 
 Below is an example of TypeScript code that uses V3 API ("openbis.esm.js" and "openbis.esm.d.ts" files are assumed to be in the same folder as the TypeScript code).
 ```html
