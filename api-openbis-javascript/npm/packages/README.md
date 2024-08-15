@@ -7,7 +7,7 @@
 * copy all `openbis.esm.*` files (.d.ts, .js, .js.LICENSE.txt, .js.map) from `api-openbis-javascript/src/v3` to `api-openbis-javascript/npm/packages/openbis.esm/` folder
 * in openbis.esm folder execute `npm link`
 
-## How to test the package
+## How to test the package before publishing
 
 - in test-app folder execute:
   - `npm install`
