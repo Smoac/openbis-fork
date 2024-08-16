@@ -19,6 +19,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearc
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSetKind
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search import DataStoreKind
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import PhysicalDataSet
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataStore
 from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
@@ -312,6 +313,7 @@ def addExperimentChildNodes(path, experimentPermId, experimentType, response, ac
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
     dataSetSearchCriteria.withoutSample()
+    dataSetSearchCriteria.withDataStore().withKind().thatIn(DataStoreKind.DSS, DataStoreKind.AFS)
     listDataSets(path, dataSetSearchCriteria, response, acceptor, context)
 
     sampleSearchCriteria = SampleSearchCriteria()
@@ -334,6 +336,7 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
         return
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
+    dataSetSearchCriteria.withDataStore().withKind().thatIn(DataStoreKind.DSS, DataStoreKind.AFS)
 
     listDataSets(path, dataSetSearchCriteria, response, acceptor, context)
     addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
@@ -400,14 +403,17 @@ def retrieveDataSets(dataSetCodes, context):
     for dataSetCode in dataSetCodes:
         dataSet = context.getCache().getExternalData(dataSetCode)
         if dataSet is None:
-            notcachedDataSets.append(DataSetPermId(dataSetCode))
+            notcachedDataSets.append(dataSetCode)
         else:
             dataSets.append(dataSet.dataSet)
     if len(notcachedDataSets) > 0:
+        criteria = DataSetSearchCriteria()
+        criteria.withCodes().thatIn(notcachedDataSets)
+        criteria.withDataStore().withKind().thatIn(DataStoreKind.DSS, DataStoreKind.AFS)
         fetchOptions = DataSetFetchOptions()
         fetchOptions.withDataStore()
         fetchOptions.withPhysicalData()
-        dataSets += context.getApi().getDataSets(context.getSessionToken(), notcachedDataSets, fetchOptions).values()
+        dataSets += context.getApi().searchDataSets(context.getSessionToken(), criteria, fetchOptions).getObjects()
     for dataSet in dataSets:
         context.getCache().putExternalData(DataSetWrapper(dataSet))
     return dataSets

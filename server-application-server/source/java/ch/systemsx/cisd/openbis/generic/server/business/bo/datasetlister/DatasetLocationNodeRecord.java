@@ -31,6 +31,8 @@ public class DatasetLocationNodeRecord
 
     public Integer ordinal;
 
+    public String share_id;
+
     public String location;
 
     public Integer link_info;

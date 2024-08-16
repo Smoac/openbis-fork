@@ -31,6 +31,7 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
@@ -41,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
  */
 public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
 {
-    public static final String AFS_DATA_STORE_CODE = "AFS";
-
     private final static Class<DataStorePE> ENTITY_CLASS = DataStorePE.class;
 
     private static final Logger operationLog =
@@ -107,11 +106,11 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
                 {
                     if (!includeDss)
                     {
-                        criteria.add(Restrictions.eq("code", AFS_DATA_STORE_CODE));
+                        criteria.add(Restrictions.eq("code", Constants.AFS_DATA_STORE_CODE));
                     }
                 } else if (includeDss)
                 {
-                    criteria.add(Restrictions.ne("code", AFS_DATA_STORE_CODE));
+                    criteria.add(Restrictions.ne("code", Constants.AFS_DATA_STORE_CODE));
                 } else
                 {
                     return List.of();

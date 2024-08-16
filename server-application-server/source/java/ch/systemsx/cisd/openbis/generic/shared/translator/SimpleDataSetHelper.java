@@ -102,6 +102,7 @@ public class SimpleDataSetHelper
         result.setRegistrationTimestamp(datasetDescription.getRegistrationTimestamp());
         result.setSpeedHint(datasetDescription.getSpeedHint());
         result.setDataSetLocation(datasetDescription.getDataSetLocation());
+        result.setDataSetShareId(datasetDescription.getDataSetShareId());
         result.setDataSetSize(datasetDescription.getDataSetSize());
         result.setDataSetType(datasetDescription.getDataSetTypeCode());
         result.setExperimentCode(datasetDescription.getExperimentCode());

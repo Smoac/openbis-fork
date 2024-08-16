@@ -33,7 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKindSe
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 public class DataStoreKindSearchConditionTranslator implements IConditionTranslator<DataStoreKindSearchCriteria>
 {
@@ -59,7 +59,7 @@ public class DataStoreKindSearchConditionTranslator implements IConditionTransla
             if (!includeDss)
             {
                 sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP).append(EQ).append(SP)
-                        .append(SQ).append(DataStoreDAO.AFS_DATA_STORE_CODE).append(SQ);
+                        .append(SQ).append(Constants.AFS_DATA_STORE_CODE).append(SQ);
             } else
             {
                 sqlBuilder.append(TRUE);
@@ -67,7 +67,7 @@ public class DataStoreKindSearchConditionTranslator implements IConditionTransla
         } else if (includeDss)
         {
             sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN).append(SP).append(NE).append(SP)
-                    .append(SQ).append(DataStoreDAO.AFS_DATA_STORE_CODE).append(SQ);
+                    .append(SQ).append(Constants.AFS_DATA_STORE_CODE).append(SQ);
         } else
         {
             sqlBuilder.append(TRUE);
