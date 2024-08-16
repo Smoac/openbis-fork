@@ -94,6 +94,7 @@ class RightToolbar extends React.Component {
 
   async handleUpload(event) {
     try {
+      this.handlePopoverClose()
       this.setState({ loading: true, progress: 0 })
       await this.controller.upload(event.target.files, this.resolveNameConflict,
         this.updateProgress)
@@ -108,7 +109,7 @@ class RightToolbar extends React.Component {
 
   async resolveNameConflict(newFile, allowResume) {
     return new Promise((resolve) => {
-      this.setState({ allowResume })
+      this.setState({ allowResume, loading: false, progress: 0 })
       this.openFileExistsDialog(newFile)
       this.resolveConflict = resolve
     })
@@ -137,16 +138,19 @@ class RightToolbar extends React.Component {
   handleFileExistsReplace() {
     this.closeFileExistsDialog()
     this.resolveConflict && this.resolveConflict('replace')
+    this.setState({ loading: true, progress: 0 })
   }
 
   handleFileExistsResume() {
     this.closeFileExistsDialog()
     this.resolveConflict && this.resolveConflict('resume')
+    this.setState({ loading: true, progress: 0 })
   }
 
   handleFileExistsCancel() {
     this.closeFileExistsDialog()
     this.resolveConflict && this.resolveConflict('cancel')
+    this.setState({ loading: false })
   }
 
   renderUploadButtons() {
@@ -248,14 +252,15 @@ class RightToolbar extends React.Component {
         </Popover>
       </div>,
       <LoadingDialog key='right-toolbar-loaging-dialog' variant='determinate'
-                     value={progress} loading={loading} />,
+                     value={progress} loading={loading}
+                     message={messages.get(messages.UPLOADING)} />,
       <FileExistsDialog
         key='file-exists-dialog'
         open={!!fileExistsDialogFile}
         onReplace={this.handleFileExistsReplace}
         onResume={allowResume ? this.handleFileExistsResume : null}
         onCancel={this.handleFileExistsCancel}
-        title={messages.get(messages.DELETE)}
+        title={messages.get(messages.FILE_EXISTS)}
         content={messages.get(messages.CONFIRMATION_FILE_NAME_CONFLICT,
           fileExistsDialogFile ? fileExistsDialogFile.name : '')}
       />
