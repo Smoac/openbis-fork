@@ -1,5 +1,10 @@
 # OpenBIS Change Log
 
+## Version 20.10.9.1 (16 Aug 2024)
+
+### ELN
+- Bugfix: ELN UI - Blanc Sample fields (BIS-1460)
+
 ## Version 20.10.9 (31 Jul 2024)
 
 ### Core
