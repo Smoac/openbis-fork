@@ -178,7 +178,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
                 for (DataSet dataSet : dataSets)
                 {
-                    if (dataStoreCode.equals(dataSet.getDataStore().getCode()))
+                    if (dataStoreCode.equals(dataSet.getDataStore().getCode())
+                            || ch.systemsx.cisd.openbis.generic.shared.Constants.AFS_DATA_STORE_CODE.equals(dataSet.getDataStore().getCode()))
                     {
                         codes.add(dataSet.getCode());
                         dataSetMap.put(dataSet.getCode(), dataSet);
