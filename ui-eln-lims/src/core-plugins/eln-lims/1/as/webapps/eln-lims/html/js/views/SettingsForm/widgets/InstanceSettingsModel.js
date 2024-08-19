@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//  './etc/instanceSettings.json';
 
 function InstanceSettingsModel(mode, profileToEdit) {
 	this.mode = mode;
@@ -22,24 +21,48 @@ function InstanceSettingsModel(mode, profileToEdit) {
     this.settings = (function () {
                          var json = null;
                          $.ajax({
-                             'async': false,
-                             'global': false,
-                             'url': './etc/instanceSettings.json',
-                             'dataType': "json",
-                             'success': function (data) {
+                             async: false,
+                             global: false,
+                             url: './etc/instanceSettings.json',
+                             dataType: "json",
+                             success: function (data) {
                                  json = data;
+                             },
+                             settings: { suppressErrors: true },
+                             error: function (xhr, ajaxOptions, thrownError){
+                                    console.log("AJAX Error status: " + xhr.status + " - Status text: " + xhr.statusText + " - Using default setting values.");
+                                    json = InstanceSettingsModel.defaultSettings;
                              }
                          });
                          return json;
                      })();
 
-
     this.getSettings = function() {
         return this.settings;
     }
-
-
-
-
-
 }
+
+InstanceSettingsModel.defaultSettings = [{
+       "variableName": "minBarcodeLength",
+       "label": "Minimal barcode length",
+       "type": "INTEGER",
+       "default": 10
+     },
+     {
+       "variableName": "barcodePattern",
+       "label": "Barcode pattern",
+       "type": "REGEX",
+       "default": /^[-a-z0-9]+$/i
+     },
+     {
+       "variableName": "docuBaseUrl",
+       "label": "Documentation base URL",
+       "type": "STRING",
+       "default": "https://unlimited.ethz.ch/display/openBISDoc2010"
+     },
+     {
+       "variableName": "showUserManagementConfig",
+       "label": "Show user management config",
+       "type": "BOOLEAN",
+       "default": false
+     }];
