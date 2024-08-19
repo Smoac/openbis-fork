@@ -265,7 +265,6 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1,
       loading: false,
-      progress: 0,
       errorMessage: null
     }
     this.zip = new JSZip()
@@ -320,9 +319,11 @@ class DataBrowser extends React.Component {
     const { id } = this.props
 
     if ((await this.calculateTotalSize(multiselectedFiles)) <= sizeLimit) {
+      this.setState({ loading: true })
       const zipBlob = await this.prepareZipBlob(multiselectedFiles)
       this.downloadBlob(zipBlob, id)
       this.zip = new JSZip()
+      this.setState({ loading: false })
     } else {
       this.showDownloadErrorDialog()
     }
@@ -361,11 +362,11 @@ class DataBrowser extends React.Component {
   async downloadFile(file) {
     if (file.size <= sizeLimit) {
       try {
-        this.setState({ loading: true, progress: 0 })
+        this.setState({ loading: true })
         const blob = await this.fileToBlob(file)
         this.downloadBlob(blob, file.name)
       } finally {
-        this.setState({ loading: false, progress: 0 })
+        this.setState({ loading: false })
       }
     } else {
       this.showDownloadErrorDialog()
@@ -374,10 +375,6 @@ class DataBrowser extends React.Component {
 
   showDownloadErrorDialog() {
     this.openErrorDialog(messages.get(messages.CANNOT_DOWNLOAD, sizeLimit))
-  }
-
-  updateProgress(progress) {
-    this.setState({ progress })
   }
 
   downloadBlob(blob, fileName) {
@@ -487,7 +484,6 @@ class DataBrowser extends React.Component {
       freeSpace,
       totalSpace,
       loading,
-      progress,
       errorMessage
     } = this.state
 
@@ -625,9 +621,9 @@ class DataBrowser extends React.Component {
       </div>,
       <LoadingDialog
         key='data-browser-loaging-dialog'
-        variant='determinate'
-        value={progress}
+        variant='indeterminate'
         loading={loading}
+        message={messages.get(messages.PREPARING_FILE)}
       />,
       <ErrorDialog
         open={!!errorMessage}
