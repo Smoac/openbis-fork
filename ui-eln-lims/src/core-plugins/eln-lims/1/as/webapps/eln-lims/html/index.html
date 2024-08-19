@@ -367,6 +367,9 @@
 			});
 			
 			$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
+				if(settings.settings.suppressErrors) {
+					return;
+				}
 				try {
 					Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url);
 				} catch(err) {
