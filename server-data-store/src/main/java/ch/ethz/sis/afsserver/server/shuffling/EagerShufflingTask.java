@@ -38,8 +38,6 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentChecksumProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * Post registration task which move the data set to share which has enough space.
@@ -116,8 +114,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
                 .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
                 ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
-                new HierarchicalContentChecksumProvider(
-                        ServiceProvider.getHierarchicalContentProvider()), new Log4jSimpleLogger(
+                new SimpleChecksumProvider(), new Log4jSimpleLogger(
                         operationLog), new Log4jSimpleLogger(notificationLog));
     }
 

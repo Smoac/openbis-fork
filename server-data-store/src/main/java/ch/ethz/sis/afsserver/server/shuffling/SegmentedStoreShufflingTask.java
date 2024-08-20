@@ -43,8 +43,6 @@ import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * Maintenance task which shuffles data sets between shares of a segmented store. This task is supposed to prevent incoming shares from having not
