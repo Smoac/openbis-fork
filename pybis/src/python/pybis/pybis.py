@@ -3924,7 +3924,7 @@ class Openbis:
             df_initializer=create_data_frame,
         )
 
-    def get_plugin(self, permId, only_data=False, with_script=True):
+    def get_plugin(self, permId, only_data=False, with_script=True, **kwargs):
         search_request = _type_for_id(permId, "plugin")
         fetchopts = get_fetchoption_for_entity("plugin")
         options = ["registrator"]

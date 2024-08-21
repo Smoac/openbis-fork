@@ -114,3 +114,28 @@ def test_assign_plugin_to_sample_type(openbis_instance):
 
     assignments = sample_type.get_property_assignments().df
     assert len(assignments) == 0
+
+
+def test_update_plugin(openbis_instance):
+    timestamp = time.strftime('%a_%y%m%d_%H%M%S').upper()
+    pl_name = 'test_plugin_' + timestamp
+
+    plugin = openbis_instance.new_plugin(
+        name=pl_name,
+        pluginType='ENTITY_VALIDATION',  # or 'DYNAMIC_PROPERTY' or 'MANAGED_PROPERTY',
+        entityKind=None,  # or 'SAMPLE', 'MATERIAL', 'EXPERIMENT', 'DATA_SET'
+        script='def calculate(): pass'  # JYTHON script
+    )
+    plugin.save()
+    pl_exists = openbis_instance.get_plugin(pl_name)
+    assert pl_exists is not None
+
+    plugin.description = 'some boring description'
+    plugin.available = True
+    plugin.save()
+
+    pl_exists = openbis_instance.get_plugin(pl_name)
+    assert pl_exists is not None
+    assert pl_exists.description == 'some boring description'
+    assert pl_exists.available is True
+

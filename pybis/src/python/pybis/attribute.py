@@ -314,8 +314,17 @@ class AttrHolder:
                     if value is None:
                         pass
                     elif isinstance(value, bool):
-                        # for boolean values where no type is needed
-                        up_obj[attr] = value
+                        if 'PluginUpdate' in up_obj['@type']:
+                            # PluginUpdate is special
+                            # TODO consolidate boolean attribute options
+                            up_obj[attr] = {
+                                "@type": "as.dto.common.update.FieldUpdateValue",
+                                "isModified": True,
+                                "value": value,
+                            }
+                        else:
+                            # for boolean values where no type is needed
+                            up_obj[attr] = value
                     elif isinstance(value, dict) and len(value) == 0:
                         # value is {}: it means that we want this attribute to be
                         # deleted, not updated.
