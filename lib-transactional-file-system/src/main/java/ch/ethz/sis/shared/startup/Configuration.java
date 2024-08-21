@@ -97,4 +97,8 @@ public class Configuration {
             return null;
         }
     }
+
+    public Properties getProperties(){
+        return this.properties;
+    }
 }

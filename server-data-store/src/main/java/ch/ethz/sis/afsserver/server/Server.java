@@ -15,9 +15,14 @@
  */
 package ch.ethz.sis.afsserver.server;
 
+import java.util.List;
+
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.afsserver.http.HttpServer;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
+import ch.ethz.sis.afsserver.server.maintenance.MaintenancePlugin;
+import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskParameters;
+import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskUtils;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
@@ -50,6 +55,8 @@ public final class Server<CONNECTION, API>
     private boolean shutdown;
 
     private ServerObserver<CONNECTION> observer;
+
+    private List<MaintenancePlugin> maintenancePlugins;
 
     public Server(Configuration configuration) throws Exception
     {
@@ -114,7 +121,12 @@ public final class Server<CONNECTION, API>
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
-        // 2.7 Init observer
+        // 2.7 Create maintenance tasks
+        logger.info("Starting maintenance tasks");
+        MaintenanceTaskParameters[] maintenanceTaskParameters = MaintenanceTaskUtils.createMaintenancePlugins(configuration.getProperties());
+        maintenancePlugins = MaintenanceTaskUtils.startupMaintenancePlugins(maintenanceTaskParameters);
+
+        // 2.8 Init observer
         observer = configuration.getInstance(AtomicFileSystemServerParameter.serverObserver);
         if (observer == null)
         {
@@ -146,6 +158,8 @@ public final class Server<CONNECTION, API>
         {
             observer.beforeShutdown();
             shutdown = true;
+            logger.info("Shutting down - maintenance tasks");
+            MaintenanceTaskUtils.shutdownMaintenancePlugins(maintenancePlugins);
             logger.info("Shutting down - http server");
             httpServer.shutdown(gracefully);
             logger.info("Shutting down - api server");
