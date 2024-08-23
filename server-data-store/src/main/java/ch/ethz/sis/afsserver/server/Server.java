@@ -26,7 +26,11 @@ import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskUtils;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.afsserver.server.shuffling.EncapsulatedOpenBISService;
+import ch.ethz.sis.afsserver.server.shuffling.ServiceProvider;
+import ch.ethz.sis.afsserver.server.shuffling.ShareIdManager;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
 import ch.ethz.sis.shared.log.LogManager;
@@ -121,12 +125,22 @@ public final class Server<CONNECTION, API>
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
-        // 2.7 Create maintenance tasks
+        // 2.7 Service provider
+        // TODO get rid of service provider
+        EncapsulatedOpenBISService encapsulatedOpenBISService = new EncapsulatedOpenBISService(
+                AtomicFileSystemServerParameterUtil.getOpenBIS(configuration),
+                AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration),
+                AtomicFileSystemServerParameterUtil.getOpenBISPassword(configuration));
+        ShareIdManager shareIdManager = new ShareIdManager(encapsulatedOpenBISService, 84600);
+        ServiceProvider.setOpenBISService(encapsulatedOpenBISService);
+        ServiceProvider.setShareIdManager(shareIdManager);
+
+        // 2.8 Create maintenance tasks
         logger.info("Starting maintenance tasks");
         MaintenanceTaskParameters[] maintenanceTaskParameters = MaintenanceTaskUtils.createMaintenancePlugins(configuration.getProperties());
         maintenancePlugins = MaintenanceTaskUtils.startupMaintenancePlugins(maintenanceTaskParameters);
 
-        // 2.8 Init observer
+        // 2.9 Init observer
         observer = configuration.getInstance(AtomicFileSystemServerParameter.serverObserver);
         if (observer == null)
         {

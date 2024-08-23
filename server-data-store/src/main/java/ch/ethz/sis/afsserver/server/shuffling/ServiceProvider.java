@@ -9,37 +9,21 @@ public class ServiceProvider
 
     public static IShareIdManager getShareIdManager()
     {
-        // TODO: temporary implementation
-
-        if (shareIdManager == null)
-        {
-            synchronized (ServiceProvider.class)
-            {
-                if (shareIdManager == null)
-                {
-                    shareIdManager = new ShareIdManager(getOpenBISService(), 84600);
-                }
-            }
-        }
-
         return shareIdManager;
+    }
+
+    public static void setShareIdManager(final IShareIdManager shareIdManager)
+    {
+        ServiceProvider.shareIdManager = shareIdManager;
     }
 
     public static EncapsulatedOpenBISService getOpenBISService()
     {
-        // TODO: temporary implementation
-
-        if (openBISService == null)
-        {
-            synchronized (ServiceProvider.class)
-            {
-                if (openBISService == null)
-                {
-                    openBISService = new EncapsulatedOpenBISService();
-                }
-            }
-        }
-
         return openBISService;
+    }
+
+    public static void setOpenBISService(final EncapsulatedOpenBISService openBISService)
+    {
+        ServiceProvider.openBISService = openBISService;
     }
 }

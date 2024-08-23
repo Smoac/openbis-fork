@@ -18,6 +18,7 @@ package ch.ethz.sis.afsserver.server.shuffling;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,7 +29,8 @@ import java.util.Set;
  */
 public class IncomingShareIdProvider
 {
-    private static Set<String> incomingShareIds = new LinkedHashSet<String>();
+    // TODO
+    private static Set<String> incomingShareIds = new LinkedHashSet<String>(List.of("1"));
 
     public static Set<String> getIdsOfIncomingShares()
     {
