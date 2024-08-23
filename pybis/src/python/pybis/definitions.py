@@ -228,9 +228,9 @@ def openbis_definitions(entity):
             "fetch": {"@type": "as.dto.vocabulary.fetchoptions.VocabularyFetchOptions"},
         },
         "vocabularyTerm": {
-            "attrs_new": "code vocabularyCode label description official ordinal".split(),
+            "attrs_new": "code vocabularyCode label description official ordinal managedInternally".split(),
             "attrs_up": "label description official previousTermId".split(),
-            "attrs": "code vocabularyCode label description official ordinal registrator registrationDate modifier modificationDate".split(),
+            "attrs": "code vocabularyCode label description official ordinal registrator registrationDate modifier modificationDate managedInternally".split(),
             "multi": "".split(),
             "identifier": "vocabularyTermId",
             "create": {"@type": "as.dto.vocabulary.create.VocabularyTermCreation"},
