@@ -136,6 +136,6 @@ def test_update_plugin(openbis_instance):
 
     pl_exists = openbis_instance.get_plugin(pl_name)
     assert pl_exists is not None
-    assert pl_exists.description is 'some boring description'
+    assert pl_exists.description == 'some boring description'
     assert pl_exists.available is True
 
