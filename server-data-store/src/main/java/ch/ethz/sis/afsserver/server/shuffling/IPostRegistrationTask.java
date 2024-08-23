@@ -19,7 +19,7 @@ import java.util.Properties;
 
 /**
  * Interface of a task executed after registration of a data set. Implementing class should have a public constructor with two parameters: First is of
- * type {@link Properties} and second is of type {@link IEncapsulatedOpenBISService}.
+ * type {@link Properties} and second is of type {@link EncapsulatedOpenBISService}.
  * 
  * @author Franz-Josef Elmer
  */

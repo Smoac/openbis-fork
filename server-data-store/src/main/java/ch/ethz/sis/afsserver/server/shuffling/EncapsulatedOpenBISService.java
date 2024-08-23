@@ -15,25 +15,37 @@
  */
 package ch.ethz.sis.afsserver.server.shuffling;
 
-public class IEncapsulatedOpenBISService
+import java.util.Collections;
+import java.util.List;
+
+public class EncapsulatedOpenBISService
 {
     public SimpleDataSetInformationDTO[] listPhysicalDataSets()
     {
-        return null;
+        return new SimpleDataSetInformationDTO[0];
     }
 
     public void updateShareIdAndSize(final String dataSetCode, final String shareId, final long size)
     {
-
     }
 
     public boolean dataSetExists(final String dataSetCode)
     {
-        return false;
+        return true;
     }
 
     public boolean isDataSetOnTrashCanOrDeleted(final String dataSetCode)
     {
         return false;
+    }
+
+    public List<DataSetShareId> listDataSetShareIds()
+    {
+        return Collections.emptyList();
+    }
+
+    public DataSetShareId getDataSetShareId(final String dataSetCode)
+    {
+        return null;
     }
 }

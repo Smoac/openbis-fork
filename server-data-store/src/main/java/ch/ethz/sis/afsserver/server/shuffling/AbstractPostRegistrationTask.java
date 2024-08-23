@@ -17,8 +17,6 @@ package ch.ethz.sis.afsserver.server.shuffling;
 
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-
 /**
  * Abstract super class of all implementations of {@link IPostRegistrationTask}.
  *
@@ -28,11 +26,9 @@ public abstract class AbstractPostRegistrationTask implements IPostRegistrationT
 {
     protected final Properties properties;
 
-    protected final IEncapsulatedOpenBISService service;
+    protected final EncapsulatedOpenBISService service;
 
-    private IApplicationServerApi v3api;
-
-    public AbstractPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
+    public AbstractPostRegistrationTask(Properties properties, EncapsulatedOpenBISService service)
     {
         this.properties = properties;
         this.service = service;
@@ -43,12 +39,4 @@ public abstract class AbstractPostRegistrationTask implements IPostRegistrationT
     {
     }
 
-    protected IApplicationServerApi getV3api()
-    {
-        if (v3api == null)
-        {
-            v3api = ServiceProvider.getV3ApplicationService();
-        }
-        return v3api;
-    }
 }

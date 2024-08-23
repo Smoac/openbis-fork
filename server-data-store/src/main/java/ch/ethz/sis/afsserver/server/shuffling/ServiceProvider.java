@@ -1,26 +1,45 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-
 public class ServiceProvider
 {
+
+    private static IShareIdManager shareIdManager;
+
+    private static EncapsulatedOpenBISService openBISService;
+
     public static IShareIdManager getShareIdManager()
     {
-        return null;
+        // TODO: temporary implementation
+
+        if (shareIdManager == null)
+        {
+            synchronized (ServiceProvider.class)
+            {
+                if (shareIdManager == null)
+                {
+                    shareIdManager = new ShareIdManager(getOpenBISService(), 84600);
+                }
+            }
+        }
+
+        return shareIdManager;
     }
 
-    public static IConfigProvider getConfigProvider()
+    public static EncapsulatedOpenBISService getOpenBISService()
     {
-        return null;
-    }
+        // TODO: temporary implementation
 
-    public static IApplicationServerApi getV3ApplicationService()
-    {
-        return null;
-    }
+        if (openBISService == null)
+        {
+            synchronized (ServiceProvider.class)
+            {
+                if (openBISService == null)
+                {
+                    openBISService = new EncapsulatedOpenBISService();
+                }
+            }
+        }
 
-    public static IEncapsulatedOpenBISService getOpenBISService()
-    {
-        return null;
+        return openBISService;
     }
 }

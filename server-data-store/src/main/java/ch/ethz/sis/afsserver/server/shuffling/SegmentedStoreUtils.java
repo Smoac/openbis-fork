@@ -22,10 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,10 +31,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
@@ -45,7 +39,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
@@ -290,7 +283,7 @@ public class SegmentedStoreUtils
      */
     public static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, Set<String> incomingShares,
-            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
+            IFreeSpaceProvider freeSpaceProvider, EncapsulatedOpenBISService service,
             ISimpleLogger log)
     {
         final long start = System.currentTimeMillis();
@@ -468,7 +461,7 @@ public class SegmentedStoreUtils
 //
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
-            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
+            EncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares =
                 getShares(storeRoot, dataStoreCode, filterOptions,
@@ -480,7 +473,7 @@ public class SegmentedStoreUtils
 
     private static Map<String, Share> getShares(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
-            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
+            EncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares = new HashMap<String, Share>();
         final SharesHolder sharesHolder =
@@ -514,7 +507,7 @@ public class SegmentedStoreUtils
      * @param checksumProvider
      */
     public static void moveDataSetToAnotherShare(final File dataSetDirInStore, File share,
-            IEncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
+            EncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
             IChecksumProvider checksumProvider, final ISimpleLogger logger)
     {
         if (FileOperations.getMonitoredInstanceForCurrentThread().exists(dataSetDirInStore) == false)

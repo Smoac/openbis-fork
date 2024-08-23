@@ -26,7 +26,7 @@ public abstract class AbstractPostRegistrationTaskForPhysicalDataSets extends Ab
 {
 
     public AbstractPostRegistrationTaskForPhysicalDataSets(Properties properties,
-            IEncapsulatedOpenBISService service)
+            EncapsulatedOpenBISService service)
     {
         super(properties, service);
     }

@@ -36,7 +36,7 @@ final class SharesHolder
 
     private final Map<String, Share> shares;
 
-    private final IEncapsulatedOpenBISService service;
+    private final EncapsulatedOpenBISService service;
 
     private final ISimpleLogger log;
 
@@ -45,7 +45,7 @@ final class SharesHolder
     private boolean areDataSetsAdded;
 
     SharesHolder(String dataStoreCode, Map<String, Share> shares,
-            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
+            EncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         this.dataStoreCode = dataStoreCode;
         this.shares = shares;
