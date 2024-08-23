@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -134,6 +135,20 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         EntityTypePE entityType = findEntityType(newAssignment.getEntityTypeCode());
         PropertyTypePE propertyType = findPropertyType(newAssignment.getPropertyTypeCode());
         ScriptPE scriptOrNull = tryFindScript(newAssignment);
+
+        if(newAssignment.getPatternRegex() != null) {
+            if(assignment == null || !newAssignment.getPatternRegex().equals(assignment.getPatternRegex()) || !newAssignment.getPatternType().equals(assignment.getPatternType())) {
+                // Re-validate default value since no
+                if(newAssignment.isMandatory()) {
+                    // Re-validate default value entities
+                    Pattern newPattern = Pattern.compile(newAssignment.getPatternRegex());
+                    String defaultValue = newAssignment.getDefaultValue();
+                    if(!newPattern.matcher(defaultValue).matches()) {
+                        throw new UserFailureException("New pattern does not match default value!");
+                    }
+                }
+            }
+        }
         assignment =
                 createAssignment(newAssignment.isMandatory(), newAssignment.getSection(),
                         newAssignment.getOrdinal(), entityType, propertyType, scriptOrNull,
@@ -183,6 +198,22 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     private List<Long> getAllEntityIds(EntityTypePE entityType)
     {
         return getEntityPropertyTypeDAO(entityKind).listEntityIds(entityType);
+    }
+
+    private void revalidatePatterValues(EntityTypePE entityType, PropertyTypePE propertyType,
+                                        Pattern newPattern, String errorMsgTemplate) {
+        final String entityTypeCode = entityType.getSimpleCode();
+        final String propertyTypeCode = propertyType.getSimpleCode();
+        IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
+        List<String> propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode);
+        final int size = propertyValues.size();
+        if(size > 0) {
+            for(String value : propertyValues) {
+                if(!newPattern.matcher(value).matches()) {
+                    throw new UserFailureException(String.format(errorMsgTemplate, value));
+                }
+            }
+        }
     }
 
     private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
@@ -241,6 +272,21 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                 assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()) == false)
         {
             throwModifiedEntityException("Property type assignment");
+        }
+
+        if(assignmentUpdates.getPatternRegex() != null) {
+            if(!assignmentUpdates.getPatternRegex().equals(assignment.getPatternRegex()) || !assignmentUpdates.getPatternType().equals(assignment.getPatternType()))
+            {
+                // Re-validate all entities
+                Pattern newPattern = Pattern.compile(assignmentUpdates.getPatternRegex());
+                if(assignmentUpdates.isMandatory()) {
+                    String defaultValue = assignmentUpdates.getDefaultValue();
+                    if(!newPattern.matcher(defaultValue).matches()) {
+                        throw new UserFailureException("New pattern does not match default value!");
+                    }
+                }
+                revalidatePatterValues(assignment.getEntityType(), assignment.getPropertyType(), newPattern, "Existing property '%s' does not match the new pattern!");
+            }
         }
 
         UpdateAuthorizationSnapshot snapshotBefore = new UpdateAuthorizationSnapshot(assignment);

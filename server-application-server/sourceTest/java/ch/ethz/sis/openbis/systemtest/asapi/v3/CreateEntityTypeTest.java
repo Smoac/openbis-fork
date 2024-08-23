@@ -338,6 +338,33 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
     }
 
     @Test
+    public void testCreateWithMandatoryPropertyAssignmentsWithPatternNotMatching_throwsException()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentCreation assignmentCreation1 = new PropertyAssignmentCreation();
+        assignmentCreation1.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation1.setPatternType("RANGES");
+        assignmentCreation1.setPattern("1-10");
+        assignmentCreation1.setMandatory(true);
+        assignmentCreation1.setInitialValueForExistingEntities("12");
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_ENTITY_TYPE");
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation1));
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation));
+            }
+        }, "New pattern does not match default value!");
+
+    }
+
+    @Test
     public void testCreateWithPropertyAssignmentsWithNullOrdinals()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

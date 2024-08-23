@@ -300,6 +300,25 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     @Override
+    public List<String> listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
+    {
+        String query =
+                String.format("SELECT pv.value FROM %s pa join %s pv "
+                                + " ON pa.id = pv.entityTypePropertyType.id "
+                                + " WHERE pa.propertyTypeInternal.simpleCode = ? "
+                                + " AND pa.entityTypeInternal.simpleCode = ?",
+                        entityKind
+                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
+                        entityKind.getEntityPropertyClass().getSimpleName()
+                );
+
+        final List<String> list = cast(getHibernateTemplate().find(query,
+                        toArray(propertyTypeCode, entityTypeCode)));
+
+        return list;
+    }
+
+    @Override
     public List<Long> listIdsOfEntitiesWithoutPropertyValue(
             final EntityTypePropertyTypePE assignment) throws DataAccessException
     {

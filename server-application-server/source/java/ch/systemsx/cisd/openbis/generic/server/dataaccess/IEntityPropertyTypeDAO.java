@@ -131,4 +131,13 @@ public interface IEntityPropertyTypeDAO
      * entity type.
      */
     public void updateEntityModificationTimestamps(final List<Long> entityIds);
+
+    /**
+     * List all property values associated to a given entityType-propertyType combination.
+     * Useful for re-validation of property values upon pattern-patternType change.
+     * @param entityTypeCode Code of the entity type
+     * @param propertyTypeCode Code of property type
+     * @return List of non-empty property values of type:propertyTypeCode assigned to entities of type:entityTypeCode
+     */
+    public List<String> listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
 }

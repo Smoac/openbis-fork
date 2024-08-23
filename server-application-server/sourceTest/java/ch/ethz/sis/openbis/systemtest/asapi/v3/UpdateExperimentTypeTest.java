@@ -18,7 +18,10 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -71,6 +74,12 @@ public class UpdateExperimentTypeTest extends UpdateEntityTypeTest<ExperimentTyp
     @Override
     protected void createEntity(String sessionToken, IEntityTypeId entityType, String propertyType, String propertyValue)
     {
+        ExperimentCreation ec = new ExperimentCreation();
+        ec.setCode(UUID.randomUUID().toString());
+        ec.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        ec.setTypeId(entityType);
+        ec.setStringProperty(propertyType, propertyValue);
+        v3api.createExperiments(sessionToken, Arrays.asList(ec));
     }
 
     @Override
