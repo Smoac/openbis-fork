@@ -54,7 +54,7 @@ def test_create_delete_vocabulary(openbis_instance):
     voc.delete('test on '+str(timestamp))
 
 
-def test_create_delete_vocabulary_term(openbis_instance):
+def test_create_vocabulary_and_delete_term(openbis_instance):
     o = openbis_instance
     timestamp = time.strftime('%a_%y%m%d_%H%M%S').upper()
     voc_code = 'test_voc_' + timestamp + "_" + str(random.randint(0, 1000))
@@ -163,4 +163,47 @@ def test_create_set_and_remove_vocabulary_property(space):
     key, val = sample.props().popitem()
     assert key.lower() == property_type_code.lower()
     assert val is None
+
+
+def test_create_delete_vocabulary_term(openbis_instance):
+    o = openbis_instance
+    timestamp = time.strftime('%a_%y%m%d_%H%M%S').upper()
+    voc_code = 'test_voc_' + timestamp + "_" + str(random.randint(0, 1000))
+
+    voc = o.new_vocabulary(
+        code=voc_code,
+        description='description of vocabulary',
+        urlTemplate='https://ethz.ch',
+        terms=[
+            {"code": 'term_code1', "label": "term_label1", "description": "term_description1"},
+            {"code": 'term_code2', "label": "term_label2", "description": "term_description2"},
+            {"code": 'term_code3', "label": "term_label3", "description": "term_description3"}
+        ],
+        chosenFromList=False
+    )
+    assert voc.registrationDate is None
+    voc.save()
+    assert voc is not None
+    assert voc.registrationDate is not None
+    assert voc.chosenFromList is False
+
+    voc_exists = o.get_vocabulary(voc_code)
+    assert voc_exists is not None
+    assert voc_exists.code == voc_code.upper()
+
+    # Create vocabulary term
+    voc_term = o.new_term('term_code4', voc_code.upper(), 'term_label4', 'term_description4')
+    voc_term.save()
+
+    assert voc_term is not None
+    assert voc_term.registrationDate is not None
+    voc_terms = o.get_terms(voc_code, use_cache=False)
+    assert len(voc_terms) == 4
+
+    # Delete vocabulary term
+    voc_term.delete('some test reason')
+
+    voc_terms = o.get_terms(voc_code, use_cache=False)
+    assert len(voc_terms) == 3
+
 

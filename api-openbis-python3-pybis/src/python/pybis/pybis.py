@@ -3445,10 +3445,10 @@ class Openbis:
             self,
             data=None,
             code=code,
-            vocabularyCode=vocabularyCode,
+            vocabularyCode=vocabularyCode.upper(),
             label=label,
             description=description,
-            managedInternally=code.startsWith('$')
+            managedInternally=code.startswith('$')
         )
 
     def get_term(self, code, vocabularyCode, only_data=False):
