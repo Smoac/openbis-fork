@@ -11,7 +11,7 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root>
+        <Root level="INFO">
             <ThresholdFilter level="INFO"/>
             <AppenderRef ref="Console"/>
             <AppenderRef ref="MyFile"/>
