@@ -78,7 +78,7 @@ public class MaintenancePlugin
 
     /**
      * Constructor that takes a configured maintenance task.
-     * 
+     *
      * @param task
      */
     public MaintenancePlugin(IMaintenanceTask task, MaintenanceTaskParameters parameters)
@@ -156,15 +156,15 @@ public class MaintenancePlugin
         if (workerTimer != null)
         {
             workerTimer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void run()
-                    {
-                        timerTask.run();
-                        savePersistentNextDate(nextTimestampProvider.getNextTimestamp(timestamp));
-                        schedule(timerTask, nextTimestampProvider);
-                    }
-                }, timestamp);
+                    timerTask.run();
+                    savePersistentNextDate(nextTimestampProvider.getNextTimestamp(timestamp));
+                    schedule(timerTask, nextTimestampProvider);
+                }
+            }, timestamp);
         }
     }
 
@@ -179,8 +179,8 @@ public class MaintenancePlugin
                 return new SimpleDateFormat(TIME_STAMP_FORMAT).parse(timeStampString);
             } catch (ParseException ex)
             {
-                operationLog.warn("Invalid time stamp in '" + persistentNextDateFile.getAbsolutePath() + "': "
-                        + timeStampString);
+                operationLog.catching(new RuntimeException("Invalid time stamp in '" + persistentNextDateFile.getAbsolutePath() + "': "
+                        + timeStampString, ex));
             }
         }
         return null;
@@ -263,8 +263,8 @@ public class MaintenancePlugin
                         if (retryCounter <= retryIntervals.size())
                         {
                             long retryInterval = retryIntervals.get(retryCounter - 1);
-                            operationLog.warn("Execution of maintenance task '" + className + "' failed. "
-                                    + retryCounter + ". retry in " + retryInterval + " msec.");
+                            operationLog.catching(new RuntimeException("Execution of maintenance task '" + className + "' failed. "
+                                    + retryCounter + ". retry in " + retryInterval + " msec."));
                             retryCounter++;
                             ConcurrencyUtilities.sleep(retryInterval);
                         } else
@@ -275,7 +275,7 @@ public class MaintenancePlugin
                 }
             } catch (Throwable th)
             {
-                operationLog.error("Exception when running maintenance task '" + className + "'.", th);
+                operationLog.catching(new RuntimeException("Exception when running maintenance task '" + className + "'.", th));
             }
         }
 

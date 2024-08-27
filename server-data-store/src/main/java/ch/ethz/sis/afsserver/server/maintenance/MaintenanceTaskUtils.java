@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperti
 
 /**
  * A static helper class that knows e.g. how to read configuration of maintenance tasks from {@link Properties} and start all the maintenance plugins.
- * 
+ *
  * @author Piotr Buczek
  */
 public class MaintenanceTaskUtils
@@ -69,9 +69,9 @@ public class MaintenanceTaskUtils
                 plugin.shutdown();
             } catch (Exception ex)
             {
-                operationLog.error(
+                operationLog.catching(new RuntimeException(
                         "Error shutting down maintenance task '" + plugin.getPluginName()
-                                + "' failed.", ex);
+                                + "' failed.", ex));
             }
         }
     }

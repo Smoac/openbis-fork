@@ -7,7 +7,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 public class SimpleLogger implements ISimpleLogger
 {
 
-    private Logger logger;
+    private final Logger logger;
 
     public SimpleLogger(Logger logger)
     {
@@ -26,15 +26,16 @@ public class SimpleLogger implements ISimpleLogger
             logger.info(message);
         } else if (LogLevel.WARN.equals(level))
         {
-            logger.warn(message);
+            logger.catching(new RuntimeException(message));
         } else if (LogLevel.ERROR.equals(level))
         {
-            logger.throwing(new RuntimeException(message, throwableOrNull));
+            logger.catching(new RuntimeException(message, throwableOrNull));
         } else if (LogLevel.TRACE.equals(level))
         {
             logger.traceAccess(message);
         } else
         {
+            logger.info(message, throwableOrNull);
             throw new UnsupportedOperationException("Unsupported log level: " + level);
         }
     }

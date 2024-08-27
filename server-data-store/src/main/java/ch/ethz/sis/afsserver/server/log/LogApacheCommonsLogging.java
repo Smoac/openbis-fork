@@ -15,9 +15,24 @@ public class LogApacheCommonsLogging implements Log
         this.logger = LogManager.getLogger(Class.forName(name));
     }
 
+    @Override public boolean isTraceEnabled()
+    {
+        return logger.isTraceEnabled();
+    }
+
     @Override public boolean isDebugEnabled()
     {
-        return logger.isDebugEnabled();
+        return logger.isTraceEnabled();
+    }
+
+    @Override public boolean isInfoEnabled()
+    {
+        return logger.isInfoEnabled();
+    }
+
+    @Override public boolean isWarnEnabled()
+    {
+        return logger.isErrorEnabled();
     }
 
     @Override public boolean isErrorEnabled()
@@ -27,83 +42,66 @@ public class LogApacheCommonsLogging implements Log
 
     @Override public boolean isFatalEnabled()
     {
-        // TODO
-        return false;
-    }
-
-    @Override public boolean isInfoEnabled()
-    {
-        return logger.isInfoEnabled();
-    }
-
-    @Override public boolean isTraceEnabled()
-    {
-        // TODO
-        return false;
-    }
-
-    @Override public boolean isWarnEnabled()
-    {
-        return logger.isWarnEnabled();
+        return logger.isErrorEnabled();
     }
 
     @Override public void trace(final Object o)
     {
-        trace(o, null);
+        logger.traceAccess((String) o);
     }
 
     @Override public void trace(final Object o, final Throwable throwable)
     {
-        // TODO
+        logger.traceAccess((String) o, throwable);
     }
 
     @Override public void debug(final Object o)
     {
-        debug(o, null);
+        trace(o);
     }
 
     @Override public void debug(final Object o, final Throwable throwable)
     {
-        logger.debug((String) o);
+        trace(o, throwable);
     }
 
     @Override public void info(final Object o)
     {
-        info(o, null);
+        logger.info((String) o);
     }
 
     @Override public void info(final Object o, final Throwable throwable)
     {
-        logger.info((String) o);
+        logger.info((String) o, throwable);
     }
 
     @Override public void warn(final Object o)
     {
-        warn(o, null);
+        error(o);
     }
 
     @Override public void warn(final Object o, final Throwable throwable)
     {
-        logger.warn((String) o);
+        error(o, throwable);
     }
 
     @Override public void error(final Object o)
     {
-        error(o, null);
+        logger.catching(new RuntimeException((String) o));
     }
 
     @Override public void error(final Object o, final Throwable throwable)
     {
-        logger.error((String) o);
+        logger.catching(new RuntimeException((String) o, throwable));
     }
 
     @Override public void fatal(final Object o)
     {
-        // TODO
+        error(o);
     }
 
     @Override public void fatal(final Object o, final Throwable throwable)
     {
-        // TODO
+        error(o, throwable);
     }
 }

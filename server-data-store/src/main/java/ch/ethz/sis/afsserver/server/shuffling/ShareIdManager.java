@@ -164,11 +164,11 @@ public class ShareIdManager implements IShareIdManager
                 GuardedShareID guardedShareId = getGuardedShareId(dataSetCode);
                 lockedDataSets.put(dataSetCode, set);
                 guardedShareId.lock();
-                if (operationLog.isDebugEnabled())
+                if (operationLog.isTraceEnabled())
                 {
                     final Throwable th = new Throwable();
                     th.fillInStackTrace();
-                    operationLog.debug("Data set " + dataSetCode + " has been locked.", th);
+                    operationLog.traceAccess("Data set " + dataSetCode + " has been locked.", th);
                 }
             }
             set.add(Thread.currentThread());
@@ -193,11 +193,11 @@ public class ShareIdManager implements IShareIdManager
                         GuardedShareID guardedShareId = getGuardedShareId(dataSetCode);
                         lockedDataSets.put(dataSetCode, set);
                         guardedShareId.lock();
-                        if (operationLog.isDebugEnabled())
+                        if (operationLog.isTraceEnabled())
                         {
                             final Throwable th = new Throwable();
                             th.fillInStackTrace();
-                            operationLog.debug("Data set " + dataSetCode + " has been locked.", th);
+                            operationLog.traceAccess("Data set " + dataSetCode + " has been locked.", th);
                         }
                     }
                     set.add(Thread.currentThread());
@@ -242,9 +242,9 @@ public class ShareIdManager implements IShareIdManager
                         {
                             b.setLength(b.length() - 1);
                         }
-                        operationLog.error("Timeout: Lock for data set " + dataSetCode
+                        operationLog.catching(new RuntimeException("Timeout: Lock for data set " + dataSetCode
                                 + " is held by threads '" + b.toString() + "' for "
-                                + lockingTimeOut + " seconds.");
+                                + lockingTimeOut + " seconds."));
                     }
                 }
                 throw ex;
@@ -265,9 +265,9 @@ public class ShareIdManager implements IShareIdManager
             set.remove(Thread.currentThread());
             if (set.isEmpty())
             {
-                if (operationLog.isDebugEnabled())
+                if (operationLog.isTraceEnabled())
                 {
-                    operationLog.debug("Unlock data set " + dataSetCode);
+                    operationLog.traceAccess("Unlock data set " + dataSetCode);
                 }
                 lockedDataSets.remove(dataSetCode);
                 getGuardedShareId(dataSetCode).unlock();
@@ -312,9 +312,9 @@ public class ShareIdManager implements IShareIdManager
 
                     if (threads.isEmpty())
                     {
-                        if (operationLog.isDebugEnabled())
+                        if (operationLog.isTraceEnabled())
                         {
-                            operationLog.debug("Unlock data set " + dataSetCode);
+                            operationLog.traceAccess("Unlock data set " + dataSetCode);
                         }
 
                         lockedDataSets.remove(dataSetCode);
@@ -325,14 +325,14 @@ public class ShareIdManager implements IShareIdManager
 
                     if (!removedThreads.isEmpty())
                     {
-                        if (operationLog.isDebugEnabled())
+                        if (operationLog.isTraceEnabled())
                         {
-                            operationLog.debug("Cleaned up dataset " + dataSetCode + " locks. Removed locks held by dead threads: " + removedThreads);
+                            operationLog.traceAccess("Cleaned up dataset " + dataSetCode + " locks. Removed locks held by dead threads: " + removedThreads);
                         }
                     }
                 } catch (Exception e)
                 {
-                    operationLog.warn("Could not clean up dataset " + dataSetCode + " locks", e);
+                    operationLog.catching(new RuntimeException("Could not clean up dataset " + dataSetCode + " locks", e));
                 }
             }
         }
@@ -340,7 +340,7 @@ public class ShareIdManager implements IShareIdManager
 
     private void log(String dataSetCode, Set<Thread> set)
     {
-        if (operationLog.isDebugEnabled() && set.isEmpty() == false)
+        if (operationLog.isTraceEnabled() && set.isEmpty() == false)
         {
             StringBuilder builder = new StringBuilder();
             for (Thread thread : set)
@@ -351,7 +351,7 @@ public class ShareIdManager implements IShareIdManager
                 }
                 builder.append(thread.getName());
             }
-            operationLog.debug("Data set " + dataSetCode + " is locked by the following threads: "
+            operationLog.traceAccess("Data set " + dataSetCode + " is locked by the following threads: "
                     + builder);
         }
     }

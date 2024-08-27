@@ -20,13 +20,19 @@ public interface Logger
     //
     // Trace API - Used for debugging, not intended for production usage
     //
+    boolean isTraceEnabled();
+
     void traceAccess(String message, Object... args);
+
+    void traceAccess(String message, Throwable ex, Object... args);
 
     <R> R traceExit(R arg);
 
     //
     // Catching API - Used to record errors
     //
+    boolean isErrorEnabled();
+
     void catching(Throwable ex);
 
     <T extends Throwable> T throwing(T ex);
@@ -34,20 +40,11 @@ public interface Logger
     //
     // INFO API - Used to record important system events
     //
-    boolean isDebugEnabled();
 
     boolean isInfoEnabled();
 
-    boolean isWarnEnabled();
-
-    boolean isErrorEnabled();
-
-    void debug(String message, Object... args);
-
     void info(String message, Object... args);
 
-    void warn(String message, Object... args);
-
-    void error(String message, Object... args);
+    void info(String message, Throwable ex, Object... args);
 
 }

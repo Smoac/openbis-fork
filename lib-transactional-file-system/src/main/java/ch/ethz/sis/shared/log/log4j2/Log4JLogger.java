@@ -34,11 +34,16 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
     @Override
     public void traceAccess(String message, Object... args)
     {
+        traceAccess(message, null, args);
+    }
+
+    @Override public void traceAccess(String message, Throwable ex, Object... args)
+    {
         this.logMessage(FQCN,
                 Level.TRACE,
                 ENTRY_MARKER,
                 entryMsg(message, args),
-                (Throwable) null);
+                ex);
     }
 
     @Override
@@ -85,11 +90,16 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
     @Override
     public void info(String message, Object... args)
     {
+        info(message, null, args);
+    }
+
+    @Override public void info(String message, Throwable ex, Object... args)
+    {
         this.logMessage(FQCN,
                 Level.INFO,
                 null,
                 logger.getMessageFactory().newMessage(message, args),
-                (Throwable) null);
+                ex);
     }
 
     @Override public void warn(String message, Object... args)

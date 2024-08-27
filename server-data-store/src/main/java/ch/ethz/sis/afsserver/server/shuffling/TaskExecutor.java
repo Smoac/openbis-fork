@@ -112,8 +112,8 @@ public class TaskExecutor
     private void cleanUpAndLog(Throwable throwable, ICleanupTask cleanupTaskOrNull,
             String dataSetCode, String taskName)
     {
-        operationLog.error("Task '" + taskName + "' for data set " + dataSetCode + " failed.",
-                throwable);
+        operationLog.catching(new RuntimeException("Task '" + taskName + "' for data set " + dataSetCode + " failed.",
+                throwable));
         if (cleanupTaskOrNull != null)
         {
             try
@@ -121,8 +121,8 @@ public class TaskExecutor
                 cleanupTaskOrNull.cleanup(new SimpleLogger(operationLog));
             } catch (Throwable t)
             {
-                operationLog.error("Clean up of failed task '" + taskName + "' for data set "
-                        + dataSetCode + " failed, too.", t);
+                operationLog.catching(new RuntimeException("Clean up of failed task '" + taskName + "' for data set "
+                        + dataSetCode + " failed, too.", t));
             }
         }
     }
@@ -145,7 +145,7 @@ public class TaskExecutor
                     cleanupTask.cleanup(logger);
                 } catch (Exception ex)
                 {
-                    operationLog.error("Couldn't performed clean up task " + file, ex);
+                    operationLog.catching(new RuntimeException("Couldn't performed clean up task " + file, ex));
                 }
                 file.delete();
             }
