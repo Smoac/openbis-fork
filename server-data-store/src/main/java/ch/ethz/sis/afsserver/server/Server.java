@@ -73,6 +73,9 @@ public final class Server<CONNECTION, API>
         LogManager.setLogFactory(logFactory);
         logger = LogManager.getLogger(Server.class);
 
+        // Make the legacy code that bases on Apache Commons Logging use the same logging mechanism as the rest of AFS
+        System.setProperty("org.apache.commons.logging.Log","ch.ethz.sis.afsserver.server.log.LogApacheCommonsLogging");
+
         logger.info("=== Server Bootstrap ===");
         logger.info("Running with java.version: " + System.getProperty("java.version"));
 

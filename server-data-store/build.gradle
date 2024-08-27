@@ -40,7 +40,6 @@ task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
     jvmArgs(['--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
              '--add-opens=java.base/java.nio=ALL-UNNAMED',
              '-Dio.netty.tryReflectionSetAccessible=true',
-             '-Dorg.apache.commons.logging.Log=ch.ethz.sis.afsserver.server.log.LogApacheCommonsLogging',
              '-Xmx256M', '-ea'])
 }
 
