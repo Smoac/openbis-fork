@@ -25,10 +25,9 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.ethz.sis.shared.log.LogManager;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 
@@ -81,8 +80,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         this.shufflingTask = shufflingTask;
         minimumFreeSpace =
                 FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
-        taskExecutor = new TaskExecutor(properties, LogFactory.getLogger(LogCategory.OPERATION,
-                SimpleShuffling.class));
+        taskExecutor = new TaskExecutor(properties, LogManager.getLogger(SimpleShuffling.class));
     }
 
     @Override

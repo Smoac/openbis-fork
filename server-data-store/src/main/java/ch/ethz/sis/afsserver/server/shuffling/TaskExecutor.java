@@ -22,16 +22,15 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.log4j.Logger;
 
+import ch.ethz.sis.shared.log.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 
 /**
  * Executing engine of {@link IPostRegistrationTask} instances. Manages persistent {@link ICleanupTask} instances.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class TaskExecutor
@@ -44,13 +43,13 @@ public class TaskExecutor
     private static final String FILE_TYPE = ".ser";
 
     private static final FilenameFilter FILTER = new FilenameFilter()
+    {
+        @Override
+        public boolean accept(File dir, String name)
         {
-            @Override
-            public boolean accept(File dir, String name)
-            {
-                return name.endsWith(FILE_TYPE);
-            }
-        };
+            return name.endsWith(FILE_TYPE);
+        }
+    };
 
     private final Logger operationLog;
 
@@ -119,7 +118,7 @@ public class TaskExecutor
         {
             try
             {
-                cleanupTaskOrNull.cleanup(new Log4jSimpleLogger(operationLog));
+                cleanupTaskOrNull.cleanup(new SimpleLogger(operationLog));
             } catch (Throwable t)
             {
                 operationLog.error("Clean up of failed task '" + taskName + "' for data set "
@@ -133,7 +132,7 @@ public class TaskExecutor
      */
     public void cleanup()
     {
-        Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
+        SimpleLogger logger = new SimpleLogger(operationLog);
         File[] files = cleanupTasksFolder.listFiles(FILTER);
         if (files != null && files.length > 0)
         {

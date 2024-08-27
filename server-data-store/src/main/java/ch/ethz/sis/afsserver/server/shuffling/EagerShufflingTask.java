@@ -22,10 +22,11 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 
 import ch.ethz.sis.afsserver.server.observer.impl.OpenBISUtils;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -34,9 +35,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -64,11 +62,9 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     @Private
     public static final String VERIFY_CHECKSUM_KEY = "verify-checksum";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            EagerShufflingTask.class);
+    private static final Logger operationLog = LogManager.getLogger(EagerShufflingTask.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
-            EagerShufflingTask.class);
+    private static final Logger notificationLog = LogManager.getLogger(EagerShufflingTask.class);
 
     private static SimpleDataSetInformationDTO findDataSet(List<Share> shares, String dataSetCode)
     {
@@ -117,8 +113,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
                 .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
                 ServiceProvider.getShareIdManager()),
-                new SimpleChecksumProvider(), new Log4jSimpleLogger(
-                        operationLog), new Log4jSimpleLogger(notificationLog));
+                new SimpleChecksumProvider(), new SimpleLogger(
+                        operationLog), new SimpleLogger(notificationLog));
     }
 
     @Private

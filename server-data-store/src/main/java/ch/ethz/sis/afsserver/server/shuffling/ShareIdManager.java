@@ -26,12 +26,10 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
-
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Immplementation of {@link IShareIdManager} based on {@link CountDownLatch}.
@@ -101,8 +99,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            ShareIdManager.class);
+    private static final Logger operationLog = LogManager.getLogger(ShareIdManager.class);
 
     private final EncapsulatedOpenBISService service;
 

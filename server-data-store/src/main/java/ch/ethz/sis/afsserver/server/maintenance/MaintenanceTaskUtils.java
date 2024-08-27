@@ -19,10 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 
@@ -39,7 +37,7 @@ public class MaintenanceTaskUtils
     public static final String DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME = "maintenance-plugins";
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MaintenanceTaskUtils.class);
+            LogManager.getLogger(MaintenanceTaskUtils.class);
 
     public static List<MaintenancePlugin> startupMaintenancePlugins(
             MaintenanceTaskParameters[] maintenancePlugins)

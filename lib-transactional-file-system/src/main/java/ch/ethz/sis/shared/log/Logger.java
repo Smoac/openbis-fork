@@ -15,8 +15,8 @@
  */
 package ch.ethz.sis.shared.log;
 
-
-public interface Logger {
+public interface Logger
+{
     //
     // Trace API - Used for debugging, not intended for production usage
     //
@@ -34,5 +34,20 @@ public interface Logger {
     //
     // INFO API - Used to record important system events
     //
+    boolean isDebugEnabled();
+
+    boolean isInfoEnabled();
+
+    boolean isWarnEnabled();
+
+    boolean isErrorEnabled();
+
+    void debug(String message, Object... args);
+
     void info(String message, Object... args);
+
+    void warn(String message, Object... args);
+
+    void error(String message, Object... args);
+
 }

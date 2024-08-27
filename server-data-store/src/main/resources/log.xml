@@ -12,7 +12,7 @@
     </Appenders>
     <Loggers>
         <Root>
-            <ThresholdFilter level="TRACE"/>
+            <ThresholdFilter level="INFO"/>
             <AppenderRef ref="Console"/>
             <AppenderRef ref="MyFile"/>
         </Root>

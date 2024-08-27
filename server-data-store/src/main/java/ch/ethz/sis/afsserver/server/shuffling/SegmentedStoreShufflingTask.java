@@ -26,11 +26,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 
 import ch.ethz.sis.afsserver.server.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.ethz.sis.afsserver.server.observer.impl.OpenBISUtils;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -39,9 +40,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
@@ -110,11 +108,9 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
     @Private
     static final String CLASS_PROPERTY_NAME = "class";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            SegmentedStoreShufflingTask.class);
+    private static final Logger operationLog = LogManager.getLogger(SegmentedStoreShufflingTask.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
-            SegmentedStoreShufflingTask.class);
+    private static final Logger notificationLog = LogManager.getLogger(SegmentedStoreShufflingTask.class);
 
     private final Set<String> incomingShares;
 
@@ -138,7 +134,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         this(IncomingShareIdProvider.getIdsOfIncomingShares(), ServiceProvider.getOpenBISService(),
                 new SimpleFreeSpaceProvider(), new DataSetMover(
                         ServiceProvider.getOpenBISService(), ServiceProvider.getShareIdManager()),
-                new Log4jSimpleLogger(operationLog));
+                new SimpleLogger(operationLog));
     }
 
     SegmentedStoreShufflingTask(Set<String> incomingShares, EncapsulatedOpenBISService service,

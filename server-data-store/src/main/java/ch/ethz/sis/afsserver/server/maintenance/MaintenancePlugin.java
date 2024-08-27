@@ -26,22 +26,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
-
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 public class MaintenancePlugin
 {
     static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            MaintenancePlugin.class);
+    private static final Logger operationLog = LogManager.getLogger(MaintenancePlugin.class);
 
     private static ReentrantLock dataStoreLock = new ReentrantLock();
 
