@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
  * A class that holds all shares and adds the data sets to them on demand.
- * 
+ *
  * @author Bernd Rinn
  */
 final class SharesHolder
@@ -63,7 +63,7 @@ final class SharesHolder
         {
             return;
         }
-        for (SimpleDataSetInformationDTO dataSet : service.listPhysicalDataSets())
+        for (SimpleDataSetInformationDTO dataSet : service.listDataSets())
         {
             String shareId = dataSet.getDataSetShareId();
             if (dataStoreCode.equals(dataSet.getDataStoreCode()))

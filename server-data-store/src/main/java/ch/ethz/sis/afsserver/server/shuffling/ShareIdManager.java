@@ -327,7 +327,8 @@ public class ShareIdManager implements IShareIdManager
                     {
                         if (operationLog.isTraceEnabled())
                         {
-                            operationLog.traceAccess("Cleaned up dataset " + dataSetCode + " locks. Removed locks held by dead threads: " + removedThreads);
+                            operationLog.traceAccess(
+                                    "Cleaned up dataset " + dataSetCode + " locks. Removed locks held by dead threads: " + removedThreads);
                         }
                     }
                 } catch (Exception e)
@@ -383,12 +384,12 @@ public class ShareIdManager implements IShareIdManager
         {
             if (dataSetCodeToShareIdMap == null)
             {
-                List<DataSetShareId> dataSets = service.listDataSetShareIds();
+                List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
                 dataSetCodeToShareIdMap = new HashMap<String, GuardedShareID>();
-                for (DataSetShareId dataSet : dataSets)
+                for (SimpleDataSetInformationDTO dataSet : dataSets)
                 {
                     String dataSetCode = dataSet.getDataSetCode();
-                    String shareId = dataSet.getShareId();
+                    String shareId = dataSet.getDataSetShareId();
                     addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId);
                 }
                 operationLog.info("Share id manager initialized with " + dataSets.size()
@@ -403,13 +404,13 @@ public class ShareIdManager implements IShareIdManager
         // We assume that the dataSetCodeToShareIdMap is already initialized -- otherwise we
         // wouldn't be here.
 
-        DataSetShareId shareId = service.getDataSetShareId(dataSetCode);
+        SimpleDataSetInformationDTO dataSet = service.tryGetDataSet(dataSetCode);
 
-        if (null == shareId)
+        if (null == dataSet)
         {
             return;
         }
 
-        addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId.getShareId());
+        addShareId(dataSetCodeToShareIdMap, dataSetCode, dataSet.getDataSetShareId());
     }
 }

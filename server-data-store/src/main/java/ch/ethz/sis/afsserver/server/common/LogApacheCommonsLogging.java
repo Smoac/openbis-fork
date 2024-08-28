@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.server.log;
+package ch.ethz.sis.afsserver.server.common;
 
 import org.apache.commons.logging.Log;
 

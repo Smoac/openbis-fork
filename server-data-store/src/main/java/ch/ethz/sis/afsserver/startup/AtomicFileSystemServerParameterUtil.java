@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.afsserver.server.common.OpenBISFacade;
 import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
@@ -13,9 +14,23 @@ public class AtomicFileSystemServerParameterUtil
 
     public static OpenBIS getOpenBIS(Configuration configuration)
     {
-        String openBISUrl = getStringParameter(configuration, AtomicFileSystemServerParameter.openBISUrl, true);
-        Integer openBISTimeout = getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISTimeout, true);
-        return new OpenBIS(openBISUrl, openBISTimeout);
+        return new OpenBIS(getOpenBISUrl(configuration), getOpenBISTimeout(configuration));
+    }
+
+    public static OpenBISFacade getOpenBISFacade(Configuration configuration)
+    {
+        return new OpenBISFacade(getOpenBISUrl(configuration), getOpenBISUser(configuration), getOpenBISPassword(configuration),
+                getOpenBISTimeout(configuration));
+    }
+
+    public static String getOpenBISUrl(Configuration configuration)
+    {
+        return getStringParameter(configuration, AtomicFileSystemServerParameter.openBISUrl, true);
+    }
+
+    public static Integer getOpenBISTimeout(Configuration configuration)
+    {
+        return getIntegerParameter(configuration, AtomicFileSystemServerParameter.openBISTimeout, true);
     }
 
     public static String getOpenBISUser(Configuration configuration)

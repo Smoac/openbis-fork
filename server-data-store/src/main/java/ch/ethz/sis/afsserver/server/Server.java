@@ -19,6 +19,7 @@ import java.util.List;
 
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.afsserver.http.HttpServer;
+import ch.ethz.sis.afsserver.server.common.LogApacheCommonsLogging;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.maintenance.MaintenancePlugin;
 import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskParameters;
@@ -74,7 +75,7 @@ public final class Server<CONNECTION, API>
         logger = LogManager.getLogger(Server.class);
 
         // Make the legacy code that bases on Apache Commons Logging use the same logging mechanism as the rest of AFS
-        System.setProperty("org.apache.commons.logging.Log","ch.ethz.sis.afsserver.server.log.LogApacheCommonsLogging");
+        System.setProperty("org.apache.commons.logging.Log", LogApacheCommonsLogging.class.getName());
 
         logger.info("=== Server Bootstrap ===");
         logger.info("Running with java.version: " + System.getProperty("java.version"));
@@ -129,11 +130,8 @@ public final class Server<CONNECTION, API>
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
         // 2.7 Service provider
-        // TODO get rid of service provider
-        EncapsulatedOpenBISService encapsulatedOpenBISService = new EncapsulatedOpenBISService(
-                AtomicFileSystemServerParameterUtil.getOpenBIS(configuration),
-                AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration),
-                AtomicFileSystemServerParameterUtil.getOpenBISPassword(configuration));
+        EncapsulatedOpenBISService encapsulatedOpenBISService =
+                new EncapsulatedOpenBISService(AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration));
         ShareIdManager shareIdManager = new ShareIdManager(encapsulatedOpenBISService, 84600);
         ServiceProvider.setOpenBISService(encapsulatedOpenBISService);
         ServiceProvider.setShareIdManager(shareIdManager);

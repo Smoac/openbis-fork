@@ -42,7 +42,7 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
  * Post registration task which move the data set to share which has enough space.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalDataSets
@@ -111,8 +111,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     public EagerShufflingTask(Properties properties, EncapsulatedOpenBISService service)
     {
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
-                .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
-                ServiceProvider.getShareIdManager()),
+                        .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
+                        ServiceProvider.getShareIdManager()),
                 new SimpleChecksumProvider(), new SimpleLogger(
                         operationLog), new SimpleLogger(notificationLog));
     }
@@ -239,7 +239,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                 String shareId = shareWithMostFreeOrNull.getShareId();
                 try
                 {
-                    if (service.isDataSetOnTrashCanOrDeleted(dataSetCode))
+                    if (service.tryGetDataSet(dataSetCode) == null)
                     {
                         logger.log(LogLevel.WARN, "Data set " + dataSetCode + " will not be moved from share "
                                 + dataSet.getDataSetShareId() + " to " + shareId
