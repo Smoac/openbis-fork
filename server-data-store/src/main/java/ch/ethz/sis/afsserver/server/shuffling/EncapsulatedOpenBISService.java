@@ -58,8 +58,11 @@ public class EncapsulatedOpenBISService
             criteria.withDataStore().withKind().thatIn(DataStoreKind.AFS);
 
             DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+            fetchOptions.withType();
             fetchOptions.withPhysicalData();
             fetchOptions.withDataStore();
+            fetchOptions.withExperiment().withProject().withSpace();
+            fetchOptions.withSample();
 
             SearchResult<DataSet> searchResult = openBIS.searchDataSets(criteria, fetchOptions);
 
@@ -67,10 +70,31 @@ public class EncapsulatedOpenBISService
             {
                 SimpleDataSetInformationDTO simpleDTO = new SimpleDataSetInformationDTO();
                 simpleDTO.setDataSetCode(dataSet.getCode());
+                simpleDTO.setDataSetType(dataSet.getType().getCode());
                 simpleDTO.setDataStoreCode(dataSet.getDataStore().getCode());
                 simpleDTO.setDataSetShareId(dataSet.getPhysicalData().getShareId());
                 simpleDTO.setDataSetLocation(dataSet.getPhysicalData().getLocation());
                 simpleDTO.setDataSetSize(dataSet.getPhysicalData().getSize());
+                simpleDTO.setStatus(DataSetArchivingStatus.valueOf(dataSet.getPhysicalData().getStatus().name()));
+                simpleDTO.setPresentInArchive(dataSet.getPhysicalData().isPresentInArchive());
+                simpleDTO.setSpeedHint(dataSet.getPhysicalData().getSpeedHint());
+                simpleDTO.setStorageConfirmed(dataSet.getPhysicalData().isStorageConfirmation());
+                simpleDTO.setRegistrationTimestamp(dataSet.getRegistrationDate());
+                simpleDTO.setModificationTimestamp(dataSet.getModificationDate());
+                simpleDTO.setAccessTimestamp(dataSet.getAccessDate());
+
+                if (dataSet.getExperiment() != null)
+                {
+                    simpleDTO.setExperimentCode(dataSet.getExperiment().getCode());
+                    simpleDTO.setProjectCode(dataSet.getExperiment().getProject().getCode());
+                    simpleDTO.setSpaceCode(dataSet.getExperiment().getProject().getSpace().getCode());
+                }
+
+                if (dataSet.getSample() != null)
+                {
+                    simpleDTO.setSampleCode(dataSet.getSample().getCode());
+                }
+
                 return simpleDTO;
             }).toArray(SimpleDataSetInformationDTO[]::new);
 
