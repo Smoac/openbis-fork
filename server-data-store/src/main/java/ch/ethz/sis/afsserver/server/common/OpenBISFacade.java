@@ -1,10 +1,13 @@
 package ch.ethz.sis.afsserver.server.common;
 
+import java.util.List;
+
 import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
@@ -39,6 +42,15 @@ public class OpenBISFacade
     public SearchResult<DataSet> searchDataSets(DataSetSearchCriteria criteria, DataSetFetchOptions fetchOptions)
     {
         return executeOperation(openBIS -> openBIS.searchDataSets(criteria, fetchOptions));
+    }
+
+    public void updateDataSets(final List<DataSetUpdate> updates)
+    {
+        executeOperation(openBIS ->
+        {
+            openBIS.updateDataSets(updates);
+            return null;
+        });
     }
 
     private <T> T executeOperation(Operation<T> operation)

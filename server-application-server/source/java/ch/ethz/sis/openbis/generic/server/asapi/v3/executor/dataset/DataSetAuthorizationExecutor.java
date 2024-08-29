@@ -126,6 +126,15 @@ public class DataSetAuthorizationExecutor implements IDataSetAuthorizationExecut
     }
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_DATASET_SYSTEM_FIELDS")
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void canUpdateSystemFields(IOperationContext context, IDataSetId id,
+            @AuthorizationGuard(guardClass = DataPEPredicate.class) DataPE dataSet)
+    {
+    }
+
+    @Override
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("DELETE_DATASET")

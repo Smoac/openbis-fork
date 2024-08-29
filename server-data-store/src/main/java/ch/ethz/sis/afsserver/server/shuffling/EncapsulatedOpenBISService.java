@@ -22,7 +22,10 @@ import ch.ethz.sis.afsserver.server.common.OpenBISFacade;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 
 public class EncapsulatedOpenBISService
@@ -79,7 +82,15 @@ public class EncapsulatedOpenBISService
 
     public void updateShareIdAndSize(final String dataSetCode, final String shareId, final long size)
     {
-        // TODO we cannot update AFS data sets yet via V3 API
+        PhysicalDataUpdate physicalDataUpdate = new PhysicalDataUpdate();
+        physicalDataUpdate.setShareId(shareId);
+        physicalDataUpdate.setSize(size);
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId(dataSetCode));
+        update.setPhysicalData(physicalDataUpdate);
+
+        openBISFacade.updateDataSets(List.of(update));
     }
 
     private static SimpleDataSetInformationDTO convert(DataSet dataSet)
