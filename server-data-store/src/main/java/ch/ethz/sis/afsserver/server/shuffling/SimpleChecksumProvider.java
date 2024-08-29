@@ -13,7 +13,10 @@ public class SimpleChecksumProvider implements IChecksumProvider
 
         if (dataSet != null)
         {
-            return FileUtils.checksumCRC32(new File(dataSet.getDataSetLocation(), relativePath));
+            File storeRoot = ServiceProvider.getConfigProvider().getStoreRoot();
+            File shareFolder = new File(storeRoot, dataSet.getDataSetShareId());
+            File dataSetFolder = new File(shareFolder, dataSet.getDataSetLocation());
+            return FileUtils.checksumCRC32(new File(dataSetFolder, relativePath));
         } else
         {
             return -1;
