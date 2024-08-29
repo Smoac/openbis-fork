@@ -454,7 +454,11 @@
 				sessionStorage.setItem("forceNormalLogin", "true");
 			}
 
-			mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+			mainController.serverFacade.ifRestoredSessionActive(function(data) {
+				Util.blockUI();
+				mainController.enterApp(data)
+			});
+
 			if (sessionStorage.getItem("forceNormalLogin") != "true" && sessionStorage.getItem("loggedInAnonymously") != "false") {
 				mainController.serverFacade.getOpenbisV3(function(openbisV3) {
 					openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
