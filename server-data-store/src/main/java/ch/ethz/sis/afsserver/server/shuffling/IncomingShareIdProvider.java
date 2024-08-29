@@ -29,8 +29,7 @@ import java.util.Set;
  */
 public class IncomingShareIdProvider
 {
-    // TODO
-    private static Set<String> incomingShareIds = new LinkedHashSet<String>(List.of("1"));
+    private static Set<String> incomingShareIds = new LinkedHashSet<String>();
 
     public static Set<String> getIdsOfIncomingShares()
     {

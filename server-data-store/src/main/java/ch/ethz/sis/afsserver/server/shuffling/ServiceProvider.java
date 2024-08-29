@@ -7,6 +7,8 @@ public class ServiceProvider
 
     private static EncapsulatedOpenBISService openBISService;
 
+    private static IConfigProvider configProvider;
+
     public static IShareIdManager getShareIdManager()
     {
         return shareIdManager;
@@ -27,4 +29,13 @@ public class ServiceProvider
         ServiceProvider.openBISService = openBISService;
     }
 
+    public static IConfigProvider getConfigProvider()
+    {
+        return configProvider;
+    }
+
+    public static void setConfigProvider(final IConfigProvider configProvider)
+    {
+        ServiceProvider.configProvider = configProvider;
+    }
 }

@@ -23,11 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.ethz.sis.afsserver.server.observer.impl.OpenBISUtils;
-import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
-import ch.ethz.sis.shared.startup.Configuration;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -96,7 +93,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
 
     private final File storeRoot;
 
-    private final String dataStoreCode = OpenBISUtils.AFS_DATA_STORE_CODE;
+    private final String dataStoreCode;
 
     private final Set<String> incomingShares;
 
@@ -112,7 +109,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     {
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
                         .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
-                        ServiceProvider.getShareIdManager()),
+                        ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
                 new SimpleChecksumProvider(), new SimpleLogger(
                         operationLog), new SimpleLogger(notificationLog));
     }
@@ -121,7 +118,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     public EagerShufflingTask(Properties properties, Set<String> incomingShares,
             EncapsulatedOpenBISService service, IShareIdManager shareIdManager,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
-            IChecksumProvider checksumProvider,
+            IConfigProvider configProvider, IChecksumProvider checksumProvider,
             ISimpleLogger logger, ISimpleLogger notifyer)
     {
         super(properties, service);
@@ -133,8 +130,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         this.logger = logger;
         this.notifyer = notifyer;
 
-        Configuration configuration = new Configuration(properties);
-        storeRoot = new File(AtomicFileSystemServerParameterUtil.getStorageRoot(configuration));
+        dataStoreCode = configProvider.getDataStoreCode();
+        storeRoot = configProvider.getStoreRoot();
         if (storeRoot.isDirectory() == false)
         {
             throw new ConfigurationFailureException(

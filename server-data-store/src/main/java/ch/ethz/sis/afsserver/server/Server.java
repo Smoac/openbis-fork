@@ -27,7 +27,9 @@ import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskUtils;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.afsserver.server.shuffling.ConfigProvider;
 import ch.ethz.sis.afsserver.server.shuffling.EncapsulatedOpenBISService;
+import ch.ethz.sis.afsserver.server.shuffling.IncomingShareIdProvider;
 import ch.ethz.sis.afsserver.server.shuffling.ServiceProvider;
 import ch.ethz.sis.afsserver.server.shuffling.ShareIdManager;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -129,12 +131,17 @@ public final class Server<CONNECTION, API>
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
-        // 2.7 Service provider
+        // 2.7 Create objects used by the old DSS code
         EncapsulatedOpenBISService encapsulatedOpenBISService =
                 new EncapsulatedOpenBISService(AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration));
-        ShareIdManager shareIdManager = new ShareIdManager(encapsulatedOpenBISService, 84600);
+        ShareIdManager shareIdManager =
+                new ShareIdManager(encapsulatedOpenBISService, AtomicFileSystemServerParameterUtil.getDataSetLockingTimeout(configuration));
+        ConfigProvider configProvider = new ConfigProvider(configuration);
+
         ServiceProvider.setOpenBISService(encapsulatedOpenBISService);
         ServiceProvider.setShareIdManager(shareIdManager);
+        ServiceProvider.setConfigProvider(configProvider);
+        IncomingShareIdProvider.add(List.of(AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(configuration).toString()));
 
         // 2.8 Create maintenance tasks
         logger.info("Starting maintenance tasks");

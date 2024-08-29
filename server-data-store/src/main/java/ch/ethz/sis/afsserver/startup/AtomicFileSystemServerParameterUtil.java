@@ -105,6 +105,11 @@ public class AtomicFileSystemServerParameterUtil
         return getStringParameter(configuration, AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, true);
     }
 
+    public static Integer getDataSetLockingTimeout(Configuration configuration)
+    {
+        return getIntegerParameter(configuration, AtomicFileSystemServerParameter.dataSetLockingTimeout, true);
+    }
+
     private static String getStringParameter(Configuration configuration, AtomicFileSystemServerParameter parameter, boolean mandatory)
     {
         String parameterValue = configuration.getStringProperty(parameter);
