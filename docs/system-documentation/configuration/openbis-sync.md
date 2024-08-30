@@ -156,6 +156,7 @@ restarting DSS.
 
 Here is an example of a typical configuration:
 
+
 **harvester-config.txt**
 
 ```properties
@@ -188,7 +189,9 @@ verbose = true
 
 -   The configuration file can have one or many section for each openBIS
     instance. Each section start with an arbitrary name in square
-    brackets. This name becomes the alias of the instance.
+    brackets. This name becomes the alias of the instance. 
+    Warning: This alias SHOULD only contain letters and numbers. 
+    Other characters MIGHT look like the work but can lead to errors when parsing the prefix.
 -   `<data source host>`, `<DSS port>` and `<AS port>` have to be host
     name and ports of the Data Source openBIS instance as seen by the
     Harvester instance.
