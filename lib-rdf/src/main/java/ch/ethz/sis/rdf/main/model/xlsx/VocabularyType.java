@@ -5,8 +5,17 @@ import java.util.List;
 
 public class VocabularyType {
     public String code;
+    public String ontologyAnnotationId;
     public String description;
     public List<VocabularyTypeOption> options;
+
+    public VocabularyType(String code, String description, String ontologyAnnotationId, List<VocabularyTypeOption> options)
+    {
+        this.code = code;
+        this.description = description;
+        this.ontologyAnnotationId = ontologyAnnotationId;
+        this.options = options;
+    }
 
     public VocabularyType(String code, String description, List<VocabularyTypeOption> options)
     {

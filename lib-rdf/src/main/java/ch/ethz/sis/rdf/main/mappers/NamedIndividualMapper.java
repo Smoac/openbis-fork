@@ -74,6 +74,7 @@ public class NamedIndividualMapper
         return new VocabularyType(
                 resource.getLocalName().toUpperCase(Locale.ROOT),
                 description + "\n" + resource.getURI() + "\n" + subClassOf,
+                resource.getURI(),
                 new ArrayList<>(Collections.singletonList(option))
         );
     }
