@@ -1151,7 +1151,19 @@ function MainController(profile) {
 	
 	this._showBlancPage = function() {
 		var content = this._getBackwardsCompatibleMainContainer();
-		content.load("./etc/welcome.html");
+
+		$.ajax({ cache: false,
+        		 url: "./etc/welcome.html",
+        		 success: function (data) {
+        			content.html(data);
+        		 },
+        		 settings: { suppressErrors: true },
+        		 error: function (xhr, ajaxOptions, thrownError){
+        		    	console.log("AJAX Error status: " + xhr.status + " - Status text: " + xhr.statusText + " - Using default text.");
+        				content.html('<p>Welcome to openBIS ELN-LIMS</p>');
+        		 }
+        });
+
 		this.currentView = {
 		    content : content
 		}

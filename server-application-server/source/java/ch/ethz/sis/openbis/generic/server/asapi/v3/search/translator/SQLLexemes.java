@@ -178,6 +178,8 @@ public class SQLLexemes
 
     public static final String EQ = "=";
 
+    public static final String NE = "!=";
+
     public static final String GT = ">";
 
     public static final String LT = "<";

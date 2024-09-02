@@ -129,7 +129,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         mappingManager.init(configParametersByKeys);
         Map<String, List<DataSourceDefinition>> originalDataSourceDefinitions =
                 new HashMap<String, List<DataSourceDefinition>>();
-        List<DataStorePE> dataStores = daoFactory.getDataStoreDAO().listDataStores();
+        List<DataStorePE> dataStores = daoFactory.getDataStoreDAO().listDataStores(true, true);
         for (DataStorePE dataStore : dataStores)
         {
             String code = dataStore.getCode();

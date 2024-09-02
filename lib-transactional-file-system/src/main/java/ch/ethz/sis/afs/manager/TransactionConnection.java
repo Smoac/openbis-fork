@@ -30,7 +30,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.api.dto.File;
-import ch.ethz.sis.afs.api.dto.Space;
+import ch.ethz.sis.afs.api.dto.FreeSpace;
 import ch.ethz.sis.afs.dto.Transaction;
 import ch.ethz.sis.afs.dto.operation.CopyOperation;
 import ch.ethz.sis.afs.dto.operation.CreateOperation;
@@ -353,7 +353,7 @@ public class TransactionConnection implements TransactionalFileSystem {
     }
 
     @Override
-    public Space free(@NonNull String source) throws Exception
+    public FreeSpace free(@NonNull String source) throws Exception
     {
         source = getSafePath(OperationName.Free, source);
         validateOperationAndPaths(OperationName.Free, source, null);
@@ -363,8 +363,7 @@ public class TransactionConnection implements TransactionalFileSystem {
         {
             safeExistingSource = IOUtils.getParentPath(safeExistingSource);
         }
-        final File file = IOUtils.getFile(safeExistingSource);
-        return new Space(file.getTotalSpace(), file.getFreeSpace());
+        return IOUtils.getSpace(safeExistingSource);
     }
 
     private boolean prepare(Operation operation, String source, String target) throws Exception {

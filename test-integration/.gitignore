@@ -3,6 +3,7 @@
 build/
 targets/
 etc/full-text-search-document-version
+etc/service.properties
 *.iml
 *.eml
 .shredder

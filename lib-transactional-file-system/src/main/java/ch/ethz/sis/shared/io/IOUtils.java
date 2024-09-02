@@ -16,6 +16,7 @@
 package ch.ethz.sis.shared.io;
 
 import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.api.dto.FreeSpace;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -48,7 +49,6 @@ import java.security.MessageDigest;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class IOUtils {
 
@@ -176,12 +176,22 @@ public class IOUtils {
         FileTime lastAccessTime = fileAttributes.lastAccessTime();
         OffsetDateTime lastAccess = OffsetDateTime.ofInstant(lastAccessTime.toInstant(), ZoneId.systemDefault());
 
-        final java.io.File ioFile = path.toFile();
+        return new File(absolutePath, name, isDirectory, size, lastModified, creation, lastAccess);
+    }
 
-        final long totalSpace = ioFile.getTotalSpace();
-        final long freeSpace = ioFile.getFreeSpace();
+    public static FreeSpace getSpace(final String path) throws IOException
+    {
+        return getSpace(getPathObject(path));
+    }
 
-        return new File(absolutePath, name, isDirectory, size, lastModified, creation, lastAccess, totalSpace, freeSpace);
+    private static FreeSpace getSpace(final Path path) throws IOException
+    {
+        final FileStore fileStore = Files.getFileStore(path);
+
+        final long totalSpace = fileStore.getTotalSpace();
+        final long freeSpace = fileStore.getUnallocatedSpace();
+
+        return new FreeSpace(totalSpace, freeSpace);
     }
 
     //

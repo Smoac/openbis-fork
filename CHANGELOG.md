@@ -1,5 +1,10 @@
 # OpenBIS Change Log
 
+## Version 20.10.9.1 (16 Aug 2024)
+
+### ELN
+- Bugfix: ELN UI - Blanc Sample fields (BIS-1460)
+
 ## Version 20.10.9 (31 Jul 2024)
 
 ### Core
@@ -164,6 +169,7 @@
 - Improvement: Performance improvements when adding children and creating new entities on the persistence layer. As used by XLS Imports. (SSDM-13033, SSDM-13195, SSDM-13207)
 - Improvement: Performance improvements when using general search from the V1 API as used by the Core UI (SSDM-13449)
 - Improvement: Make dropbox recovery marker directory configurable (SSDM-12056)
+- Improvement: Make dropbox .faulty-paths file creation more consistent (SSDM-13501)
 - Improvement: User management task make instance admins configurable (SSDM-13080)
 - Bugfix: ArchivingByRequestTask : NPE when a data set does not have an experiment (SSDM-13172)
 - Bugfix: MultiDataSetArchiver : make unarchiving more robust with StrongLink (SSDM-13084)

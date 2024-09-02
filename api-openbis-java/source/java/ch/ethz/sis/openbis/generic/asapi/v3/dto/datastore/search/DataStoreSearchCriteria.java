@@ -52,6 +52,12 @@ public class DataStoreSearchCriteria extends AbstractObjectSearchCriteria<IDataS
         return with(new CodesSearchCriteria());
     }
 
+    public DataStoreKindSearchCriteria withKind()
+    {
+        criteria.removeIf(criterion -> criterion instanceof DataStoreKindSearchCriteria);
+        return with(new DataStoreKindSearchCriteria());
+    }
+
     public DataStoreSearchCriteria withOrOperator()
     {
         return (DataStoreSearchCriteria) withOperator(SearchOperator.OR);

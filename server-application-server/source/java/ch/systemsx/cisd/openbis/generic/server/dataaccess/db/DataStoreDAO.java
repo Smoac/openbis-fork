@@ -31,6 +31,7 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
@@ -41,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
  */
 public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
 {
-    public static final String AFS_DATA_STORE_CODE = "AFS";
-
     private final static Class<DataStorePE> ENTITY_CLASS = DataStorePE.class;
 
     private static final Logger operationLog =
@@ -89,6 +88,12 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     @Override
     public List<DataStorePE> listDataStores()
     {
+        return listDataStores(true, false);
+    }
+
+    @Override
+    public List<DataStorePE> listDataStores(final boolean includeDss, final boolean includeAfs)
+    {
         return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<List<DataStorePE>>()
         {
 
@@ -96,7 +101,21 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
             public List<DataStorePE> doInHibernate(Session session) throws HibernateException
             {
                 final Criteria criteria = session.createCriteria(ENTITY_CLASS);
-                criteria.add(Restrictions.ne("code", AFS_DATA_STORE_CODE));
+
+                if (includeAfs)
+                {
+                    if (!includeDss)
+                    {
+                        criteria.add(Restrictions.eq("code", Constants.AFS_DATA_STORE_CODE));
+                    }
+                } else if (includeDss)
+                {
+                    criteria.add(Restrictions.ne("code", Constants.AFS_DATA_STORE_CODE));
+                } else
+                {
+                    return List.of();
+                }
+
                 criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
                 criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
                 final List<DataStorePE> list = cast(criteria.list());

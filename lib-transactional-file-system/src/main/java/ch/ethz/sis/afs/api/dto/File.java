@@ -37,10 +37,4 @@ public class File
 
     @EqualsAndHashCode.Exclude
     private OffsetDateTime lastAccessTime;
-
-    @EqualsAndHashCode.Exclude
-    private Long totalSpace;
-
-    @EqualsAndHashCode.Exclude
-    private Long freeSpace;
 }

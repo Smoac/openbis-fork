@@ -36,6 +36,16 @@ public interface IDataStoreDAO
      */
     public DataStorePE tryToFindDataStoreByCode(String dataStoreCode);
 
-    /** Lists all data stores in the home database */
+    /** Lists all data stores in the home database except for AFS. */
     public List<DataStorePE> listDataStores();
+
+    /**
+     * List datastores in the home database.
+     *
+     * @param includeDss includes DSS datastores (legacy).
+     * @param includeAfs includes AFS datastores (new).
+     * @return list of datastores.
+     */
+    public List<DataStorePE> listDataStores(boolean includeDss, boolean includeAfs);
+
 }

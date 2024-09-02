@@ -18,20 +18,12 @@ function InstanceSettingsController(mode, profileToEdit) {
     this._instanceSettingsModel = new InstanceSettingsModel(mode, profileToEdit);
 	this._instanceSettingsView = new InstanceSettingsView(this, this._instanceSettingsModel);
 
-
-
 	this.init = function($container) {
 		this._instanceSettingsView.repaint($container);
 	}
 
 	this.getValues = function() {
 	    return this._instanceSettingsView.getValues();
-	}
-
-	this.save = function() {
-
-	    console.log("||> SAVE!");
-
 	}
 
 }

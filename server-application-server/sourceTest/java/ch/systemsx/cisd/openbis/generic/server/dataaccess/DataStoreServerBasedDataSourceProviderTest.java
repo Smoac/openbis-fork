@@ -503,7 +503,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
         context.checking(new Expectations()
             {
                 {
-                    one(dataStoreDAO).listDataStores();
+                    one(dataStoreDAO).listDataStores(with(any(boolean.class)), with(any(boolean.class)));
                     will(returnValue(Arrays.asList(dataStores)));
                 }
             });

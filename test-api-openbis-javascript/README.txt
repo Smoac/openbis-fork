@@ -79,7 +79,7 @@ Here are some tips for speed up development:
 Debugging:
 ----------
 
-Out comment the line
+Comment the line
 
 require.urlArgs = 'now=' + Date.now();
 

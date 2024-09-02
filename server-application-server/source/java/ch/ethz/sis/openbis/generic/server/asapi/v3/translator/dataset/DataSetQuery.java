@@ -43,8 +43,9 @@ public interface DataSetQuery extends ObjectQuery
             + "d.modification_timestamp as modificationDate, d.registration_timestamp as registrationDate, "
             + "d.data_set_kind as dataSetKind, d.frozen as frozen, d.frozen_for_children as frozenForChildren, "
             + "d.frozen_for_parents as frozenForParents, d.frozen_for_comps as frozenForComponents, "
-            + "d.frozen_for_conts as frozenForContainers, d.meta_data as metaData "
-            + "from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            + "d.frozen_for_conts as frozenForContainers, d.meta_data as metaData, d.afs_data as afsData "
+            + "from data_all d "
+            + "where d.id = any(?{1}) and d.del_id is null", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetBaseRecord> getDataSets(LongSet dataSetIds);
 
     @Select(sql = "select ed.id as objectId, ed.id as relatedId from external_data ed where ed.id = any(?{1})", parameterBindings = {
@@ -88,7 +89,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getStorageFormatIds(LongSet dataSetIds);
 
-    @Select(sql = "select d.id as objectId, d.dsty_id as relatedId from data d where d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, d.dsty_id as relatedId from data_all d where d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet dataSetIds);
 
@@ -182,15 +183,15 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<Long> getNotPostRegisteredDataSets(LongSet dataSetIds);
 
-    @Select(sql = "select d.id as objectId, d.samp_id as relatedId from data d where d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, d.samp_id as relatedId from data_all d where d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getSampleIds(LongSet dataSetIds);
 
-    @Select(sql = "select d.id as objectId, d.expe_id as relatedId from data d where d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, d.expe_id as relatedId from data_all d where d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getExperimentIds(LongSet dataSetIds);
 
-    @Select(sql = "select d.id as objectId, d.dast_id as relatedId from data d where d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, d.dast_id as relatedId from data_all d where d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getDataStoreIds(LongSet dataSetIds);
 
@@ -222,11 +223,11 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTagIds(LongSet dataSetIds);
 
-    @Select(sql = "select d.id as objectId, d.pers_id_registerer as relatedId from data d where d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, d.pers_id_registerer as relatedId from data_all d where d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet dataSetIds);
 
-    @Select(sql = "select d.id as objectId, d.pers_id_modifier as relatedId from data d where d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, d.pers_id_modifier as relatedId from data_all d where d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getModifierIds(LongSet dataSetIds);
 
@@ -238,7 +239,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet dataSetTypePropertyTypeIds);
 
-    @Select(sql = "select d.id as objectId, cc.id as relatedId from data d, content_copies cc where cc.data_id = d.id and d.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select d.id as objectId, cc.id as relatedId from data_all d, content_copies cc where cc.data_id = d.id and d.id = any(?{1}) and d.del_id is null", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getContentCopyIds(LongOpenHashSet dataSetIds);
 

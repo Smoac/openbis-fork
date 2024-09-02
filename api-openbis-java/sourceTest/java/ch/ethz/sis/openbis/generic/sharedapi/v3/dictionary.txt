@@ -54,6 +54,7 @@ addSpace
 addStringField
 addTags
 ADMIN
+AFS
 afterOperation
 Aggregation Service
 Aggregation Service Execution Options
@@ -292,6 +293,8 @@ DataSetTypeSortOptions
 DataSetUpdate
 DataStore
 DataStoreFetchOptions
+DataStoreKind
+DataStoreKindSearchCriteria
 DataStorePermId
 DataStoreSearchCriteria
 DataStoreSortOptions
@@ -414,6 +417,7 @@ DOWNLOAD_METHOD
 DOWNLOAD_SESSION_ID_PARAMETER
 DOWNLOAD_STREAM_ID_PARAMETER
 downloadFiles
+DSS
 Dss Service Perm Id
 DtoGenerator
 Dynamic Property Plugin Evaluation Options
@@ -833,6 +837,7 @@ GetDataSetsOperation
 GetDataSetsOperationResult
 getDataStore
 getDataStoreId
+getDataStoreKinds
 getDefinitionsOnly
 getDeletedObjects
 getDeletionId

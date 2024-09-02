@@ -1283,6 +1283,10 @@ var FormUtil = new function() {
                                     }
                                     arrayOfMatchedIds = arrayOfMatchedIds.sort((a,b) => a.index - b.index);
                                     var ind = 0;
+                                    var existingLinksRegExp = /<a href="(.*?)">/g
+                                    while ((match = existingLinksRegExp.exec(value)) != null) {
+                                        arrayOfMatchedIds = arrayOfMatchedIds.filter(matchedId => !(match.index < matchedId.index && match.index + match[0].length > matchedId.index));
+                                    }
                                     for(let matchedId of arrayOfMatchedIds) {
                                         // </span> is a hack to display links as proper links in CKEditor
                                         var newLink = '</span>' + checkedLinks[matchedId.value].link[0].outerHTML

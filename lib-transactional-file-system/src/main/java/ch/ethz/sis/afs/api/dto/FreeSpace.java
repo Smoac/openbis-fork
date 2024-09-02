@@ -25,7 +25,7 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class Space
+public class FreeSpace
 {
     Long total;
     Long free;

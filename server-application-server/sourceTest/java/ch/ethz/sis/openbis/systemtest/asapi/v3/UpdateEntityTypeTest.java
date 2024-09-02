@@ -596,12 +596,34 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Given
+        final String code = "TYPE-" + System.currentTimeMillis();
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode(code);
+        propertyTypeCreation.setManagedInternally(false);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("some property type");
+        propertyTypeCreation.setDescription("some property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_TEST_ENTITY_TYPE_");
+        typeCreation.setManagedInternally(false);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId(propertyTypeCreation.getCode()));
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+
         UPDATE update = newTypeUpdate();
-        EntityTypePermId typeId = getTypeId();
-        String propertyType = "DESCRIPTION";
-        createEntity(sessionToken, typeId, propertyType, "new property");
+        createEntity(sessionToken, typeId, code, "new property");
         update.setTypeId(typeId);
-        update.getPropertyAssignments().remove(new PropertyAssignmentPermId(typeId, new PropertyTypePermId(propertyType)));
+        update.getPropertyAssignments().remove(new PropertyAssignmentPermId(typeId, new PropertyTypePermId(code)));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -613,7 +635,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
                 }
             },
                 // Then
-                "Can not remove property type " + propertyType + " from type " + typeId.getPermId());
+                "Can not remove property type " + code + " from type " + typeId.getPermId());
     }
 
     @DataProvider
@@ -629,22 +651,40 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        EntityTypePermId typeId = getTypeId();
-        PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, propertyDataType);
+        // Given
+        final String code = "TYPE-" + System.currentTimeMillis();
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode(code);
+        propertyTypeCreation.setManagedInternally(false);
+        propertyTypeCreation.setDataType(propertyDataType);
+        propertyTypeCreation.setLabel("some property type");
+        propertyTypeCreation.setDescription("some property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_TEST_ENTITY_TYPE_");
+        typeCreation.setManagedInternally(false);
 
         PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
-        assignmentCreation.setPropertyTypeId(propertyTypeId);
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId(propertyTypeCreation.getCode()));
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+
 
         UPDATE updateAddAssignment = newTypeUpdate();
         updateAddAssignment.setTypeId(typeId);
-        updateAddAssignment.getPropertyAssignments().add(assignmentCreation);
+        updateAddAssignment.getPropertyAssignments().set(assignmentCreation);
         updateTypes(sessionToken, List.of(updateAddAssignment));
 
-        createEntity(sessionToken, typeId, propertyTypeId.getPermId(), propertyValue);
+        createEntity(sessionToken, typeId, code, propertyValue);
 
         UPDATE updateRemoveAssignment = newTypeUpdate();
         updateRemoveAssignment.setTypeId(typeId);
-        updateRemoveAssignment.getPropertyAssignments().remove(new PropertyAssignmentPermId(typeId, propertyTypeId));
+        updateRemoveAssignment.getPropertyAssignments().remove(new PropertyAssignmentPermId(typeId, new PropertyTypePermId(code)));
         updateRemoveAssignment.getPropertyAssignments().setForceRemovingAssignments(true);
         updateTypes(sessionToken, List.of(updateRemoveAssignment));
     }
@@ -706,6 +746,106 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
                                        }
                                    },
                 "Internal entity type fields can be managed only by the system user.");
+    }
+
+    @Test
+    public void testUpdateEntityTypeAssignment_setIncorrectInitialValue_shouldFail()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("MY_TEST_TYPE");
+        propertyTypeCreation.setManagedInternally(false);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("some property type");
+        propertyTypeCreation.setDescription("some property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_TEST_ENTITY_TYPE");
+        typeCreation.setManagedInternally(false);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPatternType("RANGES");
+        assignmentCreation.setPattern("1-10");
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+
+        // When
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+
+        assignmentCreation.setMandatory(true);
+        assignmentCreation.setInitialValueForExistingEntities("11");
+
+        update.getPropertyAssignments().add(assignmentCreation);
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                updateTypes(sessionToken, Arrays.asList(update));
+            }
+        }, "New pattern does not match default value!");
+    }
+
+    @Test
+    public void testUpdateEntityTypeAssignment_setNewPatternNotMatchingExistingValues_shouldFail()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("MY_TEST_TYPE");
+        propertyTypeCreation.setManagedInternally(false);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("some property type");
+        propertyTypeCreation.setDescription("some property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_TEST_ENTITY_TYPE_2");
+        typeCreation.setManagedInternally(false);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId(propertyTypeCreation.getCode()));
+        assignmentCreation.setPatternType("RANGES");
+        assignmentCreation.setPattern("1-10");
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+
+        final String propertyValue = "10";
+        createEntity(sessionToken, typeId, propertyTypeCreation.getCode(), propertyValue);
+
+        // When
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+
+        assignmentCreation.setPattern("20-30");
+        update.getPropertyAssignments().set(assignmentCreation);
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                updateTypes(sessionToken, Arrays.asList(update));
+            }
+        }, "Existing property '"+propertyValue+"' does not match the new pattern!");
     }
 
     @Test

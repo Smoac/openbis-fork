@@ -18,8 +18,10 @@ package ch.ethz.sis.openbis.systemtests.common;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +42,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.proxy.ProxyServlet;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -55,11 +55,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
 import org.springframework.remoting.support.RemoteInvocation;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -112,8 +107,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -123,7 +119,7 @@ public abstract class AbstractIntegrationTest
 {
     public static final String TEST_INTERACTIVE_SESSION_KEY = "integration-test-interactive-session-key";
 
-    public static final String TEST_DATA_STORE_CODE = "TEST";
+    public static final String TEST_DATA_STORE_CODE = "STANDARD";
 
     public static final String DEFAULT_SPACE = "DEFAULT";
 
@@ -160,10 +156,12 @@ public abstract class AbstractIntegrationTest
 
         cleanupApplicationServerFolders();
         cleanupAfsServerFolders();
+        cleanupDataStoreServerFolders();
 
         startApplicationServer(true);
         startApplicationServerProxy();
         createApplicationServerData();
+        startDataStoreServer();
         startAfsServer();
         startAfsServerProxy();
     }
@@ -171,10 +169,11 @@ public abstract class AbstractIntegrationTest
     @AfterSuite
     public void afterSuite() throws Exception
     {
-        shutdownApplicationServer();
-        shutdownApplicationServerProxy();
         shutdownAfsServer();
         shutdownAfsServerProxy();
+        shutdownDataStoreServer();
+        shutdownApplicationServer();
+        shutdownApplicationServerProxy();
     }
 
     @BeforeMethod
@@ -218,6 +217,12 @@ public abstract class AbstractIntegrationTest
         String storageIncomingShareId = configuration.getStringProperty(AtomicFileSystemServerParameter.storageIncomingShareId);
 
         new File(storageRoot, storageIncomingShareId).mkdirs();
+    }
+
+    private void cleanupDataStoreServerFolders() throws Exception
+    {
+        cleanupFolderSafely("targets/storage");
+        new File("targets/incoming-default").mkdirs();
     }
 
     private void cleanupFolderSafely(String folderPath) throws Exception
@@ -350,8 +355,6 @@ public abstract class AbstractIntegrationTest
         OpenBIS openBIS = createOpenBIS();
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-        createDataStore(TEST_DATA_STORE_CODE);
-
         String afsServerUser = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUser);
         createUser(openBIS, afsServerUser, null, Role.ETL_SERVER);
 
@@ -360,6 +363,15 @@ public abstract class AbstractIntegrationTest
         createUser(openBIS, TEST_SPACE_OBSERVER, TEST_SPACE, Role.OBSERVER);
 
         createUser(openBIS, DEFAULT_SPACE_ADMIN, DEFAULT_SPACE, Role.ADMIN);
+    }
+
+    private void startDataStoreServer() throws Exception
+    {
+        log("Starting data store server.");
+        Properties configuration = getDataStoreServerConfiguration();
+        QueueingPathRemoverService.start(new File(configuration.getProperty("root-dir")), ETLDaemon.shredderQueueFile);
+        DataStoreServer.main(new String[0]);
+        log("Started data store server.");
     }
 
     private void startAfsServer() throws Exception
@@ -399,12 +411,8 @@ public abstract class AbstractIntegrationTest
                         }
                     } else if (HttpMethod.POST.is(proxyRequest.getMethod()))
                     {
-                        String parametersString = IOUtils.toString(proxyRequest.getInputStream(), StandardCharsets.UTF_8);
-                        List<NameValuePair> parametersList = URLEncodedUtils.parse(parametersString, StandardCharsets.UTF_8);
-                        for (NameValuePair parameterItem : parametersList)
-                        {
-                            parameters.put(parameterItem.getName(), parameterItem.getValue());
-                        }
+                        String parametersString = IOUtils.toString(proxyRequest.getInputStream());
+                        parameters = parseUrlQuery(parametersString);
                     }
 
                     System.out.println(
@@ -454,6 +462,12 @@ public abstract class AbstractIntegrationTest
         log("Shut down application server proxy.");
     }
 
+    private void shutdownDataStoreServer()
+    {
+        DataStoreServer.stop();
+        log("Shut down data store server.");
+    }
+
     private void shutdownAfsServer() throws Exception
     {
         afsServer.shutdown(false);
@@ -489,6 +503,18 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
         configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
                 TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
+        return configuration;
+    }
+
+    public static Properties getDataStoreServerConfiguration() throws Exception
+    {
+        Properties configuration = new Properties();
+        configuration.load(new FileInputStream("etc/dss/service.properties"));
+        configuration.setProperty("server-url", TestInstanceHostUtils.getOpenBISProxyUrl());
+        configuration.setProperty("port", String.valueOf(TestInstanceHostUtils.getDSSPort()));
+        configuration.setProperty("download-url", TestInstanceHostUtils.getDSSUrl());
+        configuration.store(new FileOutputStream(new File("etc/service.properties")),
+                "This file has been generated. DSS has service.properties location hardcoded, without this file it won't start up");
         return configuration;
     }
 
@@ -568,24 +594,6 @@ public abstract class AbstractIntegrationTest
         return new OpenBIS(TestInstanceHostUtils.getOpenBISUrl() + TestInstanceHostUtils.getOpenBISPath(),
                 TestInstanceHostUtils.getDSSUrl() + TestInstanceHostUtils.getDSSPath(),
                 TestInstanceHostUtils.getAFSUrl() + TestInstanceHostUtils.getAFSPath());
-    }
-
-    public static void createDataStore(String dataStoreCode)
-    {
-        DataStorePE testDataStore = new DataStorePE();
-        testDataStore.setCode(dataStoreCode);
-        testDataStore.setDownloadUrl("");
-        testDataStore.setRemoteUrl("");
-        testDataStore.setDatabaseInstanceUUID("");
-        testDataStore.setSessionToken("");
-        testDataStore.setArchiverConfigured(false);
-
-        executeInApplicationServerTransaction((status) ->
-        {
-            IDAOFactory daoFactory = applicationServerSpringContext.getBean(IDAOFactory.class);
-            daoFactory.getDataStoreDAO().createOrUpdateDataStore(testDataStore);
-            return null;
-        });
     }
 
     public static Space createSpace(OpenBIS openBIS, String spaceCode)
@@ -710,19 +718,23 @@ public abstract class AbstractIntegrationTest
         return person;
     }
 
-    public static void executeInApplicationServerTransaction(TransactionCallback<?> callback)
-    {
-        PlatformTransactionManager manager = applicationServerSpringContext.getBean(PlatformTransactionManager.class);
-        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
-        definition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        definition.setReadOnly(false);
-        TransactionTemplate template = new TransactionTemplate(manager, definition);
-        template.execute(callback);
-    }
-
     public static void log(String message)
     {
         System.out.println("[TEST] " + message);
+    }
+
+    private static Map<String, String> parseUrlQuery(String url) throws Exception
+    {
+        Map<String, String> parameters = new HashMap<>();
+        String[] namesAndValues = url.split("&");
+        for (String nameAndValue : namesAndValues)
+        {
+            int index = nameAndValue.indexOf("=");
+            String name = nameAndValue.substring(0, index);
+            String value = nameAndValue.substring(index + 1);
+            parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
+        }
+        return parameters;
     }
 
 }

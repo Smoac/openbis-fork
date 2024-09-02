@@ -166,8 +166,8 @@ public class ExecutorProxy extends AbstractProxy
     @Override
     public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
-        final ch.ethz.sis.afs.api.dto.Space space = workerContext.getConnection().free(getSourcePath(owner, source));
-        return new FreeSpace(space.getTotal(), space.getFree());
+        final ch.ethz.sis.afs.api.dto.FreeSpace freeSpace = workerContext.getConnection().free(getSourcePath(owner, source));
+        return new FreeSpace(freeSpace.getTotal(), freeSpace.getFree());
     }
 
 }

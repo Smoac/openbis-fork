@@ -15,6 +15,7 @@
 - Improved setup script
 - Fixed transaction commit function
 - Fixed mount() method to work with PAT
+- Fixed plugin updates
 
 ## Changes with pybis-1.36.3
 

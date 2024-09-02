@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * Describes one dataset which should be processed by the plugin task.
- * 
+ *
  * @author Tomasz Pylak
  */
 public class DatasetDescription implements Serializable, IDatasetLocation
@@ -42,6 +42,8 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     private boolean h5arFolders;
 
     private String datasetCode;
+
+    private String dataSetShareId;
 
     private String dataSetLocation;
 
@@ -125,6 +127,16 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setDataSetLocation(String dataSetLocation)
     {
         this.dataSetLocation = dataSetLocation;
+    }
+
+    @Override public String getDataSetShareId()
+    {
+        return dataSetShareId;
+    }
+
+    public void setDataSetShareId(final String dataSetShareId)
+    {
+        this.dataSetShareId = dataSetShareId;
     }
 
     public Date getRegistrationTimestamp()

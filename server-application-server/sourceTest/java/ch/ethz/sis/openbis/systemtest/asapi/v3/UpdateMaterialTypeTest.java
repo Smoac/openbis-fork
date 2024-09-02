@@ -17,7 +17,9 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -68,6 +70,11 @@ public class UpdateMaterialTypeTest extends UpdateEntityTypeTest<MaterialTypeCre
     @Override
     protected void createEntity(String sessionToken, IEntityTypeId entityType, String propertyType, String propertyValue)
     {
+        MaterialCreation mc = new MaterialCreation();
+        mc.setCode(UUID.randomUUID().toString());
+        mc.setTypeId(entityType);
+        mc.setStringProperty(propertyType, propertyValue);
+        v3api.createMaterials(sessionToken, Arrays.asList(mc));
     }
 
     @Override

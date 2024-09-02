@@ -71,12 +71,12 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
                 Collections.emptyList(), getCriteria(criteria, emptyCriteria.getClass()),
                 criteria.getOperator(), criteria.isNegated());
 
-        return doSearchForIDs(userId, criteriaVo, idsColumnName, tableMapper, authorisationInformation);
+        return doSearchForIDs(userId, criteriaVo, idsColumnName, tableMapper, authorisationInformation, null);
     }
 
     protected Set<Long> doSearchForIDs(final Long userId, final CompositeEntityCriteriaVo criteriaVo,
             final String idsColumnName, final TableMapper tableMapper,
-            final AuthorisationInformation authorisationInformation)
+            final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria parentCriteria)
     {
         final Collection<? extends ISearchCriteria> parentRelationshipsCriteria = criteriaVo.getParentsCriteria();
         final Collection<? extends ISearchCriteria> childRelationshipsCriteria = criteriaVo.getChildrenCriteria();
@@ -90,11 +90,8 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         if (!mainCriteria.isEmpty())
         {
             // The main criteria have no recursive ISearchCriteria into it, to facilitate building a query
-            final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria(negated);
-            containerCriterion.withOperator(finalSearchOperator);
-            containerCriterion.setCriteria(mainCriteria);
-            mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
-                    containerCriterion, tableMapper, idsColumnName, authorisationInformation);
+            mainCriteriaIntermediateResults = getMainCriteriaIntermediateResults(userId, idsColumnName, tableMapper, authorisationInformation,
+                    negated, finalSearchOperator, mainCriteria, parentCriteria);
         } else
         {
             mainCriteriaIntermediateResults = null;
@@ -184,6 +181,19 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         }
 
         return filterIDsByUserRights(authorisationInformation, results);
+    }
+
+    protected Set<Long> getMainCriteriaIntermediateResults(final Long userId, final String idsColumnName, final TableMapper tableMapper,
+            final AuthorisationInformation authorisationInformation, final boolean negated, final SearchOperator finalSearchOperator,
+            final Collection<ISearchCriteria> mainCriteria, final AbstractCompositeSearchCriteria parentCriteria)
+    {
+        final Set<Long> mainCriteriaIntermediateResults;
+        final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria(negated);
+        containerCriterion.withOperator(finalSearchOperator);
+        containerCriterion.setCriteria(mainCriteria);
+        mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
+                containerCriterion, tableMapper, idsColumnName, authorisationInformation);
+        return mainCriteriaIntermediateResults;
     }
 
     /**

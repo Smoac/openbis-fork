@@ -367,6 +367,9 @@
 			});
 			
 			$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
+				if(settings.settings.suppressErrors) {
+					return;
+				}
 				try {
 					Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url);
 				} catch(err) {
@@ -451,7 +454,11 @@
 				sessionStorage.setItem("forceNormalLogin", "true");
 			}
 
-			mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+			mainController.serverFacade.ifRestoredSessionActive(function(data) {
+				Util.blockUI();
+				mainController.enterApp(data)
+			});
+
 			if (sessionStorage.getItem("forceNormalLogin") != "true" && sessionStorage.getItem("loggedInAnonymously") != "false") {
 				mainController.serverFacade.getOpenbisV3(function(openbisV3) {
 					openbisV3.loginAsAnonymousUser().done(function(sessionToken) {

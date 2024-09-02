@@ -17,10 +17,9 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -71,6 +70,11 @@ public class UpdateSampleTypeTest extends UpdateEntityTypeTest<SampleTypeCreatio
     @Override
     protected void createEntity(String sessionToken, IEntityTypeId entityType, String propertyType, String propertyValue)
     {
+        SampleCreation sc = new SampleCreation();
+        sc.setCode(UUID.randomUUID().toString());
+        sc.setTypeId(entityType);
+        sc.setStringProperty(propertyType, propertyValue);
+        v3api.createSamples(sessionToken, Arrays.asList(sc));
     }
 
     @Override

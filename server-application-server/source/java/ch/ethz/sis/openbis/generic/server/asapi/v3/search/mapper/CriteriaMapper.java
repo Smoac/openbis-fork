@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_SET_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_SET_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_STORE_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.EXPERIMENT_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.EXPERIMENT_TYPE_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN;
@@ -93,6 +94,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SpeedHintSearchCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.StatusSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.StorageConfirmationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.StorageFormatSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKindSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventDescriptionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventEntityProjectIdSearchCriteria;
@@ -148,6 +151,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.C
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.CompleteSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.ControlledVocabularyPropertySearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.DataSetKindSearchConditionTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.DataStoreKindSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.DateFieldSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.EmailSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.EnumFieldSearchConditionTranslator;
@@ -255,6 +259,7 @@ public class CriteriaMapper
                 new DataSetKindSearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(DateFieldSearchCriteria.class, dateFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(DatePropertySearchCriteria.class, dateFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(DataStoreKindSearchCriteria.class,  new DataStoreKindSearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(EmailSearchCriteria.class, new EmailSearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(ExternalCodeSearchCriteria.class,
                 stringFieldSearchConditionTranslator);
@@ -323,6 +328,7 @@ public class CriteriaMapper
         // genericApplicationContext.xml and add the corresponding record in initCriteriaToManagerMap().
         CRITERIA_TO_IN_COLUMN_MAP.put(DataSetSearchCriteria.class, DATA_SET_COLUMN);
         CRITERIA_TO_IN_COLUMN_MAP.put(DataSetTypeSearchCriteria.class, DATA_SET_TYPE_COLUMN);
+        CRITERIA_TO_IN_COLUMN_MAP.put(DataStoreSearchCriteria.class, DATA_STORE_COLUMN);
         CRITERIA_TO_IN_COLUMN_MAP.put(ExperimentSearchCriteria.class, EXPERIMENT_COLUMN);
         CRITERIA_TO_IN_COLUMN_MAP.put(ExperimentTypeSearchCriteria.class, EXPERIMENT_TYPE_COLUMN);
         CRITERIA_TO_IN_COLUMN_MAP.put(ExternalDmsSearchCriteria.class, EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN);
@@ -386,6 +392,8 @@ public class CriteriaMapper
         CRITERIA_TO_MANAGER_MAP.put(DataSetSearchCriteria.class,
                 applicationContext.getBean("data-set-search-manager", ILocalSearchManager.class));
         CRITERIA_TO_MANAGER_MAP.put(DataSetTypeSearchCriteria.class, dataSetTypeSearchManager);
+        CRITERIA_TO_MANAGER_MAP.put(DataStoreSearchCriteria.class, applicationContext.getBean("data-store-search-manager",
+                ILocalSearchManager.class));
         CRITERIA_TO_MANAGER_MAP.put(ExperimentSearchCriteria.class,
                 applicationContext.getBean("experiment-search-manager", ILocalSearchManager.class));
         CRITERIA_TO_MANAGER_MAP.put(ExperimentTypeSearchCriteria.class, experimentTypeSearchManager);
