@@ -5,6 +5,7 @@ import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import ch.ethz.sis.rdf.main.xlsx.*;
 import org.apache.poi.ss.usermodel.*;
@@ -51,10 +52,11 @@ public class XLSXWriter
             headerStyle.setFont(font);
 
             createVocabularyTypesSheet(workbook, headerStyle, modelRDF);
-            createObjectTypesSheet(workbook, headerStyle, modelRDF);
+            //createObjectTypesSheet(workbook, headerStyle, modelRDF);
+            createObjectTypesSheet2(workbook, headerStyle, modelRDF);
             createExperimentTypesSheet(workbook, headerStyle);
             createSpaceProjExpSheet(workbook, headerStyle, projectIdentifier, modelRDF);
-            createObjectsSheet(workbook, headerStyle, projectIdentifier, modelRDF);
+            //createObjectsSheet(workbook, headerStyle, projectIdentifier, modelRDF);
 
             // Write the output to a file
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
@@ -79,6 +81,28 @@ public class XLSXWriter
             rowNum = rdfVocabularyTypeHelper.addVocabularyTypes(sheet, rowNum, headerStyle, vocabularyType);
         }
 
+    }
+
+    private void createObjectTypesSheet2(Workbook workbook, CellStyle headerStyle, ModelRDF modelRDF)
+    {
+        Sheet sheetOT = workbook.createSheet(SHEET_TITLE_OBJ_TYPES);
+
+        int rowNumOT = 0;
+
+        for (SampleType sampleType: modelRDF.sampleTypeList)
+        {
+            // Add SAMPLE_TYPE header row for ClassDetails
+            rowNumOT = rdfSampleTypeHelper.addSampleTypeSection(sheetOT, rowNumOT, headerStyle,
+                    modelRDF.ontNamespace,
+                    modelRDF.ontVersion,
+                    sampleType);
+
+            // Add object properties section
+            rowNumOT = rdfPropertyTypeHelper.addObjectProperties(sheetOT, rowNumOT, headerStyle,
+                    modelRDF.ontNamespace,
+                    modelRDF.ontVersion,
+                    sampleType.properties);
+        }
     }
 
     private void createObjectTypesSheet(Workbook workbook, CellStyle headerStyle, ModelRDF modelRDF)

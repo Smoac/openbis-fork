@@ -3,6 +3,8 @@ package ch.ethz.sis.rdf.main;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDFS;
@@ -178,7 +180,6 @@ public class ClassCollector {
                             {
                                 //System.out.println(unionClass.getOperands().get(i).as(Restriction.class));
                                 RDFNode item = unionClass.getOperands().get(i);
-                                // Check if the current item can be a Restriction and process it
                                 if (item.canAs(OntClass.class))
                                 {
                                     OntClass ontClass = item.as(OntClass.class);
@@ -211,6 +212,24 @@ public class ClassCollector {
                 }
             }
         }
+    }
+
+    private static List<String> getUnionClassOperands(final UnionClass unionClass)
+    {
+        List<String> operands = new ArrayList<>();
+        for(int i=0; i<unionClass.getOperands().size(); i++)
+        {
+            RDFNode item = unionClass.getOperands().get(i);
+            if (item.canAs(OntClass.class))
+            {
+                OntClass ontClass = item.as(OntClass.class);
+                operands.add(ontClass.getURI());
+            } else
+            {
+                operands.add(item.toString());
+            }
+        }
+        return operands;
     }
 
     private static boolean isClassInDomain(OntClass cls, Resource domain)
@@ -284,5 +303,61 @@ public class ClassCollector {
         });
 
         return toOntClass2StringOntClassExtension(ontClass2OntClassExtensionMap);
+    }
+
+    private static List<SamplePropertyType> getPropertyTypeList(final OntModel ontModel, final OntClass currentCls)
+    {
+        List<SamplePropertyType> propertyTypeList = new ArrayList<>();
+        // Find all properties where the class is the domain
+        StmtIterator propIterator = ontModel.listStatements(null, RDFS.domain, (RDFNode) null);
+        while (propIterator.hasNext())
+        {
+            Statement stmt = propIterator.nextStatement();
+            Property prop = stmt.getSubject().as(Property.class);
+            Resource domain = stmt.getObject().asResource();
+
+            if (isClassInDomain(currentCls, domain))
+            {
+                SamplePropertyType propertyType = new SamplePropertyType(prop.getLocalName(), prop.getURI());
+                // Find the range of the property
+                StmtIterator rangeIterator = ontModel.listStatements(prop, RDFS.range, (RDFNode) null);
+                while (rangeIterator.hasNext())
+                {
+                    Statement rangeStmt = rangeIterator.nextStatement();
+                    Resource range = rangeStmt.getObject().asResource();
+                    if (range.canAs(UnionClass.class))
+                    {
+                        propertyType.dataType = "SAMPLE";
+                        propertyType.metadata.put("UNION_TYPE", getUnionClassOperands(range.as(UnionClass.class)).toString());
+                    } else if (range.isURIResource())
+                    {
+                        propertyType.dataType = range.getURI(); //range.getLocalName().toUpperCase(Locale.ROOT);
+                    } else
+                    {
+                        propertyType.dataType = "UNKNOWN";
+                    }
+                }
+
+                propertyTypeList.add(propertyType);
+            }
+        }
+
+        return propertyTypeList;
+    }
+
+    public static List<SampleType> getSampleTypeList(final OntModel ontModel)
+    {
+        List<SampleType> sampleTypeList = new ArrayList<>();
+
+        ontModel.listClasses()
+                .filterDrop(RDFNode::isAnon)
+                .forEach(ontClass -> {
+
+                    SampleType sampleType = new SampleType(ontClass);
+                    sampleType.properties = getPropertyTypeList(ontModel, ontClass);
+                    sampleTypeList.add(sampleType);
+
+                });
+        return sampleTypeList;
     }
 }

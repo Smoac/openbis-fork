@@ -2,6 +2,8 @@ package ch.ethz.sis.rdf.main.xlsx;
 
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.ontology.UnionClass;
@@ -98,6 +100,56 @@ public class RDFPropertyTypeHelper {
             }
         }
         return isMultivalued;
+    }
+
+    public int addObjectProperties(Sheet sheet, int rowNum, CellStyle headerStyle,
+            String ontNamespace,
+            String ontVersion,
+            List<SamplePropertyType> propertyTypeList) {
+        Row propTypeRowHeaders = sheet.createRow(rowNum++);
+
+        // Populate header row with enum values
+        Attribute[] fields = Attribute.values();
+        for (int i = 0; i < fields.length; i++) {
+            Cell cell = propTypeRowHeaders.createCell(i);
+            cell.setCellValue(fields[i].getHeaderName());
+            cell.setCellStyle(headerStyle);
+        }
+
+        if (propertyTypeList != null) {
+            for (SamplePropertyType propertyType : propertyTypeList) {
+                createRow(sheet, rowNum++, propertyType, ontNamespace, ontVersion);
+            }
+        }
+
+        rowNum = addDefaultNameRow(sheet, rowNum);
+
+        // add empty row
+        sheet.createRow(rowNum++);
+
+        return rowNum;
+    }
+
+    // Method to create a row in the sheet
+    private void createRow(Sheet sheet, int rowNum, SamplePropertyType propertyType, String ontNamespace, String ontVersion) {
+        Row resRow = sheet.createRow(rowNum);
+        resRow.createCell(0).setCellValue(propertyType.code);  // Code("Code", true),
+        resRow.createCell(1).setCellValue(propertyType.isMandatory);  // Mandatory("Mandatory", true),
+        resRow.createCell(2).setCellValue(1);  // ShowInEditViews("Show in edit views", true),
+        //resRow.createCell(3).setCellValue("No");  // Section("Section", true),
+        resRow.createCell(4).setCellValue(propertyType.propertyLabel);  // PropertyLabel("Property label", true),
+        resRow.createCell(5).setCellValue(propertyType.dataType);  // DataType("Data type", true),
+        //resRow.createCell(6).setCellValue("No");  // VocabularyCode("Vocabulary code", true),
+        resRow.createCell(7).setCellValue(propertyType.description);  // Description("Description", true),
+        //resRow.createCell(8).setCellValue(StringUtils.join(propertyType.metadata));  // Metadata("Metadata", false),
+        //resRow.createCell(9).setCellValue("No");  // DynamicScript("Dynamic script", false),
+        resRow.createCell(10).setCellValue(ontNamespace);  // //OntologyId("Ontology Id", false),
+        resRow.createCell(11).setCellValue(ontVersion);  // //OntologyVersion("Ontology Version", false),
+        resRow.createCell(12).setCellValue(propertyType.ontologyAnnotationId);  // //OntologyAnnotationId("Ontology Annotation Id", false),
+        resRow.createCell(13).setCellValue(propertyType.isMultiValue);  // MultiValued("Multivalued", false),
+        //resRow.createCell(14).setCellValue("No");  // Unique("Unique", false),
+        //resRow.createCell(15).setCellValue("No");  // Pattern("Pattern", false),
+        //resRow.createCell(16).setCellValue("No");  // PatternType("Pattern Type", false);
     }
 
     // Method to create a row in the sheet

@@ -1,5 +1,6 @@
 package ch.ethz.sis.rdf.main.model.rdf;
 
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class ModelRDF
     public List<VocabularyType> vocabularyTypeList;
     public Map<String, List<VocabularyType>> vocabularyTypeListGroupedByType;
     public Map<String, List<String>> subClassChanisMap;
+    public List<SampleType> sampleTypeList;
 
     public boolean isSubClass(String uri)
     {
