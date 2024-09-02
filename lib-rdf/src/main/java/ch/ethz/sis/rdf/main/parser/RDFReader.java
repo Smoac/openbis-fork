@@ -5,8 +5,10 @@ import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
+import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
+import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
+import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -39,12 +41,47 @@ public class RDFReader
         modelRDF.ontMetadata = parserUtils.getOntologyMetadataMap(model);
         modelRDF.nsPrefixes = model.getNsPrefixMap();
 
-        if(canCreateOntModel(model)){
+        modelRDF.vocabularyTypeList = NamedIndividualMapper.getVocabularyTypeList(model);
+        modelRDF.vocabularyTypeListGroupedByType = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
+
+        if(canCreateOntModel(model))
+        {
             OntModel ontModel = loadRDFOntModel(inputFileName, inputFormatValue);
 
-            modelRDF.RDFtoOpenBISDataType = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+            Map<String, List<String>> RDFtoOpenBISDataTypeMap = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+            //modelRDF.RDFtoOpenBISDataType = RDFtoOpenBISDataTypeMap;
+            Map<String, List<String>> objectPropToOntClassMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
+            //modelRDF.objectPropertyMap = objectPropToOntClassMap;
+            Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
             modelRDF.stringOntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
-            modelRDF.objectPropertyMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
+
+            List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
+
+            restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
+
+            //TODO: there is no direct connection from hasComparator to Comparator, from prop to vocabulary type
+            for(SampleType sampleType: sampleTypeList)
+            {
+                for(SamplePropertyType samplePropertyType: sampleType.properties)
+                {
+                    if (!Objects.equals(samplePropertyType.dataType, "SAMPLE"))
+                    {
+                        if (RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId) != null)
+                        {
+                            samplePropertyType.dataType = RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0);
+                            //System.out.println("    DATATYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0));
+
+                        }
+                        if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null)
+                        {
+                            samplePropertyType.dataType = "SAMPLE"+ ":" + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0);
+                            //System.out.println(" OBJECT_PROP: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0));
+                        }
+                        //System.out.println("  VACAB_TYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + modelRDF.vocabularyTypeListGroupedByType.get(samplePropertyType.ontologyAnnotationId));
+                    }
+                   }
+            }
+            modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
         }
 
         boolean modelContainsResources = parserUtils.containsResources(model);
@@ -54,9 +91,6 @@ public class RDFReader
         /*modelRDF.resourcesGroupedByType.keySet().forEach(key -> {
             System.out.println(key + " -> " + modelRDF.resourcesGroupedByType.get(key));
         });*/
-
-        modelRDF.vocabularyTypeList = NamedIndividualMapper.getVocabularyTypeList(model);
-        modelRDF.vocabularyTypeListGroupedByType = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
 
         getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
         modelRDF.subClassChanisMap = chainsMap;
@@ -68,10 +102,73 @@ public class RDFReader
         return modelRDF;
     }
 
+    private void restrictionsToSampleMetadata(List<SampleType> sampleTypeList, Map<String, OntClassExtension> ontClass2OntClassExtensionMap)
+    {
+        for(SampleType sampleType: sampleTypeList)
+        {
+            Map<String, Map<String, String>> sampleMetadata = new HashMap<>();
+            OntClassExtension ontClassExtension = ontClass2OntClassExtensionMap.get(sampleType.ontologyAnnotationId);
+            Map<String, List<Restriction>> restrictionsMap = ontClassExtension.restrictions;
+            for(SamplePropertyType samplePropertyType: sampleType.properties)
+            {
+                Map<String, String> propertyMetadata = new HashMap<>();
+                List<Restriction> propertyTypeRestrictionList = restrictionsMap.get(samplePropertyType.ontologyAnnotationId);
+                if (propertyTypeRestrictionList != null)
+                {
+                    for(Restriction restriction: propertyTypeRestrictionList){
+                        if (restriction.isCardinalityRestriction())
+                        {
+                            propertyMetadata.put("CardinalityRestriction", String.valueOf(restriction.asCardinalityRestriction().getCardinality()));
+                        } else if (restriction.isMinCardinalityRestriction())
+                        {
+                            propertyMetadata.put("MinCardinalityRestriction", String.valueOf(restriction.asMinCardinalityRestriction().getMinCardinality()));
+                        } else if (restriction.isMaxCardinalityRestriction())
+                        {
+                            propertyMetadata.put("MaxCardinalityRestriction", String.valueOf(restriction.asMaxCardinalityRestriction().getMaxCardinality()));
+                        } else if (restriction.isSomeValuesFromRestriction())
+                        {
+                            RDFNode someValuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
+                            if (someValuesFrom.isURIResource()) {
+                                propertyMetadata.put("SomeValuesFromRestriction", someValuesFrom.asResource().getURI());
+                            } else if (someValuesFrom.isAnon() && someValuesFrom.canAs(OntClass.class)){
+                                OntClass anonClass = someValuesFrom.as(OntClass.class);
+                                // Recursively handle the anonymous class, be it union, intersection, etc.
+                                if (anonClass.isUnionClass()) {
+                                    UnionClass unionClass = anonClass.asUnionClass();
+                                    propertyMetadata.put("SomeValuesFromRestriction", ontClassExtension.unions.get(unionClass).toString());
+                                }
+                            }
+                        } else
+                        {
+                            propertyMetadata.put("UNHANDLED_Restriction", restriction.toString());
+                        }
+                    }
+                    samplePropertyType.metadata.putAll(propertyMetadata);
+                    samplePropertyType.setMultiValue(checkMultiValue(propertyMetadata));
+                    samplePropertyType.setMandatory(checkMandatory(propertyMetadata));
+                }
+                sampleMetadata.put(samplePropertyType.code, propertyMetadata);
+            }
+            sampleType.metadata = sampleMetadata;
+        }
+    }
+
+    private static boolean checkMultiValue(Map<String, String> propertyMetadata)
+    {
+        return propertyMetadata.containsKey("MinCardinalityRestriction") && !propertyMetadata.containsKey("MaxCardinalityRestriction");
+    }
+
+    private static int checkMandatory(Map<String, String> propertyMetadata)
+    {
+        return (Objects.equals(propertyMetadata.get("MinCardinalityRestriction"), "1") &&
+                Objects.equals(propertyMetadata.get("MaxCardinalityRestriction"), "1")) ? 1 : 0;
+    }
+
     private void checkFileExists(String inputFileName)
     {
         InputStream in = FileManager.getInternal().open(inputFileName);
-        if (in == null) {
+        if (in == null)
+        {
             throw new IllegalArgumentException("File: " + inputFileName + " not found");
         }
     }
