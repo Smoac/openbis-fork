@@ -4,10 +4,7 @@ import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.UnionClass;
 import org.apache.jena.rdf.model.Resource;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class for mapping object properties to their ranges in an ontology model.
@@ -40,12 +37,14 @@ public class ObjectPropertyMapper {
                         UnionClass unionRange = range.as(UnionClass.class);
                         unionRange.listOperands().forEachRemaining(operand -> {
                             if (operand.isURIResource()) {
-                                objectPropertyRange.add(operand.getURI());
+                                //objectPropertyRange.add(operand.getURI());
+                                objectPropertyRange.add(operand.getLocalName().toUpperCase(Locale.ROOT));
                             }
                         });
                     } else if (range.isURIResource()) {
                         // If the range is a single URI resource
-                        objectPropertyRange.add(range.getURI());
+                        //objectPropertyRange.add(range.getURI());
+                        objectPropertyRange.add(range.getLocalName().toUpperCase(Locale.ROOT));
                     }
 
                     if (!objectPropertyRange.isEmpty()) {
