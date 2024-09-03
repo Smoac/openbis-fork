@@ -18,6 +18,9 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
@@ -47,6 +50,28 @@ public abstract class BasicImportHelper extends AbstractImportHelper
     protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         return true;
+    }
+
+    protected static boolean isNewVersionWithInternalNamespace(Map<String, Integer> header, List<String> values, Map<String, Integer> versions, boolean isSystem, String type, IAttribute versionAttribute, IAttribute codeAttribute)
+    {
+        String version = getValueByColumnName(header, values, versionAttribute);
+        String code = getValueByColumnName(header, values, codeAttribute);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + codeAttribute);
+        }
+
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean canUpdate = (isInternalNamespace == false) || isSystem;
+
+        if (canUpdate == false) {
+            return false;
+        } else if (canUpdate && (version == null || version.isEmpty())) {
+            return true;
+        } else {
+            return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, type, code));
+        }
     }
 
     protected void updateVersion(Map<String, Integer> header, List<String> values)
