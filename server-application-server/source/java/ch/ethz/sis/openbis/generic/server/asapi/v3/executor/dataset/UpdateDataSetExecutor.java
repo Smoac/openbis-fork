@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IEventExecutor;
@@ -41,10 +40,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.FreezingFlags;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.DataSetUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -124,38 +123,17 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
 
     @Override public List<DataSetPermId> update(final IOperationContext context, final List<DataSetUpdate> dataSetUpdates)
     {
-        Collection<String> dataSetCodes = new ArrayList<>();
+        Collection<IDataSetId> dataSetIds = new ArrayList<>();
 
         if (dataSetUpdates != null)
         {
             for (DataSetUpdate dataSetUpdate : dataSetUpdates)
             {
-                IDataSetId dataSetId = dataSetUpdate.getDataSetId();
-                if (dataSetId instanceof DataSetPermId)
-                {
-                    dataSetCodes.add(((DataSetPermId) dataSetId).getPermId());
-                } else
-                {
-                    throw new UnsupportedObjectIdException(dataSetId);
-                }
+                dataSetIds.add(dataSetUpdate.getDataSetId());
             }
         }
 
-        List<TechId> afsDataSetIds = daoFactory.getDataDAO().listAfsDataSetIdsByCodes(dataSetCodes);
-
-        if (!afsDataSetIds.isEmpty())
-        {
-            daoFactory.getDataDAO().updateAfsDataFlag(afsDataSetIds, false);
-        }
-
-        List<DataSetPermId> result = super.update(context, dataSetUpdates);
-
-        if (!afsDataSetIds.isEmpty())
-        {
-            daoFactory.getDataDAO().updateAfsDataFlag(afsDataSetIds, true);
-        }
-
-        return result;
+        return DataSetUtils.executeWithAfsDataVisible(daoFactory, dataSetIds, () -> super.update(context, dataSetUpdates));
     }
 
     @Override

@@ -1470,6 +1470,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     @Override public List<TechId> listAfsDataSetIdsBySampleIds(final Collection<TechId> sampleIds) throws DataAccessException
     {
+        if (sampleIds.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         SQLQuery query =
                 currentSession().createSQLQuery("select id from data_all where samp_id in (:sampleIds) and afs_data = 't'");
         query.setParameter("sampleIds", TechId.asLongs(sampleIds));
@@ -1478,6 +1482,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     @Override public List<TechId> listAfsDataSetIdsByExperimentIds(final Collection<TechId> experimentIds) throws DataAccessException
     {
+        if (experimentIds.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         SQLQuery query =
                 currentSession().createSQLQuery("select id from data_all where expe_id in (:experimentIds) and afs_data = 't'");
         query.setParameter("experimentIds", TechId.asLongs(experimentIds));
@@ -1486,6 +1494,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     @Override public List<TechId> listAfsDataSetIdsByCodes(final Collection<String> dataSetCodes)
     {
+        if (dataSetCodes.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         SQLQuery query =
                 currentSession().createSQLQuery("select id from data_all where code in (:dataSetCodes) and afs_data = 't'");
         query.setParameter("dataSetCodes", dataSetCodes);
@@ -1494,6 +1506,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     @Override public void updateAfsDataFlag(final Collection<TechId> dataSetIds, final boolean afsDataFlag)
     {
+        if (dataSetIds.isEmpty())
+        {
+            return;
+        }
         SQLQuery query =
                 currentSession().createSQLQuery("update data_all set afs_data = (:afsDataFlag) where id in (:dataSetIds)");
         query.setParameter("dataSetIds", TechId.asLongs(dataSetIds));
