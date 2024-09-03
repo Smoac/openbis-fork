@@ -35,6 +35,9 @@ public class DataStoreSearchCriteria extends AbstractObjectSearchCriteria<IDataS
 
     public DataStoreSearchCriteria()
     {
+        final DataStoreKindSearchCriteria dataStoreKindSearchCriteria = new DataStoreKindSearchCriteria();
+        dataStoreKindSearchCriteria.thatIn(DataStoreKind.DSS);
+        with(dataStoreKindSearchCriteria);
     }
 
     public PermIdSearchCriteria withPermId()

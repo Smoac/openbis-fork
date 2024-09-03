@@ -161,6 +161,10 @@ public class SearchDataStoreTest extends AbstractTest
         DataStoreSearchCriteria criteriaNonMatching = new DataStoreSearchCriteria();
         criteriaNonMatching.withCode().thatContains("ABCDE");
         testSearch(TEST_USER, criteriaNonMatching);
+
+        final DataStoreSearchCriteria criteriaNoAfs = new DataStoreSearchCriteria();
+        criteriaNoAfs.withCode().thatContains("S");
+        testSearch(TEST_USER, criteriaNoAfs, "STANDARD");
     }
 
     @Test
@@ -230,6 +234,21 @@ public class SearchDataStoreTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithoutKind()
+    {
+        testSearch(TEST_USER, new DataStoreSearchCriteria(), "STANDARD");
+    }
+
+    @Test
+    public void testSearchWithKind()
+    {
+        final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
+        criteria.withKind();
+
+        testSearch(TEST_USER, criteria, "STANDARD");
+    }
+
+    @Test
     public void testSearchWithKindNone()
     {
         final DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
@@ -277,8 +296,14 @@ public class SearchDataStoreTest extends AbstractTest
 
         v3api.searchDataStores(sessionToken, c, fo);
 
-        assertAccessLog(
-                "search-data-stores  SEARCH_CRITERIA:\n'DATA_STORE\n    with attribute 'code' equal to 'STANDARD'\n'\nFETCH_OPTIONS:\n'DataStore\n'");
+        assertAccessLog("search-data-stores  SEARCH_CRITERIA:\n"
+                + "'DATA_STORE\n"
+                + "    with operator 'AND'\n"
+                + "    with data store kinds [DSS]\n"
+                + "    with attribute 'code' equal to 'STANDARD'\n"
+                + "'\n"
+                + "FETCH_OPTIONS:\n"
+                + "'DataStore\n'");
     }
 
     private void testSearch(String user, DataStoreSearchCriteria criteria, String... expectedCodes)

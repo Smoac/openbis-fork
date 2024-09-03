@@ -18,7 +18,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractSearchCriteria", "as/d
 	function(require, stjs, AbstractSearchCriteria, DataStoreKind) {
 
 	var DataStoreKindSearchCriteria = function() {
-		this.dataStoreKinds = null;
+		this.dataStoreKinds = [DataStoreKind.DSS];
 	};
 
 	stjs.extend(DataStoreKindSearchCriteria, AbstractSearchCriteria, [ AbstractSearchCriteria ], function(constructor, prototype) {

@@ -1,11 +1,14 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/CodeSearchCriteria", 
-		"as/dto/common/search/CodesSearchCriteria", "as/dto/datastore/search/DataStoreKindSearchCriteria",
-	  "as/dto/common/search/PermIdSearchCriteria" ], function(require, stjs, AbstractObjectSearchCriteria) {
+define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
+	"as/dto/datastore/search/DataStoreKindSearchCriteria", "as/dto/datastore/search/DataStoreKind"],
+	function(require, stjs, AbstractObjectSearchCriteria, DataStoreKindSearchCriteria, DataStoreKind) {
 	var DataStoreSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
+		var dataStoreKindSearchCriteria = new DataStoreKindSearchCriteria();
+		dataStoreKindSearchCriteria.thatIn(DataStoreKind.DSS);
+		this.with(dataStoreKindSearchCriteria);
 	};
 	stjs.extend(DataStoreSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.datastore.search.DataStoreSearchCriteria';
@@ -20,6 +23,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 		};
 		prototype.withKind = function() {
 			var DataStoreKindSearchCriteria = require("as/dto/datastore/search/DataStoreKindSearchCriteria");
+			criteria = criteria.filter(criterion => !(criterion instanceof DataStoreKindSearchCriteria));
 			return this.addCriteria(new DataStoreKindSearchCriteria());
 		};
 		prototype.withPermId = function() {
