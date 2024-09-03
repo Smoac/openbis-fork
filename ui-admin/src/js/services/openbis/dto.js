@@ -127,6 +127,7 @@ const CLASS_FULL_NAMES = [
   'as/dto/query/search/QueryDatabaseSearchCriteria',
   'as/dto/query/update/UpdateQueriesOperation',
   'as/dto/query/update/QueryUpdate',
+  'as/dto/rights/fetchoptions/RightsFetchOptions',
   'as/dto/roleassignment/Role',
   'as/dto/roleassignment/RoleAssignment',
   'as/dto/roleassignment/RoleLevel',

@@ -229,4 +229,8 @@ export default class DataBrowserController extends ComponentController {
   setPath(path) {
     this.path = path
   }
+
+  async getRights(ids) {
+    return await openbis.getRights(ids, new openbis.RightsFetchOptions())
+  }
 }

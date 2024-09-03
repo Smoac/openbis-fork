@@ -14,6 +14,7 @@ import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
 import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 import ErrorDialog from '@src/js/components/common/error/ErrorDialog.jsx'
+import appController from '@src/js/components/AppController.js'
 
 // 2GB limit for total download size
 const sizeLimit = 2147483648
@@ -460,8 +461,17 @@ class DataBrowser extends React.Component {
     return mimeTypeMap[extension] || 'application/octet-stream'
   }
 
+  fetchRights() {
+    const { id } = this.props
+    this.controller.getRights([id]).then(right => {
+      console.log(right)
+      this.setState({ editable: true })
+    })
+  }
+
   componentDidMount() {
     this.fetchSpaceStatus()
+    this.fetchRights()
   }
 
   openErrorDialog(errorMessage) {
@@ -501,6 +511,7 @@ class DataBrowser extends React.Component {
           multiselectedFiles={multiselectedFiles}
           sessionToken={sessionToken}
           owner={id}
+          editable={true}
           path={path}
         />
         <InfoBar

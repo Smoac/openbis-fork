@@ -187,7 +187,7 @@ class LeftToolbar extends React.Component {
   }
 
   renderNoSelectionContextToolbar() {
-    const { classes, buttonSize } = this.props
+    const { classes, buttonSize, editable } = this.props
     return ([
       <Button
         key='new-folder'
@@ -195,6 +195,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='outlined'
+        disabled={editable}
         startIcon={<CreateNewFolderIcon />}
         onClick={this.openNewFolderDialog}
       >
