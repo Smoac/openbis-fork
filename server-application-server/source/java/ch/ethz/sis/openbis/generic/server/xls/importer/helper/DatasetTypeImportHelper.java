@@ -84,20 +84,10 @@ public class DatasetTypeImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
-
-        String version = getValueByColumnName(header, values, Attribute.Version);
-
-        if (version == null || version.isEmpty()) {
-            return true;
-        } else {
-            return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.DATASET_TYPE.getType(), code));
-        }
+        return isNewVersionWithInternalNamespace(header, values, versions,
+                delayedExecutor.isSystem(),
+                getTypeName().getType(),
+                Attribute.Version, Attribute.Code);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
