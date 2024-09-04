@@ -23,7 +23,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 		};
 		prototype.withKind = function() {
 			var DataStoreKindSearchCriteria = require("as/dto/datastore/search/DataStoreKindSearchCriteria");
-			criteria = criteria.filter(criterion => !(criterion instanceof DataStoreKindSearchCriteria));
+			this.criteria = this.criteria.filter(criterion => !(criterion instanceof DataStoreKindSearchCriteria));
 			return this.addCriteria(new DataStoreKindSearchCriteria());
 		};
 		prototype.withPermId = function() {
