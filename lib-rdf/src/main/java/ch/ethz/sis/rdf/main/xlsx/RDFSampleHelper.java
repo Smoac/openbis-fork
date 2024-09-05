@@ -1,11 +1,9 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
-import ch.ethz.sis.rdf.main.Utils;
-import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
-import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
-import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
-import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyTypeOption;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.rdf.model.Literal;
@@ -13,6 +11,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.poi.ss.usermodel.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RDFSampleHelper
@@ -45,28 +44,17 @@ public class RDFSampleHelper
         }
     }
 
-    private final String RESOURCE_PREFIX = "https://biomedit.ch/rdf/sphn-resource/";
-
-    private List<String> getAllColumnsList(OntClassExtension ontClassObject)
+    public static List<String> getAllColumnsList(List<String> sampleObjectPropertyLabelList)
     {
-        //System.out.println("ontClassObject.propertyTuples: " + ontClassObject.propertyTuples);
-
-        List<String> sampleTypeCols =  ontClassObject.propertyTuples.stream().map(PropertyTupleRDF::getPredicateLabel).toList();
-        //System.out.println("sampleTypeCols: "+ sampleTypeCols);
-
         List<String> defaultCols = new ArrayList<>(Stream.of(RDFSampleHelper.Attribute.values())
                 .map(RDFSampleHelper.Attribute::name)
                 .toList());
-
-        //System.out.println("defaultCols: "+ defaultCols);
-
-        defaultCols.addAll(sampleTypeCols);
+        defaultCols.addAll(sampleObjectPropertyLabelList);
         return defaultCols;
     }
 
-    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, OntClassExtension ontClassObject)
+    public int createSampleHeaders(Sheet sheet, int rowNum, CellStyle headerStyle, String sampleTypeKey, List<String> allColumnList)
     {
-        List<String> allColumns = getAllColumnsList(ontClassObject);
 
         // Create header row for SAMPLE
         Row headerSampleRow = sheet.createRow(rowNum++);
@@ -87,61 +75,54 @@ public class RDFSampleHelper
         // Create header row for Sample Type columns
         Row sampleTypeRowHeaders = sheet.createRow(rowNum++);
 
-        for (int i = 0; i < allColumns.size(); i++)
+        for (int i = 0; i < allColumnList.size(); i++)
         {
             Cell cell = sampleTypeRowHeaders.createCell(i);
-            cell.setCellValue(allColumns.get(i));
+            cell.setCellValue(allColumnList.get(i));
             cell.setCellStyle(headerStyle);
         }
 
         return rowNum;
     }
 
-    protected boolean isResource(String uri){
-        return uri.startsWith(RESOURCE_PREFIX);
-    }
-    
-    public int createResourceRows(Sheet sheet, int rowNum, String projectId, ResourceRDF resource, OntClassExtension ontClassObject, ModelRDF modelRDF)
+    public int createResourceRows(Sheet sheet, int rowNum, String projectId, SampleObject sampleObject, ModelRDF modelRDF, List<String> allColumnList)
     {
-        List<String> allColumns = getAllColumnsList(ontClassObject);
-
+        System.out.println("    createResourceRows: " + sampleObject);
         Row propertyRowValues = sheet.createRow(rowNum);
         //propertyRowValues.createCell(0).setCellValue(""); // $
-        //propertyRowValues.createCell(1).setCellValue(""); // Identifier
-        propertyRowValues.createCell(2).setCellValue(resource.resourceVal); // Code
+        propertyRowValues.createCell(1).setCellValue(projectId + "/" + sampleObject.code); // Identifier
+        propertyRowValues.createCell(2).setCellValue(sampleObject.code); // Code
         propertyRowValues.createCell(3).setCellValue(projectId.split("/")[1]); // Space
         propertyRowValues.createCell(4).setCellValue(projectId); // Project
-        propertyRowValues.createCell(5).setCellValue(projectId + resource.type); // Experiment
+        propertyRowValues.createCell(5).setCellValue(projectId + "/" + sampleObject.type.toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
         //propertyRowValues.createCell(6).setCellValue(""); // Parents
         //propertyRowValues.createCell(7).setCellValue(""); // Children
 
-        int idxName = allColumns.indexOf("Name");
+        int idxName = allColumnList.indexOf("Name");
         if (idxName != -1) {
-            propertyRowValues.createCell(idxName).setCellValue(resource.resourceVal);
+            propertyRowValues.createCell(idxName).setCellValue(sampleObject.code);
         }
 
-        Map<String, List<VocabularyType>> mappedLabelNamedIndividual = modelRDF.vocabularyTypeListGroupedByType;
+        List<String> vocabularyOptionList = modelRDF.vocabularyTypeList.stream()
+                .flatMap(vocabularyType -> vocabularyType.getOptions().stream())
+                .map(VocabularyTypeOption::getDescription)
+                .toList();
 
-        for (PropertyTupleRDF property : resource.properties)
+        for (SampleObjectProperty sampleObjectProperty : sampleObject.properties)
         {
-            boolean isAlias = modelRDF.isPresentInVocType(property.getObject());
-            boolean isResource = isResource(property.getObject());
-            boolean isSubClass = modelRDF.isSubClass(property.getObject());
-            System.out.println("PropertyTupleRDF: " + property + ", isAlias: " + isAlias + ", isResource: " + isResource + ", isSubClass: " + isSubClass);
-            propertyRowValues.createCell(1).setCellValue(projectId + "/" + resource.resourceVal); // Identifier
-            propertyRowValues.createCell(5).setCellValue(projectId + "/" + Utils.extractLabel(resource.type).toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
-            int idx = allColumns.indexOf(Utils.extractLabel(property.getPredicateLabel()));
+            //propertyRowValues.createCell(1).setCellValue(projectId + "/" + sampleObject.code); // Identifier
+            //propertyRowValues.createCell(5).setCellValue(projectId + "/" + sampleObject.type.toUpperCase(Locale.ROOT) + "_COLLECTION"); // Experiment
+            int idx = allColumnList.indexOf(sampleObjectProperty.label);
             if (idx != -1) {
-                if (mappedLabelNamedIndividual.containsKey(property.getObject())){
-                    propertyRowValues.createCell(idx).setCellValue(mappedLabelNamedIndividual.get(property.getObject()).toString());
-                } else if (property.getObject().contains(RESOURCE_PREFIX)) {
-                    propertyRowValues.createCell(idx).setCellValue(projectId + "/" + property.getObject().replace(RESOURCE_PREFIX, ""));
+                //System.out.println("MAPPED: " + sampleObjectProperty + ", CONTAINS: " + vocabularyOptionList.contains(sampleObjectProperty.value) + ", OBJ: " + sampleObjectProperty.value);
+                if (vocabularyOptionList.contains(sampleObjectProperty.value)){
+                    propertyRowValues.createCell(idx).setCellValue(sampleObjectProperty.label.toUpperCase(Locale.ROOT));
                 } else {
-                    if (!property.getObject().contains("^^")){
-                        propertyRowValues.createCell(idx).setCellValue(property.getObject().replace(RESOURCE_PREFIX, ""));
+                    if (!sampleObjectProperty.value.contains("^^")){
+                        propertyRowValues.createCell(idx).setCellValue(sampleObjectProperty.value);
                     } else {
                         //convertRDFLiteral(property.getObject().replace(RESOURCE_PREFIX, ""), propertyRowValues, idx);
-                        String rdfLiteral = property.getObject().replace(RESOURCE_PREFIX, "");
+                        String rdfLiteral = sampleObjectProperty.value;
 
                         int separatorIndex = rdfLiteral.indexOf("^^");
 
@@ -152,7 +133,7 @@ public class RDFSampleHelper
 
                         if (XSDDatatype.XSDdateTime.getURI().equals(datatypeURI)) {
                             Date date = (Date) literal.getValue();
-                            System.out.println("----- DATE: " + date);
+                            //System.out.println("----- DATE: " + date);
                             propertyRowValues.createCell(idx).setCellValue((Date) literal.getValue());
                         } else if (XSDDatatype.XSDdouble.getURI().equals(datatypeURI)) {
                             propertyRowValues.createCell(idx).setCellValue((Double) literal.getValue());

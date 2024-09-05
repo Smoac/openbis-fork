@@ -2,6 +2,8 @@ package ch.ethz.sis.rdf.main.parser;
 
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
 
@@ -18,10 +20,50 @@ public class ParserUtils {
 
     //---------- RESOURCE PREFIX EXTRACTION ------------------
 
+    public Map<String, List<SampleObject>> getSampleObjectsGroupedByTypeMap(Model model){
+        List<String> sampleObjectPrefixList = getSampleObjectPrefixList(model);
+
+        // Map to store the resources grouped by type
+        Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap = new HashMap<>();
+
+        if(!sampleObjectPrefixList.isEmpty()){
+            for (String prefix: sampleObjectPrefixList){
+                // Iterate through all statements with rdf:type predicate
+                model.listStatements(null, RDF.type, (Resource) null).forEachRemaining(statement -> {
+                    Resource subject = statement.getSubject();
+                    if (subject.isURIResource() && subject.getURI().startsWith(prefix)) {
+                        Resource object = statement.getObject().asResource();
+                        String typeURI = object.getURI();
+                        String type = object.getLocalName();
+
+                        SampleObject sampleObject = new SampleObject(subject.getLocalName(), typeURI, type);
+                        sampleObjectsGroupedByTypeMap.putIfAbsent(typeURI, new ArrayList<>());
+                        sampleObjectsGroupedByTypeMap.get(typeURI).add(sampleObject);
+
+                        model.listStatements(subject, null, (Resource) null)
+                                .filterDrop(propStatement -> propStatement.getPredicate().equals(RDF.type))
+                                .forEachRemaining(propStatement -> {
+                                    Property predicate = propStatement.getPredicate();
+                                    RDFNode propObject = propStatement.getObject();
+
+                                    //need to differentiate from resources and primitive objects: https://biomedit.ch/rdf/sphn-resource/Code-SNOMED-CT-419199007 || "2011-07-28T16:16:28+00:00"^^xsd:dateTime
+                                    SampleObjectProperty sampleObjectProperty = propObject.isResource() ?
+                                            new SampleObjectProperty(predicate.getURI(), predicate.getLocalName(), propObject.asResource().getLocalName()) :
+                                            new SampleObjectProperty(predicate.getURI(), predicate.getLocalName(), propObject.toString());
+
+                                    sampleObject.addProperty(sampleObjectProperty);
+                                });
+                    }
+                });
+            }
+        }
+        return sampleObjectsGroupedByTypeMap;
+    }
+
     public Map<String, List<ResourceRDF>> getResourceMap(Model model){
         // Namespace prefix
         //String prefix = model.getNsPrefixURI(RESOURCE_URI_NS);
-        List<String> resourcePrefixes = getResourcesPrefixList(model);
+        List<String> resourcePrefixes = getSampleObjectPrefixList(model);
 
         // Map to store the resources grouped by type
         Map<String, List<ResourceRDF>> groupedResources = new HashMap<>();
@@ -69,7 +111,8 @@ public class ParserUtils {
         return groupedResources;
     }
 
-    public List<String> getResourcesPrefixList(Model model){
+
+    public List<String> getSampleObjectPrefixList(Model model){
         Set<String> resourcePossibleNSs = new HashSet<>();
         resourcePossibleNSs.addAll(getClassResources(model, RDFS.Class));
         resourcePossibleNSs.addAll(getClassResources(model, OWL.Class));
@@ -103,7 +146,7 @@ public class ParserUtils {
         return containsResources.get();
     }
 
-    //Can't avoid overlapping with the extractClassResources because all classes are subClassOf SPHNConcept
+    //Can't avoid overlapping with the getSubClassOfResources because all classes are subClassOf SPHNConcept
     private Set<String> getSubClassOfResources(Model model) {
         Set<String> resourcePossibleNSs = new HashSet<>();
         model.listSubjectsWithProperty(RDF.type, OWL.Class).forEachRemaining(cls -> {
@@ -185,7 +228,7 @@ public class ParserUtils {
         System.out.println("\tTotal Objects with types starting with default namespace <" + ontNamespace + ">: " + countNamespaceTypes);
 
         // Count subjects with a specific prefix
-        List<String> resourcePrefixes = getResourcesPrefixList(model);
+        List<String> resourcePrefixes = getSampleObjectPrefixList(model);
         for (String prefix: resourcePrefixes){
             int countSubjectsWithPrefix = 0;
             if (prefix != null) {

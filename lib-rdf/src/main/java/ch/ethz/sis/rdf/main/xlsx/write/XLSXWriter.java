@@ -3,8 +3,8 @@ package ch.ethz.sis.rdf.main.xlsx.write;
 import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.Utils;
-import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
-import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import ch.ethz.sis.rdf.main.xlsx.*;
@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ch.ethz.sis.rdf.main.Constants.*;
 
@@ -52,11 +53,10 @@ public class XLSXWriter
             headerStyle.setFont(font);
 
             createVocabularyTypesSheet(workbook, headerStyle, modelRDF);
-            //createObjectTypesSheet(workbook, headerStyle, modelRDF);
-            createObjectTypesSheet2(workbook, headerStyle, modelRDF);
+            createObjectTypesSheet(workbook, headerStyle, modelRDF);
             createExperimentTypesSheet(workbook, headerStyle);
             createSpaceProjExpSheet(workbook, headerStyle, projectIdentifier, modelRDF);
-            //createObjectsSheet(workbook, headerStyle, projectIdentifier, modelRDF);
+            createObjectsSheet(workbook, headerStyle, projectIdentifier, modelRDF);
 
             // Write the output to a file
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
@@ -83,7 +83,7 @@ public class XLSXWriter
 
     }
 
-    private void createObjectTypesSheet2(Workbook workbook, CellStyle headerStyle, ModelRDF modelRDF)
+    private void createObjectTypesSheet(Workbook workbook, CellStyle headerStyle, ModelRDF modelRDF)
     {
         Sheet sheetOT = workbook.createSheet(SHEET_TITLE_OBJ_TYPES);
 
@@ -102,34 +102,6 @@ public class XLSXWriter
                     modelRDF.ontNamespace,
                     modelRDF.ontVersion,
                     sampleType.properties);
-        }
-    }
-
-    private void createObjectTypesSheet(Workbook workbook, CellStyle headerStyle, ModelRDF modelRDF)
-    {
-        Sheet sheetOT = workbook.createSheet(SHEET_TITLE_OBJ_TYPES);
-
-        int rowNumOT = 0;
-
-        for (OntClassExtension ontClassObject : modelRDF.stringOntClassExtensionMap.values())
-        {
-            // Add SAMPLE_TYPE header row for ClassDetails
-            rowNumOT = rdfSampleTypeHelper.addSampleTypeSection(sheetOT, rowNumOT, headerStyle,
-                    modelRDF.ontNamespace,
-                    modelRDF.ontVersion,
-                    ontClassObject.ontClass.getURI(),
-                    ontClassObject.label,
-                    ontClassObject.comment,
-                    ontClassObject.skosDefinition,
-                    ontClassObject.skosNote);
-
-            // Add object properties section
-            rowNumOT = rdfPropertyTypeHelper.addObjectProperties(sheetOT, rowNumOT, headerStyle,
-                    ontClassObject,
-                    modelRDF.objectPropertyMap,
-                    modelRDF.RDFtoOpenBISDataType,
-                    modelRDF.ontNamespace,
-                    modelRDF.ontVersion);
         }
     }
 
@@ -159,43 +131,25 @@ public class XLSXWriter
     {
         Sheet sheet = workbook.createSheet(SHEET_TITLE_OBJS);
         int rowNum = 0;
-        List<String> skippedSampleTypes = new ArrayList<>();
-        Map<String, List<ResourceRDF>> additionalResources = new HashMap<>();
 
-        for (Map.Entry<String, List<ResourceRDF>> entry : modelRDF.resourcesGroupedByType.entrySet())
+        for(Map.Entry<String, List<SampleObject>> entry: modelRDF.sampleObjectsGroupedByTypeMap.entrySet())
         {
+            List<String> sampleObjectPropertyLabelList = entry.getValue().stream()
+                    .flatMap(sampleObject -> sampleObject.getProperties().stream())
+                    .map(SampleObjectProperty::getLabel)
+                    .collect(Collectors.toSet()).stream()
+                    .toList();
 
-            boolean isAlias = modelRDF.isPresentInVocType(entry.getKey());
-            boolean isResource = modelRDF.isResource(entry.getKey());
-            boolean isSubClass = modelRDF.isSubClass(entry.getKey());
-            System.out.println("Entry: " + entry.getKey() + ", isAlias: " + isAlias + ", isResource: " + isResource + ", isSubClass: " + isSubClass);
+            List<String> allColumnList = RDFSampleHelper.getAllColumnsList(sampleObjectPropertyLabelList);
 
-            if (isSubClass) {
-                System.out.println("    Subclass: " + modelRDF.subClassChanisMap.getOrDefault(entry.getKey(), new ArrayList<>()));
+            rowNum = rdfSampleHelper.createSampleHeaders(sheet, rowNum, headerStyle, entry.getKey(), allColumnList);
+
+            for (SampleObject sampleObject : entry.getValue()) {
+                System.out.println(sampleObject);
+                rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, sampleObject, modelRDF, allColumnList);
             }
-            if (!modelRDF.stringOntClassExtensionMap.containsKey(entry.getKey()) || !modelRDF.subClassChanisMap.containsKey(entry.getKey())) {
-                skippedSampleTypes.add(entry.getKey());
-                continue;
-            }
-
-            OntClassExtension ontClassObject = modelRDF.stringOntClassExtensionMap.get(entry.getKey());
-
-            //System.out.println(ontClassObject);
-
-            // Create headers and rows for each sample type
-            String objectType = Utils.extractLabel(entry.getKey()).toUpperCase(Locale.ROOT);
-            rowNum = rdfSampleHelper.createSampleHeaders(sheet, rowNum, headerStyle, objectType, ontClassObject);
-
-            for (ResourceRDF resourceRDF : entry.getValue()) {
-                //System.out.println(resourceRDF);
-                rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, resourceRDF, ontClassObject, modelRDF);
-            }
-            // add empty row for readability
             sheet.createRow(rowNum++);
         }
-
         Utils.autosizeColumns(sheet, 20);
-        // Write the output to a file
-        System.out.println("Skipped sample types: " + skippedSampleTypes);
     }
 }

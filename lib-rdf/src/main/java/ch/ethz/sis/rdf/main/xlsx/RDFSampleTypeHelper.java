@@ -65,44 +65,4 @@ public class RDFSampleTypeHelper {
 
         return rowNum;
     }
-
-    public int addSampleTypeSection(Sheet sheet, int rowNum, CellStyle headerStyle, String ontNamespace, String ontVersion, String ontClassURI,
-            String label, String comment, String skosDefinition, String skosNote){
-        Row sampleTypeRow = sheet.createRow(rowNum++);
-        sampleTypeRow.createCell(0).setCellValue("SAMPLE_TYPE");
-        sampleTypeRow.getCell(0).setCellStyle(headerStyle);
-
-        Row sampleTypeRowHeaders = sheet.createRow(rowNum++);
-
-        // Populate header row with enum values
-        Attribute[] fields = Attribute.values();
-        for (int i = 0; i < fields.length; i++) {
-            Cell cell = sampleTypeRowHeaders.createCell(i);
-            cell.setCellValue(fields[i].getHeaderName());
-            cell.setCellStyle(headerStyle);
-        }
-
-        if (label == null)
-            label = "";
-        String code = label.trim().replaceAll(" ", "").toUpperCase(Locale.ROOT);
-        StringBuilder description = new StringBuilder();
-        description.append(label).append("\n");
-        if (comment != null) description.append(comment).append("\n");
-        if (skosDefinition != null) description.append(skosDefinition).append("\n");
-        if (skosNote != null) description.append(skosNote).append("\n");
-        //StringUtils.defaultString(comment)
-
-        Row sampleTypeRowValues = sheet.createRow(rowNum++);
-
-        sampleTypeRowValues.createCell(0).setCellValue(code);                   //Code("Code", true),
-        sampleTypeRowValues.createCell(1).setCellValue(description.toString());            //Description("Description", true),
-        sampleTypeRowValues.createCell(2).setCellValue(1);                      //AutoGenerateCodes("Auto generate codes", true),
-        //sampleTypeRowValues.createCell(3).setCellValue("");                       //ValidationScript("Validation script", true),
-        sampleTypeRowValues.createCell(4).setCellValue(false);                  //GeneratedCodePrefix("Generated code prefix", true);
-        sampleTypeRowValues.createCell(5).setCellValue(ontNamespace);           //OntologyId("Ontology Id", false),
-        sampleTypeRowValues.createCell(6).setCellValue(ontVersion);             //OntologyVersion("Ontology Version", false),
-        sampleTypeRowValues.createCell(7).setCellValue(ontClassURI);            //OntologyAnnotationId("Ontology Annotation Id", false),
-
-        return rowNum;
-    }
 }

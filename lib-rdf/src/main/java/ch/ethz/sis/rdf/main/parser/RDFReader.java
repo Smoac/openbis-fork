@@ -6,8 +6,10 @@ import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
 import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
+import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
@@ -20,16 +22,17 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RDFReader
 {
     private final ParserUtils parserUtils = new ParserUtils();
-    private final Map<String, List<String>> chainsMap = new HashMap<>();
-    
-    public ModelRDF read(String inputFileName, String inputFormatValue){
+
+    public ModelRDF read(String inputFileName, String inputFormatValue)
+    {
         return read(inputFileName, inputFormatValue, false);
     }
-     
+
     public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose)
     {
         ModelRDF modelRDF = new ModelRDF();
@@ -42,9 +45,23 @@ public class RDFReader
         modelRDF.nsPrefixes = model.getNsPrefixMap();
 
         modelRDF.vocabularyTypeList = NamedIndividualMapper.getVocabularyTypeList(model);
-        modelRDF.vocabularyTypeListGroupedByType = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
+        Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
+        modelRDF.vocabularyTypeListGroupedByType = vocabularyTypeListGroupedByTypeMap;
 
-        if(canCreateOntModel(model))
+        Map<String, List<String>> chainsMap = getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
+        modelRDF.subClassChanisMap = chainsMap;
+
+        chainsMap.keySet().forEach(key -> {
+            System.out.println(key + " -> " + chainsMap.get(key));
+        });
+
+        /*modelRDF.vocabularyTypeListGroupedByType.keySet().forEach(key -> {
+            System.out.println(key + " -> " + modelRDF.vocabularyTypeListGroupedByType.get(key));
+        });*/
+
+        List<SampleType> sampleTypeList = new ArrayList<>();
+
+        if (canCreateOntModel(model))
         {
             OntModel ontModel = loadRDFOntModel(inputFileName, inputFormatValue);
 
@@ -55,51 +72,130 @@ public class RDFReader
             Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
             modelRDF.stringOntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
 
-            List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
+            sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
 
+            sampleTypeList.removeIf(sampleType -> vocabularyTypeListGroupedByTypeMap.get(sampleType.code) != null);
             restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
+            verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, vocabularyTypeListGroupedByTypeMap);
 
-            //TODO: there is no direct connection from hasComparator to Comparator, from prop to vocabulary type
-            for(SampleType sampleType: sampleTypeList)
-            {
-                for(SamplePropertyType samplePropertyType: sampleType.properties)
-                {
-                    if (!Objects.equals(samplePropertyType.dataType, "SAMPLE"))
-                    {
-                        if (RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId) != null)
-                        {
-                            samplePropertyType.dataType = RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0);
-                            //System.out.println("    DATATYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0));
-
-                        }
-                        if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null)
-                        {
-                            samplePropertyType.dataType = "SAMPLE"+ ":" + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0);
-                            //System.out.println(" OBJECT_PROP: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0));
-                        }
-                        //System.out.println("  VACAB_TYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + modelRDF.vocabularyTypeListGroupedByType.get(samplePropertyType.ontologyAnnotationId));
-                    }
-                   }
-            }
             modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
         }
 
         boolean modelContainsResources = parserUtils.containsResources(model);
-        //System.out.println("Model contains Resources: " + (modelContainsResources ? "YES" : "NO"));
+        System.out.println("Model contains Resources ? " + (modelContainsResources ? "YES" : "NO"));
 
         modelRDF.resourcesGroupedByType = modelContainsResources ? parserUtils.getResourceMap(model) : new HashMap<>();
-        /*modelRDF.resourcesGroupedByType.keySet().forEach(key -> {
-            System.out.println(key + " -> " + modelRDF.resourcesGroupedByType.get(key));
-        });*/
 
-        getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
-        modelRDF.subClassChanisMap = chainsMap;
+        Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap =
+                modelContainsResources ? parserUtils.getSampleObjectsGroupedByTypeMap(model) : new HashMap<>();
 
-        if (verbose) {
+        List<String> sampleObjectMapKeyList = sampleObjectsGroupedByTypeMap.keySet().stream().toList();
+        Map<String, String> sampleTypeUriToCodeMap = sampleTypeList.stream()
+                .collect(Collectors.toMap(
+                        sampleType -> sampleType.ontologyAnnotationId,
+                        sampleType -> sampleType.code
+                ));
+
+        sampleObjectsGroupedByTypeMap = checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList, sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap, chainsMap);
+
+        modelRDF.sampleObjectsGroupedByTypeMap = sampleObjectsGroupedByTypeMap;
+
+        sampleObjectsGroupedByTypeMap.keySet().forEach(key -> {
+            System.out.println(key + " -> " + modelRDF.sampleObjectsGroupedByTypeMap.get(key));
+        });
+
+        if (verbose)
+        {
             parserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
         }
 
         return modelRDF;
+    }
+
+    private Map<String, List<SampleObject>> checkForNotSampleTypeInSampleObjectMap(List<String> sampleObjectMapKeyList,
+            Map<String, String> sampleTypeUriToCodeMap,
+            Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap,
+            Map<String, List<String>> chainsMap)
+    {
+        List<String> notSampleTypeKeyList = new ArrayList<>();
+        for (String key : sampleObjectMapKeyList)
+        {
+            if (sampleTypeUriToCodeMap.containsKey(key))
+            {
+                sampleObjectsGroupedByTypeMap.put(sampleTypeUriToCodeMap.get(key), sampleObjectsGroupedByTypeMap.get(key));
+                sampleObjectsGroupedByTypeMap.remove(key);
+            } else
+            {
+                notSampleTypeKeyList.add(key);
+            }
+        }
+
+        for (String key : notSampleTypeKeyList)
+        {
+            if (chainsMap.containsKey(key))
+            {
+                //System.out.println("CHAIN: " + key + " -> " + chainsMap.get(key));
+                // CHAIN: http://snomed.info/id/138875005 -> [http://snomed.info/id/138875005, https://biomedit.ch/rdf/sphn-schema/sphn#Terminology]
+                // store the new key, that should be a sample type, as a code instead as URI
+                String newKeyURI = sampleTypeUriToCodeMap.get(chainsMap.get(key).get(1));
+                // change sampleObject type from ext unknown to new key type
+                sampleObjectsGroupedByTypeMap.get(key).forEach(sampleObject -> sampleObject.type = newKeyURI);
+
+                // Append the old key list to the new key list
+                sampleObjectsGroupedByTypeMap.merge(newKeyURI, sampleObjectsGroupedByTypeMap.get(key),
+                        (oldList, newList) -> {
+                            if (newList == null)
+                            {
+                                return oldList; // If the new list is null, return the old list
+                            }
+                            if (oldList != null)
+                            {
+                                oldList.addAll(newList); // Combine the old list and new list
+                            } else
+                            {
+                                oldList = newList; // If the old list is null, use the new list
+                            }
+                            return oldList;
+                        }
+                );
+
+                // Remove the old key
+                sampleObjectsGroupedByTypeMap.remove(key);
+            }
+        }
+        return sampleObjectsGroupedByTypeMap;
+    }
+
+    //TODO: there is no direct connection from hasComparator to Comparator, from prop to vocabulary type
+    private void verifyPropertyTypes(List<SampleType> sampleTypeList, Map<String, List<String>> RDFtoOpenBISDataTypeMap, Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap)
+    {
+        for(SampleType sampleType: sampleTypeList)
+        {
+            //System.out.println("SAMPLE - VACAB_TYPE: "+ sampleType.code + " -> " + sampleType.ontologyAnnotationId + " -> " + vocabularyTypeListGroupedByTypeMap.get(sampleType.code));
+            for(SamplePropertyType samplePropertyType: sampleType.properties)
+            {
+                if (!Objects.equals(samplePropertyType.dataType, "SAMPLE"))
+                {
+                    if (vocabularyTypeListGroupedByTypeMap.containsKey(samplePropertyType.code) || vocabularyTypeListGroupedByTypeMap.keySet().stream().anyMatch(key -> samplePropertyType.code.contains(key)))
+                    {
+                        //System.out.println("GET: "+ vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(null));
+                        samplePropertyType.dataType = "CONTROLLEDVOCABULARY";
+                        samplePropertyType.vocabularyCode = vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(() -> "UNKNOWN");
+                        //System.out.println("  VACAB_TYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.code + " -> " + vocabularyTypeListGroupedByTypeMap.get(samplePropertyType.code));
+                    } else if (RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId) != null)
+                    {
+                        samplePropertyType.dataType = RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0);
+                        //System.out.println("    DATATYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0));
+
+                    } else if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null)
+                    {
+                        samplePropertyType.dataType = "SAMPLE"+ ":" + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0);
+                        //System.out.println(" OBJECT_PROP: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0));
+                    }
+                    //System.out.println("  VACAB_TYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.code + " -> " + vocabularyTypeListGroupedByTypeMap.get(samplePropertyType.code));
+                }
+            }
+        }
     }
 
     private void restrictionsToSampleMetadata(List<SampleType> sampleTypeList, Map<String, OntClassExtension> ontClass2OntClassExtensionMap)
@@ -145,7 +241,7 @@ public class RDFReader
                     }
                     samplePropertyType.metadata.putAll(propertyMetadata);
                     samplePropertyType.setMultiValue(checkMultiValue(propertyMetadata));
-                    samplePropertyType.setMandatory(checkMandatory(propertyMetadata));
+                    //samplePropertyType.setMandatory(checkMandatory(propertyMetadata));
                 }
                 sampleMetadata.put(samplePropertyType.code, propertyMetadata);
             }
@@ -215,10 +311,10 @@ public class RDFReader
         return (rdfsClassCount == 0 && owlClassCount > 0);
     }
 
-    private void getSubclassChainsEndingWithClass(Model model, StmtIterator iter)
+    private Map<String, List<String>> getSubclassChainsEndingWithClass(Model model, StmtIterator iter)
     {
         // Clear previous chains
-        chainsMap.clear();
+        Map<String, List<String>> chainsMap = new HashMap<>();
 
         // Process each statement
         while (iter.hasNext()) {
@@ -240,6 +336,7 @@ public class RDFReader
                 System.out.println("Skipping anonymous subclass: " + subclass);
             }
         }
+        return chainsMap;
     }
 
     private boolean findSubclassChain(Model model, Resource superclass, Set<String> visited, List<String> chain)
@@ -258,7 +355,9 @@ public class RDFReader
         chain.add(superclass.getURI());
 
         // Check if the superclass is of type owl:Class or rdfs:Class or owl:DatatypeProperty or owl:DatatypeProperty
-        if (model.contains(superclass, RDF.type, OWL.Class) || model.contains(superclass, RDF.type, RDFS.Class) || model.contains(superclass, RDF.type, OWL2.Class)
+        if (model.contains(superclass, RDF.type, OWL.Class)
+                || model.contains(superclass, RDF.type, RDFS.Class)
+                || model.contains(superclass, RDF.type, OWL2.Class)
                 || model.contains(superclass, RDF.type, OWL.DatatypeProperty)
                 || model.contains(superclass, RDF.type, OWL.ObjectProperty)) {
             return true;
