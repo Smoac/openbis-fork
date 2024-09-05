@@ -195,7 +195,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='outlined'
-        disabled={editable}
+        disabled={!editable}
         startIcon={<CreateNewFolderIcon />}
         onClick={this.openNewFolderDialog}
       >
@@ -220,7 +220,9 @@ class LeftToolbar extends React.Component {
       sessionToken,
       owner,
       path,
-      onDownload
+      onDownload,
+      editable,
+      deletable
     } = this.props
     const {
       width,
@@ -256,6 +258,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
+        disabled={!deletable}
         startIcon={<DeleteIcon />}
         onClick={this.openDeleteDialog}
       >
@@ -267,7 +270,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
-        disabled={multiselectedFiles.size !== 1}
+        disabled={multiselectedFiles.size !== 1 || !editable}
         startIcon={<RenameIcon />}
         onClick={this.openRenameDialog}
       >
@@ -279,6 +282,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
+        disabled={!editable}
         startIcon={<CopyIcon />}
         onClick={this.openCopyLocationDialog}
       >
@@ -290,6 +294,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
+        disabled={!editable || !deletable}
         startIcon={<MoveIcon />}
         onClick={this.openMoveLocationDialog}
       >

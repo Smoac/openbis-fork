@@ -14,7 +14,6 @@ import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
 import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 import ErrorDialog from '@src/js/components/common/error/ErrorDialog.jsx'
-import appController from '@src/js/components/AppController.js'
 
 // 2GB limit for total download size
 const sizeLimit = 2147483648
@@ -266,7 +265,9 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1,
       loading: false,
-      errorMessage: null
+      errorMessage: null,
+      editable: false,
+      deletable: false
     }
     this.zip = new JSZip()
   }
@@ -462,10 +463,10 @@ class DataBrowser extends React.Component {
   }
 
   fetchRights() {
-    const { id } = this.props
-    this.controller.getRights([id]).then(right => {
-      console.log(right)
-      this.setState({ editable: true })
+    const { id, kind } = this.props
+    this.controller.getRights([{permId: id, entityKind: kind}]).then(right => {
+      const rightsSet = new Set(right[id].rights)
+      this.setState({ editable: rightsSet.has("UPDATE"), deletable: rightsSet.has("DELETE") })
     })
   }
 
@@ -494,7 +495,9 @@ class DataBrowser extends React.Component {
       freeSpace,
       totalSpace,
       loading,
-      errorMessage
+      errorMessage,
+      editable,
+      deletable
     } = this.state
 
     return [
@@ -511,7 +514,8 @@ class DataBrowser extends React.Component {
           multiselectedFiles={multiselectedFiles}
           sessionToken={sessionToken}
           owner={id}
-          editable={true}
+          editable={editable}
+          deletable={deletable}
           path={path}
         />
         <InfoBar
