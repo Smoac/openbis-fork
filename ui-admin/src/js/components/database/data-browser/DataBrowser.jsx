@@ -464,9 +464,12 @@ class DataBrowser extends React.Component {
   fetchRights() {
     const { id, kind } = this.props
     this.controller.getRights([{permId: id, entityKind: kind}]).then(right => {
-      const rightsSet = new Set(right[id].rights)
-      const editable = rightsSet.has("UPDATE")
-      this.setState({ editable: editable })
+      if (right[id] && right[id].rights) {
+        const editable = right[id].rights.includes("UPDATE")
+        this.setState({ editable: editable })
+      } else {
+        this.setState({ editable: false })
+      }
     })
   }
 
