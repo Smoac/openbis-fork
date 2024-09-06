@@ -56,7 +56,6 @@ class Toolbar extends React.Component {
       owner,
       path,
       editable,
-      deletable,
       onDownload
     } = this.props
     return (
@@ -68,7 +67,6 @@ class Toolbar extends React.Component {
           owner={owner}
           path={path}
           editable={editable}
-          deletable={deletable}
           controller={this.controller}
           onDownload={onDownload}
         />

@@ -221,8 +221,7 @@ class LeftToolbar extends React.Component {
       owner,
       path,
       onDownload,
-      editable,
-      deletable
+      editable
     } = this.props
     const {
       width,
@@ -258,7 +257,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
-        disabled={!deletable}
+        disabled={!editable}
         startIcon={<DeleteIcon />}
         onClick={this.openDeleteDialog}
       >
@@ -294,7 +293,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
-        disabled={!editable || !deletable}
+        disabled={!editable}
         startIcon={<MoveIcon />}
         onClick={this.openMoveLocationDialog}
       >

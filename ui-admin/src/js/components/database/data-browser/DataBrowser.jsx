@@ -266,8 +266,7 @@ class DataBrowser extends React.Component {
       totalSpace: -1,
       loading: false,
       errorMessage: null,
-      editable: false,
-      deletable: false
+      editable: false
     }
     this.zip = new JSZip()
   }
@@ -466,7 +465,8 @@ class DataBrowser extends React.Component {
     const { id, kind } = this.props
     this.controller.getRights([{permId: id, entityKind: kind}]).then(right => {
       const rightsSet = new Set(right[id].rights)
-      this.setState({ editable: rightsSet.has("UPDATE"), deletable: rightsSet.has("DELETE") })
+      const editable = rightsSet.has("UPDATE")
+      this.setState({ editable: editable })
     })
   }
 
@@ -496,8 +496,7 @@ class DataBrowser extends React.Component {
       totalSpace,
       loading,
       errorMessage,
-      editable,
-      deletable
+      editable
     } = this.state
 
     return [
@@ -515,7 +514,6 @@ class DataBrowser extends React.Component {
           sessionToken={sessionToken}
           owner={id}
           editable={editable}
-          deletable={deletable}
           path={path}
         />
         <InfoBar
