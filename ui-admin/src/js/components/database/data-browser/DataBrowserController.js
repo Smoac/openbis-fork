@@ -71,23 +71,30 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async createNewFolder(name) {
-    await openbis.create(this.owner, this.path + name, true)
+    await this.handleError(async () => {
+      await openbis.create(this.owner, this.path + name, true)
+    })
+
     if (this.gridController) {
       await this.gridController.load()
     }
   }
 
   async rename(oldName, newName) {
-    await openbis.move(this.owner, this.path + oldName, this.owner, this.path + newName)
+    await this.handleError(async () => {
+      await openbis.move(this.owner, this.path + oldName, this.owner, this.path + newName)
+    })
     if (this.gridController) {
       await this.gridController.load()
     }
   }
 
   async delete(files) {
-    for (const file of files) {
-      await this._delete(file)
-    }
+    await this.handleError(async () => {
+      for (const file of files) {
+        await this._delete(file)
+      }
+    })
 
     if (this.gridController) {
       await this.gridController.load()
@@ -99,9 +106,11 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async copy(files, newLocation) {
-    for (const file of files) {
-      await this._copy(file, newLocation)
-    }
+    await this.handleError(async () => {
+      for (const file of files) {
+        await this._copy(file, newLocation)
+      }
+    })
 
     if (this.gridController) {
       await this.gridController.clearSelection()
@@ -116,9 +125,11 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async move(files, newLocation) {
-    for (const file of files) {
-      await this._move(file, newLocation)
-    }
+    await this.handleError(async () => {
+      for (const file of files) {
+        await this._move(file, newLocation)
+      }
+    })
 
     if (this.gridController) {
       await this.gridController.load()
@@ -146,48 +157,59 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async upload(fileList, onNameConflictFound, onProgressUpdate) {
-    let totalUploaded = 0
-    const totalSize = Array.from(fileList)
-      .reduce((acc, file) => acc + file.size, 0)
+    await this.handleError(async() => {
+      let totalUploaded = 0
+      const totalSize = Array.from(fileList)
+        .reduce((acc, file) => acc + file.size, 0)
 
-    for (const file of fileList) {
-      const filePath = file.webkitRelativePath ? file.webkitRelativePath
-        : file.name
-      const targetFilePath = this.path + '/' + filePath
-      const existingFiles = await this.listFiles(targetFilePath)
+      for (const file of fileList) {
+        const filePath = file.webkitRelativePath ? file.webkitRelativePath
+          : file.name
+        const targetFilePath = this.path + '/' + filePath
+        const existingFiles = await this.listFiles(targetFilePath)
 
-      const existingFileSize = existingFiles.length === 0 ? 0
-        : existingFiles[0].size
-      // If the file is smaller than 2 chunks we better replace it
-      const allowResume = file.size >= 2 * CHUNK_SIZE
-        && file.size >= existingFileSize
-      const resolutionResult = existingFiles.length === 0 ? 'replace'
-        : await onNameConflictFound(file, allowResume)
+        const existingFileSize = existingFiles.length === 0 ? 0
+          : existingFiles[0].size
+        // If the file is smaller than 2 chunks we better replace it
+        const allowResume = file.size >= 2 * CHUNK_SIZE
+          && file.size >= existingFileSize
+        const resolutionResult = existingFiles.length === 0 ? 'replace'
+          : await onNameConflictFound(file, allowResume)
 
-      if (resolutionResult !== 'cancel') {
-        // Replace or resume upload from the last point in the file
-        let offset = resolutionResult === 'replace' ? 0 : existingFileSize
-        totalUploaded += Math.min(offset, file.size)
-        while (offset < file.size) {
-          const blob = file.slice(offset, offset + CHUNK_SIZE)
-          const binaryString = await this._fileSliceToBinaryString(blob)
-          await this._uploadChunk(targetFilePath, offset, binaryString)
-          offset += blob.size
-          totalUploaded += blob.size
+        if (resolutionResult !== 'cancel') {
+          // Replace or resume upload from the last point in the file
+          let offset = resolutionResult === 'replace' ? 0 : existingFileSize
+          totalUploaded += Math.min(offset, file.size)
+          while (offset < file.size) {
+            const blob = file.slice(offset, offset + CHUNK_SIZE)
+            const binaryString = await this._fileSliceToBinaryString(blob)
+            await this._uploadChunk(targetFilePath, offset, binaryString)
+            offset += blob.size
+            totalUploaded += blob.size
 
-          // Calculate and update progress
-          const progress = Math.round((totalUploaded / totalSize) * 100)
-          onProgressUpdate(Math.min(progress, 100))
+            // Calculate and update progress
+            const progress = Math.round((totalUploaded / totalSize) * 100)
+            onProgressUpdate(Math.min(progress, 100))
+          }
+        } else {
+          // We stop uploading after cancel
+          onProgressUpdate(100)
+          break
         }
-      } else {
-        // We stop uploading after cancel
-        onProgressUpdate(100)
-        break
       }
-    }
+    })
 
     if (this.gridController) {
       await this.gridController.load()
+    }
+  }
+
+  async handleError(fn) {
+    try {
+      await fn()
+    } catch (e) {
+      const message = e.message || (e.t0 ? e.t0.message || e.t0 : e)
+      this.setState({ errorMessage: message })
     }
   }
 
