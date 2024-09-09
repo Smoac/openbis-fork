@@ -504,6 +504,7 @@ class DataBrowser extends React.Component {
 
     return [
       <div
+        key='data-browser-content'
         className={[classes.boundary, classes.columnFlexContainer].join(' ')}
       >
         <Toolbar
@@ -642,6 +643,7 @@ class DataBrowser extends React.Component {
         message={messages.get(messages.PREPARING_FILE)}
       />,
       <ErrorDialog
+        key='data-browser-error-dialog'
         open={!!errorMessage}
         error={errorMessage}
         onClose={this.closeErrorDialog}
