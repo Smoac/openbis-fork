@@ -19,7 +19,8 @@ import java.util.List;
 
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.afsserver.http.HttpServer;
-import ch.ethz.sis.afsserver.server.common.LogApacheCommonsLogging;
+import ch.ethz.sis.afsserver.server.common.ApacheCommonsLoggingConfiguration;
+import ch.ethz.sis.afsserver.server.common.ApacheLog4j1Configuration;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.maintenance.MaintenancePlugin;
 import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskParameters;
@@ -76,8 +77,9 @@ public final class Server<CONNECTION, API>
         LogManager.setLogFactory(logFactory);
         logger = LogManager.getLogger(Server.class);
 
-        // Make the legacy code that bases on Apache Commons Logging use the same logging mechanism as the rest of AFS
-        System.setProperty("org.apache.commons.logging.Log", LogApacheCommonsLogging.class.getName());
+        // Make the legacy code that bases on Apache Commons Logging or Log4j use the same logging mechanism as the rest of AFS
+        ApacheCommonsLoggingConfiguration.reconfigureToUseAFSLogging();
+        ApacheLog4j1Configuration.reconfigureToUseAFSLogging();
 
         logger.info("=== Server Bootstrap ===");
         logger.info("Running with java.version: " + System.getProperty("java.version"));

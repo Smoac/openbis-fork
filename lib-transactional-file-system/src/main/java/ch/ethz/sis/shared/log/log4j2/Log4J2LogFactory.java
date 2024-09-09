@@ -26,6 +26,11 @@ public class Log4J2LogFactory implements LogFactory {
         return new Log4JLogger(LogManager.getLogger(clazz));
     }
 
+    @Override public Logger getLogger(String name)
+    {
+        return new Log4JLogger(LogManager.getLogger(name));
+    }
+
     @Override
     public void configure(String pathToConfigurationFile) {
         if (pathToConfigurationFile != null) {

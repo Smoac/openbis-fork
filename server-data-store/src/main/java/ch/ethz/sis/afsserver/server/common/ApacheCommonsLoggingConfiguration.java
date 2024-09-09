@@ -5,12 +5,17 @@ import org.apache.commons.logging.Log;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 
-public class LogApacheCommonsLogging implements Log
+public class ApacheCommonsLoggingConfiguration implements Log
 {
+
+    public static void reconfigureToUseAFSLogging()
+    {
+        System.setProperty("org.apache.commons.logging.Log", ApacheCommonsLoggingConfiguration.class.getName());
+    }
 
     private final Logger logger;
 
-    public LogApacheCommonsLogging(String name) throws Exception
+    public ApacheCommonsLoggingConfiguration(String name) throws Exception
     {
         this.logger = LogManager.getLogger(Class.forName(name));
     }

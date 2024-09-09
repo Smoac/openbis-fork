@@ -34,4 +34,11 @@ public class LogManager {
         }
         return factory.getLogger(clazz);
     }
+
+    public static <T> Logger getLogger(String name) {
+        if (isNotInitialized()) {
+            throw new RuntimeException("LogFactory not initialized.");
+        }
+        return factory.getLogger(name);
+    }
 }
