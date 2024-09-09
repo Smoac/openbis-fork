@@ -83,7 +83,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             var isNoGroup = this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS";
 
             if(isNoGroup) {
-            // TODO work here!!!!
                 $formColumn.append($("<h2>").append("Instance Settings"));
                 if(profile.isMultiGroup()) {
                     $formColumn.append(FormUtil.getWarningText("These Settings apply to the whole openBIS instance and affect all groups. "));

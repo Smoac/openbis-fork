@@ -151,6 +151,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			} else {
 				var thisFacade = this;
 				var criteria = new DataStoreSearchCriteria();
+				criteria.withKind().thatIn([]);
 				criteria.withOrOperator();
 
 				for (var i = 0; i < dataStoreCodes.length; i++) {

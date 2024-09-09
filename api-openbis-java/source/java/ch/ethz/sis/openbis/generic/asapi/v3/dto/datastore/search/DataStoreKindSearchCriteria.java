@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,7 +30,7 @@ public class DataStoreKindSearchCriteria extends AbstractSearchCriteria
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private DataStoreKind[] dataStoreKinds = new DataStoreKind[0];
+    private DataStoreKind[] dataStoreKinds = new DataStoreKind[] { DataStoreKind.DSS };
 
     public void thatIn(final DataStoreKind... dataStoreKinds)
     {
@@ -44,7 +45,7 @@ public class DataStoreKindSearchCriteria extends AbstractSearchCriteria
     @Override
     public String toString()
     {
-        return "with data store kinds " + dataStoreKinds;
+        return "with data store kinds " + Arrays.toString(dataStoreKinds);
     }
 
 }

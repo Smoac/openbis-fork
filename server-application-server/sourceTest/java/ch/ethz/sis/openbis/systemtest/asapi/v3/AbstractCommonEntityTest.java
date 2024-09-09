@@ -378,27 +378,27 @@ public abstract class AbstractCommonEntityTest<TYPE_CREATION extends IEntityType
             {
                 result.add(new Object[] { dataType, "2022-05-16", "PATTERN", "2022.*", "2022-04-08", false});
                 result.add(new Object[] { dataType, "2022-05-16", "PATTERN", "2022.*", "2024-05-16", true});
-                result.add(new Object[] { dataType, "2022-05-16", "VALUES", "\"2022-04-08\"", "2022-04-08", false});
-                result.add(new Object[] { dataType, "2022-05-16", "VALUES", "\"2022-04-08\"", "2024-04-08", true});
+                result.add(new Object[] { dataType, "2022-04-08", "VALUES", "\"2022-04-08\"", "2022-04-08", false});
+                result.add(new Object[] { dataType, "2022-04-08", "VALUES", "\"2022-04-08\"", "2024-04-08", true});
             } else if(dataType == DataType.TIMESTAMP)
             {
                 result.add(new Object[] { dataType, "2022-05-16 04:22", "PATTERN", "2022.*", "2022-05-16 04:24:00", false});
                 result.add(new Object[] { dataType, "2022-05-16 04:22", "PATTERN", "2022.*", "2024-05-16 04:22:00", true});
             } else if(dataType == DataType.REAL) {
-                result.add(new Object[] { dataType, "1.0", "PATTERN", "[1-3]{3}\\.0", "123.0", false});
-                result.add(new Object[] { dataType, "1.0", "PATTERN", "[1-3]{3}\\.0", "124.0", true});
+                result.add(new Object[] { dataType, "111.0", "PATTERN", "[1-3]{3}\\.0", "123.0", false});
+                result.add(new Object[] { dataType, "123.0", "PATTERN", "[1-3]{3}\\.0", "124.0", true});
                 result.add(new Object[] { dataType, "1.0", "RANGES", "1-10", "5.1", false});
                 result.add(new Object[] { dataType, "1.0", "RANGES", "1-10", "11.0", true});
-                result.add(new Object[] { dataType, "1.0", "VALUES", "\"2.0\"", "2.0", false});
-                result.add(new Object[] { dataType, "1.0", "VALUES", "\"2.0\"", "2.1", true});
+                result.add(new Object[] { dataType, "2.0", "VALUES", "\"2.0\"", "2.0", false});
+                result.add(new Object[] { dataType, "2.0", "VALUES", "\"2.0\"", "2.1", true});
             } else if(dataType == DataType.HYPERLINK) {
                 result.add(new Object[] { dataType, "http://a.com", "PATTERN", "http://.*", "http://b.com", false});
                 result.add(new Object[] { dataType, "http://a.com", "PATTERN", "http://.*", "https://a.com", true});
-                result.add(new Object[] { dataType, "http://a.com", "VALUES", "\"http://b.com\"", "http://b.com", false});
-                result.add(new Object[] { dataType, "http://a.com", "VALUES", "\"http://b.com\"", "http://bc.com", true});
+                result.add(new Object[] { dataType, "http://b.com", "VALUES", "\"http://b.com\"", "http://b.com", false});
+                result.add(new Object[] { dataType, "http://b.com", "VALUES", "\"http://b.com\"", "http://bc.com", true});
             }else {
-                result.add(new Object[] { dataType, "1", "PATTERN", "[1-3]{3}", "123", false});
-                result.add(new Object[] { dataType, "1", "PATTERN", "[1-3]{3}", "124", true});
+                result.add(new Object[] { dataType, "111", "PATTERN", "[1-3]{3}", "123", false});
+                result.add(new Object[] { dataType, "123", "PATTERN", "[1-3]{3}", "124", true});
                 result.add(new Object[] { dataType, "1", "RANGES", "1-10", "5", false});
                 result.add(new Object[] { dataType, "1", "RANGES", "1-10", "11", true});
                 result.add(new Object[] { dataType, "1", "VALUES", "\"1\"", "1", false});

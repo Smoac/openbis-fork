@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.junit.Assert.fail;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -53,7 +55,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DataStoreDAO;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -1984,6 +1985,24 @@ public class SearchDataSetTest extends AbstractDataSetTest
         final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
         final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
         assertEquals(dataSetCodes, Set.of("DS-1", "DS-4"));
+    }
+
+    @Test
+    public void testImplicitSearchWithDssDatasetsWithCodeThatContains()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        prepareAfsAndDssDatasets(sessionToken);
+
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        final DataStoreSearchCriteria storeCriteria = criteria.withDataStore();
+        storeCriteria.withCode().thatContains("S");
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
+        assertTrue(Collections.disjoint(dataSetCodes, Set.of("DS-2", "DS-3", "DS-5", "DS-6")), "No AFS codes expected.");
     }
 
     @Test
