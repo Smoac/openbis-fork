@@ -265,7 +265,8 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1,
       loading: false,
-      errorMessage: null
+      errorMessage: null,
+      editable: false
     }
     this.zip = new JSZip()
   }
@@ -460,8 +461,21 @@ class DataBrowser extends React.Component {
     return mimeTypeMap[extension] || 'application/octet-stream'
   }
 
+  fetchRights() {
+    const { id, kind } = this.props
+    this.controller.getRights([{permId: id, entityKind: kind}]).then(right => {
+      if (right[id] && right[id].rights) {
+        const editable = right[id].rights.includes("UPDATE")
+        this.setState({ editable: editable })
+      } else {
+        this.setState({ editable: false })
+      }
+    })
+  }
+
   componentDidMount() {
     this.fetchSpaceStatus()
+    this.fetchRights()
   }
 
   openErrorDialog(errorMessage) {
@@ -484,11 +498,13 @@ class DataBrowser extends React.Component {
       freeSpace,
       totalSpace,
       loading,
-      errorMessage
+      errorMessage,
+      editable
     } = this.state
 
     return [
       <div
+        key='data-browser-content'
         className={[classes.boundary, classes.columnFlexContainer].join(' ')}
       >
         <Toolbar
@@ -501,6 +517,7 @@ class DataBrowser extends React.Component {
           multiselectedFiles={multiselectedFiles}
           sessionToken={sessionToken}
           owner={id}
+          editable={editable}
           path={path}
         />
         <InfoBar
@@ -626,6 +643,7 @@ class DataBrowser extends React.Component {
         message={messages.get(messages.PREPARING_FILE)}
       />,
       <ErrorDialog
+        key='data-browser-error-dialog'
         open={!!errorMessage}
         error={errorMessage}
         onClose={this.closeErrorDialog}

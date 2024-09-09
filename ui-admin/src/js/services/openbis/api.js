@@ -319,6 +319,22 @@ class Facade {
     return this.promise(this._getAfsServerFacade().free(owner, source))
   }
 
+  getRights(idMap, fo) {
+    const ids = idMap.map(id => {
+      switch (id.entityKind) {
+        case 'object': {
+          return new dto.SamplePermId(id.permId)
+        }
+        case 'collection': {
+          return new dto.ExperimentPermId(id.permId)
+        }
+      }
+      return null
+    })
+
+    return this.promise(this.v3.getRights(ids, fo))
+  }
+
   async executeService(id, options) {
     const scheduleResult = await this.executeOperations(
       [new dto.ExecuteCustomASServiceOperation(id, options)],
