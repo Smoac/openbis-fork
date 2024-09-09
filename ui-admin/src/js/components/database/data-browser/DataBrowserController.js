@@ -59,15 +59,19 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async load() {
-    const files = await this.listFiles()
-    this.fileNames = files.map(file => file.name)
-    return files.map(file => ({ id: file.name, ...file }))
+    return await this.handleError(async() => {
+      const files = await this.listFiles()
+      this.fileNames = files.map(file => file.name)
+      return files.map(file => ({ id: file.name, ...file }))
+    })
   }
 
   async loadFolders() {
-    const files = await this.listFiles()
-    this.fileNames = files.map(file => file.name)
-    return files.filter(file => file.directory).map(file => ({ id: file.name, ...file }))
+    return await this.handleError(async() => {
+      const files = await this.listFiles()
+      this.fileNames = files.map(file => file.name)
+      return files.filter(file => file.directory).map(file => ({ id: file.name, ...file }))
+    })
   }
 
   async createNewFolder(name) {
@@ -206,7 +210,7 @@ export default class DataBrowserController extends ComponentController {
 
   async handleError(fn) {
     try {
-      await fn()
+      return await fn()
     } catch (e) {
       const message = e.message || (e.t0 ? e.t0.message || e.t0 : e)
       this.setState({ errorMessage: message })
