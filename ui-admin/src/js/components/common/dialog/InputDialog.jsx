@@ -20,7 +20,7 @@ class InputDialog extends React.Component {
     autoBind(this)
 
     this.state = {
-      value: '' || this.props.inputValue
+      value: this.props.inputValue || ''
     }
   }
 
