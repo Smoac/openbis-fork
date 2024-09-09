@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
@@ -275,34 +276,35 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         createObject(header, values, page, line);
     }
 
-    private void generateExistingCodes(IEntityTypeId permId)
-    {
+    private IPropertyAssignmentsHolder getPropertyAssignmentHolder(IEntityTypeId permId) {
         switch (importTypes)
         {
             case EXPERIMENT_TYPE:
                 ExperimentTypeFetchOptions experimentFetchOptions = new ExperimentTypeFetchOptions();
                 experimentFetchOptions.withPropertyAssignments().withPropertyType();
                 experimentFetchOptions.withPropertyAssignments().withPlugin();
-                ExperimentType experimentType = delayedExecutor.getExperimentType(permId, experimentFetchOptions);
-                assignExisting(experimentType.getPropertyAssignments());
-                break;
+                return delayedExecutor.getExperimentType(permId, experimentFetchOptions);
             case SAMPLE_TYPE:
                 SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
                 sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
                 sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
-                SampleType sampleType = delayedExecutor.getSampleType(permId, sampleTypeFetchOptions);
-                assignExisting(sampleType.getPropertyAssignments());
-                break;
+                return delayedExecutor.getSampleType(permId, sampleTypeFetchOptions);
             case DATASET_TYPE:
                 DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
                 dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
                 dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
-                DataSetType dataSetType = delayedExecutor.getDataSetType(permId, dataSetTypeFetchOptions);
-                assignExisting(dataSetType.getPropertyAssignments());
-                break;
+                return delayedExecutor.getDataSetType(permId, dataSetTypeFetchOptions);
             default:
-                existingDynamicPluginsByPropertyCode = new HashMap<>();
-            break;
+                return null;
+        }
+    }
+
+    private void generateExistingCodes(IPropertyAssignmentsHolder propertyAssignmentsHolder)
+    {
+        if(propertyAssignmentsHolder != null) {
+            assignExisting(propertyAssignmentsHolder.getPropertyAssignments());
+        } else {
+            existingDynamicPluginsByPropertyCode = new HashMap<>();
         }
     }
 
@@ -331,8 +333,11 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
                 break;
         }
 
-        generateExistingCodes(this.permId);
-        super.importBlock(page, pageIndex, start + 2, end);
+        IPropertyAssignmentsHolder propertyAssignmentsHolder = getPropertyAssignmentHolder(this.permId);
+        if(propertyAssignmentsHolder != null) {
+            generateExistingCodes(propertyAssignmentsHolder);
+            super.importBlock(page, pageIndex, start + 2, end);
+        }
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)

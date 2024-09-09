@@ -260,7 +260,7 @@ public class UncompressedImportTest extends AbstractImportTest
                                            v3api.executeImport(sessionToken, importData, importOptions);
                                        }
                                    },
-                "Authorization failure: Internal entity types can be managed only by the system user.");
+                "Experiment type $INTERNAL_EXPERIMENT_TYPE not found.");
     }
 
     @Test
