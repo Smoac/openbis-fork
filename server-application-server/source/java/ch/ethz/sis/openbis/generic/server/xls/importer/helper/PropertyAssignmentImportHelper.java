@@ -72,8 +72,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         MultiValued("Multivalued", false),
         Unique("Unique", false),
         Pattern("Pattern", false),
-        PatternType("Pattern Type", false),
-        InternalAssignment("Internal Assignment", false);
+        PatternType("Pattern Type", false);
 
         private final String headerName;
 
@@ -125,7 +124,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
     {
         String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
         String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
-        boolean isInternalNamespace = Boolean.parseBoolean(getValueByColumnName(header, values, Attribute.InternalAssignment));
+        boolean isInternalNamespace = ImportUtils.isInternalPropertyAssignment(code);
 
         if (code == null)
         {
@@ -161,7 +160,12 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         String unique = getValueByColumnName(headers, values, Attribute.Unique);
         String pattern = getValueByColumnName(headers, values, Attribute.Pattern);
         String patternType = getValueByColumnName(headers, values, Attribute.PatternType);
-        String internalAssignment = getValueByColumnName(headers, values, Attribute.InternalAssignment);
+        boolean internalAssignment = false;
+        if(ImportUtils.isInternalPropertyAssignment(code)) {
+            code = ImportUtils.getPropertyCode(code);
+            internalAssignment = true;
+        }
+//        String internalAssignment = getValueByColumnName(headers, values, Attribute.InternalAssignment);
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
@@ -172,7 +176,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setUnique(Boolean.parseBoolean(unique));
         creation.setPattern(pattern);
         creation.setPatternType(patternType);
-        creation.setManagedInternally(Boolean.parseBoolean(internalAssignment));
+        creation.setManagedInternally(internalAssignment);
+//        creation.setManagedInternally(Boolean.parseBoolean(internalAssignment));
 
         ListUpdateValue newAssignments = new ListUpdateValue();
         Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();

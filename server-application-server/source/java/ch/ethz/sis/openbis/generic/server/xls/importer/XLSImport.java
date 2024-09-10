@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import ch.ethz.sis.openbis.generic.server.xls.importer.helper.*;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -39,19 +40,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ScriptTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.handler.ExcelParser;
 import ch.ethz.sis.openbis.generic.server.xls.importer.handler.VersionInfoHandler;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.DatasetTypeImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.ExperimentImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.ExperimentTypeImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.ProjectImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.PropertyAssignmentImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.PropertyTypeImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleTypeImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.ScriptImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SemanticAnnotationImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SpaceImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.VocabularyImportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.importer.helper.VocabularyTermImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.DatabaseConsistencyChecker;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.FileServerUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;

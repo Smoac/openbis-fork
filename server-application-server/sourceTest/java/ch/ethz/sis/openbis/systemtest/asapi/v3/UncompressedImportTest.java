@@ -290,12 +290,23 @@ public class UncompressedImportTest extends AbstractImportTest
         sampleTypeSearchCriteria.withPermId().thatEquals("$INTERNAL_SAMPLE_TYPE");
 
         final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
 
         SearchResult<SampleType> sampleTypeSearchResult =
                 v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
 
         assertEquals(sampleTypeSearchResult.getTotalCount(), 1);
         assertEquals(sampleTypeSearchResult.getObjects().get(0).getDescription(), "Internal Sample Type");
+
+        SampleType sampleType = sampleTypeSearchResult.getObjects().get(0);
+        List<PropertyAssignment> sampleTypePropertyAssignments = sampleType.getPropertyAssignments();
+        Optional<PropertyAssignment> sampleTypeAssignmentOptional = sampleTypePropertyAssignments.stream().filter(x -> "$FOR_WHAT_INTERNAL".equals(x.getPropertyType().getCode())).findFirst();
+        assertTrue(sampleTypeAssignmentOptional.isPresent());
+        PropertyAssignment sampleTypeAssignment = sampleTypeAssignmentOptional.get();
+        assertFalse(sampleTypeAssignment.isManagedInternally());
+        assertTrue(sampleTypeAssignment.getPropertyType().isManagedInternally());
+        assertEquals(sampleTypeAssignment.getPatternType(), "PATTERN");
+        assertEquals(sampleTypeAssignment.getPattern(), ".*");
 
 
         final ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
@@ -316,6 +327,7 @@ public class UncompressedImportTest extends AbstractImportTest
         Optional<PropertyAssignment> assignmentOptional = propertyAssignments.stream().filter(x -> "$FOR_WHAT_INTERNAL".equals(x.getPropertyType().getCode())).findFirst();
         assertTrue(assignmentOptional.isPresent());
         assertTrue(assignmentOptional.get().isManagedInternally());
+        assertTrue(assignmentOptional.get().getPropertyType().isManagedInternally());
 
         final VocabularySearchCriteria vocabularySearchCriteria = new VocabularySearchCriteria();
         vocabularySearchCriteria.withCode().thatEquals("$INTERNAL_VOCABULARY_TYPE");
