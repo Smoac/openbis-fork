@@ -46,11 +46,6 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-//import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
-//import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-//import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-//import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-
 /**
  * Utility methods for segmented stores.
  *
@@ -58,15 +53,6 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
  */
 public class SegmentedStoreUtils
 {
-    //    private static final IFreeSpaceProvider DUMMY_FREE_SPACE_PROVIDER = new IFreeSpaceProvider()
-    //        {
-    //            @Override
-    //            public long freeSpaceKb(HostAwareFile path) throws IOException
-    //            {
-    //                return Long.MAX_VALUE;
-    //            }
-    //        };
-    //
 
     private static final String RSYNC_EXEC = "rsync";
 
@@ -83,16 +69,6 @@ public class SegmentedStoreUtils
         }
     };
 
-    //    private static final SimpleComparator<SimpleDataSetInformationDTO, Date> ACCESS_TIMESTAMP_COMPARATOR =
-    //            new SimpleComparator<SimpleDataSetInformationDTO, Date>()
-    //                {
-    //                    @Override
-    //                    public Date evaluate(SimpleDataSetInformationDTO item)
-    //                    {
-    //                        return item.getAccessTimestamp();
-    //                    }
-    //                };
-    //
     private static final FileFilter FILTER_ON_SHARES = new FileFilter()
     {
         @Override
@@ -163,116 +139,6 @@ public class SegmentedStoreUtils
         return files;
     }
 
-    //    /**
-    //     * Returns first the id of the first incoming share folder of specified store root which allows to move a file from specified incoming folder to
-    //     * the incoming share.
-    //     */
-    //    public static String findIncomingShare(File incomingFolder, File storeRoot, Integer incomingShareIdOrNull, ISimpleLogger logger)
-    //    {
-    //        File matchingShare = findShare(incomingFolder, storeRoot, incomingShareIdOrNull, logger);
-    //        return matchingShare.getName();
-    //    }
-    //
-    //    /**
-    //     * Creates a test file in the incoming folder Called repeatedly to create a fresh test file until a suitable share is found
-    //     */
-    //    private static File createTestFileInIncomingFolder(File incomingFolder, File storeRoot)
-    //    {
-    //        final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
-    //        if (fileOp.isDirectory(incomingFolder) == false)
-    //        {
-    //            throw new ConfigurationFailureException(
-    //                    "Incoming folder does not exist or is not a folder: " + incomingFolder);
-    //        }
-    //        if (fileOp.isDirectory(storeRoot) == false)
-    //        {
-    //            throw new ConfigurationFailureException(
-    //                    "Store root does not exist or is not a folder: " + storeRoot);
-    //        }
-    //        File testFile = new File(incomingFolder, ".DDS_TEST");
-    //        try
-    //        {
-    //            fileOp.createNewFile(testFile);
-    //        } catch (IOExceptionUnchecked ex)
-    //        {
-    //            throw new ConfigurationFailureException(
-    //                    "Couldn't create a test file in the following incoming folder: "
-    //                            + incomingFolder,
-    //                    ex);
-    //        }
-    //        return testFile;
-    //    }
-    //
-    //    private static File findShare(File incomingFolder, File storeRoot, final Integer incomingShareIdOrNull, ISimpleLogger logger)
-    //    {
-    //        if (incomingShareIdOrNull != null)
-    //        {
-    //            File[] shares = getShares(storeRoot, new FileFilter()
-    //                {
-    //                    @Override
-    //                    public boolean accept(File pathname)
-    //                    {
-    //                        if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(pathname) == false)
-    //                        {
-    //                            return false;
-    //                        }
-    //                        String name = pathname.getName();
-    //                        Pattern p = Pattern.compile("\\b" + String.valueOf(incomingShareIdOrNull + "\\b"));
-    //                        return p.matcher(name).matches();
-    //                    }
-    //                });
-    //
-    //            if (shares.length != 1)
-    //            {
-    //                throw new ConfigurationFailureException("Incoming share: " +
-    //                        incomingShareIdOrNull + " could not be found for the following incoming folder: " + incomingFolder.getAbsolutePath());
-    //            }
-    //
-    //            File share = shares[0];
-    //
-    //            Share shareObject =
-    //                    new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
-    //            if (shareObject.isWithdrawShare())
-    //            {
-    //                throw new ConfigurationFailureException("Incoming folder [" + incomingFolder.getPath()
-    //                        + "] can not be assigned to share " + shareObject.getShareId()
-    //                        + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
-    //                        + " is set to true.");
-    //            }
-    //            logger.log(LogLevel.INFO, "Incoming folder [" + incomingFolder.getPath()
-    //                    + "] is assigned to incoming share " + shares[0].getName() + ".");
-    //            return shares[0];
-    //        }
-    //
-    //        for (File share : getShares(storeRoot))
-    //        {
-    //
-    //            File testFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
-    //            File destination = new File(share, testFile.getName());
-    //            if (testFile.renameTo(destination))
-    //            {
-    //                destination.delete();
-    //                Share shareObject =
-    //                        new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
-    //                if (shareObject.isWithdrawShare())
-    //                {
-    //                    logger.log(LogLevel.WARN, "Incoming folder [" + incomingFolder.getPath()
-    //                            + "] can not be assigned to share " + shareObject.getShareId()
-    //                            + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
-    //                            + " is set to true.");
-    //                }
-    //                return share;
-    //            } else
-    //            {
-    //                testFile.delete();
-    //            }
-    //        }
-    //        throw new ConfigurationFailureException(
-    //                "No share could be found for the following incoming folder: "
-    //                        + incomingFolder.getPath());
-    //    }
-    //
-
     /**
      * Gets a list of all shares of specified store root directory. As a side effect it calculates and updates the size of all data sets if necessary.
      *
@@ -302,165 +168,6 @@ public class SegmentedStoreUtils
         return shares;
     }
 
-    //    /**
-    //     * Frees space in specified share for unarchived data sets. This method assumes that the size of all specified data sets are known by the
-    //     * {@link DatasetDescription} objects. Data sets with oldest modification date are removed first. The archiving status of these data sets are set
-    //     * back to ARCHIVED.
-    //     *
-    //     * @param dataSets The data sets which should be kept (if already in the specified share). In addition they specify the amount of space to be
-    //     *            freed.
-    //     */
-    //    public static void freeSpace(Share unarchivingScratchShare, IEncapsulatedOpenBISService service,
-    //            List<DatasetDescription> dataSets, IDataSetDirectoryProvider dataSetDirectoryProvider,
-    //            IShareIdManager shareIdManager, ISimpleLogger logger)
-    //    {
-    //        if (unarchivingScratchShare.isUnarchivingScratchShare() == false)
-    //        {
-    //            throw new EnvironmentFailureException("Share '" + unarchivingScratchShare.getShareId()
-    //                    + "' isn't an unarchving scratch share. Such a share has the property "
-    //                    + ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + " of the file "
-    //                    + ShareFactory.SHARE_PROPS_FILE + " set to 'true'.");
-    //        }
-    //        List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>(dataSets);
-    //        List<SimpleDataSetInformationDTO> filteredDataSetsInShare =
-    //                getAvailableArchivedDataSetsInUnarchivingScratchShare(unarchivingScratchShare);
-    //
-    //        long maxSpace = unarchivingScratchShare.getUnarchivingScratchShareMaximumSize();
-    //        long availableSpace = maxSpace - calculateTotalSize(filteredDataSetsInShare);
-    //        removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
-    //        long requestedSpace = calculateTotalSize(filteredDataSets);
-    //        long actualFreeSpace = Math.min(availableSpace, unarchivingScratchShare.calculateFreeSpace());
-    //        if (isNotEnoughFreeSpace(requestedSpace, actualFreeSpace))
-    //        {
-    //            Collections.sort(filteredDataSetsInShare, ACCESS_TIMESTAMP_COMPARATOR);
-    //            List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
-    //                    listDataSetsToRemoveFromShare(filteredDataSetsInShare, requestedSpace, actualFreeSpace,
-    //                            unarchivingScratchShare, logger);
-    //            deleteFromUnarchivingScratchShare(dataSetsToRemoveFromShare, unarchivingScratchShare, service,
-    //                    dataSetDirectoryProvider, shareIdManager, logger);
-    //            availableSpace += calculateTotalSize(dataSetsToRemoveFromShare);
-    //            actualFreeSpace = Math.min(availableSpace, unarchivingScratchShare.calculateFreeSpace());
-    //        }
-    //        logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '"
-    //                + unarchivingScratchShare.getShareId() + "': "
-    //                + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(actualFreeSpace))
-    //                + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: "
-    //                + FileUtilities.byteCountToDisplaySize(requestedSpace));
-    //    }
-    //
-    //    public static void deleteFromUnarchivingScratchShare(List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare,
-    //            Share unarchivingScratchShare, IEncapsulatedOpenBISService service,
-    //            IDataSetDirectoryProvider dataSetDirectoryProvider, IShareIdManager shareIdManager, ISimpleLogger logger)
-    //    {
-    //        logger.log(LogLevel.INFO, "Remove the following data sets from share '" + unarchivingScratchShare.getShareId()
-    //                + "' and set their archiving status back to ARCHIVED: "
-    //                + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
-    //        service.updateDataSetStatuses(extractCodes(dataSetsToRemoveFromShare), DataSetArchivingStatus.ARCHIVED, true);
-    //        for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
-    //        {
-    //            deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
-    //        }
-    //        logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
-    //                + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
-    //                + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
-    //    }
-    //
-    //    private static List<SimpleDataSetInformationDTO> getAvailableArchivedDataSetsInUnarchivingScratchShare(Share unarchivingScratchShare)
-    //    {
-    //        List<SimpleDataSetInformationDTO> availableDataSets = new ArrayList<SimpleDataSetInformationDTO>();
-    //        List<SimpleDataSetInformationDTO> dataSets = unarchivingScratchShare.getDataSetsOrderedBySize();
-    //        for (SimpleDataSetInformationDTO dataSet : dataSets)
-    //        {
-    //            if (dataSet.getStatus().isAvailable() && dataSet.isPresentInArchive())
-    //            {
-    //                availableDataSets.add(dataSet);
-    //            }
-    //        }
-    //        return availableDataSets;
-    //    }
-    //
-    //    /**
-    //     * Remove common data sets from both lists
-    //     */
-    //    private static void removeCommonDataSets(List<DatasetDescription> dataSets, List<SimpleDataSetInformationDTO> dataSetsInShare)
-    //    {
-    //        Set<String> extractCodes = new HashSet<String>(extractCodes(dataSetsInShare));
-    //        for (Iterator<DatasetDescription> iterator = dataSets.iterator(); iterator.hasNext();)
-    //        {
-    //            DatasetDescription dataSet = iterator.next();
-    //            if (extractCodes.remove(dataSet.getDataSetCode()))
-    //            {
-    //                iterator.remove();
-    //            }
-    //        }
-    //        for (Iterator<SimpleDataSetInformationDTO> iterator = dataSetsInShare.iterator(); iterator.hasNext();)
-    //        {
-    //            SimpleDataSetInformationDTO dataSet = iterator.next();
-    //            if (extractCodes.contains(dataSet.getDataSetCode()) == false)
-    //            {
-    //                iterator.remove();
-    //            }
-    //        }
-    //    }
-    //
-    //    public static long calculateTotalSize(List<? extends IDatasetLocation> dataSets)
-    //    {
-    //        long size = 0;
-    //        for (IDatasetLocation dataSet : dataSets)
-    //        {
-    //            Long dataSetSize = dataSet.getDataSetSize();
-    //            if (dataSetSize == null)
-    //            {
-    //                throw new IllegalArgumentException("Unknown size of data set '" + dataSet.getDataSetCode() + "'.");
-    //            }
-    //            size += dataSetSize;
-    //        }
-    //        return size;
-    //    }
-    //
-    //    private static List<String> extractCodes(List<SimpleDataSetInformationDTO> dataSets)
-    //    {
-    //        List<String> codes = new ArrayList<String>();
-    //        for (SimpleDataSetInformationDTO dataSet : dataSets)
-    //        {
-    //            codes.add(dataSet.getDataSetCode());
-    //        }
-    //        return codes;
-    //    }
-    //
-    //    private static List<SimpleDataSetInformationDTO> listDataSetsToRemoveFromShare(
-    //            List<SimpleDataSetInformationDTO> dataSetsInShare,
-    //            long requestedSpace, long actualFreeSpace, Share share, ISimpleLogger logger)
-    //    {
-    //        long freeSpace = actualFreeSpace;
-    //        List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare = new ArrayList<SimpleDataSetInformationDTO>();
-    //        for (int i = 0, n = dataSetsInShare.size(); i < n && isNotEnoughFreeSpace(requestedSpace, freeSpace); i++)
-    //        {
-    //            SimpleDataSetInformationDTO dataSetInShare = dataSetsInShare.get(i);
-    //            freeSpace += dataSetInShare.getDataSetSize();
-    //            dataSetsToRemoveFromShare.add(dataSetInShare);
-    //        }
-    //        if (isNotEnoughFreeSpace(requestedSpace, freeSpace))
-    //        {
-    //            throw new EnvironmentFailureException("Even after removing all removable data sets from share '"
-    //                    + share.getShareId() + "' there would be still only "
-    //                    + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(freeSpace))
-    //                    + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace)
-    //                    + " is requested.");
-    //        }
-    //        return dataSetsToRemoveFromShare;
-    //    }
-    //
-    //    private static boolean isNotEnoughFreeSpace(long requestedSpace, long freeSpace)
-    //    {
-    //        return requestedSpace >= calculateNominalFreeSpace(freeSpace);
-    //    }
-    //
-    //    private static long calculateNominalFreeSpace(long freeSpace)
-    //    {
-    //        return freeSpace - MINIMUM_FREE_SCRATCH_SPACE;
-    //    }
-    //
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
             EncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
@@ -576,20 +283,6 @@ public class SegmentedStoreUtils
         shareIdManager.await(dataSetCode);
         deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
     }
-
-    //    /**
-    //     * Deletes specified data set. This methods waits until any locks on the specified data set have been released.
-    //     */
-    //    public static void deleteDataSet(final IDatasetLocation dataSet,
-    //            final IDataSetDirectoryProvider dataSetDirectoryProvider,
-    //            final IShareIdManager shareIdManager, final ISimpleLogger logger)
-    //    {
-    //        final String dataSetCode = dataSet.getDataSetCode();
-    //        logger.log(LogLevel.INFO, "Await for data set " + dataSetCode + " to be unlocked.");
-    //        shareIdManager.await(dataSetCode);
-    //        File dataSetDirInStore = dataSetDirectoryProvider.getDataSetDirectory(dataSet);
-    //        deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
-    //    }
 
     /**
      * Deletes specified data set at specified location. This methods doesn't wait for any locks and removes the data set instantly.
