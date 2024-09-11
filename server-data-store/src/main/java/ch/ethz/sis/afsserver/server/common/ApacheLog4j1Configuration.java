@@ -74,13 +74,13 @@ public class ApacheLog4j1Configuration
 
         @Override public boolean isEnabledFor(final Priority priority)
         {
-            if (priority.equals(Level.TRACE) || level.equals(Level.DEBUG))
+            if (priority.equals(Level.TRACE) || priority.equals(Level.DEBUG))
             {
                 return afsLogger.isTraceEnabled();
-            } else if (level.equals(Level.INFO))
+            } else if (priority.equals(Level.INFO))
             {
                 return afsLogger.isInfoEnabled();
-            } else if (level.equals(Level.WARN) || level.equals(Level.ERROR) || level.equals(Level.FATAL))
+            } else if (priority.equals(Level.WARN) || priority.equals(Level.ERROR) || priority.equals(Level.FATAL))
             {
                 return afsLogger.isErrorEnabled();
             } else
