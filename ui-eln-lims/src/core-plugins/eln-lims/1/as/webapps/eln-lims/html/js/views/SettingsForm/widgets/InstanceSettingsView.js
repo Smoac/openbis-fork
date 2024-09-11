@@ -27,7 +27,7 @@ function InstanceSettingsView(instanceSettingsController, instanceSettingsModel)
         tableModel.fullWidth = false;
 
         // define columns
-        tableModel.columns = [{ label : "Setting"}, { label : "Value"}];
+        tableModel.columns = [{ label : "Setting", width: "20%"}, { label : "Value", width: "80%"}];
         tableModel.rowBuilders = {
             "Setting" : function(rowData, rowType) {
                 return $("<span>").text(rowData.label).attr('varname', rowData.varname);
@@ -40,15 +40,15 @@ function InstanceSettingsView(instanceSettingsController, instanceSettingsModel)
                         }
                         return $checkbox;
                 } else if(rowType === "INTEGER") {
-                    var $number = $("<input>", { type : "number", name : "numberInput", pattern : "\\d*" });
+                    var $number = FormUtil._getNumberInputField(rowData.label, '', '1', false);
                     $number.attr("value", rowData.value);
                     return $number;
                 } else if(rowType === "REGEX") {
-                    var $regex = $("<input>", { type : "text", name : "regexInput" });
+                    var $regex = FormUtil._getInputField("text", rowData.label, '', null, false);
                     $regex.attr("value", rowData.value);
                     return $regex;
                 } else if(rowType === "STRING") {
-                    var $text = $("<input>", { type : "text", name : "textInput" });
+                    var $text = FormUtil._getInputField("text", rowData.label, '', null, false);
                     $text.attr("value", rowData.value);
                     return $text;
                 } else {
