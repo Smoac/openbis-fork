@@ -146,7 +146,7 @@ public class ApacheLog4j1Configuration
 
         @Override public void error(final Object message)
         {
-            afsLogger.catching((Throwable) message);
+            afsLogger.catching(new RuntimeException((String) message));
         }
 
         @Override public void error(final Object message, final Throwable t)
