@@ -15,15 +15,14 @@
  */
 package ch.ethz.sis.afsserver.server.shuffling;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Franz-Josef Elmer
@@ -38,7 +37,7 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
 
     private SimpleDataSetInformationDTO dataSet;
 
-    @BeforeMethod
+    @Before
     public void setUp()
     {
         context = new Mockery();
@@ -48,17 +47,10 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
         finder = new SpeedOptimizedShareFinder(new Properties());
     }
 
-    @AfterMethod
-    public void tearDown(Method method)
+    @After
+    public void tearDown()
     {
-        try
-        {
-            context.assertIsSatisfied();
-        } catch (Throwable t)
-        {
-            // assert expectations were met, including the name of the failed method
-            throw new Error(method.getName() + "() : ", t);
-        }
+        context.assertIsSatisfied();
     }
 
     @Test

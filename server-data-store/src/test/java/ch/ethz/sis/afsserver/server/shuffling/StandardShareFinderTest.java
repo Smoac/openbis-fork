@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Kaloyan Enimanev
@@ -32,7 +32,7 @@ public class StandardShareFinderTest extends AbstractIShareFinderTestCase
 
     private List<Share> shares;
 
-    @BeforeMethod
+    @Before
     public void setUp()
     {
         Properties properties = new Properties();

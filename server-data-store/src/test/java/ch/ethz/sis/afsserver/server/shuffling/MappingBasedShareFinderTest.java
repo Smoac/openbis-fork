@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -41,7 +41,7 @@ public class MappingBasedShareFinderTest extends AbstractFileSystemTestCase
 
     private SimpleDataSetInformationDTO dataSetInfo;
 
-    @BeforeMethod
+    @Before
     public void initializeTestData()
     {
         mappingFile = new File(workingDirectory, "mapping.tsv");

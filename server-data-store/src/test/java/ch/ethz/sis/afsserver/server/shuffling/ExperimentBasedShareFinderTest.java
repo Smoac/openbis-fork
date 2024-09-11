@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Franz-Josef Elmer
@@ -33,7 +33,7 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
 
     private List<Share> shares;
 
-    @BeforeMethod
+    @Before
     public void setUp()
     {
         Share share1 = extensionShare("1", 100 * FileUtils.ONE_KB);

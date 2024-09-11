@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Franz-Josef Elmer
@@ -64,7 +64,7 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
 
     private SimpleShareFinder shareFinder;
 
-    @BeforeMethod
+    @Before
     public void setUp()
     {
         shareFinder = new SimpleShareFinder(new Properties());

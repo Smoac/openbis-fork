@@ -1,7 +1,13 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
+import ch.ethz.sis.shared.startup.Configuration;
+
 public class ServiceProvider
 {
+    private static volatile boolean initialized = false;
+
+    private static Configuration configuration;
 
     private static IShareIdManager shareIdManager;
 
@@ -9,33 +15,58 @@ public class ServiceProvider
 
     private static IConfigProvider configProvider;
 
-    public static IShareIdManager getShareIdManager()
+    public static void configure(Configuration configuration)
     {
-        return shareIdManager;
+        ServiceProvider.configuration = configuration;
     }
 
-    public static void setShareIdManager(final IShareIdManager shareIdManager)
+    public static IShareIdManager getShareIdManager()
     {
-        ServiceProvider.shareIdManager = shareIdManager;
+        initialize();
+        return shareIdManager;
     }
 
     public static EncapsulatedOpenBISService getOpenBISService()
     {
+        initialize();
         return openBISService;
-    }
-
-    public static void setOpenBISService(final EncapsulatedOpenBISService openBISService)
-    {
-        ServiceProvider.openBISService = openBISService;
     }
 
     public static IConfigProvider getConfigProvider()
     {
+        initialize();
         return configProvider;
     }
 
-    public static void setConfigProvider(final IConfigProvider configProvider)
+    private static void initialize()
     {
-        ServiceProvider.configProvider = configProvider;
+        // initialize lazily only to verify configuration properties if they are really needed
+
+        if (!initialized)
+        {
+            synchronized (ServiceProvider.class)
+            {
+                if (!initialized)
+                {
+                    if (configuration == null)
+                    {
+                        throw new RuntimeException("Cannot initialize with null configuration");
+                    }
+
+                    EncapsulatedOpenBISService encapsulatedOpenBISService =
+                            new EncapsulatedOpenBISService(AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration));
+                    ShareIdManager shareIdManager =
+                            new ShareIdManager(encapsulatedOpenBISService,
+                                    AtomicFileSystemServerParameterUtil.getDataSetLockingTimeout(configuration));
+                    ConfigProvider configProvider = new ConfigProvider(configuration);
+
+                    ServiceProvider.openBISService = encapsulatedOpenBISService;
+                    ServiceProvider.shareIdManager = shareIdManager;
+                    ServiceProvider.configProvider = configProvider;
+                    initialized = true;
+                }
+            }
+        }
     }
+
 }

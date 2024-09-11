@@ -15,11 +15,11 @@
  */
 package ch.ethz.sis.afsserver.server.shuffling;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
+import ch.ethz.sis.shared.startup.Configuration;
 
 /**
  * Provider of IDs of incoming shares. This is a helper class to avoid direct connection between ETLDaemon (which determines incoming share
@@ -29,20 +29,44 @@ import java.util.Set;
  */
 public class IncomingShareIdProvider
 {
-    private static Set<String> incomingShareIds = new LinkedHashSet<String>();
+
+    private static volatile boolean initialized;
+
+    private static Configuration configuration;
+
+    private static Set<String> incomingShareIds;
+
+    public static void configure(final Configuration configuration)
+    {
+        IncomingShareIdProvider.configuration = configuration;
+    }
 
     public static Set<String> getIdsOfIncomingShares()
     {
+        initialize();
         return Collections.unmodifiableSet(incomingShareIds);
     }
 
-    public static void add(Collection<String> ids)
+    private static void initialize()
     {
-        incomingShareIds.addAll(ids);
+        // initialize lazily only to verify configuration properties if they are really needed
+
+        if (!initialized)
+        {
+            synchronized (ServiceProvider.class)
+            {
+                if (!initialized)
+                {
+                    if (configuration == null)
+                    {
+                        throw new RuntimeException("Cannot initialize with null configuration");
+                    }
+
+                    incomingShareIds = Set.of(AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(configuration).toString());
+                    initialized = true;
+                }
+            }
+        }
     }
 
-    public static void removeAllShareIds()
-    {
-        incomingShareIds.clear();
-    }
 }

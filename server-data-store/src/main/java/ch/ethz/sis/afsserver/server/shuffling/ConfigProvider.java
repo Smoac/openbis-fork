@@ -16,7 +16,6 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
 import java.io.File;
-import java.util.Properties;
 
 import ch.ethz.sis.afsserver.server.observer.impl.OpenBISUtils;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;

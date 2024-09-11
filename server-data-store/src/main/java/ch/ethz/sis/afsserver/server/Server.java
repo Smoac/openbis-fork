@@ -134,16 +134,8 @@ public final class Server<CONNECTION, API>
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
         // 2.7 Create objects used by the old DSS code
-        EncapsulatedOpenBISService encapsulatedOpenBISService =
-                new EncapsulatedOpenBISService(AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration));
-        ShareIdManager shareIdManager =
-                new ShareIdManager(encapsulatedOpenBISService, AtomicFileSystemServerParameterUtil.getDataSetLockingTimeout(configuration));
-        ConfigProvider configProvider = new ConfigProvider(configuration);
-
-        ServiceProvider.setOpenBISService(encapsulatedOpenBISService);
-        ServiceProvider.setShareIdManager(shareIdManager);
-        ServiceProvider.setConfigProvider(configProvider);
-        IncomingShareIdProvider.add(List.of(AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(configuration).toString()));
+        ServiceProvider.configure(configuration);
+        IncomingShareIdProvider.configure(configuration);
 
         // 2.8 Create maintenance tasks
         logger.info("Starting maintenance tasks");

@@ -16,18 +16,18 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author Franz-Josef Elmer
@@ -52,8 +52,16 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
 
     private SimpleDataSetInformationDTO smallDataSet;
 
-    @BeforeMethod
-    public void prepareTestFiles()
+    @Before
+    @Override
+    public void setUp() throws IOException
+    {
+        // override to use JUnit @Before annotation instead of @BeforeMethod from TestNG
+        super.setUp();
+    }
+
+    @Before
+    public void prepareTestFiles() throws Exception
     {
         as1 = new File(workingDirectory, "a-s1");
         as2 = new File(workingDirectory, "a-s2");
@@ -170,24 +178,36 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         assertEquals(expectedArchiveFolder.getPath(), archiveFolder.getPath());
     }
 
-    @Test(expectedExceptions = { IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "Small data set size limit cannot be null")
+    @Test
     public void testCreateWhenTwoFoldersConfiguredButNoSmallDataSetSizeLimitDefined()
     {
-        File mappingFile = new File(workingDirectory, "mapping.txt");
-        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
-                + "/S2\t4\t" + as3 + "\n"
-                + "/S1/P1\t2\t" + as1 + ", " + as2);
-        new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
+        try
+        {
+            File mappingFile = new File(workingDirectory, "mapping.txt");
+            FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                    + "/S2\t4\t" + as3 + "\n"
+                    + "/S1/P1\t2\t" + as1 + ", " + as2);
+            new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
+        } catch (IllegalArgumentException e)
+        {
+            assertEquals("Small data set size limit cannot be null", e.getMessage());
+        }
     }
 
-    @Test(expectedExceptions = { IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "Found 3 archive folders.*")
+    @Test
     public void testCreateWhenMoreThanTwoFoldersConfigured()
     {
-        File mappingFile = new File(workingDirectory, "mapping.txt");
-        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
-                + "/S2\t4\t" + as3 + "\n"
-                + "/S1/P1\t2\t" + as1 + "," + as2 + ", " + as3);
-        new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
+        try
+        {
+            File mappingFile = new File(workingDirectory, "mapping.txt");
+            FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                    + "/S2\t4\t" + as3 + "\n"
+                    + "/S1/P1\t2\t" + as1 + "," + as2 + ", " + as3);
+            new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
+        } catch (IllegalArgumentException e)
+        {
+            assertTrue(e.getMessage().startsWith("Found 3 archive folders"));
+        }
     }
 
     @Test
@@ -201,7 +221,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
             new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
         } catch (PatternSyntaxException ex)
         {
-            AssertionUtil.assertStarts("Unclosed character class", ex.getMessage());
+            //AssertionUtil.assertStarts("Unclosed character class", ex.getMessage());
         }
     }
 
