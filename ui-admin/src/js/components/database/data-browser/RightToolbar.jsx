@@ -20,10 +20,8 @@ import { ToggleButton } from '@material-ui/lab'
 import messages from '@src/js/common/messages.js'
 import InfoIcon from '@material-ui/icons/InfoOutlined'
 import IconButton from '@material-ui/core/IconButton'
-import SearchIcon from '@material-ui/icons/Search'
 import ViewComfyIcon from '@material-ui/icons/ViewComfy'
 import ViewListIcon from '@material-ui/icons/ViewList'
-import SettingsIcon from '@material-ui/icons/Settings'
 import Button from '@material-ui/core/Button'
 import PublishIcon from '@material-ui/icons/Publish'
 import Popover from '@material-ui/core/Popover'
@@ -186,7 +184,7 @@ class RightToolbar extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'RightToolbar.render')
 
-    const { classes, onViewTypeChange, buttonSize } = this.props
+    const { classes, onViewTypeChange, buttonSize, editable } = this.props
     const { uploadButtonsPopup, progress, loading, allowResume,
       fileExistsDialogFile } = this.state
     return ([
@@ -229,6 +227,7 @@ class RightToolbar extends React.Component {
           color={color}
           size={buttonSize}
           variant='outlined'
+          disabled={!editable}
           startIcon={<PublishIcon />}
           onClick={this.handleUploadClick}
         >

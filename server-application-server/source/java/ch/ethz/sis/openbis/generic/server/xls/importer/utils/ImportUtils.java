@@ -42,7 +42,22 @@ public class ImportUtils
 
     public static boolean isInternalNamespace(String property)
     {
-        return property.startsWith("$");
+        return property != null && property.startsWith("$");
+    }
+
+    public static boolean isInternalPropertyAssignment(String property)
+    {
+        return property != null && property.startsWith("$$");
+    }
+
+    public static String getPropertyCode(String code)
+    {
+        if(code != null) {
+            if(code.startsWith("$$")) {
+                return code.substring(1);
+            }
+        }
+        return code;
     }
 
     public static ISampleId buildSampleIdentifier(String id)

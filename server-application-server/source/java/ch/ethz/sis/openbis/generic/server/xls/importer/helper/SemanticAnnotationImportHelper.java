@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.semantic.ApplicationServerSemanticAPIExtensions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -202,14 +203,28 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
                 throw new RuntimeException("Should never happen!");
         }
 
-        super.importBlock(page, pageIndex, start + 2, end);
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
+
+        if(canUpdate) {
+            super.importBlock(page, pageIndex, start + 2, end);
+        }
     }
 
     public void importBlockForPropertyType(List<List<String>> page, int pageIndex, int start, int end)
     {
         type = SemanticAnnotationType.PropertyType;
         this.permIdOrNull = null;
-        super.importBlock(page, pageIndex, start, end);
+
+        Map<String, Integer> header = parseHeader(page.get(start), false);
+        String code = getValueByColumnName(header, page.get(start + 1), Attribute.Code);
+
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
+
+        if(canUpdate) {
+            super.importBlock(page, pageIndex, start, end);
+        }
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)

@@ -939,7 +939,7 @@ public class GetExperimentTest extends AbstractExperimentTest
         });
 
         AssertionUtil.assertCollectionContainsOnly(sampleCodes, "FV-TEST", "EV-TEST", "EV-INVALID", "EV-NOT_INVALID", "EV-PARENT",
-                "EV-PARENT-NORMAL", "CP-TEST-4", "SAMPLE-TO-DELETE");
+                "EV-PARENT-NORMAL", "CP-TEST-4", "SAMPLE-WITH-INTERNAL-PROP", "SAMPLE-TO-DELETE");
 
         v3api.logout(sessionToken);
     }

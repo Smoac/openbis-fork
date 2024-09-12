@@ -950,7 +950,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         SearchCriteria criteria = new SearchCriteria();
         List<Sample> samples = generalInformationService.searchForSamples(sessionToken, criteria);
-        assertEquals(701, samples.size());
+        assertEquals(702, samples.size());
     }
 
     @Test
@@ -1068,7 +1068,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else
         {
@@ -1097,7 +1097,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else
         {
@@ -2091,7 +2091,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         "codePrefix=S,[PropertyTypeGroup[<null>,[PropertyType[INTEGER,OFFSET,Offset," +
                         "Offset from the start of the sequence,optional]]]]]",
                 pick(types, "DILUTION_PLATE").toString());
-        assertEquals(12, types.size());
+        assertEquals(13, types.size());
     }
 
     private SampleType pick(List<SampleType> types, String code)
@@ -2382,7 +2382,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     filteredSamples);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
@@ -2390,7 +2390,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-NOT_INVALID, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                    + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     filteredSamples);
         } else
         {

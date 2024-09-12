@@ -418,7 +418,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                     + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                    + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else
         {

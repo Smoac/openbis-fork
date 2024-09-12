@@ -265,8 +265,8 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1,
       loading: false,
-      progress: 0,
-      errorMessage: null
+      errorMessage: null,
+      editable: false
     }
     this.zip = new JSZip()
   }
@@ -320,9 +320,11 @@ class DataBrowser extends React.Component {
     const { id } = this.props
 
     if ((await this.calculateTotalSize(multiselectedFiles)) <= sizeLimit) {
+      this.setState({ loading: true })
       const zipBlob = await this.prepareZipBlob(multiselectedFiles)
       this.downloadBlob(zipBlob, id)
       this.zip = new JSZip()
+      this.setState({ loading: false })
     } else {
       this.showDownloadErrorDialog()
     }
@@ -361,11 +363,11 @@ class DataBrowser extends React.Component {
   async downloadFile(file) {
     if (file.size <= sizeLimit) {
       try {
-        this.setState({ loading: true, progress: 0 })
+        this.setState({ loading: true })
         const blob = await this.fileToBlob(file)
         this.downloadBlob(blob, file.name)
       } finally {
-        this.setState({ loading: false, progress: 0 })
+        this.setState({ loading: false })
       }
     } else {
       this.showDownloadErrorDialog()
@@ -374,10 +376,6 @@ class DataBrowser extends React.Component {
 
   showDownloadErrorDialog() {
     this.openErrorDialog(messages.get(messages.CANNOT_DOWNLOAD, sizeLimit))
-  }
-
-  updateProgress(progress) {
-    this.setState({ progress })
   }
 
   downloadBlob(blob, fileName) {
@@ -463,8 +461,21 @@ class DataBrowser extends React.Component {
     return mimeTypeMap[extension] || 'application/octet-stream'
   }
 
+  fetchRights() {
+    const { id, kind } = this.props
+    this.controller.getRights([{permId: id, entityKind: kind}]).then(right => {
+      if (right[id] && right[id].rights) {
+        const editable = right[id].rights.includes("UPDATE")
+        this.setState({ editable: editable })
+      } else {
+        this.setState({ editable: false })
+      }
+    })
+  }
+
   componentDidMount() {
     this.fetchSpaceStatus()
+    this.fetchRights()
   }
 
   openErrorDialog(errorMessage) {
@@ -487,12 +498,13 @@ class DataBrowser extends React.Component {
       freeSpace,
       totalSpace,
       loading,
-      progress,
-      errorMessage
+      errorMessage,
+      editable
     } = this.state
 
     return [
       <div
+        key='data-browser-content'
         className={[classes.boundary, classes.columnFlexContainer].join(' ')}
       >
         <Toolbar
@@ -505,6 +517,7 @@ class DataBrowser extends React.Component {
           multiselectedFiles={multiselectedFiles}
           sessionToken={sessionToken}
           owner={id}
+          editable={editable}
           path={path}
         />
         <InfoBar
@@ -625,11 +638,12 @@ class DataBrowser extends React.Component {
       </div>,
       <LoadingDialog
         key='data-browser-loaging-dialog'
-        variant='determinate'
-        value={progress}
+        variant='indeterminate'
         loading={loading}
+        message={messages.get(messages.PREPARING_FILE)}
       />,
       <ErrorDialog
+        key='data-browser-error-dialog'
         open={!!errorMessage}
         error={errorMessage}
         onClose={this.closeErrorDialog}

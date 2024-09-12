@@ -55,6 +55,7 @@ class Toolbar extends React.Component {
       sessionToken,
       owner,
       path,
+      editable,
       onDownload
     } = this.props
     return (
@@ -65,6 +66,7 @@ class Toolbar extends React.Component {
           sessionToken={sessionToken}
           owner={owner}
           path={path}
+          editable={editable}
           controller={this.controller}
           onDownload={onDownload}
         />
@@ -73,6 +75,7 @@ class Toolbar extends React.Component {
           selected={showInfo}
           onChange={onShowInfoChange}
           viewType={viewType}
+          editable={editable}
           onViewTypeChange={onViewTypeChange}
           controller={this.controller}
         />

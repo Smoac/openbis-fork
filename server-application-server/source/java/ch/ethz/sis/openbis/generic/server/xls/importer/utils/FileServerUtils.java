@@ -31,6 +31,11 @@ public class FileServerUtils
             // Runtime mode.
             String repositoryPathAsString = CommonServiceProvider.tryToGetProperty(
                     FileServiceServlet.REPO_PATH_KEY);
+            if (repositoryPathAsString == null)
+            {
+                throw new IllegalArgumentException(String.format("Parameter %s is not configured.", FileServiceServlet.REPO_PATH_KEY));
+            }
+
             String repositoryFilePathAsString = repositoryPathAsString + filePath;
             Path repositoryPath = Path.of(new File(repositoryPathAsString).getCanonicalPath());
             Path repositoryFilePath = Path.of(new File(repositoryFilePathAsString).getCanonicalPath());

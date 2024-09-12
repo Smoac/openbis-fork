@@ -1153,7 +1153,7 @@ public class CommonServerTest extends SystemTestCase
             List<Sample> samples = commonServer.listSamples(session.getSessionToken(), criteria);
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
-                            + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else
         {
@@ -1192,23 +1192,23 @@ public class CommonServerTest extends SystemTestCase
 
             if (user.isInstanceUser())
             {
-                assertEquals(samples.size(), 38);
+                assertEquals(samples.size(), 39);
             } else if (user.isTestSpaceUser())
             {
                 assertEntities(
                         "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                                 + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                                + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                                + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                         samples);
-                assertEquals(samples.size(), 7);
+                assertEquals(samples.size(), 8);
             } else if (user.isTestProjectUser())
             {
                 assertEntities(
                         "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                                 + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                                + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                                + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                         samples);
-                assertEquals(samples.size(), 6);
+                assertEquals(samples.size(), 7);
             } else
             {
                 assertEntities("[]", samples);
@@ -1229,7 +1229,7 @@ public class CommonServerTest extends SystemTestCase
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                             + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                            + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else
         {
@@ -1249,23 +1249,23 @@ public class CommonServerTest extends SystemTestCase
 
         if (user.isInstanceUser())
         {
-            assertEquals(samples.size(), 38);
+            assertEquals(samples.size(), 39);
         } else if (user.isTestSpaceUser())
         {
-            assertEquals(samples.size(), 7);
+            assertEquals(samples.size(), 8);
             assertEntities(
                     "[/TEST-SPACE/NOE/CP-TEST-4, /TEST-SPACE/TEST-PROJECT/EV-INVALID, "
                             + "/TEST-SPACE/TEST-PROJECT/EV-PARENT, /TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, "
                             + "/TEST-SPACE/TEST-PROJECT/EV-TEST, /TEST-SPACE/TEST-PROJECT/FV-TEST, "
-                            + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else if (user.isTestProjectUser() && user.hasPAEnabled())
         {
-            assertEquals(samples.size(), 6);
+            assertEquals(samples.size(), 7);
             assertEntities(
                     "[/TEST-SPACE/TEST-PROJECT/EV-INVALID, /TEST-SPACE/TEST-PROJECT/EV-PARENT, "
                             + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
-                            + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE]",
+                            + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                     samples);
         } else
         {
@@ -3189,7 +3189,7 @@ public class CommonServerTest extends SystemTestCase
         if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<PropertyType> types = commonServer.listPropertyTypes(session.getSessionToken(), false);
-            assertEquals(types.size(), 19);
+            assertEquals(types.size(), 20);
         } else
         {
             try

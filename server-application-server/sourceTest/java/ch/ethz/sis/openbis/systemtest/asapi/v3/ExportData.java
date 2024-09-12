@@ -137,6 +137,28 @@ class ExportData
                     true
             },
             {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP
+                    "export-internal-sample-compatible-with-import-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, "201206181218327-1062")),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    true, // withImportCompatibility
+                    true
+            },
+            {
+                    // Sample Type: CELL_PLATE
+                    "export-internal-sample-type-with-import-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, "$INTERNAL_TEST")),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    true, // withImportCompatibility
+                    true
+            },
+            {
                     // Sample: /MP
                     "export-sample-shared-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),

@@ -118,7 +118,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void validateLine(Map<String, Integer> headers, List<String> values)
     {
         // Validate Unambiguous
-        String code = getValueByColumnName(headers, values, Attribute.Code);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(headers, values, Attribute.Code));
         String propertyLabel = getValueByColumnName(headers, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(headers, values, Attribute.Description);
         String dataType = getValueByColumnName(headers, values, Attribute.DataType);
@@ -155,7 +155,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
-        String code = getValueByColumnName(header, values, Attribute.Code);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
 
         if (version == null || version.isEmpty()) {
             Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code);
@@ -169,7 +169,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     @Override
     protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, Attribute.Code);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
         fetchOptions.withVocabulary().withTerms().withVocabulary();
 
@@ -181,7 +181,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void createObject(Map<String, Integer> header, List<String> values, int page,
             int line)
     {
-        String code = getValueByColumnName(header, values, Attribute.Code);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
@@ -233,7 +233,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void updateObject(Map<String, Integer> header, List<String> values, int page,
             int line)
     {
-        String code = getValueByColumnName(header, values, Attribute.Code);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
@@ -299,6 +299,20 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         }
 
         delayedExecutor.updatePropertyType(update, page, line);
+    }
+
+    @Override
+    public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
+    {
+        Map<String, Integer> header = parseHeader(page.get(start), false);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, page.get(start + 1), Attribute.Code));
+
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
+
+        if(canUpdate) {
+            super.importBlock(page, pageIndex, start, end);
+        }
     }
 
     @Override
