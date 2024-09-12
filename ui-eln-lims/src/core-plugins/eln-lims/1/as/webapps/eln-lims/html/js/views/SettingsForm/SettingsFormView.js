@@ -1036,7 +1036,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._addRow = function($tbody, tableModel, tableModelRow, $extra, canRemoveFunction) {
 		var $tr = $("<tr>");
-		$tbody.append($tr);
+		$tbody.prepend($tr);
 		var $extraRow = null;
         var rowIndex = tableModel.rows.indexOf(tableModelRow);
 
