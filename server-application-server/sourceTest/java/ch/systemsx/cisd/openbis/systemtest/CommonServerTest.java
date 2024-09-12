@@ -1200,7 +1200,7 @@ public class CommonServerTest extends SystemTestCase
                                 + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
                                 + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                         samples);
-                assertEquals(samples.size(), 7);
+                assertEquals(samples.size(), 8);
             } else if (user.isTestProjectUser())
             {
                 assertEntities(
@@ -1208,7 +1208,7 @@ public class CommonServerTest extends SystemTestCase
                                 + "/TEST-SPACE/TEST-PROJECT/EV-PARENT-NORMAL, /TEST-SPACE/TEST-PROJECT/EV-TEST, "
                                 + "/TEST-SPACE/TEST-PROJECT/FV-TEST, /TEST-SPACE/TEST-PROJECT/SAMPLE-TO-DELETE, /TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP]",
                         samples);
-                assertEquals(samples.size(), 6);
+                assertEquals(samples.size(), 7);
             } else
             {
                 assertEntities("[]", samples);
