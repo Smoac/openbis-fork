@@ -10,4 +10,4 @@
 10	VALIDATE_CHILDREN	Validate children on update	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	8	f	\N	f
 11	NORMAL	just the normal	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N	f
 12	DELETION_TEST	just the normal	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N	f
-13	INTERNAL_TEST	just internal type	t	1	0	2009-03-23 15:34:44.462776+01	f	IN	f	f	5	f	\N	t
+13	INTERNAL_TEST	just internal type	t	0	0	2009-03-23 15:34:44.462776+01	f	IN	f	f	5	f	\N	t
