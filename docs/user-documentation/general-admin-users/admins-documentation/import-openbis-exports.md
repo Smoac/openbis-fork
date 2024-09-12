@@ -22,6 +22,11 @@ Metadata and masterdata are contained in the **metadata.xlsx** file. In addition
 If a **data**, **scripts** and/or **miscellaneous** folders are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped and the **xlsx.zip** file can be imported via admin UI.
 If only the **metadata.xlsx** file is contained in the **xlsx** folder, the metadata.xlsx file can be directly uploaded via admin UI.
 
+We recommend to create the zip file using the command line:
+
+>zip -r xlsx.zip xlsx
+
+This avoids the creation of hidden files in the zip file that may not be accepted by the openBIS import.
 
 
 ## Datasets import
