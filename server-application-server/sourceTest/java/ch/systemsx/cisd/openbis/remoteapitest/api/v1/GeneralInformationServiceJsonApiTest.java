@@ -604,7 +604,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                         "codePrefix=S,[PropertyTypeGroup[<null>," +
                         "[PropertyType[INTEGER,OFFSET,Offset,Offset from the start of the sequence,optional]]]]]",
                 pick(types, "DILUTION_PLATE").toString());
-        assertEquals(12, types.size());
+        assertEquals(13, types.size());
     }
 
     private SampleType pick(List<SampleType> types, String code)
