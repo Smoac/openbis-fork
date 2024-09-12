@@ -84,7 +84,7 @@ public class EncapsulatedOpenBISService
     {
         PhysicalDataUpdate physicalDataUpdate = new PhysicalDataUpdate();
         physicalDataUpdate.setShareId(shareId);
-        physicalDataUpdate.setSize(size);
+        physicalDataUpdate.setSize(size > 0 ? size : null);
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(new DataSetPermId(dataSetCode));
