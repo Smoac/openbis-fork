@@ -132,10 +132,12 @@ def test_update_plugin(openbis_instance):
 
     plugin.description = 'some boring description'
     plugin.available = True
+    plugin.script = 'def calculate(): fail'
     plugin.save()
 
     pl_exists = openbis_instance.get_plugin(pl_name)
     assert pl_exists is not None
     assert pl_exists.description == 'some boring description'
+    assert pl_exists.script == 'def calculate(): fail'
     assert pl_exists.available is True
 
