@@ -1,15 +1,30 @@
-import shutil
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
 import os
-from pathlib import Path
-from .utils import run_shell, cd
-from .command_result import CommandResult, CommandException
+import shutil
+
 from .checksum import ChecksumGeneratorCrc32, ChecksumGeneratorGitAnnex
+from .utils import run_shell
+from ..scripts.click_util import click_echo
 
 
 class GitWrapper(object):
     """A wrapper on commands to git and git annex."""
 
-    def __init__(self, git_path=None, git_annex_path=None, find_git=None, data_path=None, metadata_path=None, invocation_path=None):
+    def __init__(self, git_path=None, git_annex_path=None, find_git=None, data_path=None,
+                 metadata_path=None, invocation_path=None):
         self.git_path = git_path
         self.git_annex_path = git_annex_path
         self.data_path = data_path
@@ -26,17 +41,20 @@ class GitWrapper(object):
         cmd += params
         return run_shell(cmd, strip_leading_whitespace=strip_leading_whitespace)
 
-
     def can_run(self):
         """Return true if the perquisites are satisfied to run (git and git annex)"""
         if self.git_path is None:
+            click_echo('No git path found!')
             return False
         if self.git_annex_path is None:
+            click_echo('No git-annex path found!')
             return False
         if self._git(['help']).failure():
+            click_echo('Can not run git!')
             # git help should have a returncode of 0
             return False
         if self._git(['annex', 'help']).failure():
+            click_echo('Can not run git-annex!')
             # git help should have a returncode of 0
             return False
         result = run_shell([self.git_path, 'annex', 'version'])
@@ -47,7 +65,7 @@ class GitWrapper(object):
                 try:
                     self.annex_major_version = int(self.annex_version.split(".")[0])
                 except Exception as e:
-                    print("Invalid git-annex version line:",result.output)
+                    print("Invalid git-annex version line:", result.output)
                     return False
         return True
 
@@ -66,7 +84,7 @@ class GitWrapper(object):
     def git_annex_init(self, desc, git_annex_backend=None):
         """ Configures annex in a git repository."""
 
-        # We use annex --version=5 since that works better with big files. Version 
+        # We use annex --version=5 since that works better with big files. Version
         # 6 can lead to out of memory errors.
         cmd = ["annex", "init", "--version=5"]
         if desc is not None:
@@ -186,9 +204,11 @@ class GitRepoFileInfo(object):
     def cksum(self, files, git_annex_hash_as_checksum=False):
 
         if git_annex_hash_as_checksum == False:
-            checksum_generator = ChecksumGeneratorCrc32(self.git_wrapper.data_path, self.git_wrapper.metadata_path)
+            checksum_generator = ChecksumGeneratorCrc32(self.git_wrapper.data_path,
+                                                        self.git_wrapper.metadata_path)
         else:
-            checksum_generator = ChecksumGeneratorGitAnnex(self.git_wrapper.data_path, self.git_wrapper.metadata_path)
+            checksum_generator = ChecksumGeneratorGitAnnex(self.git_wrapper.data_path,
+                                                           self.git_wrapper.metadata_path)
 
         checksums = []
 

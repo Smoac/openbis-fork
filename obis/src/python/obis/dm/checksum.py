@@ -1,11 +1,25 @@
+#   Copyright ETH 2018 - 2024 Zürich, Scientific IT Services
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
 import abc
-import ctypes
 import hashlib
 import json
 import os
-from abc import ABC, abstractmethod
+import zlib
+
 from .utils import run_shell, cd
-from .command_result import CommandResult, CommandException
+
 
 # We generate checksums for small files according to what is used by git annex,
 # This ensures that all files in a data set have the same checksum type.
@@ -36,13 +50,14 @@ def validate_checksum(openbis, files, data_set_id, data_path, metadata_path):
         if dataset_file['checksumCRC32'] is not None and dataset_file['checksumCRC32'] > 0:
             checksum_generator = ChecksumGeneratorCrc32(data_path, metadata_path)
             expected_checksum = dataset_file['checksumCRC32']
+            checksum = checksum_generator.get_checksum(filename)['crc32']
         elif dataset_file['checksumType'] is not None:
-            checksum_generator = get_checksum_generator(dataset_file['checksumType'], data_path, metadata_path)
+            checksum_generator = get_checksum_generator(dataset_file['checksumType'], data_path,
+                                                        metadata_path)
             expected_checksum = dataset_file['checksum']
-        if checksum_generator is not None:
             checksum = checksum_generator.get_checksum(filename)['checksum']
-            if checksum != expected_checksum:
-                invalid_files.append(filename)
+        if checksum_generator is not None and checksum != expected_checksum:
+            invalid_files.append(filename)
     return invalid_files
 
 
@@ -60,15 +75,21 @@ class ChecksumGenerator(metaclass=abc.ABCMeta):
     def _get_checksum(self, file):
         return
 
+
 class ChecksumGeneratorCrc32(ChecksumGenerator):
+
+    def _crc32(self, file):
+        with open(file, 'rb') as f:
+            computed_hash = 0
+            for chunk in iter(lambda: f.read(65536), b""):
+                computed_hash = zlib.crc32(chunk, computed_hash)
+            return computed_hash & 0xFFFFFFFF
+
     def _get_checksum(self, file):
-        result = run_shell(['cksum', file])
-        if result.failure():
-            raise CommandException(result)
-        fields = result.output.split(" ")
+        result = self._crc32(file)
         return {
-            'crc32': ctypes.c_int(int(fields[0])).value,
-            'fileLength': int(fields[1]),
+            'crc32': result,
+            'fileLength': os.path.getsize(file),
             'path': file
         }
 
@@ -102,6 +123,7 @@ class ChecksumGeneratorHashlib(ChecksumGenerator):
 class ChecksumGeneratorSha256(ChecksumGeneratorHashlib):
     def hash_function(self):
         return hashlib.sha256()
+
     def hash_type(self):
         return 'SHA256'
 
@@ -109,6 +131,7 @@ class ChecksumGeneratorSha256(ChecksumGeneratorHashlib):
 class ChecksumGeneratorMd5(ChecksumGeneratorHashlib):
     def hash_function(self):
         return hashlib.md5()
+
     def hash_type(self):
         return "MD5"
 
@@ -120,7 +143,8 @@ class ChecksumGeneratorWORM(ChecksumGenerator):
             'checksumType': 'WORM',
             'fileLength': os.path.getsize(file),
             'path': file
-        }        
+        }
+
     def worm(self, file):
         modification_time = int(os.path.getmtime(file))
         size = os.path.getsize(file)
@@ -136,10 +160,11 @@ class ChecksumGeneratorGitAnnex(ChecksumGenerator):
         self.backend = self._get_annex_backend()
         self.checksum_generator_replacement = None
         if self.backend is None:
-            self.checksum_generator_replacement = ChecksumGeneratorCrc32(self.data_path, self.metadata_path)
+            self.checksum_generator_replacement = ChecksumGeneratorCrc32(self.data_path,
+                                                                         self.metadata_path)
         # define which generator to use for files which are not handled by annex
         self.checksum_generator_supplement = get_checksum_generator(
-            self.backend, self.data_path, self.metadata_path, 
+            self.backend, self.data_path, self.metadata_path,
             default=ChecksumGeneratorCrc32(self.data_path, self.metadata_path))
 
     def _get_checksum(self, file):
@@ -149,7 +174,9 @@ class ChecksumGeneratorGitAnnex(ChecksumGenerator):
 
     def __get_checksum(self, file):
         git_dir = os.path.join(self.metadata_path, '.git')
-        annex_result = run_shell(['git', '--work-tree', self.data_path, '--git-dir', git_dir, 'annex', 'info', '-j', file], raise_exception_on_failure=True)
+        annex_result = run_shell(
+            ['git', '--work-tree', self.data_path, '--git-dir', git_dir, 'annex', 'info', '-j',
+             file], raise_exception_on_failure=True)
         if 'Not a valid object name' in annex_result.output:
             return self.checksum_generator_supplement.get_checksum(file)
         annex_info = json.loads(annex_result.output)
