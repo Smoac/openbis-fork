@@ -15,16 +15,16 @@
 #  limitations under the License.
 #
 #
-VENV_NAME=imaging_nanonis_venv
-echo "Installing required libraries. Please wait."
-# Creates python virtual environment for the sake of handling imaging-nanonis data
-python3.10 -m venv $VENV_NAME
+echo "Installing Python 3.10 for Nanonis files handling"
 
-# Activation
-source $VENV_NAME/bin/activate
-# Installation of packages remove '-q' flag to see output
-pip3.10 install -r python_requirements.txt -q
+# install setup tools
+apt install software-properties-common curl -y
+# add repo with python
+add-apt-repository ppa:deadsnakes/ppa
+apt update -y
+# install python and venv
+apt install python3.10 python3.10-venv -y
+# install pip
+curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
 
-echo python3-path=$(pwd)/$VENV_NAME/bin/python >> ../../../imaging/1/dss/services/imaging/plugin.properties
-echo "Installation finished"
-
+echo "Python3.10 installed"
