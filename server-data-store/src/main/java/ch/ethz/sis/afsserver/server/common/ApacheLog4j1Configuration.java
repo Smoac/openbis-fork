@@ -106,12 +106,12 @@ public class ApacheLog4j1Configuration
 
         @Override public void trace(final Object message)
         {
-            afsLogger.traceAccess((String) message);
+            afsLogger.traceAccess(String.valueOf(message));
         }
 
         @Override public void trace(final Object message, final Throwable t)
         {
-            afsLogger.traceAccess((String) message, t);
+            afsLogger.traceAccess(String.valueOf(message), t);
         }
 
         @Override public void debug(final Object message)
@@ -126,12 +126,12 @@ public class ApacheLog4j1Configuration
 
         @Override public void info(final Object message)
         {
-            afsLogger.info((String) message);
+            afsLogger.info(String.valueOf(message));
         }
 
         @Override public void info(final Object message, final Throwable t)
         {
-            afsLogger.info((String) message, t);
+            afsLogger.info(String.valueOf(message), t);
         }
 
         @Override public void warn(final Object message)
@@ -146,12 +146,12 @@ public class ApacheLog4j1Configuration
 
         @Override public void error(final Object message)
         {
-            afsLogger.catching(new RuntimeException((String) message));
+            afsLogger.catching(new RuntimeException(String.valueOf(message)));
         }
 
         @Override public void error(final Object message, final Throwable t)
         {
-            afsLogger.catching(new RuntimeException((String) message, t));
+            afsLogger.catching(new RuntimeException(String.valueOf(message), t));
         }
 
         @Override public void fatal(final Object message)

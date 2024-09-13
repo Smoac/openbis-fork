@@ -52,12 +52,12 @@ public class ApacheCommonsLoggingConfiguration implements Log
 
     @Override public void trace(final Object o)
     {
-        logger.traceAccess((String) o);
+        logger.traceAccess(String.valueOf(o));
     }
 
     @Override public void trace(final Object o, final Throwable throwable)
     {
-        logger.traceAccess((String) o, throwable);
+        logger.traceAccess(String.valueOf(o), throwable);
     }
 
     @Override public void debug(final Object o)
@@ -72,12 +72,12 @@ public class ApacheCommonsLoggingConfiguration implements Log
 
     @Override public void info(final Object o)
     {
-        logger.info((String) o);
+        logger.info(String.valueOf(o));
     }
 
     @Override public void info(final Object o, final Throwable throwable)
     {
-        logger.info((String) o, throwable);
+        logger.info(String.valueOf(o), throwable);
     }
 
     @Override public void warn(final Object o)
@@ -92,12 +92,12 @@ public class ApacheCommonsLoggingConfiguration implements Log
 
     @Override public void error(final Object o)
     {
-        logger.catching(new RuntimeException((String) o));
+        logger.catching(new RuntimeException(String.valueOf(o)));
     }
 
     @Override public void error(final Object o, final Throwable throwable)
     {
-        logger.catching(new RuntimeException((String) o, throwable));
+        logger.catching(new RuntimeException(String.valueOf(o), throwable));
     }
 
     @Override public void fatal(final Object o)
