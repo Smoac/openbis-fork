@@ -358,6 +358,10 @@ class TestCase(systemtest.testcase.TestCase):
                         assert settings_data2_clone["repository"][
                             "external_dms_id"
                         ].startswith("ADMIN-" + socket.gethostname().upper())
+                        print("||> DEBUG:")
+                        print(settings_data2_clone["repository"]["external_dms_id"])
+                        print(settings_data2["repository"]["external_dms_id"])
+                        print("<|| DEBUG:")
                         assert (
                             settings_data2_clone["repository"]["external_dms_id"]
                             != settings_data2["repository"]["external_dms_id"]

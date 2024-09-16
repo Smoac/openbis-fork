@@ -26,11 +26,18 @@ from random import randrange
 import settings
 import systemtest.testcase
 import systemtest.util as util
-import sys
 
+# from source.systemtest import testcase as testcase
+# from source.systemtest import util as util
 
+# def test_all():
+#     from settings import REPOSITORY as repo
+#     obj = lambda: None
+#     obj.REPOSITORY = repo
+#     obj.devMode = True
+#     TestCase(obj, ".").execute()
 
-class TestCase(systemtest.testcase.TestCase):
+class TestCase(testcase.TestCase):
 
 
     def execute(self):
@@ -52,7 +59,23 @@ class TestCase(systemtest.testcase.TestCase):
         self.openbisController.createTestDatabase("openbis")
         self.openbisController.allUp()
 
+        # def get_instance():
+        #     from pybis import Openbis
+        #     base_url = "http://localhost:8888/openbis"
+        #     # base_url = "http://local.openbis.ch:8080/openbis"
+        #     # base_url = "https://alaskowski:8443/openbis"
+        #     # base_url = "https://openbis-sis-ci-sprint.ethz.ch/"
+        #     openbis_instance = Openbis(
+        #         url=base_url,
+        #         verify_certificates=False,
+        #         allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
+        #     )
+        #     token = openbis_instance.login('admin', 'changeit')
+        #     print(token)
+        #     return openbis_instance
+
         openbis = self._get_openbis()
+        # openbis = get_instance()
         self._test_login(openbis)
         self._test_server_information(openbis)
         self._test_datastores(openbis)
@@ -249,6 +272,10 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertLength('dataset.permId', 0, dataset.permId)
         dataset.save()
         self.assertNotNone('dataset.permId', dataset.permId)
+        print("||> DEBUG:")
+        print(dataset)
+        print(dataset.file_list)
+        print("<|| DEBUG:")
         self.assertIn('dataset.file_list', dataset.file_list, "original/" + self.FILE)
         host_and_permid = dataset.download()
         self.assertTrue('downloaded file exists', os.path.exists(os.path.join(host_and_permid, "original", self.FILE)))
