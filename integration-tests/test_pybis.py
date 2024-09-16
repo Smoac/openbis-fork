@@ -37,7 +37,7 @@ import systemtest.util as util
 #     obj.devMode = True
 #     TestCase(obj, ".").execute()
 
-class TestCase(testcase.TestCase):
+class TestCase(systemtest.testcase.TestCase):
 
 
     def execute(self):
