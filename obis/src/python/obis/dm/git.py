@@ -35,13 +35,13 @@ class GitWrapper(object):
         since it sets --work-tree and '--git-dir.
          """
         cmd = [self.git_path]
-        print("GIT: " + str(params) + " " + str(strip_leading_whitespace) + " " + str(relative_repo_path))
-        print("GIT: " + str(self.data_path) + " " + str(self.metadata_path))
+        # print("GIT1: " + str(params) + " " + str(strip_leading_whitespace) + " " + str(relative_repo_path))
+        # print("GIT2: " + str(self.data_path) + " " + str(self.metadata_path))
         if self.data_path is not None and self.metadata_path is not None:
             git_dir = os.path.join(self.metadata_path, relative_repo_path, '.git')
             cmd += ['--work-tree', self.data_path, '--git-dir', git_dir]
         cmd += params
-        print("GIT: " + str(cmd))
+        # print("GIT3: " + str(cmd))
         return run_shell(cmd, strip_leading_whitespace=strip_leading_whitespace)
 
     def can_run(self):
