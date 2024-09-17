@@ -60,15 +60,11 @@ class Clone(OpenbisCommand):
         return CommandResult(returncode=0, output="")
 
     def run(self):
-        print("CLONE:")
         result = self.prepare_run()
         if result.failure():
             return result
-        print("CLONE: " + str(self.data_set_id))
         data_set = self.openbis.get_dataset(self.data_set_id)
-        print("CLONE: " + str(data_set))
         content_copy = ContentCopySelector(data_set, self.content_copy_index).select()
-        print("CLONE: " + str(content_copy))
         self.content_copy = content_copy
         host = content_copy['externalDms']['address'].split(':')[0]
         path = content_copy['path']
@@ -80,8 +76,9 @@ class Clone(OpenbisCommand):
         result = self.checkout_commit(content_copy, path)
         if result.failure():
             return result
-        print("HEREeeeee3")
+        print("CLONE:" + str(self.data_set_id) + " " + self.skip_integrity_check)
         data_set = self.openbis.get_dataset(self.data_set_id)
+        print("CLONE: " + str(data_set))
         if self.skip_integrity_check != True:
             data_path = os.path.join(self.data_mgmt.data_path, repository_folder)
             invalid_files = validate_checksum(self.openbis, data_set.file_list, data_set.permId,
@@ -104,6 +101,7 @@ class Clone(OpenbisCommand):
 
     def add_content_copy_to_openbis(self, repository_folder):
         with cd(repository_folder):
+            print("CONTENT COPY: " + str(repository_folder))
             data_path = os.path.join(self.data_mgmt.data_path, repository_folder)
             metadata_path = os.path.join(self.data_mgmt.metadata_path, repository_folder)
             invocation_path = self.data_mgmt.invocation_path
@@ -113,6 +111,8 @@ class Clone(OpenbisCommand):
                 'metadata_path': metadata_path,
                 'invocation_path': invocation_path
             })
+            print("CONTENT COPY: " + str(data_mgmt.debug) + " " + str(data_mgmt.settings_resolver.config))
             data_mgmt.set_property(data_mgmt.debug, data_mgmt.settings_resolver.config, 'hostname',
                                    None, False)
+            print("ADDREF")
             return data_mgmt.addref()
