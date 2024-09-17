@@ -69,12 +69,14 @@ class Clone(OpenbisCommand):
         host = content_copy['externalDms']['address'].split(':')[0]
         path = content_copy['path']
         repository_folder = path.split('/')[-1]
-        print("CLONE: " + str(host) + " " + str(path) + " " + str(repository_folder))
+        print("CLONE: " + str(self.ssh_user) + " " + str(host) + " " + str(path) + " " + str(repository_folder))
         result = copy_repository(self.ssh_user, host, path)
         if result.failure():
+            print("CLONE: FAIL")
             return result
         result = self.checkout_commit(content_copy, path)
         if result.failure():
+            print("CLONE: FAIL2")
             return result
         print("CLONE:" + str(self.data_set_id) + " " + self.skip_integrity_check)
         data_set = self.openbis.get_dataset(self.data_set_id)
@@ -97,6 +99,7 @@ class Clone(OpenbisCommand):
         """
         commit_hash = content_copy['gitCommitHash']
         repository_folder = path.split('/')[-1]
+        print("CHECKOUT: " + str(commit_hash) + " " + str(repository_folder))
         return self.git_wrapper.git_checkout(commit_hash, relative_repo_path=repository_folder)
 
     def add_content_copy_to_openbis(self, repository_folder):

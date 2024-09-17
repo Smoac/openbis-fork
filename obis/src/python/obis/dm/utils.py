@@ -76,6 +76,7 @@ def run_shell(args, shell=False, strip_leading_whitespace=True, raise_exception_
         subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell),
         strip_leading_whitespace=strip_leading_whitespace)
     if raise_exception_on_failure == True and result.failure():
+        print("RUN SHELL FAIL: " + str(args))
         raise CommandException(result)
     return result
 
