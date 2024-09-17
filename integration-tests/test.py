@@ -26,12 +26,12 @@ for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
 
             if moduleName == 'test_pybis' or moduleName == 'test_obis':
                 testCases.append(moduleName)
-            moduleStartTime = time.time()
-            try:
-                __import__(moduleName)
-            except:
-                failedTestCases[moduleName] = sys.exc_info()
-            testCaseDurations[moduleName] = time.time() - moduleStartTime
+                moduleStartTime = time.time()
+                try:
+                    __import__(moduleName)
+                except:
+                    failedTestCases[moduleName] = sys.exc_info()
+                testCaseDurations[moduleName] = time.time() - moduleStartTime
 renderedStartTime = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(startTime))
 duration = time.time() - startTime
 testResultsFolder = 'targets/test-results'
