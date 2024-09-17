@@ -294,11 +294,9 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         loc = 'global' if is_global else 'local'
         try:
             if is_data_set_property:
-                print("SET_PROP1: " + str(prop) + " " + str(value) + " " + str(loc))
                 resolver.set_value_for_json_parameter('properties', prop, value, loc,
                                                       apply_rules=True)
             else:
-                print("SET_PROP2: " + str(prop) + " " + str(value) + " " + str(loc))
                 resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
         except Exception as e:
             if debug is True:

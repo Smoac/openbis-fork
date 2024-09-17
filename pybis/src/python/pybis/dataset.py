@@ -395,7 +395,6 @@ class DataSet(
     set_props = set_properties
 
     def get_dataset_files(self, start_with=None, count=None, **properties):
-        print("||> GET_DATASET_FILES")
         search_criteria = get_type_for_entity("dataSetFile", "search")
         search_criteria["operator"] = "AND"
         search_criteria["criteria"] = [
@@ -427,14 +426,11 @@ class DataSet(
             ],
         }
         full_url = urljoin(self._get_download_url(), DSS_ENDPOINT)
-        print("||> GET_DATASET_FILES: " + full_url)
         resp = self.openbis._post_request_full_url(full_url, request)
-        print("||> GET_DATASET_FILES: " + str(resp))
 
         def create_data_frame(attrs, props, response):
             objects = response["objects"]
             parse_jackson(objects)
-            print("||> GET_DATASET_FILES: " + str(objects))
             attrs = [
                 "dataSetPermId",
                 "dataStore",
@@ -688,19 +684,10 @@ class DataSet(
         """Returns the list of files including their directories as an array of strings.
         Folders are not listed.
         """
-        print("||> FILE_LIST")
         if self.is_new:
-            print("||> FILE_LIST: IS_NEW")
             return self.files
         else:
             fl = self.get_dataset_files().df
-            print(f'||> GET DATASET FILES1:{fl}')
-            print(f'||> GET DATASET FILESS1:{fl.to_string()}')
-            # print(f'||> GET DATASET FILESS2:{fl.to_markdown()}')
-            print(f'||> GET DATASET FILES2:{fl[fl["directory"] == False]}')
-            print(f'||> GET DATASET FILES3:{fl[fl["directory"] == False]["path"]}')
-            print(f'||> GET DATASET FILES3:{fl[fl["directory"] == False]["path"].to_list()}')
-            print(f'||> GET DATASET FILES3:{list(fl[fl["directory"] == False]["path"])}')
             return list(fl[fl["directory"] == False]["path"])
 
     @property

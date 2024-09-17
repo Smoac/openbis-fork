@@ -5145,7 +5145,6 @@ class Openbis:
         )
 
     def search_files(self, data_set_id, dss_code=None):
-        print("FILE_SEARCH")
         return pbds.GitDataSetFileSearch(self, data_set_id).search_files()
 
     def delete_content_copy(self, data_set_id, content_copy):

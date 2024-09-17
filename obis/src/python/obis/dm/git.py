@@ -35,13 +35,10 @@ class GitWrapper(object):
         since it sets --work-tree and '--git-dir.
          """
         cmd = [self.git_path]
-        # print("GIT1: " + str(params) + " " + str(strip_leading_whitespace) + " " + str(relative_repo_path))
-        # print("GIT2: " + str(self.data_path) + " " + str(self.metadata_path))
         if self.data_path is not None and self.metadata_path is not None:
             git_dir = os.path.join(self.metadata_path, relative_repo_path, '.git')
             cmd += ['--work-tree', self.data_path, '--git-dir', git_dir]
         cmd += params
-        # print("GIT3: " + str(cmd))
         return run_shell(cmd, strip_leading_whitespace=strip_leading_whitespace)
 
     def can_run(self):
@@ -161,11 +158,8 @@ class GitWrapper(object):
         return self._git(['ls-tree', '--full-tree', '-r', 'HEAD'])
 
     def git_checkout(self, path_or_hash, relative_repo_path=''):
-        print("CHECKOUT0: ")
         if relative_repo_path:
-            print("CHECKOUT1: ")
             return self._git(['checkout', path_or_hash], relative_repo_path=relative_repo_path)
-        print("CHECKOUT2: ")
         return self._git(["checkout", path_or_hash])
 
     def git_reset_to(self, commit_hash):

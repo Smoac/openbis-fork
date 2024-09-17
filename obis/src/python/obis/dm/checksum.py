@@ -39,9 +39,7 @@ def get_checksum_generator(checksum_type, data_path, metadata_path, default=None
 
 def validate_checksum(openbis, files, data_set_id, data_path, metadata_path):
     invalid_files = []
-    print("VALIDATE_CHECKSUM: " + str(files))
     dataset_files = openbis.search_files(data_set_id)['objects']
-    print("VALIDATE_CHECKSUM: " + str(dataset_files))
     dataset_files_by_path = {}
     for dataset_file in dataset_files:
         dataset_files_by_path[dataset_file['path']] = dataset_file

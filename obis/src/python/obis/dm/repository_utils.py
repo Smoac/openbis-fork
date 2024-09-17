@@ -24,9 +24,7 @@ def copy_repository(ssh_user, host, path):
     if os.path.exists(repository_folder):
         return CommandResult(returncode=-1, output="Folder for repository to clone already exists: " + repository_folder)
     # check if local or remote
-    print("COPY REPO: ")
     location = get_repository_location(ssh_user, host, path)
-    print("COPY REPO: " + str(location))
     # copy repository
     return run_shell(["rsync", "--progress", "-av", location, "."])
 
