@@ -275,6 +275,7 @@ class TestCase(systemtest.testcase.TestCase):
         print("||> DEBUG:")
         print(dataset)
         print(dataset.file_list)
+        print(dataset.get_dataset_files())
         print("<|| DEBUG:")
         self.assertIn('dataset.file_list', dataset.file_list, "original/" + self.FILE)
         host_and_permid = dataset.download()

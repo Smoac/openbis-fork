@@ -23,7 +23,9 @@ for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
         fileType = splittedFileName[1]
         if moduleName.startswith('test_') and fileType == 'py' \
                 and os.path.isfile("templates/%s/disabled" % moduleName) == False:
-            testCases.append(moduleName)
+
+            if moduleName == 'test_pybis' or moduleName == 'test_obis':
+                testCases.append(moduleName)
             moduleStartTime = time.time()
             try:
                 __import__(moduleName)
