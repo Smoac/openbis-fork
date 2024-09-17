@@ -33,20 +33,6 @@ sphn:subjectToDeIdentification a owl:AnnotationProperty ;
                                            dc:title "The SPHN RDF Schema" ;
                                            dcterms:bibliographicCitation "https://doi.org/10.1038/s41597-023-02028-y" ;
                                            dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
-                                           owl:imports <http://purl.obolibrary.org/obo/eco/releases/2023-09-03/eco.owl>,
-                                           <http://purl.obolibrary.org/obo/genepio/releases/2023-08-19/genepio.owl>,
-                                           <http://purl.obolibrary.org/obo/geno/releases/2023-10-08/geno.owl>,
-                                           <http://purl.obolibrary.org/obo/obi/2023-09-20/obi.owl>,
-                                           <http://purl.obolibrary.org/obo/so/2021-11-22/so.owl>,
-                                           <http://snomed.info/sct/900000000000207008/version/20231201>,
-                                           <http://www.ebi.ac.uk/efo/releases/v3.61.0/efo.owl>,
-                                           <https://biomedit.ch/rdf/sphn-resource/atc/2024/1>,
-                                           <https://biomedit.ch/rdf/sphn-resource/chop/2024/4>,
-                                           <https://biomedit.ch/rdf/sphn-resource/emdn/2021-09-29/1>,
-                                           <https://biomedit.ch/rdf/sphn-resource/icd-10-gm/2024/3>,
-                                           <https://biomedit.ch/rdf/sphn-resource/loinc/2.76/1>,
-                                           <https://biomedit.ch/rdf/sphn-resource/ucum/2024/1>,
-                                           <https://www.orphadata.com/data/ontologies/ordo/last_version/ORDO_en_4.4.owl> ;
                                            owl:priorVersion <https://biomedit.ch/rdf/sphn-schema/sphn/2024/1> ;
                                            owl:versionIRI <https://biomedit.ch/rdf/sphn-schema/sphn/2024/2> .
 
@@ -267,12 +253,6 @@ sphn-deprecated:DataProviderInstitute a owl:Class ;
 sphn:DataRelease a owl:Class ;
                  rdfs:label "Data Release" ;
                  rdfs:subClassOf [ a owl:Class ;
-                                   owl:intersectionOf ( [ a owl:Restriction ;
-                                                          owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                                                          owl:onProperty dcterms:conformsTo ] [ a owl:Restriction ;
-                                                                                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                                                                                                owl:onProperty dcterms:conformsTo ] ) ],
-                 [ a owl:Class ;
                    owl:intersectionOf ( [ a owl:Restriction ;
                                           owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                                           owl:onProperty sphn:hasExtractionDateTime ] [ a owl:Restriction ;
@@ -459,7 +439,7 @@ sphn:hasReactionTypeCode a owl:ObjectProperty ;
 sphn:hasSubjectPseudoIdentifier a owl:ObjectProperty ;
                                 rdfs:label "has subject pseudo identifier" ;
                                 rdfs:domain [ a owl:Class ;
-                                              owl:unionOf ( sphn:SPHNConcept  sphn:Allergy sphn:AllergyEpisode ) ] ;
+                                              owl:unionOf ( sphn:SPHNConcept sphn:Allergy sphn:AllergyEpisode ) ] ;
                                 rdfs:range sphn:SubjectPseudoIdentifier ;
                                 rdfs:subPropertyOf sphn:SPHNAttributeObject ;
                                 skos:definition "link to a pseudo code assigned as unique identifier to an individual by a data provider institute" .
@@ -467,7 +447,7 @@ sphn:hasSubjectPseudoIdentifier a owl:ObjectProperty ;
 sphn:hasDataProvider a owl:ObjectProperty ;
                      rdfs:label "has data provider" ;
                      rdfs:domain [ a owl:Class ;
-                                   owl:unionOf ( sphn:DataRelease sphn:SPHNConcept   sphn:Allergy sphn:AllergyEpisode ) ] ;
+                                   owl:unionOf ( sphn:DataRelease sphn:SPHNConcept sphn:Allergy sphn:AllergyEpisode ) ] ;
                      rdfs:range sphn:DataProvider ;
                      rdfs:subPropertyOf sphn:SPHNAttributeObject ;
                      skos:definition "link to the unique business identification number (UID) of the healthcare institute providing the data" ;
@@ -646,6 +626,10 @@ sphn:hasValue a owl:DatatypeProperty ;
 
 #---------- resource ----------
 
+resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5
+    a sphn:DataProvider;
+    sphn:hasCode resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 .
+
 resource:CHE-229_707_417-Allergen-de1b372a-d3fb-447a-be5b-1e7f9ca5499d a sphn:Allergen;
   sphn:hasCode resource:Code-SNOMED-CT-1255069002 .
 
@@ -654,7 +638,7 @@ resource:CHE-229_707_417-Allergen-f77383c1-3458-4748-a9bb-17bca3f2c9bf a sphn:Al
 
 resource:CHE-229_707_417-Allergy-6f25e2a2-5a92-4187-99c7-8df48f4ff31e a sphn:Allergy;
   sphn:hasAllergen resource:CHE-229_707_417-Allergen-f77383c1-3458-4748-a9bb-17bca3f2c9bf;
-  sphn:hasDataProvider resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
   sphn:hasFirstRecordDateTime "1991-07-09T02:40:42+00:00"^^xsd:dateTime;
   sphn:hasLastReactionDateTime "2011-07-28T16:16:28+00:00"^^xsd:dateTime;
   sphn:hasReactionTypeCode resource:Code-SNOMED-CT-419199007;
@@ -665,7 +649,7 @@ resource:CHE-229_707_417-Allergy-6f25e2a2-5a92-4187-99c7-8df48f4ff31e a sphn:All
 resource:CHE-229_707_417-AllergyEpisode-dd84f39e-7154-4a13-ba1d-50068d723104 a sphn:AllergyEpisode;
   sphn:hasAllergen resource:CHE-229_707_417-Allergen-de1b372a-d3fb-447a-be5b-1e7f9ca5499d;
   sphn:hasCertaintyCode resource:Code-SNOMED-CT-410592001;
-  sphn:hasDataProvider resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
   sphn:hasManifestationCode resource:Code-SNOMED-CT-65872000;
   sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c .
 
@@ -678,13 +662,8 @@ resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 a sphn:Code;
   sphn:hasIdentifier "ID-593824-iWg";
   sphn:hasName "odit reprehenderit Lorem accusantium" .
 
-resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5
-  a sphn:DataProvider;
-  sphn:hasCode resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 .
-
 resource:CHE-229_707_417-DataRelease-f728b4fa-4248-4e3a-8a5d-2f346baa9455 a sphn:DataRelease;
-  dcterms:conformsTo <https://biomedit.ch/rdf/sphn-ontology/sphn/2023/2>;
-  sphn:hasDataProvider resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
   sphn:hasExtractionDateTime "2004-10-16T19:14:57+00:00"^^xsd:dateTime .
 
 resource:CHE-229_707_417-Laterality-004ae545-a011-4be5-ab0c-1681c8f8e3d0 a sphn:Laterality;
@@ -702,14 +681,14 @@ resource:CHE-229_707_417-Quantity-8c778ea6-eb20-43e6-8e16-4dba0ff18e02 a sphn:Qu
 
 resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c
   a sphn:SubjectPseudoIdentifier;
-  sphn:hasDataProvider resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
   sphn:hasIdentifier "ID-892411-RvE" .
 
 resource:CHE-229_707_417-Unit-30e9c5cc-101f-4ccc-9ed7-33e8b421eaeb a sphn:Unit;
-  sphn:hasCode ucum:Torr .
+  sphn:hasCode resource:Code-UCUM-Torr .
 
 resource:CHE-229_707_417-Unit-b83e90ec-17e0-4a3c-8398-3ca8ea7e9d49 a sphn:Unit;
-  sphn:hasCode ucum:Lperh .
+  sphn:hasCode resource:Code-UCUM-Lperh .
 
 resource:Code-SNOMED-CT-1255069002 a snomed:138875005 .
 
