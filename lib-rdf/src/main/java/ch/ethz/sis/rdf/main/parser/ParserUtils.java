@@ -48,8 +48,8 @@ public class ParserUtils {
 
                                     //need to differentiate from resources and primitive objects: https://biomedit.ch/rdf/sphn-resource/Code-SNOMED-CT-419199007 || "2011-07-28T16:16:28+00:00"^^xsd:dateTime
                                     SampleObjectProperty sampleObjectProperty = propObject.isResource() ?
-                                            new SampleObjectProperty(predicate.getURI(), predicate.getLocalName(), propObject.asResource().getLocalName()) :
-                                            new SampleObjectProperty(predicate.getURI(), predicate.getLocalName(), propObject.toString());
+                                            new SampleObjectProperty(predicate.getURI(), predicate.getLocalName(), propObject.asResource().getLocalName(), propObject.asResource().getURI()) :
+                                            new SampleObjectProperty(predicate.getURI(), predicate.getLocalName(), propObject.toString(), propObject.toString());
 
                                     sampleObject.addProperty(sampleObjectProperty);
                                 });
@@ -192,18 +192,22 @@ public class ParserUtils {
             System.out.println("Ontology metadata found:");
             while (ontologies.hasNext()) {
                 Resource ontology = ontologies.nextResource();
-                ontMetadata.put(DC.description.getLocalName(), ontology.getProperty(DC.description).getObject().toString());
-                ontMetadata.put(DC.rights.getLocalName(), ontology.getProperty(DC.rights).getObject().toString());
-                ontMetadata.put(DC.title.getLocalName(), ontology.getProperty(DC.title).getObject().toString());
-                ontMetadata.put(DCTerms.bibliographicCitation.getLocalName(), ontology.getProperty(DCTerms.bibliographicCitation).getObject().toString());
-                ontMetadata.put(DCTerms.license.getLocalName(), ontology.getProperty(DCTerms.license).getObject().toString());
-                ontMetadata.put(OWL.priorVersion.getLocalName(), ontology.getProperty(OWL.priorVersion).getObject().toString());
-                ontMetadata.put(OWL2.versionIRI.getLocalName(), ontology.getProperty(OWL2.versionIRI).getObject().toString());
+                ontMetadata.put(DC.description.getLocalName(), getPropertySafely(ontology, DC.description));
+                ontMetadata.put(DC.rights.getLocalName(), getPropertySafely(ontology, DC.rights));
+                ontMetadata.put(DC.title.getLocalName(), getPropertySafely(ontology, DC.title));
+                ontMetadata.put(DCTerms.bibliographicCitation.getLocalName(), getPropertySafely(ontology, DCTerms.bibliographicCitation));
+                ontMetadata.put(DCTerms.license.getLocalName(), getPropertySafely(ontology, DCTerms.license));
+                ontMetadata.put(OWL.priorVersion.getLocalName(), getPropertySafely(ontology, OWL.priorVersion));
+                ontMetadata.put(OWL2.versionIRI.getLocalName(), getPropertySafely(ontology, OWL2.versionIRI));
             }
         } else {
             System.out.println("No specific ontology metadata found.");
         }
         return ontMetadata;
+    }
+
+    private String getPropertySafely(Resource ontology, Property property){
+        return (ontology != null && ontology.getProperty(property) != null) ? ontology.getProperty(DC.description).getObject().toString() : "";
     }
 
     public String getVersionIRI(Model model){

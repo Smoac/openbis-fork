@@ -75,9 +75,9 @@ public class RDFExperimentHelper
 
             Row rowValues = sheet.createRow(rowNum++);
 
-            String objectType = pair.getLeft().toString().toUpperCase(Locale.ROOT);
+            String objectType = pair.getLeft() != null ? pair.getLeft().toString().toUpperCase(Locale.ROOT) : "";
             String code = objectType + "_" + COLLECTION_TYPE;
-            String name = pair.getRight().toString() + " Collection";
+            String name = pair.getRight() != null ? pair.getRight().toString() + " Collection" : "Unknown Collection";
 
             rowValues.createCell(0).setCellValue(projectId + "/" + code);   // Identifier("Identifier", false),
             rowValues.createCell(1).setCellValue(code);                     // Code("Code", true),

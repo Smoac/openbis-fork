@@ -52,11 +52,11 @@ public class XLSXWriter
             font.setBold(true);
             headerStyle.setFont(font);
 
-            createVocabularyTypesSheet(workbook, headerStyle, modelRDF);
+            if(!modelRDF.vocabularyTypeList.isEmpty()) createVocabularyTypesSheet(workbook, headerStyle, modelRDF);
             createObjectTypesSheet(workbook, headerStyle, modelRDF);
             createExperimentTypesSheet(workbook, headerStyle);
             createSpaceProjExpSheet(workbook, headerStyle, projectIdentifier, modelRDF);
-            createObjectsSheet(workbook, headerStyle, projectIdentifier, modelRDF);
+            if(!modelRDF.sampleObjectsGroupedByTypeMap.entrySet().isEmpty()) createObjectsSheet(workbook, headerStyle, projectIdentifier, modelRDF);
 
             // Write the output to a file
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
@@ -150,6 +150,6 @@ public class XLSXWriter
             }
             sheet.createRow(rowNum++);
         }
-        Utils.autosizeColumns(sheet, 20);
+        //Utils.autosizeColumns(sheet, 20);
     }
 }
