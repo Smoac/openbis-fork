@@ -78,7 +78,7 @@ class Clone(OpenbisCommand):
         if result.failure():
             print("CLONE: FAIL2")
             return result
-        print("CLONE:" + str(self.data_set_id) + " " + self.skip_integrity_check)
+        print("CLONE:" + str(self.data_set_id) + " " + str(self.skip_integrity_check))
         data_set = self.openbis.get_dataset(self.data_set_id)
         print("CLONE: " + str(data_set))
         if self.skip_integrity_check != True:

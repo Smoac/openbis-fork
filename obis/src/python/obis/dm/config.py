@@ -271,13 +271,14 @@ class ConfigResolver(object):
         :param loc: Either 'local' or 'global'
         :return:
         """
+        print("SET_VAL_FOR_PARAM:")
         if not name in self.env.params:
             raise ValueError(
                 "Unknown setting {} for {}.".format(name, self.categoty))
 
         if not self.is_initialized:
             self.initialize_location_cache()
-
+        print("SET_VAL_FOR_PARAM1:")
         param = self.env.params[name]
         value = param.parse_value(value)
         location_config_dict = self.set_cache_value_for_parameter(
@@ -285,14 +286,15 @@ class ConfigResolver(object):
         location_path = param.location_path(loc)
         location = self.env.location_at_path(location_path)
         location_dir_path = self.location_resolver.resolve_location(location)
-
+        print("SET_VAL_FOR_PARAM2:")
         if not os.path.exists(location_dir_path):
             os.makedirs(location_dir_path)
         config_path = os.path.join(location_dir_path, self.categoty + '.json')
         with open(config_path, "w") as f:
             json.dump(location_config_dict, f, sort_keys=True, indent=4)
-
+        print("SET_VAL_FOR_PARAM3:")
         if apply_rules:
+            print("SET_VAL_FOR_PARAM4: " + str(self.env))
             for rule in self.env.rules:
                 rule.on_set(self, name, value, loc)
 
