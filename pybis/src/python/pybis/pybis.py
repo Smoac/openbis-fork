@@ -1296,7 +1296,6 @@ class Openbis:
                 print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
-                print("RESPONSE: " + str(resp))
                 return resp["result"]
             else:
                 raise ValueError("request did not return either result nor error")
