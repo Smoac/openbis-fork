@@ -427,10 +427,14 @@ class DataSet(
             ],
         }
         full_url = urljoin(self._get_download_url(), DSS_ENDPOINT)
+        print("||> GET_DATASET_FILES: " + full_url)
         resp = self.openbis._post_request_full_url(full_url, request)
+        print("||> GET_DATASET_FILES: " + str(resp))
+
         def create_data_frame(attrs, props, response):
             objects = response["objects"]
             parse_jackson(objects)
+            print("||> GET_DATASET_FILES: " + str(objects))
             attrs = [
                 "dataSetPermId",
                 "dataStore",
