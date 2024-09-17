@@ -446,10 +446,13 @@ class TokenRule(SettingRule):
         token = ""
         if name != "openbis_token":
             return
-        tokenpath = Path(value).expanduser()
-        if tokenpath.exists():
-            with open(tokenpath, "r") as fh:
-                token = fh.read()
+        if value is not None:
+            tokenpath = Path(value).expanduser()
+            if tokenpath.exists():
+                with open(tokenpath, "r") as fh:
+                    token = fh.read()
+            else:
+                token = value
         else:
             token = value
 

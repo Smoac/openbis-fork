@@ -60,25 +60,27 @@ class Clone(OpenbisCommand):
         return CommandResult(returncode=0, output="")
 
     def run(self):
-
+        print("CLONE:")
         result = self.prepare_run()
         if result.failure():
             return result
-
+        print("CLONE: " + str(self.data_set_id))
         data_set = self.openbis.get_dataset(self.data_set_id)
-
+        print("CLONE: " + str(data_set))
         content_copy = ContentCopySelector(data_set, self.content_copy_index).select()
+        print("CLONE: " + str(content_copy))
         self.content_copy = content_copy
         host = content_copy['externalDms']['address'].split(':')[0]
         path = content_copy['path']
         repository_folder = path.split('/')[-1]
-
+        print("CLONE: " + str(host) + " " + str(path) + " " + str(repository_folder))
         result = copy_repository(self.ssh_user, host, path)
         if result.failure():
             return result
         result = self.checkout_commit(content_copy, path)
         if result.failure():
             return result
+        print("HEREeeeee3")
         data_set = self.openbis.get_dataset(self.data_set_id)
         if self.skip_integrity_check != True:
             data_path = os.path.join(self.data_mgmt.data_path, repository_folder)
