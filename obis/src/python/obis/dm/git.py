@@ -36,7 +36,7 @@ class GitWrapper(object):
          """
         cmd = [self.git_path]
         print("GIT: " + str(params) + " " + str(strip_leading_whitespace) + " " + str(relative_repo_path))
-        print("GIT: " + str(self.data_pat) + " " + str(self.metadata_path))
+        print("GIT: " + str(self.data_path) + " " + str(self.metadata_path))
         if self.data_path is not None and self.metadata_path is not None:
             git_dir = os.path.join(self.metadata_path, relative_repo_path, '.git')
             cmd += ['--work-tree', self.data_path, '--git-dir', git_dir]
