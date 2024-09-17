@@ -5,12 +5,14 @@ public class SampleObjectProperty
     public String propertyURI;
     public String label;
     public String value;
+    public String valueURI;
 
-    public SampleObjectProperty(String propertyURI, String label, String value)
+    public SampleObjectProperty(String propertyURI, String label, String value, String valueURI)
     {
         this.propertyURI = propertyURI;
         this.label = label;
         this.value = value;
+        this.valueURI = valueURI;
     }
 
     public String getPropertyURI()
@@ -28,6 +30,11 @@ public class SampleObjectProperty
         return value;
     }
 
+    public String getValueURI()
+    {
+        return valueURI;
+    }
+
     @Override
     public String toString()
     {
@@ -35,6 +42,7 @@ public class SampleObjectProperty
                 "propertyURI='" + propertyURI + '\'' +
                 ", label='" + label + '\'' +
                 ", value='" + value + '\'' +
+                ", valueURI='" + valueURI + '\'' +
                 '}';
     }
 }

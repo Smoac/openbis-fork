@@ -115,11 +115,11 @@ public class RDFSampleHelper
             int idx = allColumnList.indexOf(sampleObjectProperty.label);
             if (idx != -1) {
                 //System.out.println("MAPPED: " + sampleObjectProperty + ", CONTAINS: " + vocabularyOptionList.contains(sampleObjectProperty.value) + ", OBJ: " + sampleObjectProperty.value);
-                if (vocabularyOptionList.contains(sampleObjectProperty.value)){
-                    propertyRowValues.createCell(idx).setCellValue(sampleObjectProperty.label.toUpperCase(Locale.ROOT));
+                if (vocabularyOptionList.contains(sampleObjectProperty.valueURI)){
+                    propertyRowValues.createCell(idx).setCellValue(sampleObjectProperty.value.toUpperCase(Locale.ROOT));
                 } else {
                     if (!sampleObjectProperty.value.contains("^^")){
-                        propertyRowValues.createCell(idx).setCellValue(sampleObjectProperty.value);
+                        propertyRowValues.createCell(idx).setCellValue(projectId + "/" +sampleObjectProperty.value);
                     } else {
                         //convertRDFLiteral(property.getObject().replace(RESOURCE_PREFIX, ""), propertyRowValues, idx);
                         String rdfLiteral = sampleObjectProperty.value;
