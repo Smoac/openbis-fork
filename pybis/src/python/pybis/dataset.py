@@ -395,7 +395,7 @@ class DataSet(
     set_props = set_properties
 
     def get_dataset_files(self, start_with=None, count=None, **properties):
-
+        print("||> GET_DATASET_FILES")
         search_criteria = get_type_for_entity("dataSetFile", "search")
         search_criteria["operator"] = "AND"
         search_criteria["criteria"] = [
@@ -688,8 +688,9 @@ class DataSet(
         """Returns the list of files including their directories as an array of strings.
         Folders are not listed.
         """
-
+        print("||> FILE_LIST")
         if self.is_new:
+            print("||> FILE_LIST: IS_NEW")
             return self.files
         else:
             fl = self.get_dataset_files().df
