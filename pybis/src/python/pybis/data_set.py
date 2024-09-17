@@ -318,6 +318,7 @@ class GitDataSetFileSearch(object):
             ],
         }
         server_url = self.data_store_url()
+        print("SEARCH_FILES_1: " + str(server_url) + " " + str(request))
         return self.openbis._post_request_full_url(server_url, request)
 
     def get_data_set_file_search_criteria(self):

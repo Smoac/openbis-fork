@@ -103,6 +103,7 @@ class Clone(OpenbisCommand):
         return self.git_wrapper.git_checkout(commit_hash, relative_repo_path=repository_folder)
 
     def add_content_copy_to_openbis(self, repository_folder):
+        print("CONTENT COPY: ")
         with cd(repository_folder):
             print("CONTENT COPY: " + str(repository_folder))
             data_path = os.path.join(self.data_mgmt.data_path, repository_folder)

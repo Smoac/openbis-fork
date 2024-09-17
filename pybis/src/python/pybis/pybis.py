@@ -1296,6 +1296,7 @@ class Openbis:
                 print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
+                print("RESPONSE: " + str(resp))
                 return resp["result"]
             else:
                 raise ValueError("request did not return either result nor error")
@@ -5144,6 +5145,7 @@ class Openbis:
         )
 
     def search_files(self, data_set_id, dss_code=None):
+        print("FILE_SEARCH")
         return pbds.GitDataSetFileSearch(self, data_set_id).search_files()
 
     def delete_content_copy(self, data_set_id, content_copy):
