@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -139,5 +140,5 @@ public interface IEntityPropertyTypeDAO
      * @param propertyTypeCode Code of property type
      * @return List of non-empty property values of type:propertyTypeCode assigned to entities of type:entityTypeCode
      */
-    public List<String> listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
+    public ResultSet listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
 }

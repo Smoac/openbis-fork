@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import org.apache.commons.dbcp.DelegatingConnection;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -33,6 +36,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.query.Query;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -54,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+
+import javax.persistence.Table;
 
 /**
  * The unique {@link IEntityPropertyTypeDAO} implementation.
@@ -300,22 +307,50 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     @Override
-    public List<String> listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
+    public ResultSet listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
     {
-        String query =
-                String.format("SELECT pv.value FROM %s pa join %s pv "
-                                + " ON pa.id = pv.entityTypePropertyType.id "
-                                + " WHERE pa.propertyTypeInternal.simpleCode = ? "
-                                + " AND pa.entityTypeInternal.simpleCode = ?",
-                        entityKind
-                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
-                        entityKind.getEntityPropertyClass().getSimpleName()
-                );
+        String query = "";
+        switch (entityKind) {
+            case EXPERIMENT:
+                query = String.format("SELECT ep.value FROM experiment_types et " +
+                        " join experiment_type_property_types etpt on et.id = etpt.exty_id " +
+                        " join property_types pt on etpt.prty_id = pt.id " +
+                        " join experiment_properties ep on ep.etpt_id = etpt.id " +
+                        " where et.code = ?" +
+                        " and pt.code = ?");
+                break;
+            case SAMPLE:
+                query = String.format("SELECT sp.value FROM sample_types st " +
+                        " join sample_type_property_types stpt on st.id = stpt.saty_id " +
+                        " join property_types pt on stpt.prty_id = pt.id " +
+                        " join sample_properties sp on sp.stpt_id = stpt.id " +
+                        " where st.code = ?" +
+                        " and pt.code = ?");
+                break;
+            case DATA_SET:
+                query = String.format("SELECT dp.value FROM data_set_types dt " +
+                        " join data_set_type_property_types dtpt on dt.id = dtpt.dsty_id " +
+                        " join property_types pt on dtpt.prty_id = pt.id " +
+                        " join data_set_properties dp on dp.dstpt_id = dtpt.id " +
+                        " where dt.code = ?" +
+                        " and pt.code = ?");
+                break;
+            default:
+                throw new IllegalArgumentException("Entity type '" + entityKind + "' is not supported!");
+        }
 
-        final List<String> list = cast(getHibernateTemplate().find(query,
-                        toArray(propertyTypeCode, entityTypeCode)));
-
-        return list;
+        SessionImpl currentSession = (SessionImpl) currentSession();
+        DelegatingConnection delegatingConnection = (DelegatingConnection) currentSession.connection();
+        Connection connection = delegatingConnection.getInnermostDelegate();
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, entityTypeCode);
+            statement.setString(2, propertyTypeCode);
+            connection.setAutoCommit(false);
+            return statement.executeQuery();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
