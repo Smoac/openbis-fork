@@ -125,8 +125,8 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
         {this.renderInternal(property)}
         {this.renderVisible(property)}
         {this.renderMandatory(property)}
-        {this.renderIsMultiValue(property)}
         {this.renderInitialValue(property)}
+        {this.renderIsMultiValue(property)}
         {this.renderUniqueValue(property)}
       </Container>
     )
