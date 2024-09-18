@@ -2,7 +2,6 @@ package ch.ethz.sis.rdf.main.xlsx.write;
 
 import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
-import ch.ethz.sis.rdf.main.Utils;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
@@ -123,7 +122,7 @@ public class XLSXWriter
 
         rowNum = rdfSpaceHelper.addSpaceSection(sheet, rowNum, headerStyle, spaceId);
         rowNum = rdfProjectHelper.addProjectSection(sheet, rowNum, headerStyle, spaceId, projectId);
-        rowNum = rdfExperimentHelper.addExperimentSection(sheet, rowNum, headerStyle, projectId, modelRDF);
+        rdfExperimentHelper.addExperimentSection(sheet, rowNum, headerStyle, projectId, modelRDF);
 
     }
 

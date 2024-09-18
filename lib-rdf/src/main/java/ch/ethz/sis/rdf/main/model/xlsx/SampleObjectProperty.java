@@ -15,11 +15,6 @@ public class SampleObjectProperty
         this.valueURI = valueURI;
     }
 
-    public String getPropertyURI()
-    {
-        return propertyURI;
-    }
-
     public String getLabel()
     {
         return label;
@@ -28,11 +23,6 @@ public class SampleObjectProperty
     public String getValue()
     {
         return value;
-    }
-
-    public String getValueURI()
-    {
-        return valueURI;
     }
 
     @Override

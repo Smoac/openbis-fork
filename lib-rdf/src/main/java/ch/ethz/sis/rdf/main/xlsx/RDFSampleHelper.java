@@ -11,7 +11,6 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.poi.ss.usermodel.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RDFSampleHelper
@@ -34,13 +33,6 @@ public class RDFSampleHelper
         Attribute(String headerName, boolean mandatory) {
             this.headerName = headerName;
             this.mandatory = mandatory;
-        }
-
-        public String getHeaderName() {
-            return headerName;
-        }
-        public boolean isMandatory() {
-            return mandatory;
         }
     }
 
@@ -132,7 +124,7 @@ public class RDFSampleHelper
                         Literal literal = ResourceFactory.createTypedLiteral(lexicalValue);
 
                         if (XSDDatatype.XSDdateTime.getURI().equals(datatypeURI)) {
-                            Date date = (Date) literal.getValue();
+                            //Date date = (Date) literal.getValue();
                             //System.out.println("----- DATE: " + date);
                             propertyRowValues.createCell(idx).setCellValue((Date) literal.getValue());
                         } else if (XSDDatatype.XSDdouble.getURI().equals(datatypeURI)) {

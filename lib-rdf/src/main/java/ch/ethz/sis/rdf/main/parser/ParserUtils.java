@@ -245,7 +245,7 @@ public class ParserUtils {
     }
 
     private int countResourcesWithNamespaceType(Model model, String namespace) {
-        return (int) model.listStatements(null, RDF.type, (Resource) null).filterKeep(statement -> {
+        return model.listStatements(null, RDF.type, (Resource) null).filterKeep(statement -> {
             Resource type = statement.getObject().asResource();
             return type.getURI().startsWith(namespace);
         }).toList().size();

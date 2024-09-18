@@ -37,9 +37,7 @@ public class RDFExperimentHelper
         public String getHeaderName() {
             return headerName;
         }
-        public boolean isMandatory() {
-            return mandatory;
-        }
+
     }
 
     public int addExperimentSection(Sheet sheet, int rowNum, CellStyle headerStyle, String projectId, ModelRDF modelRDF)
