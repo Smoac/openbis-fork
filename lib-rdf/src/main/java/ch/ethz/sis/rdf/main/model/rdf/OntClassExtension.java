@@ -28,9 +28,6 @@ public class OntClassExtension
     public OntClass ontClass;
     public OntClass superClass;
     public String label;
-    public String comment;
-    public String skosDefinition;
-    public String skosNote;
 
     public Map<String, List<Restriction>> restrictions;
     public Map<UnionClass, List<String>> unions;
@@ -43,9 +40,6 @@ public class OntClassExtension
         this.propertyTuples = new ArrayList<>();
         // Parsing standard annotations
         this.label = getAnnotation(ontClass, RDFS.label);
-        this.comment = getAnnotation(ontClass, RDFS.comment);
-        this.skosDefinition = getAnnotation(ontClass, SKOS.definition);
-        this.skosNote = getAnnotation(ontClass, SKOS.note);
     }
 
     public void addRestriction(String property, Restriction restriction) {
@@ -71,9 +65,6 @@ public class OntClassExtension
         sb.append("Class: ").append(ontClass.getURI() != null ? ontClass.getURI() : "Anonymous Class")
                 .append("\nSuperClass: ").append(superClass != null ? superClass : "No superClass")
                 .append("\nLabel: ").append(label != null ? label : "No label")
-                .append("\nComment: ").append(comment != null ? comment : "No comment")
-                .append("\nSKOS Definition: ").append(skosDefinition != null ? skosDefinition : "-")
-                .append("\nSKOS Note: ").append(skosNote != null ? skosNote : "-")
                 .append("\nProperties: \n");
 
         propertyTuples.forEach(tupleRDF ->
