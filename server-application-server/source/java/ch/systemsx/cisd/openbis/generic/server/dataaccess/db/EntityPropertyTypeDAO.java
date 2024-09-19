@@ -335,6 +335,14 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         " where dt.code = ?" +
                         " and pt.code = ?");
                 break;
+            case MATERIAL:
+                query = String.format("SELECT mp.value FROM material_types mt " +
+                        " join material_type_property_types mtpt on mt.id = mtpt.maty_id " +
+                        " join property_types pt on mtpt.prty_id = pt.id " +
+                        " join material_properties mp on mp.mtpt_id = mtpt.id " +
+                        " where mt.code = ?" +
+                        " and pt.code = ?");
+                break;
             default:
                 throw new IllegalArgumentException("Entity type '" + entityKind + "' is not supported!");
         }
