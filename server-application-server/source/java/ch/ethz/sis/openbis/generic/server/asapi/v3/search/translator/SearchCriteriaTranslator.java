@@ -492,7 +492,7 @@ public class SearchCriteriaTranslator
                         final DataStoreSearchCriteria dataStoreSearchCriteria = (DataStoreSearchCriteria) subcriterion;
                         final SearchOperator operator = dataStoreSearchCriteria.getOperator();
                         final boolean andOperator = operator == SearchOperator.AND;
-                        final Set<DataStoreKind> identity = andOperator ? Set.of(DataStoreKind.DSS, DataStoreKind.AFS) : Set.of();
+                        final Set<DataStoreKind> identity = andOperator ? Set.of(DataStoreKind.values()) : Set.of();
 
                         return dataStoreSearchCriteria.getCriteria().stream().filter(c -> c instanceof DataStoreKindSearchCriteria)
                                 .map(c -> Set.of(((DataStoreKindSearchCriteria) c).getDataStoreKinds())).reduce(identity,

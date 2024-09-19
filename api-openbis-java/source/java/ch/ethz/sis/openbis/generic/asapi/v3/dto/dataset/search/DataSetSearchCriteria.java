@@ -31,6 +31,7 @@ public class DataSetSearchCriteria extends AbstractDataSetSearchCriteria<DataSet
     public DataSetSearchCriteria()
     {
         super(DataSetSearchRelation.DATASET);
+        withDataStore();
     }
 
     public DataSetParentsSearchCriteria withParents()
