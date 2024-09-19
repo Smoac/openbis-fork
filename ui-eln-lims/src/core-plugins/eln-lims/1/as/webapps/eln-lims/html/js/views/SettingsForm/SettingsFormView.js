@@ -1019,7 +1019,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$table.append($thead);
 		// body
         var $tbody = $("<tbody>");
-		for (var i of Object.keys(tableModel.rows)) {
+        // keys in reverse order because we are adding rows on top
+		for (var i of Object.keys(tableModel.rows).reverse()) {
 			var row = tableModel.rows[i];
 
 			if (tableModel.rowExtraBuilder) {
