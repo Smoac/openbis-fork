@@ -33,7 +33,7 @@ dependencies {
             'hamcrest:hamcrest-core:1.3'
 }
 
-task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
+task openBISDevelopmentEnvironmentAFSStart(type: JavaExec) {
     main = 'ch.ethz.sis.afsserver.startup.Main'
     classpath = sourceSets.main.runtimeClasspath
     args(["../server-data-store/src/main/resources/service.properties"])
