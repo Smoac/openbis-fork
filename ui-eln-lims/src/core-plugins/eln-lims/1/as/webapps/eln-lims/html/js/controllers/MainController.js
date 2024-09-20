@@ -596,10 +596,14 @@ function MainController(profile) {
 					this._showStorageManager();
 					//window.scrollTo(0,0);
 					break;
-				case "showBlancPage":
+				case "showWelcomePage":
 					document.title = "Main Menu";
-					this._showBlancPage();
+					this._showWelcomePage();
 					break;
+				case "showBlancPage":
+                    document.title = "Main Menu";
+                    this._showBlancPage();
+                    break;
 				case "showStockPage":
 					document.title = "Stock";
 					var newView = new StockController(this);
@@ -1149,7 +1153,7 @@ function MainController(profile) {
 		this.currentView = vocabularyManagerController;
 	}
 	
-	this._showBlancPage = function() {
+	this._showWelcomePage = function() {
 		var content = this._getBackwardsCompatibleMainContainer();
 
 		$.ajax({ cache: false,
@@ -1168,6 +1172,14 @@ function MainController(profile) {
 		    content : content
 		}
 	}
+
+	this._showBlancPage = function() {
+    		var content = this._getBackwardsCompatibleMainContainer();
+    		content.html('');
+    		this.currentView = {
+    		    content : content
+    		}
+    	}
 	
 	this._showDrawingBoard = function() {
 		var views = this._getNewViewModel(true, true, false);
