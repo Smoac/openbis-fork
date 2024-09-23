@@ -12,15 +12,11 @@ import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.util.FileManager;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.OWL2;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +33,7 @@ public class RDFReader
     {
         ModelRDF modelRDF = new ModelRDF();
 
-        Model model = loadRDFModel(inputFileName, inputFormatValue);
+        Model model = LoaderRDF.loadModel(inputFileName, inputFormatValue);
 
         modelRDF.ontNamespace = model.getNsPrefixURI("");
         modelRDF.ontVersion = parserUtils.getVersionIRI(model);
@@ -51,9 +47,9 @@ public class RDFReader
         Map<String, List<String>> chainsMap = getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
         modelRDF.subClassChanisMap = chainsMap;
 
-        chainsMap.keySet().forEach(key -> {
+        /*chainsMap.keySet().forEach(key -> {
             System.out.println(key + " -> " + chainsMap.get(key));
-        });
+        });*/
 
         /*modelRDF.vocabularyTypeListGroupedByType.keySet().forEach(key -> {
             System.out.println(key + " -> " + modelRDF.vocabularyTypeListGroupedByType.get(key));
@@ -63,7 +59,7 @@ public class RDFReader
 
         if (canCreateOntModel(model))
         {
-            OntModel ontModel = loadRDFOntModel(inputFileName, inputFormatValue);
+            OntModel ontModel = LoaderRDF.loadOntModel(inputFileName, inputFormatValue);
 
             Map<String, List<String>> RDFtoOpenBISDataTypeMap = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
             //modelRDF.RDFtoOpenBISDataType = RDFtoOpenBISDataTypeMap;
@@ -258,44 +254,6 @@ public class RDFReader
     {
         return (Objects.equals(propertyMetadata.get("MinCardinalityRestriction"), "1") &&
                 Objects.equals(propertyMetadata.get("MaxCardinalityRestriction"), "1")) ? 1 : 0;
-    }
-
-    private void checkFileExists(String inputFileName)
-    {
-        InputStream in = FileManager.getInternal().open(inputFileName);
-        if (in == null)
-        {
-            throw new IllegalArgumentException("File: " + inputFileName + " not found");
-        }
-    }
-
-    private void loadRDFData(Model model, String inputFileName, String inputFormatValue)
-    {
-        switch (inputFormatValue) {
-            case "TTL":
-                RDFDataMgr.read(model, inputFileName, Lang.TTL);
-                break;
-            case "JSONLD":
-            case "XML":
-            default:
-                throw new IllegalArgumentException("Input format file: " + inputFormatValue + " not supported");
-        }
-    }
-
-    private Model loadRDFModel(String inputFileName, String inputFormatValue)
-    {
-        checkFileExists(inputFileName);
-        Model model = ModelFactory.createDefaultModel();
-        loadRDFData(model, inputFileName, inputFormatValue);
-        return model;
-    }
-
-    private OntModel loadRDFOntModel(String inputFileName, String inputFormatValue)
-    {
-        checkFileExists(inputFileName);
-        OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
-        loadRDFData(model, inputFileName, inputFormatValue);
-        return model;
     }
 
     private boolean canCreateOntModel(Model model)
