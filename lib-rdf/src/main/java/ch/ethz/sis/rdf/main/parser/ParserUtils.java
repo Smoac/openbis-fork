@@ -135,11 +135,12 @@ public class ParserUtils {
                 //check if the model contains resources that are usually noted as triplet [resource, type, some class]
                 if(model.contains(null, RDF.type, cls)){
                     // exclude NamedIndividual cases that are noted like resources
-                    if(isNamedIndividual(model, cls)) {
+                    if (!isNamedIndividual(model, cls)) containsResources.set(true);
+                    /*if(isNamedIndividual(model, cls)) {
                         System.out.println(cls + " -> is a OWL NamedIndividual");
                     } else {
                         containsResources.set(true);
-                    }
+                    }*/
                 }
             }
         });

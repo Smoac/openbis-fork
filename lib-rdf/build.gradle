@@ -32,7 +32,7 @@ dependencies {
     testImplementation 'junit:junit:4.10'
 }
 
-task rdfTool(type: Jar, dependsOn: [jar]) {
+task buildRdfTool(type: Jar, dependsOn: [jar]) {
     duplicatesStrategy 'include'
     manifest {
         attributes(

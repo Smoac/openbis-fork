@@ -95,7 +95,6 @@ public class RDFVocabularyTypeHelper
         }
 
         for(VocabularyTypeOption vto: vocabularyType.getOptions()){
-            System.out.println(vto);
             Row vocabularyTypeRowValues = sheet.createRow(rowNum++);
             vocabularyTypeRowValues.createCell(0).setCellValue(vto.code); //Code("Code", true),
             vocabularyTypeRowValues.createCell(1).setCellValue(vto.label); //Label("Label", true),
