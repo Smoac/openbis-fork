@@ -1,18 +1,11 @@
 package ch.ethz.sis.rdf.main.model.xlsx;
 
-import ch.ethz.sis.rdf.main.Utils;
+import java.util.Objects;
 
 public class VocabularyTypeOption {
     public String code;
     public String label;
     public String description;
-
-    public VocabularyTypeOption(String uri, String label)
-    {
-        this.code = Utils.extractLabel(uri);
-        this.label = label;
-        this.description = uri;
-    }
 
     public VocabularyTypeOption(String code, String label, String description)
     {
@@ -34,5 +27,23 @@ public class VocabularyTypeOption {
                 ", label='" + label + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        VocabularyTypeOption that = (VocabularyTypeOption) o;
+        return Objects.equals(code, that.code) && Objects.equals(label, that.label) && Objects.equals(description,
+                that.description);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(code, label, description);
     }
 }
