@@ -1,0 +1,36 @@
+@prefix : <https://biomedit.ch/rdf/sphn-schema/sphn#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sphn: <https://biomedit.ch/rdf/sphn-schema/sphn#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#---------- DatatypeProperty ----------
+
+sphn:SPHNAttributeDatatype a owl:DatatypeProperty ;
+                           rdfs:label "SPHN attribute datatype" .
+
+sphn:hasDateTime a owl:DatatypeProperty ;
+                 rdfs:label "has datetime" ;
+                 rdfs:range xsd:dateTime ;
+                 rdfs:subPropertyOf sphn:SPHNAttributeDatatype .
+
+sphn:hasName a owl:DatatypeProperty ;
+             rdfs:label "has name" ;
+             rdfs:range xsd:string ;
+             rdfs:subPropertyOf sphn:SPHNAttributeDatatype .
+
+sphn:hasMonth a owl:DatatypeProperty ;
+             rdfs:label "has month" ;
+             rdfs:range xsd:gMonth ;
+             rdfs:subPropertyOf sphn:SPHNAttributeDatatype .
+
+sphn:hasEnd a owl:DatatypeProperty ;
+            rdfs:label "has end" ;
+            rdfs:range xsd:double ;
+            rdfs:subPropertyOf sphn:SPHNAttributeDatatype .
+
+sphn:hasValue a owl:DatatypeProperty ;
+              rdfs:label "has value" ;
+              rdfs:range [ a rdfs:Datatype ;
+                           owl:unionOf ( xsd:double xsd:string ) ] ;
+              rdfs:subPropertyOf sphn:SPHNAttributeDatatype .

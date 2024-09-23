@@ -14,6 +14,10 @@ import org.apache.jena.vocabulary.SKOS;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * SPHN project uses the property owl:NamedIndividual as enum
+ * other project might use this in a different way
+ **/
 public class NamedIndividualMapper
 {
     public static List<VocabularyType> getVocabularyTypeList(Model model)

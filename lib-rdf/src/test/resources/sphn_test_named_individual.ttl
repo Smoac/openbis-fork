@@ -1,0 +1,45 @@
+@prefix : <https://biomedit.ch/rdf/sphn-schema/sphn#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sphn: <https://biomedit.ch/rdf/sphn-schema/sphn#> .
+@prefix sphn-individual: <https://biomedit.ch/rdf/sphn-schema/sphn/individual#> .
+
+
+sphn-individual:ASCII a owl:NamedIndividual,
+        sphn:DataFile_encoding ;
+    rdfs:label "ASCII" .
+
+sphn-individual:ISO88591 a owl:NamedIndividual,
+        sphn:DataFile_encoding ;
+    rdfs:label "ISO-8859-1" .
+
+sphn-individual:UTF16 a owl:NamedIndividual,
+                        sphn:DataFile_encoding ;
+                      rdfs:label "UTF-16" .
+
+sphn-individual:UTF8 a owl:NamedIndividual,
+                       sphn:DataFile_encoding ;
+                     rdfs:label "UTF-8" .
+
+sphn-individual:MD5 a owl:NamedIndividual,
+        sphn:Hash_algorithm ;
+    rdfs:label "MD5" .
+
+sphn-individual:SHA512 a owl:NamedIndividual,
+                         sphn:Hash_algorithm ;
+                       rdfs:label "SHA-512" .
+
+sphn-individual:Other a owl:NamedIndividual,
+        sphn:Hash_algorithm,
+        sphn:DataFile_encoding ;
+    rdfs:label "Other" .
+
+sphn-individual:Paediatrics a owl:NamedIndividual,
+                              sphn:TherapeuticArea_specialtyName ;
+                            rdfs:label "Paediatrics" .
+
+sphn-individual:Pathology a owl:NamedIndividual,
+                            sphn:TherapeuticArea_specialtyName ;
+                          rdfs:label "Pathology" .
+
+
