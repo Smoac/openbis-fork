@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ParserUtils {
 
-    public boolean isNamedIndividual(Model model, RDFNode cls) {
+    public static boolean isNamedIndividual(Model model, RDFNode cls) {
         return model.listSubjectsWithProperty(RDF.type, cls)
                 .filterKeep(subject -> model.contains(subject, RDF.type, OWL2.NamedIndividual))
                 .hasNext();
@@ -20,7 +20,7 @@ public class ParserUtils {
 
     //---------- RESOURCE PREFIX EXTRACTION ------------------
 
-    public Map<String, List<SampleObject>> getSampleObjectsGroupedByTypeMap(Model model){
+    public static Map<String, List<SampleObject>> getSampleObjectsGroupedByTypeMap(Model model){
         List<String> sampleObjectPrefixList = getSampleObjectPrefixList(model);
 
         // Map to store the resources grouped by type
@@ -60,7 +60,7 @@ public class ParserUtils {
         return sampleObjectsGroupedByTypeMap;
     }
 
-    public Map<String, List<ResourceRDF>> getResourceMap(Model model){
+    public static Map<String, List<ResourceRDF>> getResourceMap(Model model){
         // Namespace prefix
         //String prefix = model.getNsPrefixURI(RESOURCE_URI_NS);
         List<String> resourcePrefixes = getSampleObjectPrefixList(model);
@@ -112,7 +112,7 @@ public class ParserUtils {
     }
 
 
-    public List<String> getSampleObjectPrefixList(Model model){
+    public static List<String> getSampleObjectPrefixList(Model model){
         Set<String> resourcePossibleNSs = new HashSet<>();
         resourcePossibleNSs.addAll(getClassResources(model, RDFS.Class));
         resourcePossibleNSs.addAll(getClassResources(model, OWL.Class));
@@ -120,12 +120,12 @@ public class ParserUtils {
         return resourcePossibleNSs.stream().toList();
     }
 
-    public boolean containsResources(Model model) {
+    public static boolean containsResources(Model model) {
         // need to check for RDFS and OWL classes
         return containsResources(model, RDFS.Class) || containsResources(model, OWL.Class);
     }
 
-    private boolean containsResources(Model model, RDFNode rdfNode) {
+    private static boolean containsResources(Model model, RDFNode rdfNode) {
         AtomicBoolean containsResources = new AtomicBoolean(false);
         // usually data are noted as triplet [resource, type, some class]
         // iterate over all Classes
@@ -147,7 +147,7 @@ public class ParserUtils {
     }
 
     //Can't avoid overlapping with the getSubClassOfResources because all classes are subClassOf SPHNConcept
-    private Set<String> getSubClassOfResources(Model model) {
+    private static Set<String> getSubClassOfResources(Model model) {
         Set<String> resourcePossibleNSs = new HashSet<>();
         model.listSubjectsWithProperty(RDF.type, OWL.Class).forEachRemaining(cls -> {
             if (!cls.isAnon()) {
@@ -166,7 +166,7 @@ public class ParserUtils {
         return resourcePossibleNSs;
     }
 
-    private Set<String> getClassResources(Model model, RDFNode rdfNode) {
+    private static Set<String> getClassResources(Model model, RDFNode rdfNode) {
         Set<String> resourcePossibleNSs = new HashSet<>();
         model.listSubjectsWithProperty(RDF.type, rdfNode).forEachRemaining(cls -> {
             if(!cls.isAnon()) {
@@ -184,7 +184,7 @@ public class ParserUtils {
 
     //---------- GENERAL INFO ------------------
 
-    public Map<String, String> getOntologyMetadataMap(Model model) {
+    public static Map<String, String> getOntologyMetadataMap(Model model) {
         Map<String, String> ontMetadata = new HashMap<>();
         // Extract ontology metadata by checking for owl:Ontology
         ResIterator ontologies = model.listResourcesWithProperty(RDF.type, OWL.Ontology);
@@ -206,11 +206,11 @@ public class ParserUtils {
         return ontMetadata;
     }
 
-    private String getPropertySafely(Resource ontology, Property property){
+    private static String getPropertySafely(Resource ontology, Property property){
         return (ontology != null && ontology.getProperty(property) != null) ? ontology.getProperty(DC.description).getObject().toString() : "";
     }
 
-    public String getVersionIRI(Model model){
+    public static String getVersionIRI(Model model){
         StmtIterator iter = model.listStatements(null, OWL2.versionIRI, (RDFNode) null);
         if (iter.hasNext()) {
             Statement stmt = iter.nextStatement();
@@ -219,7 +219,7 @@ public class ParserUtils {
         return null;
     }
 
-    public void extractGeneralInfo(Model model, String ontNamespace) {
+    public static void extractGeneralInfo(Model model, String ontNamespace) {
         System.out.println("General Information: ");
         // Count schema resources
         countSchemaResources(model);
@@ -244,14 +244,14 @@ public class ParserUtils {
         rdfTypeCounts.forEach((type, count) -> System.out.println("\t"+type + ": " + count));
     }
 
-    private int countResourcesWithNamespaceType(Model model, String namespace) {
+    private static int countResourcesWithNamespaceType(Model model, String namespace) {
         return model.listStatements(null, RDF.type, (Resource) null).filterKeep(statement -> {
             Resource type = statement.getObject().asResource();
             return type.getURI().startsWith(namespace);
         }).toList().size();
     }
 
-    private int countSubjectsWithPrefix(Model model, String prefix) {
+    private static int countSubjectsWithPrefix(Model model, String prefix) {
         List<Statement> statements = model.listStatements(null, RDF.type, (Resource) null).filterKeep(statement -> {
             Resource subject = statement.getSubject();
             return subject.isURIResource() && subject.getURI().startsWith(prefix);
@@ -260,7 +260,7 @@ public class ParserUtils {
         return statements.size();
     }
 
-    private void countSchemaResources(Model model) {
+    private static void countSchemaResources(Model model) {
         int rdfsClassCount = model.listResourcesWithProperty(RDF.type, RDFS.Class).filterDrop(RDFNode::isAnon).toList().size();
         int rdfsDatatypeCount = model.listResourcesWithProperty(RDF.type, RDFS.Datatype).toList().size();
         int propertyCount = model.listResourcesWithProperty(RDF.type, RDF.Property).toList().size();
@@ -284,7 +284,7 @@ public class ParserUtils {
         System.out.println("\tTotal OWL Restriction: " + restrictionCount);
     }
 
-    private Map<Resource, Integer> getAllRdfTypeCounts(Model model) {
+    private static Map<Resource, Integer> getAllRdfTypeCounts(Model model) {
         // Use a TreeMap with a custom comparator to sort based on resource.toString()
         Map<Resource, Integer> rdfTypeCounts = new TreeMap<>(Comparator.comparing(Resource::getURI));
 
@@ -300,7 +300,7 @@ public class ParserUtils {
         return rdfTypeCounts;
     }
 
-    private boolean isValueSetOrSubset(Resource resource) {
+    private static boolean isValueSetOrSubset(Resource resource) {
         // Logic to determine if a resource is a value set or subset based on specific properties or classes
         return resource.hasProperty(RDF.type, OWL.Restriction) || resource.hasProperty(RDF.type, OWL.Class)
                 && (resource.hasProperty(OWL.unionOf) || resource.hasProperty(OWL.intersectionOf) || resource.hasProperty(OWL.allValuesFrom));

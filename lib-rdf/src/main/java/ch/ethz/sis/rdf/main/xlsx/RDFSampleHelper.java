@@ -79,7 +79,6 @@ public class RDFSampleHelper
 
     public int createResourceRows(Sheet sheet, int rowNum, String projectId, SampleObject sampleObject, ModelRDF modelRDF, List<String> allColumnList)
     {
-        System.out.println("    createResourceRows: " + sampleObject);
         Row propertyRowValues = sheet.createRow(rowNum);
         //propertyRowValues.createCell(0).setCellValue(""); // $
         propertyRowValues.createCell(1).setCellValue(projectId + "/" + sampleObject.code); // Identifier

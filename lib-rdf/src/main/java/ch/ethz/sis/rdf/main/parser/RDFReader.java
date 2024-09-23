@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 
 public class RDFReader
 {
-    private final ParserUtils parserUtils = new ParserUtils();
-
     public ModelRDF read(String inputFileName, String inputFormatValue)
     {
         return read(inputFileName, inputFormatValue, false);
@@ -31,81 +29,81 @@ public class RDFReader
 
     public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose)
     {
-        ModelRDF modelRDF = new ModelRDF();
-
         Model model = LoaderRDF.loadModel(inputFileName, inputFormatValue);
+        ModelRDF modelRDF = initializeModelRDF(model);
 
+        handleSubclassChains(model, modelRDF);
+        handleOntologyModel(model, inputFileName, inputFormatValue, modelRDF);
+        handleResources(model, modelRDF);
+
+        if (verbose) ParserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
+
+        return modelRDF;
+    }
+
+    private ModelRDF initializeModelRDF(Model model)
+    {
+        ModelRDF modelRDF = new ModelRDF();
         modelRDF.ontNamespace = model.getNsPrefixURI("");
-        modelRDF.ontVersion = parserUtils.getVersionIRI(model);
-        modelRDF.ontMetadata = parserUtils.getOntologyMetadataMap(model);
+        modelRDF.ontVersion = ParserUtils.getVersionIRI(model);
+        modelRDF.ontMetadata = ParserUtils.getOntologyMetadataMap(model);
         modelRDF.nsPrefixes = model.getNsPrefixMap();
-
         modelRDF.vocabularyTypeList = NamedIndividualMapper.getVocabularyTypeList(model);
-        Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
-        modelRDF.vocabularyTypeListGroupedByType = vocabularyTypeListGroupedByTypeMap;
+        modelRDF.vocabularyTypeListGroupedByType = NamedIndividualMapper.getVocabularyTypeListGroupedByType(model);
+        return modelRDF;
+    }
 
-        Map<String, List<String>> chainsMap = getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
-        modelRDF.subClassChanisMap = chainsMap;
+    private void handleSubclassChains(Model model, ModelRDF modelRDF)
+    {
+        modelRDF.subClassChanisMap = getSubclassChainsEndingWithClass(model, model.listStatements(null, RDFS.subClassOf, (RDFNode) null));
+    }
 
-        /*chainsMap.keySet().forEach(key -> {
-            System.out.println(key + " -> " + chainsMap.get(key));
-        });*/
-
-        /*modelRDF.vocabularyTypeListGroupedByType.keySet().forEach(key -> {
-            System.out.println(key + " -> " + modelRDF.vocabularyTypeListGroupedByType.get(key));
-        });*/
-
-        List<SampleType> sampleTypeList = new ArrayList<>();
-
-        if (canCreateOntModel(model))
-        {
+    private void handleOntologyModel(Model model, String inputFileName, String inputFormatValue, ModelRDF modelRDF)
+    {
+        if (canCreateOntModel(model)) {
             OntModel ontModel = LoaderRDF.loadOntModel(inputFileName, inputFormatValue);
-
-            Map<String, List<String>> RDFtoOpenBISDataTypeMap = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
-            //modelRDF.RDFtoOpenBISDataType = RDFtoOpenBISDataTypeMap;
-            Map<String, List<String>> objectPropToOntClassMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
-            //modelRDF.objectPropertyMap = objectPropToOntClassMap;
-            Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
-            modelRDF.stringOntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
-
-            sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
-
-            sampleTypeList.removeIf(sampleType -> vocabularyTypeListGroupedByTypeMap.get(sampleType.code) != null);
-            restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
-            verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, vocabularyTypeListGroupedByTypeMap);
-
-            modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
+            processOntologyModel(ontModel, modelRDF);
+        } else {
+            modelRDF.sampleTypeList = new ArrayList<>();
         }
+    }
 
-        boolean modelContainsResources = parserUtils.containsResources(model);
+    private void processOntologyModel(OntModel ontModel, ModelRDF modelRDF)
+    {
+        Map<String, List<String>> RDFtoOpenBISDataTypeMap = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
+        //modelRDF.RDFtoOpenBISDataType = RDFtoOpenBISDataTypeMap;
+        Map<String, List<String>> objectPropToOntClassMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
+        //modelRDF.objectPropertyMap = objectPropToOntClassMap;
+        Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
+        modelRDF.stringOntClassExtensionMap = ontClass2OntClassExtensionMap;
+
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
+
+        sampleTypeList.removeIf(sampleType -> modelRDF.vocabularyTypeListGroupedByType.containsKey(sampleType.code));
+        restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
+        verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, modelRDF.vocabularyTypeListGroupedByType);
+
+        modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
+    }
+
+    private void handleResources(Model model, ModelRDF modelRDF)
+    {
+        boolean modelContainsResources = ParserUtils.containsResources(model);
         System.out.println("Model contains Resources ? " + (modelContainsResources ? "YES" : "NO"));
 
-        modelRDF.resourcesGroupedByType = modelContainsResources ? parserUtils.getResourceMap(model) : new HashMap<>();
+        modelRDF.resourcesGroupedByType = modelContainsResources ? ParserUtils.getResourceMap(model) : Collections.emptyMap();
 
         Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap =
-                modelContainsResources ? parserUtils.getSampleObjectsGroupedByTypeMap(model) : new HashMap<>();
+                modelContainsResources ? ParserUtils.getSampleObjectsGroupedByTypeMap(model) : Collections.emptyMap();
 
         List<String> sampleObjectMapKeyList = sampleObjectsGroupedByTypeMap.keySet().stream().toList();
-        Map<String, String> sampleTypeUriToCodeMap = sampleTypeList.stream()
+        Map<String, String> sampleTypeUriToCodeMap = modelRDF.sampleTypeList.stream()
                 .collect(Collectors.toMap(
                         sampleType -> sampleType.ontologyAnnotationId,
                         sampleType -> sampleType.code
                 ));
 
-        sampleObjectsGroupedByTypeMap = checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList, sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap, chainsMap);
-
-        modelRDF.sampleObjectsGroupedByTypeMap = sampleObjectsGroupedByTypeMap;
-
-        sampleObjectsGroupedByTypeMap.keySet().forEach(key -> {
-            System.out.println(key + " -> " + modelRDF.sampleObjectsGroupedByTypeMap.get(key));
-        });
-
-        if (verbose)
-        {
-            parserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
-        }
-
-        return modelRDF;
+        modelRDF.sampleObjectsGroupedByTypeMap = checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList, sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap, modelRDF.subClassChanisMap);
     }
 
     private Map<String, List<SampleObject>> checkForNotSampleTypeInSampleObjectMap(List<String> sampleObjectMapKeyList,
@@ -208,32 +206,7 @@ public class RDFReader
                 if (propertyTypeRestrictionList != null)
                 {
                     for(Restriction restriction: propertyTypeRestrictionList){
-                        if (restriction.isCardinalityRestriction())
-                        {
-                            propertyMetadata.put("CardinalityRestriction", String.valueOf(restriction.asCardinalityRestriction().getCardinality()));
-                        } else if (restriction.isMinCardinalityRestriction())
-                        {
-                            propertyMetadata.put("MinCardinalityRestriction", String.valueOf(restriction.asMinCardinalityRestriction().getMinCardinality()));
-                        } else if (restriction.isMaxCardinalityRestriction())
-                        {
-                            propertyMetadata.put("MaxCardinalityRestriction", String.valueOf(restriction.asMaxCardinalityRestriction().getMaxCardinality()));
-                        } else if (restriction.isSomeValuesFromRestriction())
-                        {
-                            RDFNode someValuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
-                            if (someValuesFrom.isURIResource()) {
-                                propertyMetadata.put("SomeValuesFromRestriction", someValuesFrom.asResource().getURI());
-                            } else if (someValuesFrom.isAnon() && someValuesFrom.canAs(OntClass.class)){
-                                OntClass anonClass = someValuesFrom.as(OntClass.class);
-                                // Recursively handle the anonymous class, be it union, intersection, etc.
-                                if (anonClass.isUnionClass()) {
-                                    UnionClass unionClass = anonClass.asUnionClass();
-                                    propertyMetadata.put("SomeValuesFromRestriction", ontClassExtension.unions.get(unionClass).toString());
-                                }
-                            }
-                        } else
-                        {
-                            propertyMetadata.put("UNHANDLED_Restriction", restriction.toString());
-                        }
+                        hanldeRestriction(restriction, propertyMetadata, ontClassExtension);
                     }
                     samplePropertyType.metadata.putAll(propertyMetadata);
                     samplePropertyType.setMultiValue(checkMultiValue(propertyMetadata));
@@ -242,6 +215,41 @@ public class RDFReader
                 sampleMetadata.put(samplePropertyType.code, propertyMetadata);
             }
             sampleType.metadata = sampleMetadata;
+        }
+    }
+
+    private void hanldeRestriction(Restriction restriction, Map<String, String> propertyMetadata, OntClassExtension ontClassExtension)
+    {
+        if (restriction.isCardinalityRestriction())
+        {
+            propertyMetadata.put("CardinalityRestriction", String.valueOf(restriction.asCardinalityRestriction().getCardinality()));
+        } else if (restriction.isMinCardinalityRestriction())
+        {
+            propertyMetadata.put("MinCardinalityRestriction", String.valueOf(restriction.asMinCardinalityRestriction().getMinCardinality()));
+        } else if (restriction.isMaxCardinalityRestriction())
+        {
+            propertyMetadata.put("MaxCardinalityRestriction", String.valueOf(restriction.asMaxCardinalityRestriction().getMaxCardinality()));
+        } else if (restriction.isSomeValuesFromRestriction())
+        {
+            handleSomeValuesFromRestriction(restriction, propertyMetadata, ontClassExtension);
+        } else
+        {
+            propertyMetadata.put("UNHANDLED_Restriction", restriction.toString());
+        }
+    }
+
+    private void handleSomeValuesFromRestriction(Restriction restriction, Map<String, String> propertyMetadata, OntClassExtension ontClassExtension)
+    {
+        RDFNode someValuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
+        if (someValuesFrom.isURIResource()) {
+            propertyMetadata.put("SomeValuesFromRestriction", someValuesFrom.asResource().getURI());
+        } else if (someValuesFrom.isAnon() && someValuesFrom.canAs(OntClass.class)){
+            OntClass anonClass = someValuesFrom.as(OntClass.class);
+            // Recursively handle the anonymous class, be it union, intersection, etc.
+            if (anonClass.isUnionClass()) {
+                UnionClass unionClass = anonClass.asUnionClass();
+                propertyMetadata.put("SomeValuesFromRestriction", ontClassExtension.unions.get(unionClass).toString());
+            }
         }
     }
 

@@ -144,7 +144,6 @@ public class XLSXWriter
             rowNum = rdfSampleHelper.createSampleHeaders(sheet, rowNum, headerStyle, entry.getKey(), allColumnList);
 
             for (SampleObject sampleObject : entry.getValue()) {
-                System.out.println(sampleObject);
                 rowNum = rdfSampleHelper.createResourceRows(sheet, rowNum, projectId, sampleObject, modelRDF, allColumnList);
             }
             sheet.createRow(rowNum++);
