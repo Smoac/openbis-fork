@@ -161,7 +161,8 @@ public class RDFReader
     }
 
     //TODO: there is no direct connection from hasComparator to Comparator, from prop to vocabulary type
-    private void verifyPropertyTypes(List<SampleType> sampleTypeList, Map<String, List<String>> RDFtoOpenBISDataTypeMap, Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap)
+    void verifyPropertyTypes(List<SampleType> sampleTypeList, Map<String, List<String>> RDFtoOpenBISDataTypeMap,
+            Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap)
     {
         for(SampleType sampleType: sampleTypeList)
         {
@@ -277,7 +278,7 @@ public class RDFReader
         return (rdfsClassCount == 0 && owlClassCount > 0);
     }
 
-    private Map<String, List<String>> getSubclassChainsEndingWithClass(Model model, StmtIterator iter)
+    Map<String, List<String>> getSubclassChainsEndingWithClass(Model model, StmtIterator iter)
     {
         // Clear previous chains
         Map<String, List<String>> chainsMap = new HashMap<>();

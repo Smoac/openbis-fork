@@ -23,6 +23,14 @@ public class SampleType {
         this.properties = new ArrayList<>();
     }
 
+    public SampleType(String localName, String uri){
+        this.code = localName.toUpperCase(Locale.ROOT);
+        this.description = "";
+        this.metadata = new HashMap<>();
+        this.ontologyAnnotationId = uri;
+        this.properties = new ArrayList<>();
+    }
+
     private String processDescription(Resource cls)
     {
         String label = getAnnotation(cls, RDFS.label);
@@ -58,5 +66,22 @@ public class SampleType {
                 ", metadata=" + metadata +
                 ", properties=" + properties +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        SampleType that = (SampleType) o;
+        return Objects.equals(code, that.code) && Objects.equals(ontologyAnnotationId, that.ontologyAnnotationId);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(code, ontologyAnnotationId);
     }
 }

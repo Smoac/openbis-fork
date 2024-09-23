@@ -1,7 +1,7 @@
 package ch.ethz.sis.rdf.main.model.xlsx;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VocabularyType {
     public String code;
@@ -24,12 +24,6 @@ public class VocabularyType {
         this.options = options;
     }
 
-    public VocabularyType() {
-        this.code = "";
-        this.description = "";
-        this.options = new ArrayList<>();
-    }
-
     public String getCode() {
         return code;
     }
@@ -43,18 +37,31 @@ public class VocabularyType {
         return options;
     }
 
-    public void setOptions(List<VocabularyTypeOption> options)
-    {
-        this.options = options;
-    }
-
     @Override
     public String toString()
     {
         return "VocabularyType{" +
                 "code='" + code + '\'' +
+                ", ontologyAnnotationId='" + ontologyAnnotationId + '\'' +
                 ", description='" + description + '\'' +
                 ", options=" + options +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        VocabularyType that = (VocabularyType) o;
+        return Objects.equals(code, that.code);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(code);
     }
 }
