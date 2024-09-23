@@ -69,14 +69,18 @@ public class SearchDataStoreExecutor extends AbstractSearchObjectManuallyExecuto
     protected List<DataStorePE> getMatching(final IOperationContext context, final List<DataStorePE> dataStorePES,
             final DataStoreSearchCriteria criteria)
     {
-        if (criteria.getCriteria() == null || criteria.getCriteria().isEmpty())
+        final List<DataStorePE> matchingDataStorePEs = super.getMatching(context, dataStorePES, criteria);
+        final boolean containsKindSearchCriteria = criteria.getCriteria().stream()
+                .anyMatch(criterion -> criterion instanceof DataStoreKindSearchCriteria);
+
+        if (containsKindSearchCriteria)
         {
-            // For backwards compatibility, by default, AFS should be filtered out
-            return dataStorePES.stream().filter(dataStorePE -> !Objects.equals(dataStorePE.getCode(), Constants.AFS_DATA_STORE_CODE))
-                    .collect(Collectors.toList());
+            return matchingDataStorePEs;
         } else
         {
-            return super.getMatching(context, dataStorePES, criteria);
+            // For backwards compatibility, by default, AFS should be filtered out
+            return matchingDataStorePEs.stream().filter(dataStorePE -> !Objects.equals(dataStorePE.getCode(), Constants.AFS_DATA_STORE_CODE))
+                    .collect(Collectors.toList());
         }
     }
 

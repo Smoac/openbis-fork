@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetChildrenSe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
@@ -151,21 +153,21 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
         final Set<Long> mainCriteriaIntermediateResults;
         final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria(negated);
 
-//        if (parentHasDataStoreCriterion || hasDataStoreCriterion)
-//        {
+        if (parentHasDataStoreCriterion || hasDataStoreCriterion)
+        {
             addCriteriaToContainer(finalSearchOperator, mainCriteria, containerCriterion);
-//        } else
-//        {
-//            containerCriterion.withOperator(SearchOperator.AND);
-//
-//            final DataSetSearchCriteria nestedContainerCriterion = createEmptyCriteria(false);
-//            addCriteriaToContainer(finalSearchOperator, mainCriteria, nestedContainerCriterion);
-//
-//            final DataStoreSearchCriteria dataStoreSearchCriteria = new DataStoreSearchCriteria();
-//            dataStoreSearchCriteria.withKind().thatIn(DataStoreKind.DSS);
-//
-//            containerCriterion.setCriteria(List.of(nestedContainerCriterion, dataStoreSearchCriteria));
-//        }
+        } else
+        {
+            containerCriterion.withOperator(SearchOperator.AND);
+
+            final DataSetSearchCriteria nestedContainerCriterion = createEmptyCriteria(false);
+            addCriteriaToContainer(finalSearchOperator, mainCriteria, nestedContainerCriterion);
+
+            final DataStoreSearchCriteria dataStoreSearchCriteria = new DataStoreSearchCriteria();
+            dataStoreSearchCriteria.withKind().thatIn(DataStoreKind.DSS);
+
+            containerCriterion.setCriteria(List.of(nestedContainerCriterion, dataStoreSearchCriteria));
+        }
 
         mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
                 containerCriterion, tableMapper, idsColumnName, authorisationInformation);
@@ -182,6 +184,28 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
     @Override
     public List<Long> sortIDs(final Collection<Long> ids, final SortOptions<DataSet> sortOptions) {
         return doSortIDs(ids, sortOptions, TableMapper.DATA_SET);
+    }
+
+    @Override
+    protected Set<Long> getAllIds(final Long userId, final AuthorisationInformation authorisationInformation, final String idsColumnName,
+            final TableMapper tableMapper)
+    {
+        final DataStoreSearchCriteria dataStoreSearchCriteria = new DataStoreSearchCriteria();
+        dataStoreSearchCriteria.withKind().thatIn(DataStoreKind.DSS);
+
+        final AbstractCompositeSearchCriteria emptyContainerCriterion = createEmptyCriteria(false);
+        emptyContainerCriterion.setCriteria(Collections.singletonList(dataStoreSearchCriteria));
+
+        return getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId, emptyContainerCriterion,
+                tableMapper, idsColumnName, authorisationInformation);
+    }
+
+    @Override
+    protected Set<Long> getAllIds(final Long userId, final AuthorisationInformation authorisationInformation,
+            final String idsColumnName, final TableMapper tableMapper,
+            final AbstractCompositeSearchCriteria containerCriterion)
+    {
+        return getAllIds(userId, authorisationInformation, idsColumnName, tableMapper);
     }
 
 }

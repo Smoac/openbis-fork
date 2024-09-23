@@ -21,11 +21,10 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKindSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
@@ -64,7 +63,23 @@ public class DataStoreSearchManager extends AbstractLocalSearchManager<DataStore
     public Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
             final DataStoreSearchCriteria criteria, final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
-        return super.searchForIDs(userId, authorisationInformation, criteria, null, TableMapper.DATA_STORE);
+        final Collection<ISearchCriteria> criteriaCollection = criteria.getCriteria();
+        final boolean containsKindSearchCriteria = criteriaCollection.stream()
+                .anyMatch(criterion -> criterion instanceof DataStoreKindSearchCriteria);
+
+        if (criteriaCollection.isEmpty() || containsKindSearchCriteria || parentCriteria instanceof DataStoreSearchCriteria)
+        {
+            return super.searchForIDs(userId, authorisationInformation, criteria, null, TableMapper.DATA_STORE);
+        } else
+        {
+            final DataStoreSearchCriteria newCriteria = new DataStoreSearchCriteria();
+            newCriteria.withAndOperator();
+
+            newCriteria.withSubcriteria(criteria);
+            newCriteria.withKind().thatIn(DataStoreKind.DSS);
+
+            return super.searchForIDs(userId, authorisationInformation, newCriteria, null, TableMapper.DATA_STORE);
+        }
     }
 
     @Override

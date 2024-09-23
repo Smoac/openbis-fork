@@ -253,7 +253,7 @@ public class SearchCriteriaTranslator
 
                 if (tableMapper != null)
                 {
-                    criterion = convertCriterionIfNeeded(criterion, tableMapper.getEntityKind());
+                    criterion = convertCriterionIfNeeded(criterion, parentCriterion, tableMapper.getEntityKind());
                 }
 
                 if (tableMapper != null && column != null)
@@ -298,7 +298,8 @@ public class SearchCriteriaTranslator
         }
     }
 
-    private static ISearchCriteria convertCriterionIfNeeded(final ISearchCriteria criterion, final EntityKind entityKind)
+    private static ISearchCriteria convertCriterionIfNeeded(final ISearchCriteria criterion, final ISearchCriteria parentCriterion,
+            final EntityKind entityKind)
     {
         if (criterion instanceof EntityTypeSearchCriteria && entityKind != null)
         {
@@ -386,6 +387,29 @@ public class SearchCriteriaTranslator
                     throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
                 }
             }
+        } else if (criterion instanceof DataSetSearchCriteria && !(parentCriterion instanceof DataSetSearchCriteria))
+        {
+            final DataSetSearchCriteria dataSetSearchCriteria = (DataSetSearchCriteria) criterion;
+            final boolean containsKindSearchCriteria = dataSetSearchCriteria.getCriteria().stream()
+                    .anyMatch(subcriterion -> subcriterion instanceof DataStoreKindSearchCriteria);
+
+            if (!containsKindSearchCriteria)
+            {
+                final DataSetSearchCriteria newCriterion = new DataSetSearchCriteria();
+                newCriterion.withAndOperator();
+
+                final DataSetSearchCriteria subcriteria = newCriterion.withSubcriteria();
+                subcriteria.withOperator(dataSetSearchCriteria.getOperator());
+                subcriteria.setCriteria(dataSetSearchCriteria.getCriteria());
+
+                newCriterion.withDataStore().withKind().thatIn(DataStoreKind.values());
+                //                newCriterion.setCriteria(nestedCriteria);
+
+                return newCriterion;
+            } else
+            {
+                return criterion;
+            }
         } else
         {
             return criterion;
@@ -467,7 +491,7 @@ public class SearchCriteriaTranslator
                 return (criterion instanceof AbstractObjectSearchCriteria<?>) &&
                         !(criterion instanceof SampleContainerSearchCriteria) &&
                         ((AbstractCompositeSearchCriteria) criterion).getCriteria().isEmpty() &&
-                        !((criterion instanceof DataSetSearchCriteria) && isSearchAllCriteria((DataSetSearchCriteria) criterion));
+                        (!(criterion instanceof DataSetSearchCriteria) || isSearchFromAllDataStores((DataSetSearchCriteria) criterion));
             }
 
             default:
@@ -478,12 +502,12 @@ public class SearchCriteriaTranslator
     }
 
     /**
-     * Determines whether the datas set search criteria imply returning datasets from all data stores.
+     * Determines whether the data set search criteria explicitly specify returning datasets from all data stores.
      *
      * @param dataSetSearchCriterion the criterion whose subcriteria should be checked.
      * @return <code>true</code> if the results should be from all data stores.
      */
-    private static boolean isSearchAllCriteria(final DataSetSearchCriteria dataSetSearchCriterion)
+    private static boolean isSearchFromAllDataStores(final DataSetSearchCriteria dataSetSearchCriterion)
     {
         final Set<DataStoreKind> dataStoreKinds = dataSetSearchCriterion.getCriteria().stream().flatMap(subcriterion ->
                 {

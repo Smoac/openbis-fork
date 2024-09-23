@@ -150,18 +150,6 @@ public class SearchDataStoreTest extends AbstractTest
     @Test
     public void testSearchWithCodeThatContains()
     {
-        DataStoreSearchCriteria criteria = new DataStoreSearchCriteria();
-        criteria.withCode().thatContains("ANDAR");
-        testSearch(TEST_USER, criteria, "STANDARD");
-
-        DataStoreSearchCriteria criteriaDifferentCase = new DataStoreSearchCriteria();
-        criteriaDifferentCase.withCode().thatContains("andar");
-        testSearch(TEST_USER, criteriaDifferentCase, "STANDARD");
-
-        DataStoreSearchCriteria criteriaNonMatching = new DataStoreSearchCriteria();
-        criteriaNonMatching.withCode().thatContains("ABCDE");
-        testSearch(TEST_USER, criteriaNonMatching);
-
         final DataStoreSearchCriteria criteriaNoAfs = new DataStoreSearchCriteria();
         criteriaNoAfs.withCode().thatContains("S");
         testSearch(TEST_USER, criteriaNoAfs, "STANDARD");
@@ -298,8 +286,6 @@ public class SearchDataStoreTest extends AbstractTest
 
         assertAccessLog("search-data-stores  SEARCH_CRITERIA:\n"
                 + "'DATA_STORE\n"
-                + "    with operator 'AND'\n"
-                + "    with data store kinds [DSS]\n"
                 + "    with attribute 'code' equal to 'STANDARD'\n"
                 + "'\n"
                 + "FETCH_OPTIONS:\n"

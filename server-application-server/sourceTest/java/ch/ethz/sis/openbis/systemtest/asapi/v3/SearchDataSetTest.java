@@ -1204,6 +1204,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         List<DataSet> dataSets = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
 
         // then
+        assertEquals(dataSets.size(), 3);
         assertEquals(dataSets.get(0).getKind(), DataSetKind.LINK);
         assertEquals(dataSets.get(1).getKind(), DataSetKind.PHYSICAL);
         assertEquals(dataSets.get(2).getKind(), DataSetKind.CONTAINER);
@@ -1988,6 +1989,20 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testImplicitSearchWithoutCriteriaWithDssDatasets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        prepareAfsAndDssDatasets(sessionToken);
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, new DataSetSearchCriteria(), new DataSetFetchOptions());
+        final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
+
+        assertTrue(Collections.disjoint(dataSetCodes, Set.of("DS-2", "DS-3", "DS-5", "DS-6")), "No AFS codes expected.");
+        assertTrue(dataSetCodes.containsAll(Set.of("DS-1", "DS-4")));
+    }
+
+    @Test
     public void testImplicitSearchWithDssDatasetsWithCodeThatContains()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1995,12 +2010,12 @@ public class SearchDataSetTest extends AbstractDataSetTest
         prepareAfsAndDssDatasets(sessionToken);
 
         final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        criteria.withOrOperator();
 
         final DataStoreSearchCriteria storeCriteria = criteria.withDataStore();
         storeCriteria.withCode().thatContains("S");
 
-        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, new DataSetFetchOptions());
         final Set<String> dataSetCodes = dataSets.stream().map(DataSet::getCode).collect(Collectors.toSet());
         assertTrue(Collections.disjoint(dataSetCodes, Set.of("DS-2", "DS-3", "DS-5", "DS-6")), "No AFS codes expected.");
     }

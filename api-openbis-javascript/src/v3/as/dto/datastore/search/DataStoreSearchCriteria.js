@@ -6,9 +6,6 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 	function(require, stjs, AbstractObjectSearchCriteria, DataStoreKindSearchCriteria, DataStoreKind) {
 	var DataStoreSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
-		var dataStoreKindSearchCriteria = new DataStoreKindSearchCriteria();
-		dataStoreKindSearchCriteria.thatIn(DataStoreKind.DSS);
-		this.addCriteria(dataStoreKindSearchCriteria);
 	};
 	stjs.extend(DataStoreSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.datastore.search.DataStoreSearchCriteria';
@@ -30,6 +27,9 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			var PermIdSearchCriteria = require("as/dto/common/search/PermIdSearchCriteria");
 			return this.addCriteria(new PermIdSearchCriteria());
 		};
+		prototype.withSubcriteria = function(subcriteria) {
+			return this.addCriteria(subcriteria);
+		}
 	}, {
 		criteria : {
 			name : "Collection",
