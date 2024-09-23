@@ -382,6 +382,16 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		return tableModel;
 	}
 
+	this._getSortedArray = function(array, comparator) {
+	    if(array) {
+	        if(comparator) {
+	            return array.sort(comparator);
+	        }
+	        return array.sort();
+	    }
+	    return array;
+	}
+
 	this._getForcedMonospaceTableModel = function() {
 		return this._getSingleColumnDropdownTableModel({
 			columnName : "Property Type",
@@ -913,7 +923,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			}), params.placeholder);
 		}
 		// add data
-		for (var item of params.initialValues) {
+		for (var item of this._getSortedArray(params.initialValues)) {
 			tableModel.addRow(item);
 		}
 		// transform output
@@ -1019,7 +1029,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$table.append($thead);
 		// body
         var $tbody = $("<tbody>");
-		for (var i of Object.keys(tableModel.rows)) {
+        // keys in reverse order because we are adding rows on top
+		for (var i of Object.keys(tableModel.rows).reverse()) {
 			var row = tableModel.rows[i];
 
 			if (tableModel.rowExtraBuilder) {
