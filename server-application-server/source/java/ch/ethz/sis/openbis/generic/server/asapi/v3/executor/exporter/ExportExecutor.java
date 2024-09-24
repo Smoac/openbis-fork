@@ -27,7 +27,10 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPL
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.ATTRIBUTE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.PROPERTY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.DATA_DIRECTORY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.FILE_SERVICE_SUBDIRECTORY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.MISCELLANEOUS_DIRECTORY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.SCRIPTS_DIRECTORY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
@@ -91,12 +94,10 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
@@ -179,12 +180,6 @@ public class ExportExecutor implements IExportExecutor
     public static final String XLSX_DIRECTORY = "xlsx";
 
     public static final String PDF_DIRECTORY = "hierarchy";
-
-    public static final String DATA_DIRECTORY = "data";
-
-    public static final String MISCELLANEOUS_DIRECTORY = "miscellaneous";
-
-    public static final String FILE_SERVICE_SUBDIRECTORY = "file-service";
 
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 

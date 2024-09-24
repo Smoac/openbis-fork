@@ -69,6 +69,12 @@ public class XLSExport
 
     public static final String SCRIPTS_DIRECTORY = "scripts";
 
+    public static final String DATA_DIRECTORY = "data";
+
+    public static final String MISCELLANEOUS_DIRECTORY = "miscellaneous";
+
+    public static final String FILE_SERVICE_SUBDIRECTORY = "file-service";
+
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
     private XLSExport()
@@ -85,11 +91,9 @@ public class XLSExport
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final Map<String, String> scripts = exportResult.getScripts();
 
         final String fullFileName = filePrefix + "." +
-                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
-                (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
+                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) + ZIP_EXTENSION;
         try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
         {
             writeToOutputStream(os, filePrefix, exportResult);
@@ -101,36 +105,43 @@ public class XLSExport
             final PrepareWorkbookResult exportResult) throws IOException
     {
         final Map<String, String> scripts = exportResult.getScripts();
-        if (scripts.isEmpty())
-        {
-            try
-            (
-                    final Workbook wb = exportResult.getWorkbook();
-                    final BufferedOutputStream bos = new BufferedOutputStream(os)
-            )
-            {
-                wb.write(bos);
-            }
-        } else
-        {
-            try
-            (
-                    final Workbook wb = exportResult.getWorkbook();
-                    final ZipOutputStream zos = new ZipOutputStream(os);
-                    final BufferedOutputStream bos = new BufferedOutputStream(zos)
-            )
-            {
-                for (final Map.Entry<String, String> script : scripts.entrySet())
-                {
-                    zos.putNextEntry(new ZipEntry(String.format("%s/%s.py", SCRIPTS_DIRECTORY, script.getKey())));
-                    bos.write(script.getValue().getBytes());
-                    bos.flush();
-                    zos.closeEntry();
-                }
+        final Map<String, String> valueFiles = exportResult.getValueFiles();
+        final Map<String, byte[]> miscellaneousFiles = exportResult.getMiscellaneousFiles();
 
-                zos.putNextEntry(new ZipEntry(filePrefix + XLSX_EXTENSION));
-                wb.write(bos);
+        try
+        (
+                final Workbook wb = exportResult.getWorkbook();
+                final ZipOutputStream zos = new ZipOutputStream(os);
+                final BufferedOutputStream bos = new BufferedOutputStream(zos)
+        )
+        {
+            for (final Map.Entry<String, String> script : scripts.entrySet())
+            {
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s.py", SCRIPTS_DIRECTORY, script.getKey())));
+                bos.write(script.getValue().getBytes());
+                bos.flush();
+                zos.closeEntry();
             }
+
+            for (final Map.Entry<String, String> valueFile : valueFiles.entrySet())
+            {
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s", DATA_DIRECTORY, valueFile.getKey())));
+                bos.write(valueFile.getValue().getBytes());
+                bos.flush();
+                zos.closeEntry();
+            }
+
+            for (final Map.Entry<String, byte[]> miscellaneousFile : miscellaneousFiles.entrySet())
+            {
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s", MISCELLANEOUS_DIRECTORY, FILE_SERVICE_SUBDIRECTORY,
+                        miscellaneousFile.getKey())));
+                bos.write(miscellaneousFile.getValue());
+                bos.flush();
+                zos.closeEntry();
+            }
+
+            zos.putNextEntry(new ZipEntry(filePrefix + XLSX_EXTENSION));
+            wb.write(bos);
         }
     }
 
