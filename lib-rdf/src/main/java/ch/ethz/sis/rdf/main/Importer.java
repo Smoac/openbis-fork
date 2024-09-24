@@ -32,7 +32,7 @@ public class Importer {
         this.pathToFile = pathToFile;
     }
 
-    public void connect() {
+    public void connect(Path tempFile) {
         //TODO: is AFS client needed ? AfsClient class not found exception
 
         String sessionToken = openBIS.login(username, password);
@@ -43,7 +43,8 @@ public class Importer {
         // Call excel import
         ImportData importData = new ImportData();
         importData.setFormat(ImportFormat.EXCEL);
-        importData.setSessionWorkspaceFiles(List.of("output.xlsx").toArray(new String[0])); //List.of(tempFile.toFile().getName()).toArray(new String[0]));
+        //importData.setSessionWorkspaceFiles(List.of("output.xlsx").toArray(new String[0]));
+        importData.setSessionWorkspaceFiles(List.of(tempFile.toFile().getName()).toArray(new String[0]));
 
         ImportOptions importOptions = new ImportOptions();
         importOptions.setMode(ImportMode.UPDATE_IF_EXISTS);

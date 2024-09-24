@@ -447,7 +447,7 @@ sphn:hasSubjectPseudoIdentifier a owl:ObjectProperty ;
 sphn:hasDataProvider a owl:ObjectProperty ;
                      rdfs:label "has data provider" ;
                      rdfs:domain [ a owl:Class ;
-                                   owl:unionOf ( sphn:DataRelease sphn:SPHNConcept sphn:Allergy sphn:AllergyEpisode ) ] ;
+                                   owl:unionOf ( sphn:DataRelease sphn:SPHNConcept sphn:SubjectPseudoIdentifier sphn:Allergy sphn:AllergyEpisode ) ] ;
                      rdfs:range sphn:DataProvider ;
                      rdfs:subPropertyOf sphn:SPHNAttributeObject ;
                      skos:definition "link to the unique business identification number (UID) of the healthcare institute providing the data" ;
