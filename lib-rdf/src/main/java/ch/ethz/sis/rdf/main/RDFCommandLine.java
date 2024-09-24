@@ -22,51 +22,65 @@ public class RDFCommandLine {
 
     private static final String helperCommand = "java -jar lib-rdf-tool.jar -i <TTL> -o <XLSX, OPENBIS, OPENBIS-DEV> <TTL input file path> [<XLSX output file path>] -pid <project identifier> [[[-u <username> -p] <openBIS AS URL>] <openBIS DSS URL>]";
 
+    //!!! DEV_MODE is used only for pure dev turn it to FALSE for PRODUCTION !!!
+    private static final boolean DEV_MODE = false;
+
     public static void main(String[] args) {
+
+        if (DEV_MODE)
+        {
+            runTestCases();
+        } else {
+            Options options = createOptions();
+
+            CommandLineParser parser = new DefaultParser();
+            HelpFormatter formatter = new HelpFormatter();
+            CommandLine cmd = null;
+
+            try {
+                cmd = parser.parse(options, args);
+                if (cmd.hasOption("help"))
+                {
+                    formatter.printHelp(helperCommand, options);
+                    return;
+                }
+                validateCommandLine(cmd);
+                executeCommandLine(cmd);
+            } catch (ParseException e) {
+                System.out.println(e.getMessage());
+                formatter.printHelp(helperCommand, options);
+                System.exit(1);
+            }
+        }
+    }
+
+    private static void runTestCases()
+    {
         //handleXlsxOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/sphn_rdf_schema_with_data.ttl","/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/output.xlsx");
         //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/rdf_schema_sphn_dataset_release_2024_2_with_data.ttl",
         //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN");
         //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/sphn_rdf_schema_with_data.ttl",
         //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN");
-        //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
+        //handleOpenBISDevOutput("TTL",
+        //        "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
         //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN", false);
         //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/smallMaterialMLinfo.owl.ttl",
         //        asURL, dssURL, "admin", "changeit", "/DEFAULT/PREMISE", false);
         //handleOpenBISOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
         //        openBISURL, "admin", "changeit", "/DEFAULT/SPHN", false);
-        //handleXlsxOutput("TTL",
-        //        "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
-        //        "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx",
-        //        "/DEFAULT/SPHN",
-        //        false);
+        handleXlsxOutput("TTL",
+                "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
+                "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx",
+                "/DEFAULT/SPHN",
+                false);
         //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
         //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN", false);
-
-        Options options = createOptions();
-
-        CommandLineParser parser = new DefaultParser();
-        HelpFormatter formatter = new HelpFormatter();
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-            if (cmd.hasOption("help"))
-            {
-                formatter.printHelp(helperCommand, options);
-                return;
-            }
-            validateCommandLine(cmd);
-            executeCommandLine(cmd);
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-            formatter.printHelp(helperCommand, options);
-            System.exit(1);
-        }
     }
 
     //TODO: add flag -d for dependecies list of files or zip
     //TODO: change -i to take and process a list of files or zip
-    private static Options createOptions() {
+    private static Options createOptions()
+    {
         Options options = new Options();
 
         Option input = Option.builder("i")
@@ -109,7 +123,8 @@ public class RDFCommandLine {
         return options;
     }
 
-    private static String getPassword(CommandLine cmd) {
+    private static String getPassword(CommandLine cmd)
+    {
         char[] password = null;
         if (cmd.hasOption("password"))
         {
@@ -165,7 +180,8 @@ public class RDFCommandLine {
         }
     }
 
-    public static boolean validateProjectIdentifier(String projectIdentifier) {
+    public static boolean validateProjectIdentifier(String projectIdentifier)
+    {
         String PROJECT_IDENTIFIER_PATTERN = "^/[a-zA-Z]+/[a-zA-Z]+$";
         Pattern pattern = Pattern.compile(PROJECT_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(projectIdentifier);
@@ -220,8 +236,9 @@ public class RDFCommandLine {
         }
     }
 
-    private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath, String projectIdentifier, boolean verbose) {
-        System.out.println("Creating Ontology Model...");
+    private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath, String projectIdentifier, boolean verbose)
+    {
+        System.out.println("Reading Ontology Model...");
 
         RDFReader rdfReader = new RDFReader();
         ModelRDF modelRDF = rdfReader.read(inputFilePath, inputFormatValue, verbose);
@@ -237,12 +254,18 @@ public class RDFCommandLine {
         System.out.println("XLSX created successfully!");
     }
 
-    private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisURL, String username, String password, String projectIdentifier, boolean verbose) {
-        // TODO remove hardcoded path
-        //String tempFileOutput = "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx";
-        //Path tempFile = Path.of(tempFileOutput);
+    private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisURL, String username, String password, String projectIdentifier, boolean verbose)
+    {
         Path tempFile = Utils.createTemporaryFile();
         String tempFileOutput = tempFile.toString();
+
+        if (DEV_MODE)
+        {
+            //change to your local path
+            tempFileOutput = "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx";
+            tempFile = Path.of(tempFileOutput);
+        }
+
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
         handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose);
 
@@ -254,11 +277,15 @@ public class RDFCommandLine {
 
     private static void handleOpenBISDevOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String openBISDSSURL,
             String username, String password, String projectIdentifier, boolean verbose) {
-        // TODO remove hardcoded path the tempFile
-        //String tempFileOutput = "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx";
-        //Path tempFile = Path.of(tempFileOutput);
+
         Path tempFile = Utils.createTemporaryFile();
         String tempFileOutput = tempFile.toString();
+        if (DEV_MODE)
+        {
+            //change to your local path
+            tempFileOutput = "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx";
+            tempFile = Path.of(tempFileOutput);
+        }
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
         handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose);
 
