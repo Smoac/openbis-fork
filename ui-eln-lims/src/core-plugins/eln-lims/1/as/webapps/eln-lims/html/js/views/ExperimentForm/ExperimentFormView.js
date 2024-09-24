@@ -65,20 +65,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
 		    var toolbarConfig = profile.getExperimentTypeToolbarConfiguration(_this._experimentFormModel.experiment.experimentTypeCode);
 			if (_this._allowedToCreateSample() && toolbarConfig.CREATE) {
-				//Create Experiment Step
-				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._experimentFormModel.experiment.identifier));
-				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, ["ENTRY", "EXPERIMENTAL_STEP"], function(typeCode) {
-					return function() {
-						Util.blockUI();
-						setTimeout(function() {
-							var argsMap = {
-								"sampleTypeCode" : typeCode,
-								"experimentIdentifier" : _this._experimentFormModel.experiment.identifier
-							};
-							mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
-						}, 100);
-					}
-				});
+			    var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function () {
+                                    Util.blockUI();
+                                    FormUtil.createNewSample(_this._experimentFormModel.experiment.identifier);
+                				}, "New", null, "new-btn");
+                toolbarModel.push({ component : $createBtn });
 			}
 			if (_this._allowedToEdit() && toolbarConfig.EDIT) {
 				//Edit

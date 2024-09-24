@@ -98,19 +98,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			// New
 			if(_this._allowedToCreateChild() && this._sampleFormModel.isELNSample && toolbarConfig.CREATE) {
-				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
-				var priorityTypes = ["ENTRY", "EXPERIMENTAL_STEP"];
-				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, priorityTypes, function(typeCode) {
-					return function() {
-						Util.blockUI();
-						setTimeout(function() {
-							FormUtil.createNewSampleOfTypeWithParent(typeCode,
-									_this._sampleFormModel.sample.experimentIdentifierOrNull,
-									_this._sampleFormModel.sample.identifier,
-									_this._sampleFormModel.sample);
-						}, 100);
-					}
-				});
+			    var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function () {
+                                    Util.blockUI();
+                                    FormUtil.createNewSample(_this._sampleFormModel.sample.experimentIdentifierOrNull,_this._sampleFormModel.sample);
+                                }, "New", null, "new-btn");
+                toolbarModel.push({ component : $createBtn });
 			}
 
 			if (_this._allowedToEdit()) {

@@ -2318,7 +2318,29 @@ var FormUtil = new function() {
 	    repeatUntilSet();
     }
 
-	this.createNewSample = function(experimentIdentifier) {
+    this.createNewCollection = function(projectIdentifier) {
+        var _this = this;
+        var $dropdown = FormUtil.getInlineExperimentTypeDropdown("collectionTypeDropdown", true, null);
+        Util.showDropdownAndBlockUI("collectionTypeDropdown", $dropdown);
+
+        $("#collectionTypeDropdown").on("change", function(event) {
+            var experimentTypeCode = $("#collectionTypeDropdown")[0].value;
+            Util.blockUI();
+            setTimeout(function() {
+                var argsMap = {
+                    "experimentTypeCode" : experimentTypeCode,
+                    "projectIdentifier" : projectIdentifier
+                };
+                mainController.changeView("showCreateExperimentPage", JSON.stringify(argsMap));
+            }, 100);
+        });
+
+        $("#collectionTypeDropdownCancel").on("click", function(event) {
+            Util.unblockUI();
+        });
+    }
+
+	this.createNewSample = function(experimentIdentifier, optionalParentSample) {
     		var _this = this;
     		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
     		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
@@ -2332,6 +2354,23 @@ var FormUtil = new function() {
                         "experimentIdentifier" : experimentIdentifier
                     };
                     mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+
+                    if(optionalParentSample) {
+                        var setParent = function() {
+                            mainController.currentView._sampleFormModel.sampleLinksParents.addSample(optionalParentSample);
+                            Util.unblockUI();
+                        }
+
+                        var repeatUntilSet = function() {
+                           if(mainController.currentView.isLoaded()) {
+                               setParent();
+                           } else {
+                               setTimeout(repeatUntilSet, 100);
+                           }
+                        }
+                       repeatUntilSet();
+                    }
+
                 }, 100);
     		});
 
