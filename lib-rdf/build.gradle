@@ -29,22 +29,28 @@ dependencies {
             'apache:poi-ooxml:3.17',
             'apache:poi-ooxml-schemas:3.17',
             'commons-cli:commons-cli:1.4'
-    testImplementation 'junit:junit:4.10'
+    testImplementation 'junit:junit:4.13.1'
 }
 
-task buildRdfTool(type: Jar, dependsOn: [jar]) {
+tasks.register('buildRdfTool', Jar) {
+    dependsOn tasks.build
     duplicatesStrategy 'include'
+
+    archiveBaseName.set('lib-rdf-tool')
+    includeEmptyDirs = false
+
     manifest {
         attributes(
                 'Main-Class': 'ch.ethz.sis.rdf.main.RDFCommandLine'
         )
     }
-    baseName 'lib-rdf-tool'
-    includeEmptyDirs false
-    from(zipTree(jar.archivePath)) {
+
+    from(zipTree(tasks.jar.outputs.files.singleFile)) {
         include '**/*'
     }
-    from(configurations.runtimeClasspath.collect{ zipTree(it) }) {
+
+    from(configurations.runtimeClasspath.collect { zipTree(it) }) {
         include '**/*'
+        exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
     }
 }
