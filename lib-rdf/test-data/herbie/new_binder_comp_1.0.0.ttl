@@ -1,0 +1,827 @@
+# MB - The ontology for the Institute of Metallic Biomaterials (MB)
+# describe fabrication and analysis processes and are used to generate
+# the user interface of Herbie
+#
+# Copyright (C) 2024 Helmholtz-Zentrum hereon GmbH (hereon)
+#
+# Authors: Fabian Kirchner, Catriona Eschke
+#
+# This ontology is subject to the Creative Commons License CC BY-NC-SA
+# 3.0 Attribution, Non Commercial, Share Alike. You can find The license
+# text in the file backend/ontology/mb/LICENSE.en and  under
+# http://codebase.helmholtz.cloud/hereon-mb/herbie/-/blob/master/LICENSE.
+# If you have any questions or comments, you can contact us at hereon at
+# herbie@hereon.de or by mail at Helmholtz-Zentrum hereon GmbH,
+# Max-Planck-Straße 1, 21502 Geesthacht, Germany.
+
+@prefix : <http://purls.helmholtz-metadaten.de/herbie/mb/new-binder-component/#> .
+@prefix newBinderComponent: <http://purls.helmholtz-metadaten.de/herbie/mb/new-binder-component/> .
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix hash: <http://purls.helmholtz-metadaten.de/herbie/hash/#> .
+@prefix herbie: <http://purls.helmholtz-metadaten.de/herbie/core/#> .
+@prefix mb: <http://purls.helmholtz-metadaten.de/herbie/mb/core/#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix cur: <http://qudt.org/vocab/currency/> .
+@prefix prima_experiment: <https://purls.helmholtz-metadaten.de/prima/experiment#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix terms: <http://purl.org/dc/terms/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+newBinderComponent: a owl:Ontology ;
+  owl:versionIRI <http://purls.helmholtz-metadaten.de/herbie/mb/new-binder-component/1.0.0/> ;
+  owl:imports
+    <http://purls.helmholtz-metadaten.de/herbie/core/1.0.0/>,
+    <http://purls.helmholtz-metadaten.de/herbie/mb/core/1.0.0/> ;
+  owl:versionInfo "1.0.0" ;
+  rdfs:label "The vocabulary for adding a newly received binder component to the database"@en ;
+  rdfs:label "Das Vokabular für das Hinzufügen einer neu erhaltenen Binderkomponente zu der Datenbank"@de ;
+  rdfs:comment "This vocabulary defines all information regarding a newly received binder component."@en ;
+  terms:creator "Fabian Kirchner", "Catriona Eschke";
+  vann:preferredNamespacePrefix "newBinderComponent" ;
+.
+
+<> a owl:Ontology ;
+  rdfs:label "The new binder component SHACL shapes"@en ;
+  rdfs:label "Die SHACL Shapes für eine neue Binderkomponente"@de ;
+  rdfs:comment "This document contains SHACL shapes which describe all information regarding a newly received binder component."@en ;
+  owl:imports
+    <http://purls.helmholtz-metadaten.de/herbie/core/1.0.0/>,
+    <http://purls.helmholtz-metadaten.de/herbie/mb/core/1.0.0/> ;
+  sh:declare [
+    sh:prefix "" ;
+    sh:namespace "http://purls.helmholtz-metadaten.de/herbie/mb/new-binder-component/#"^^xsd:anyURI ;
+  ] ;
+.
+
+:NewBinderComponent
+  a rdfs:Class ;
+  rdfs:subClassOf prima_experiment:Input ;
+  rdfs:label "new binder component"@en ;
+  rdfs:label "neue Binderkomponente"@de ;
+  rdfs:comment "Binder components that are bought or received from partners need to be added to the database with all already available information, which will later be used for information on the resulting binder and feedstock as well as following materials and samples."@en ;
+  rdfs:isDefinedBy :newBinderComponent ;
+.
+
+
+  # general
+  :hasBinderComponentNumber
+    a rdf:Property ;
+    rdfs:label "binder component number"@en ;
+    rdfs:label "Binderkomponentennummer"@de ;
+    rdfs:comment "Running number to identify binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasCommercialName
+    a rdf:Property ;
+    rdfs:label "commercial name"@en ;
+    rdfs:label "Produktbezeichnung"@de ;
+    rdfs:comment "Product name as written on package."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasManufacturer
+    a rdf:Property ;
+    rdfs:label "manufacturer"@en ;
+    rdfs:label "Hersteller"@de ;
+    rdfs:comment "Manufacturer of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasBatchNumber
+    a rdf:Property ;
+    rdfs:label "batch number"@en ;
+    rdfs:label "Chargennummer"@de ;
+    rdfs:comment "Batch number."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasProductionDate
+    a rdf:Property ;
+    rdfs:label "production date"@en ;
+    rdfs:label "Herstellungsdatum"@de ;
+    rdfs:comment "Date of production."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range xsd:date ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasBinderComponentCode
+    a rdf:Property ;
+    rdfs:label "binder component code"@en ;
+    rdfs:label "Binderkomponentencode"@de ;
+    rdfs:comment "Public ID of binder component containing the binder component number and the commercial name."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  # safety
+  :isHazardousMaterial
+    a rdf:Property ;
+    rdfs:label "hazardous material according to Gefahrstoffverordnung - GefStoffV."@en ;
+    rdfs:label "Gefahrstoff nach Gefahrstoffverordnung - GefStoffV."@de ;
+    rdfs:comment "Hazardous material according to Gefahrstoffverordnung - GefStoffV."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range :HazardousMaterial ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasCasNumber
+    a rdf:Property ;
+    rdfs:label "CAS number"@en ;
+    rdfs:label "CAS Nummer"@de ;
+    rdfs:comment "CAS number of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  # technical
+  :isUsedAs
+    a rdf:Property ;
+    rdfs:label "used as"@en ;
+    rdfs:label "verwendet als"@de ;
+    rdfs:comment "List of possible functionalities within binder."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  :Functionality ; 
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasCustomFunctionality
+    a rdf:Property ;
+    rdfs:label "other functionality"@en ;
+    rdfs:label "Sonstige Funktionalität"@de ;
+    rdfs:comment "Other functionality."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasChemicalFormula
+    a rdf:Property ;
+    rdfs:label "chemical formula"@en ;
+    rdfs:label "chemische Formel"@de ;
+    rdfs:comment "Chemical formula of binder component as a text."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasPurity
+    a rdf:Property ;
+    rdfs:label "purity"@en ;
+    rdfs:label "Reinheit"@de ;
+    rdfs:comment "Purity of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasMolarMass
+    a rdf:Property ;
+    rdfs:label "molar mass"@en ;
+    rdfs:label "molare Masse"@de ;
+    rdfs:comment "Theoretical molar mass of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasDensity
+    a rdf:Property ;
+    rdfs:label "density"@en ;
+    rdfs:label "Dichte"@de ;
+    rdfs:comment "Density of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasGlassTransitionTemperature
+    a rdf:Property ;
+    rdfs:label "glass transition temperature"@en ;
+    rdfs:label "Glasübergangstemperatur"@de ;
+    rdfs:comment "The glass-liquid transition, or glass transition, is the gradual and reversible transition in amorphous materials (or in amorphous regions within semicrystalline materials) from a hard and relatively brittle 'glassy' state into a viscous or rubbery state as the temperature is increased."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasMeltingTemperature
+    a rdf:Property ;
+    rdfs:label "melting temperature"@en ;
+    rdfs:label "Schmelztemperatur"@de ;
+    rdfs:comment "Melting temperature of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasBoilingPoint
+    a rdf:Property ;
+    rdfs:label "boiling point"@en ;
+    rdfs:label "Siedepunkt"@de ;
+    rdfs:comment "Boiling temperature of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasFlashPoint
+    a rdf:Property ;
+    rdfs:label "flash point"@en ;
+    rdfs:label "Flammpunkt"@de ;
+    rdfs:comment "Flash point of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasIgnitionTemperature
+    a rdf:Property ;
+    rdfs:label "ignition temperature"@en ;
+    rdfs:label "Zündtemperatur"@de ;
+    rdfs:comment "Ignition temperature of binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:decimal ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasComment
+    a rdf:Property ;
+    rdfs:label "comment"@en ;
+    rdfs:label "Kommentar"@de ;
+    rdfs:comment "Additional, unstructured information about protocol and new binder component."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range  xsd:string ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :hasAttachment
+    a rdf:Property ;
+    rdfs:label "attachment"@en ;
+    rdfs:label "Anhang"@de ;
+    rdfs:comment "attachment."@en ;
+    rdfs:domain :NewBinderComponent ;
+    rdfs:range :Attachment ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+
+
+:HazardousMaterial
+  a rdfs:Class ;
+  rdfs:label "hazardous material according to Gefahrstoffverordnung - GefStoffV."@en ;
+  rdfs:label "Gefahrstoff nach Gefahrstoffverordnung - GefStoffV."@de ;
+  rdfs:comment "Hazardous material according to Gefahrstoffverordnung - GefStoffV."@en ;
+  rdfs:isDefinedBy :newBinderComponent ;
+.
+  :yesHazardous
+    a :HazardousMaterial ;
+    rdfs:label "yes"@en ;
+    rdfs:label "ja"@de ;
+    rdfs:comment "Yes, this powder is considered a hazardous material."@en ;
+  .
+  :noHazardous
+    a :HazardousMaterial ;
+    rdfs:label "no"@en ;
+    rdfs:label "nein"@de ;
+    rdfs:comment "No, this powder is not considered a hazardous material."@en ;
+  .
+  :unknownHazardous
+    a :HazardousMaterial ;
+    rdfs:label "unknown"@en ;
+    rdfs:label "unbekannt"@de ;
+    rdfs:comment "It is not known whether this powder is considered a hazardous material."@en ;
+  .
+
+:Functionality
+  a rdfs:Class ;
+  rdfs:label "functionality"@en ;
+  rdfs:label "Funktionalität"@de ;
+  rdfs:comment "Functionality of binder compoment."@en ;
+  rdfs:isDefinedBy :newBinderComponent ;
+.
+  :backbone
+    a :Functionality ;
+    rdfs:label "backbone"@en ;
+    rdfs:label "Backbone"@de ;
+    rdfs:comment "Backbone."@en ;
+  .
+  :wax
+    a :Functionality ;
+    rdfs:label "wax"@en ;
+    rdfs:label "Wachs"@de ;
+    rdfs:comment "Wax."@en ;
+  .
+  :additive
+    a :Functionality ;
+    rdfs:label "additive"@en ;
+    rdfs:label "Additiv"@de ;
+    rdfs:comment "Additive."@en ;
+  .
+  :softener
+    a :Functionality ;
+    rdfs:label "softener"@en ;
+    rdfs:label "Weichmacher"@de ;
+    rdfs:comment "Softener."@en ;
+  .
+  :other
+    a :Functionality ;
+    rdfs:label "other, please specify"@en ;
+    rdfs:label "Anderes, bitte spezifizieren"@de ;
+    rdfs:comment "Other."@en ;
+  .
+
+
+:Attachment
+  a rdfs:Class ;
+  rdfs:label "attachment"@en ;
+  rdfs:label "Anhang"@de ;
+  rdfs:comment "Attached documents."@en ;
+  rdfs:isDefinedBy :newBinderComponent ;
+.
+  :hasFile
+    a rdf:Property ;
+    rdfs:label "file"@en ;
+    rdfs:label "Datei"@de ;
+    rdfs:comment "Attached documents delivered with or belonging to the binder component."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :containsDeliveryReceipt
+    a rdf:Property ;
+    rdfs:label "delivery receipt"@en ;
+    rdfs:label "Lieferschein"@de ;
+    rdfs:comment "Flag if attached document contains the delivery receipt."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range  xsd:boolean ; 
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :containsTechnicalAnalysis
+    a rdf:Property ;
+    rdfs:label "technical analysis"@en ;
+    rdfs:label "technische Analyse"@de ;
+    rdfs:comment "Flag if attached document contains technical analysis."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range  xsd:boolean ; 
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :containsSafetyDataSheet
+    a rdf:Property ;
+    rdfs:label "safety data sheet"@en ;
+    rdfs:label "Sicherheitsdatenblatt"@de ;
+    rdfs:comment "Flag if attached document contains the safety data sheet."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range  xsd:boolean ; 
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :containsReceivingDocument
+    a rdf:Property ;
+    rdfs:label "receiving document"@en ;
+    rdfs:label "Wareneingangsschein"@de ;
+    rdfs:comment "Flag if attached document contains the receiving document."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range  xsd:boolean ; 
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+  :containsCustomDocumentType
+    a rdf:Property ;
+    rdfs:label "custom document type"@en ;
+    rdfs:label "anderer Dokumententyp"@de ;
+    rdfs:comment "Free text field for description of other document types."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range  xsd:string ; 
+    rdfs:isDefinedBy :newBinderComponent ;
+  .
+
+
+
+:NewBinderComponentShape
+  a sh:NodeShape ;
+  sh:targetClass :NewBinderComponent ;
+  hash:documentRoot true ;
+
+  sh:property herbie:HasClerkShape ;
+  sh:property herbie:HasClientShape ;
+  sh:property herbie:IsPerformedOnShape ;
+
+  sh:property :NewBinderComponentShape_hasBinderComponentNumber ;
+  sh:property :NewBinderComponentShape_hasCommercialName ;
+  sh:property :NewBinderComponentShape_hasManufacturer ;
+  sh:property :NewBinderComponentShape_hasBatchNumber ;
+  sh:property :NewBinderComponentShape_hasProductionDate ;
+  sh:property :NewBinderComponentShape_hasBinderComponentCode ;
+  sh:rule :NewBinderComponentShape_binderComponentCodeRule ;
+
+  sh:property :NewBinderComponentShape_isHazardousMaterial ;
+  sh:property :NewBinderComponentShape_hasCasNumber ;
+
+  sh:property :NewBinderComponentShape_isUsedAs ;
+  sh:property :NewBinderComponentShape_hasCustomFunctionality ;
+  sh:property :NewBinderComponentShape_hasChemicalFormula ;
+  sh:property :NewBinderComponentShape_hasPurity ;
+  sh:property :NewBinderComponentShape_hasMolarMass ;
+  sh:property :NewBinderComponentShape_hasDensity ;
+  sh:property :NewBinderComponentShape_hasGlassTransitionTemperature ;
+  sh:property :NewBinderComponentShape_hasMeltingTemperature ;
+  sh:property :NewBinderComponentShape_hasBoilingPoint ;
+  sh:property :NewBinderComponentShape_hasFlashPoint ;
+  sh:property :NewBinderComponentShape_hasIgnitionTemperature ;
+
+  sh:property :NewBinderComponentShape_hasComment ;
+  sh:property :NewBinderComponentShape_hasAttachment ;
+.
+
+:NewBinderComponentShape_GeneralGroup
+    a sh:PropertyGroup ;
+    sh:order 0 ;
+    rdfs:label "general information"@en ;
+    rdfs:label "Allgemeine Informationen"@de ;
+  .
+    :NewBinderComponentShape_hasBinderComponentNumber
+      a sh:PropertyShape ;
+      sh:path :hasBinderComponentNumber ;
+      sh:group :NewBinderComponentShape_GeneralGroup ;
+      sh:order 0 ;
+      sh:datatype xsd:integer ;
+      sh:minExclusive 0 ;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+    . # to do: increment automatically, but still editable
+    :NewBinderComponentShape_hasCommercialName
+      a sh:PropertyShape ;
+      sh:path :hasCommercialName ;
+      sh:datatype xsd:string ;
+      sh:group :NewBinderComponentShape_GeneralGroup ;
+      sh:order 1 ;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasManufacturer
+      a sh:PropertyShape ;
+      sh:path :hasManufacturer ;
+      sh:datatype xsd:string ;
+      sh:group :NewBinderComponentShape_GeneralGroup ;
+      sh:order 2 ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasBatchNumber
+      a sh:PropertyShape ;
+      sh:path :hasBatchNumber ;
+      sh:datatype xsd:string ;
+      sh:group :NewBinderComponentShape_GeneralGroup ;
+      sh:order 3 ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasProductionDate
+      a sh:PropertyShape ;
+      sh:path :hasProductionDate ;
+      sh:datatype xsd:date ;
+      sh:group :NewBinderComponentShape_GeneralGroup ;
+      sh:order 4 ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasBinderComponentCode
+      a sh:PropertyShape ;
+      sh:path :hasBinderComponentCode ;
+      sh:group :NewBinderComponentShape_GeneralGroup ;
+      sh:order 5 ;
+      sh:datatype xsd:string ;
+      hash:readonly true;
+      hash:generated true;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_binderComponentCodeRule
+      a sh:SPARQLRule ;
+      sh:condition [
+        sh:property [
+          sh:path :hasBinderComponentNumber ;
+          sh:minCount 1 ;
+        ] ;
+        sh:property [
+          sh:path :hasCommercialName ;
+          sh:minCount 1 ;
+        ] ;
+      ] ;
+      sh:prefixes : ;
+      sh:construct """
+        CONSTRUCT {
+          $this :hasBinderComponentCode ?hasBinderComponentCode .
+        }
+        WHERE {
+          $this :hasBinderComponentNumber ?hasBinderComponentNumber .
+          $this :hasCommercialName ?hasCommercialName .
+          BIND(STR(?hasBinderComponentNumber) AS ?hasBinderComponentNumberString)
+          BIND(CONCAT(SUBSTR("000", STRLEN(?hasBinderComponentNumberString) + 1, 3), ?hasBinderComponentNumberString) AS ?hasBinderComponentNumberStringPadded)
+          BIND(CONCAT("B[", ?hasBinderComponentNumberStringPadded, "]", ?hasCommercialName) AS ?hasBinderComponentCode)
+        }
+      """ ;
+    .
+  :NewBinderComponentShape_SafetyGroup
+    a sh:PropertyGroup ;
+    sh:order 1 ;
+    rdfs:label "safety"@en ;
+    rdfs:label "Sicherheit"@de ;
+  .
+    :NewBinderComponentShape_isHazardousMaterial
+      a sh:PropertyShape ;
+      sh:path :isHazardousMaterial ;
+      sh:group :NewBinderComponentShape_SafetyGroup ;
+      sh:order 0 ;
+      dash:editor dash:InstancesSelectEditor ;
+      sh:class :HazardousMaterial ;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasCasNumber
+      a sh:PropertyShape ;
+      sh:path :hasCasNumber ;
+      sh:group :NewBinderComponentShape_SafetyGroup ;
+      sh:order 1 ;
+      sh:datatype xsd:string ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+  :NewBinderComponentShape_TechnicalInformationGroup
+    a sh:PropertyGroup ;
+    sh:order 2 ;
+    rdfs:label "technical information"@en ;
+    rdfs:label "technische Informationen"@de ;
+  .
+    :NewBinderComponentShape_isUsedAs
+      a sh:PropertyShape ;
+      sh:path :isUsedAs ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 0 ;
+      dash:editor dash:InstancesSelectEditor ;
+      sh:class :Functionality ;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasCustomFunctionality
+      a sh:PropertyShape ;
+      sh:path :hasCustomFunctionality ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 1 ;
+      sh:datatype xsd:string ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasChemicalFormula
+      a sh:PropertyShape ;
+      sh:path :hasChemicalFormula ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 2 ;
+      sh:datatype xsd:string ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasPurity
+      a sh:PropertyShape ;
+      sh:path :hasPurity ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 3 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:PERCENT ;
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive 0 ;
+          sh:maxInclusive 100 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasMolarMass
+      a sh:PropertyShape ;
+      sh:path :hasMolarMass ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 4 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:GM-PER-MOL ;
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive 0 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasDensity
+      a sh:PropertyShape ;
+      sh:path :hasDensity ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 5 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:GM-PER-CentiM3 ; 
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minInclusive 0.0001785 ; # Helium has lowest density
+          sh:maxInclusive 22.59 ; # Osmium has highest density naturally occuring on earth
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasGlassTransitionTemperature
+      a sh:PropertyShape ;
+      sh:path :hasGlassTransitionTemperature ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 6 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:DEG_C ; 
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive -273.15 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasMeltingTemperature
+      a sh:PropertyShape ;
+      sh:path :hasMeltingTemperature ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 7 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:DEG_C ; 
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive -273.15 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasBoilingPoint
+      a sh:PropertyShape ;
+      sh:path :hasBoilingPoint ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 8 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:DEG_C ; 
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive -273.15 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasFlashPoint
+      a sh:PropertyShape ;
+      sh:path :hasFlashPoint ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 9 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:DEG_C ; 
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive -273.15 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+    :NewBinderComponentShape_hasIgnitionTemperature
+      a sh:PropertyShape ;
+      sh:path :hasIgnitionTemperature ;
+      sh:group :NewBinderComponentShape_TechnicalInformationGroup ;
+      sh:order 10 ;
+      sh:class qudt:Quantity ;
+      sh:node [
+        sh:property [
+          sh:path qudt:unit ;
+          sh:hasValue unit:DEG_C ; 
+        ] ;
+        sh:property [
+          sh:path qudt:value ;
+          sh:datatype xsd:decimal ;
+          sh:minExclusive -273.15 ;
+        ] ;
+      ] ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+  :NewBinderComponentShape_MiscellaneousGroup
+    a sh:PropertyGroup ;
+    sh:order 3 ;
+    rdfs:label "miscellaneous"@en ;
+    rdfs:label "Sonstiges"@de ;
+  .
+    :NewBinderComponentShape_hasComment
+      a sh:PropertyShape ;
+      sh:path :hasComment ;
+      sh:group :NewBinderComponentShape_MiscellaneousGroup ;
+      sh:order 0 ;
+      dash:editor dash:TextAreaEditor ;
+      dash:singleLine false ;
+      sh:datatype xsd:string ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    .
+  :NewBinderComponentShape_hasAttachment
+    a sh:PropertyShape ;
+    sh:path :hasAttachment ;
+    sh:order 4 ;
+    sh:class :Attachment ;
+    sh:node :AttachmentShape ;
+    dash:editor dash:DetailsEditor ;
+    sh:minCount 0 ;
+  .
+
+
+:AttachmentShape
+  a sh:NodeShape ;
+  sh:class :Attachment ;
+
+  sh:property :AttachmentShape_hasFile ;
+  sh:property :AttachmentShape_containsDeliveryReceipt ;
+  sh:property :AttachmentShape_containsTechnicalAnalysis ;
+  sh:property :AttachmentShape_containsSafetyDataSheet ;
+  sh:property :AttachmentShape_containsReceivingDocument ;
+  sh:property :AttachmentShape_containsCustomDocumentType ;
+.  
+  :AttachmentShape_hasFile
+    a sh:PropertyShape ;
+    sh:path :hasFile ;
+    sh:order 0 ;
+    sh:nodeKind sh:IRI ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  . 
+  :AttachmentShape_containsDeliveryReceipt
+    a sh:PropertyShape ;
+    sh:path :containsDeliveryReceipt ;
+    sh:order 1 ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  .
+  :AttachmentShape_containsTechnicalAnalysis
+    a sh:PropertyShape ;
+    sh:path :containsTechnicalAnalysis ;
+    sh:order 2 ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  .
+  :AttachmentShape_containsSafetyDataSheet
+    a sh:PropertyShape ;
+    sh:path :containsSafetyDataSheet ;
+    sh:order 3 ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  .
+  :AttachmentShape_containsReceivingDocument
+    a sh:PropertyShape ;
+    sh:path :containsReceivingDocument ;
+    sh:order 4 ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  . 
+  :AttachmentShape_containsCustomDocumentType
+    a sh:PropertyShape ;
+    sh:path :containsCustomDocumentType ;
+    sh:order 5 ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+  . 

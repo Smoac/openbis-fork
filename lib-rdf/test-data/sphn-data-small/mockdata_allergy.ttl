@@ -1,0 +1,717 @@
+@prefix : <https://biomedit.ch/rdf/sphn-schema/sphn#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomed: <http://snomed.info/id/> .
+@prefix sphn: <https://biomedit.ch/rdf/sphn-schema/sphn#> .
+@prefix sphn-atc: <https://biomedit.ch/rdf/sphn-resource/atc/> .
+@prefix sphn-deprecated: <https://biomedit.ch/rdf/sphn-ontology/sphn#> .
+@prefix sphn-individual: <https://biomedit.ch/rdf/sphn-schema/sphn/individual#> .
+@prefix ucum: <https://biomedit.ch/rdf/sphn-resource/ucum/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix resource: <https://biomedit.ch/rdf/sphn-resource/> .
+@prefix loinc: <https://loinc.org/rdf/> .
+
+#---------- AnnotationProperty ----------
+
+sphn:replaces a owl:AnnotationProperty ;
+              rdfs:label "replaces" ;
+              skos:definition "Property that links the new version of an SPHN class replacing an SPHN old class" .
+
+sphn:subjectToDeIdentification a owl:AnnotationProperty ;
+                               rdfs:label "subject to de-identification" ;
+                               skos:definition "Property that marks a resource subject to de-identification rules at the time of data preparation" .
+
+#---------- Ontology ----------
+
+<https://biomedit.ch/rdf/sphn-schema/sphn> a owl:Ontology ;
+                                           dc:description "The SPHN RDF Schema describing concepts defined in the official SPHN Dataset" ;
+                                           dc:rights "© Copyright 2024, Personalized Health Informatics Group (PHI), SIB Swiss Institute of Bioinformatics" ;
+                                           dc:title "The SPHN RDF Schema" ;
+                                           dcterms:bibliographicCitation "https://doi.org/10.1038/s41597-023-02028-y" ;
+                                           dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+                                           owl:priorVersion <https://biomedit.ch/rdf/sphn-schema/sphn/2024/1> ;
+                                           owl:versionIRI <https://biomedit.ch/rdf/sphn-schema/sphn/2024/2> .
+
+#---------- Classes ----------
+
+sphn:SPHNConcept a owl:Class ;
+                 rdfs:label "SPHN Concept" ;
+                 skos:definition "SPHN Concepts defined by the SPHN dataset" .
+
+sphn:Allergen a owl:Class ;
+    rdfs:label "Allergen" ;
+    rdfs:subClassOf [ a owl:Class ;
+            owl:intersectionOf ( [ a owl:Restriction ;
+                        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                        owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                        owl:onProperty sphn:hasCode ;
+                        owl:someValuesFrom [ a owl:Class ;
+                                owl:unionOf ( sphn:Code snomed:138875005 sphn-atc:ATC ) ] ] ) ],
+        sphn:SPHNConcept ;
+    skos:definition "any substance, product or physical force producing immediate hypersensitivity" ;
+    skos:note "sphn:hasCode allowed coding system: SNOMED CT, ATC, GTIN" .
+
+sphn:Allergy a owl:Class ;
+             rdfs:label "Allergy" ;
+             rdfs:subClassOf [ a owl:Class ;
+                               owl:intersectionOf ( [ a owl:Restriction ;
+                                                      owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                      owl:onProperty sphn:hasSubjectPseudoIdentifier ] [ a owl:Restriction ;
+                                                                                                         owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                                         owl:onProperty sphn:hasSubjectPseudoIdentifier ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasVerificationStatusCode ] [ a owl:Restriction ;
+                                                                                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                        owl:onProperty sphn:hasVerificationStatusCode ] [ a owl:Restriction ;
+                                                                                                                                          owl:onProperty sphn:hasVerificationStatusCode ;
+                                                                                                                                          owl:someValuesFrom [ a owl:Class ;
+                                                                                                                                                               owl:unionOf ( snomed:410605003 snomed:415684004 snomed:723511001 snomed:723510000 ) ] ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasFirstRecordDateTime ] [ a owl:Restriction ;
+                                                                                     owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                     owl:onProperty sphn:hasFirstRecordDateTime ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasLastReactionDateTime ] [ a owl:Restriction ;
+                                                                                      owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                      owl:onProperty sphn:hasLastReactionDateTime ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasAllergen ] [ a owl:Restriction ;
+                                                                          owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                          owl:onProperty sphn:hasAllergen ] [ a owl:Restriction ;
+                                                                                                              owl:onProperty sphn:hasAllergen ;
+                                                                                                              owl:someValuesFrom sphn:Allergen ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasSeverityCode ] [ a owl:Restriction ;
+                                                                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                              owl:onProperty sphn:hasSeverityCode ] [ a owl:Restriction ;
+                                                                                                                      owl:onProperty sphn:hasSeverityCode ;
+                                                                                                                      owl:someValuesFrom [ a owl:Class ;
+                                                                                                                                           owl:unionOf ( snomed:723505004 snomed:723509005 snomed:723507007 ) ] ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasReactionTypeCode ] [ a owl:Restriction ;
+                                                                                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                  owl:onProperty sphn:hasReactionTypeCode ] [ a owl:Restriction ;
+                                                                                                                              owl:onProperty sphn:hasReactionTypeCode ;
+                                                                                                                              owl:someValuesFrom [ a owl:Class ;
+                                                                                                                                                   owl:unionOf ( snomed:609328004 snomed:782197009 ) ] ] ) ],
+             [ a owl:Class ;
+               owl:intersectionOf ( [ a owl:Restriction ;
+                                      owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                      owl:onProperty sphn:hasDataProvider ] [ a owl:Restriction ;
+                                                                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                              owl:onProperty sphn:hasDataProvider ] ) ],
+             sphn:SPHNConcept ;
+             skos:definition "risk of harmful or undesirable, physiological response which is unique to an individual and associated with exposure to an allergen" ;
+             skos:scopeNote "sphn:hasReactionTypeCode no subclasses allowed",
+             "sphn:hasSeverityCode no subclasses allowed",
+             "sphn:hasVerificationStatusCode no subclasses allowed" .
+
+sphn:AllergyEpisode a owl:Class ;
+                    rdfs:label "Allergy Episode" ;
+                    rdfs:subClassOf [ a owl:Class ;
+                                      owl:intersectionOf ( [ a owl:Restriction ;
+                                                             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                                             owl:onProperty sphn:hasDuration ] [ a owl:Restriction ;
+                                                                                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                                 owl:onProperty sphn:hasDuration ] [ a owl:Restriction ;
+                                                                                                                                     owl:onProperty sphn:hasDuration ;
+                                                                                                                                     owl:someValuesFrom sphn:Quantity ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasDateTime ] [ a owl:Restriction ;
+                                                                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                 owl:onProperty sphn:hasDateTime ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasBodySite ] [ a owl:Restriction ;
+                                                                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                 owl:onProperty sphn:hasBodySite ] [ a owl:Restriction ;
+                                                                                                                     owl:onProperty sphn:hasBodySite ;
+                                                                                                                     owl:someValuesFrom sphn:BodySite ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasSubjectPseudoIdentifier ] [ a owl:Restriction ;
+                                                                                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                                owl:onProperty sphn:hasSubjectPseudoIdentifier ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasDataProvider ] [ a owl:Restriction ;
+                                                                                     owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                     owl:onProperty sphn:hasDataProvider ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasManifestationCode ] [ a owl:Restriction ;
+                                                                                          owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                          owl:onProperty sphn:hasManifestationCode ] [ a owl:Restriction ;
+                                                                                                                                       owl:onProperty sphn:hasManifestationCode ;
+                                                                                                                                       owl:someValuesFrom snomed:404684003 ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasSeverityCode ] [ a owl:Restriction ;
+                                                                                     owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                     owl:onProperty sphn:hasSeverityCode ] [ a owl:Restriction ;
+                                                                                                                             owl:onProperty sphn:hasSeverityCode ;
+                                                                                                                             owl:someValuesFrom [ a owl:Class ;
+                                                                                                                                                  owl:unionOf ( snomed:255604002 snomed:6736007 snomed:24484000 ) ] ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasCertaintyCode ] [ a owl:Restriction ;
+                                                                                      owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                      owl:onProperty sphn:hasCertaintyCode ] [ a owl:Restriction ;
+                                                                                                                               owl:onProperty sphn:hasCertaintyCode ;
+                                                                                                                               owl:someValuesFrom [ a owl:Class ;
+                                                                                                                                                    owl:unionOf ( snomed:415684004 snomed:410592001 snomed:410605003 ) ] ] ) ],
+                    [ a owl:Class ;
+                      owl:intersectionOf ( [ a owl:Restriction ;
+                                             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                             owl:onProperty sphn:hasAllergen ] [ a owl:Restriction ;
+                                                                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                 owl:onProperty sphn:hasAllergen ] [ a owl:Restriction ;
+                                                                                                                     owl:onProperty sphn:hasAllergen ;
+                                                                                                                     owl:someValuesFrom sphn:Allergen ] ) ],
+                    sphn:SPHNConcept ;
+                    skos:definition "manifestation of an allergic reaction following an exposure to an allergen" ;
+                    skos:scopeNote "For sphn:hasExposure, instances of sphn:TobaccoExposure are not allowed",
+                    "sphn:hasCertaintyCode no subclasses allowed",
+                    "sphn:hasSeverityCode no subclasses allowed" .
+
+sphn:BodySite a owl:Class ;
+              rdfs:label "Body Site" ;
+              rdfs:subClassOf [ a owl:Class ;
+                                owl:intersectionOf ( [ a owl:Restriction ;
+                                                       owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                                       owl:onProperty sphn:hasLaterality ] [ a owl:Restriction ;
+                                                                                             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                             owl:onProperty sphn:hasLaterality ] [ a owl:Restriction ;
+                                                                                                                                   owl:onProperty sphn:hasLaterality ;
+                                                                                                                                   owl:someValuesFrom sphn:Laterality ] ) ],
+              [ a owl:Class ;
+                owl:intersectionOf ( [ a owl:Restriction ;
+                                       owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                                                                       owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                       owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                                                                                                       owl:onProperty sphn:hasCode ;
+                                                                                                       owl:someValuesFrom snomed:123037004 ] ) ],
+              sphn:SPHNConcept ;
+              owl:equivalentClass snomed:123037004,
+              loinc:39111-0 ;
+              skos:definition "any anatomical structure, any nonspecific and anatomical site, as well as morphologic abnormalities" .
+
+sphn:Code a owl:Class ;
+          rdfs:label "Code" ;
+          rdfs:subClassOf [ a owl:Class ;
+                            owl:intersectionOf ( [ a owl:Restriction ;
+                                                   owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                                   owl:onProperty sphn:hasName ] [ a owl:Restriction ;
+                                                                                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                   owl:onProperty sphn:hasName ] ) ],
+          [ a owl:Class ;
+            owl:intersectionOf ( [ a owl:Restriction ;
+                                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                   owl:onProperty sphn:hasIdentifier ] [ a owl:Restriction ;
+                                                                         owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                         owl:onProperty sphn:hasIdentifier ] ) ],
+          [ a owl:Class ;
+            owl:intersectionOf ( [ a owl:Restriction ;
+                                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                   owl:onProperty sphn:hasCodingSystemAndVersion ] [ a owl:Restriction ;
+                                                                                     owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                     owl:onProperty sphn:hasCodingSystemAndVersion ] ) ],
+          sphn:SPHNConcept ;
+          skos:definition "symbols and/or expressions defined in a coding system" .
+
+sphn-deprecated:DataProviderInstitute a owl:Class ;
+                                      rdfs:label "Data Provider Institute" ;
+                                      rdfs:subClassOf sphn:Deprecated ;
+                                      owl:deprecated true ;
+                                      skos:definition "Data Provider Institute" .
+
+sphn:DataRelease a owl:Class ;
+                 rdfs:label "Data Release" ;
+                 rdfs:subClassOf [ a owl:Class ;
+                   owl:intersectionOf ( [ a owl:Restriction ;
+                                          owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                          owl:onProperty sphn:hasExtractionDateTime ] [ a owl:Restriction ;
+                                                                                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                        owl:onProperty sphn:hasExtractionDateTime ] ) ],
+                 [ a owl:Class ;
+                   owl:intersectionOf ( [ a owl:Restriction ;
+                                          owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                          owl:onProperty sphn:hasDataProvider ] [ a owl:Restriction ;
+                                                                                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                  owl:onProperty sphn:hasDataProvider ] ) ],
+                 sphn:SPHNConcept ;
+                 skos:definition "Metadata about the release of the data" .
+
+sphn:Deprecated a owl:Class ;
+                rdfs:label "Deprecated" ;
+                skos:definition "Deprecated classes of SPHN that existed in the previous version" .
+
+sphn:Laterality a owl:Class ;
+                rdfs:label "Laterality" ;
+                rdfs:subClassOf [ a owl:Class ;
+                                  owl:intersectionOf ( [ a owl:Restriction ;
+                                                         owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                         owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                                                                                         owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                         owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                                                                                                                         owl:onProperty sphn:hasCode ;
+                                                                                                                         owl:someValuesFrom [ a owl:Class ;
+                                                                                                                                              owl:unionOf ( snomed:7771000 snomed:24028007 snomed:51440002 snomed:66459002 ) ] ] ) ],
+                sphn:SPHNConcept ;
+                owl:equivalentClass loinc:20228-3 ;
+                skos:definition "localization with respect to the side of the body" ;
+                skos:scopeNote "sphn:hasCode no subclasses allowed" .
+
+sphn:Quantity a owl:Class ;
+    rdfs:label "Quantity" ;
+    rdfs:subClassOf [ a owl:Class ;
+                    owl:intersectionOf ( [ a owl:Restriction ;
+                                           owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                                           owl:onProperty sphn:hasComparator ] [ a owl:Restriction ;
+                                                                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                 owl:onProperty sphn:hasComparator ] [ a owl:Restriction ;
+                                                                                                                       owl:onProperty sphn:hasComparator ;
+                                                                                                                       owl:someValuesFrom sphn:Comparator ] ) ],
+    [ a owl:Class ;
+    owl:intersectionOf ( [ a owl:Restriction ;
+                           owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty sphn:hasUnit ] [ a owl:Restriction ;
+                                                           owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                           owl:onProperty sphn:hasUnit ] [ a owl:Restriction ;
+                                                                                           owl:onProperty sphn:hasUnit ;
+                                                                                           owl:someValuesFrom sphn:Unit ] ) ],
+    [ a owl:Class ;
+    owl:intersectionOf ( [ a owl:Restriction ;
+                           owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty sphn:hasValue ] [ a owl:Restriction ;
+                                                            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                            owl:onProperty sphn:hasValue ] [ a owl:Restriction ;
+                                                                                             owl:onProperty sphn:hasValue ;
+                                                                                             owl:someValuesFrom xsd:double ] ) ],
+    sphn:SPHNConcept ;
+    skos:definition "an amount or a number of something" .
+
+sphn:SubjectPseudoIdentifier a owl:Class ;
+                             rdfs:label "Subject Pseudo Identifier" ;
+                             rdfs:subClassOf [ a owl:Class ;
+                                               owl:intersectionOf ( [ a owl:Restriction ;
+                                                                      owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                      owl:onProperty sphn:hasIdentifier ] [ a owl:Restriction ;
+                                                                                                            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                                            owl:onProperty sphn:hasIdentifier ] ) ],
+                             [ a owl:Class ;
+                               owl:intersectionOf ( [ a owl:Restriction ;
+                                                      owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                      owl:onProperty sphn:hasDataProvider ] [ a owl:Restriction ;
+                                                                                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                              owl:onProperty sphn:hasDataProvider ] ) ],
+                             sphn:SPHNConcept ;
+                             skos:definition "a coded unique identifier assigned by a data provider for a specific project to conceal the identity of an individual" ;
+                             sphn:subjectToDeIdentification true .
+
+sphn:Terminology a owl:Class ;
+                 rdfs:label "Terminology" ;
+                 rdfs:subClassOf sphn:SPHNConcept ;
+                 skos:definition "Terminology class for grouping external resources used in the SPHN project" .
+
+sphn:Unit a owl:Class ;
+          rdfs:label "Unit" ;
+          rdfs:subClassOf [ a owl:Class ;
+                            owl:intersectionOf ( [ a owl:Restriction ;
+                                                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                   owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                                                                                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                   owl:onProperty sphn:hasCode ] [ a owl:Restriction ;
+                                                                                                                   owl:onProperty sphn:hasCode ;
+                                                                                                                   owl:someValuesFrom ucum:UCUM ] ) ],
+          sphn:SPHNConcept ;
+          owl:equivalentClass snomed:767524001 ;
+          skos:definition "unit of measurement" .
+
+sphn:Comparator a owl:Class ;
+                rdfs:label "Comparator" ;
+                rdfs:subClassOf sphn:ValueSet ;
+                skos:definition "qualifier describing whether the value is the precise one or not" .
+
+sphn:ValueSet a owl:Class ;
+              rdfs:label "Value Set" ;
+              rdfs:subClassOf sphn:SPHNConcept ;
+              skos:definition "List of value sets provided by SPHN" .
+
+sphn:DataProvider a owl:Class ;
+                  rdfs:label "Data Provider" ;
+                  rdfs:subClassOf [ a owl:Class ;
+                                    owl:intersectionOf ( [ a owl:Restriction ;
+                                                           owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                           owl:onProperty sphn:hasInstitutionCode ] [ a owl:Restriction ;
+                                                                                                      owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                                      owl:onProperty sphn:hasInstitutionCode ] [ a owl:Restriction ;
+                                                                                                                                                 owl:onProperty sphn:hasInstitutionCode ;
+                                                                                                                                                 owl:someValuesFrom sphn:Code ] ) ],
+                  sphn:SPHNConcept ;
+                  skos:definition "provider of data of interest" ;
+                  skos:note "sphn:hasInstitutionCode allowed coding system: UID" ;
+                  sphn:replaces sphn-deprecated:DataProviderInstitute .
+
+#---------- subClassOf ----------
+
+snomed:138875005 rdfs:subClassOf sphn:Terminology .
+
+ucum:Lperh rdfs:subClassOf sphn:Terminology .
+
+ucum:Torr rdfs:subClassOf sphn:Terminology .
+
+#---------- NamedIndividual ----------
+
+sphn-individual:GreaterThan a owl:NamedIndividual,
+                              sphn:Comparator ;
+                            rdfs:label ">" .
+
+sphn-individual:LessThan a owl:NamedIndividual,
+                           sphn:Comparator ;
+                         rdfs:label "<" .
+
+#---------- ObjectProperties ----------
+
+sphn:SPHNAttributeObject a owl:ObjectProperty ;
+                         rdfs:label "SPHN attribute object" ;
+                         skos:definition "SPHN object attribute defined by the dataset" .
+
+sphn:hasAllergen a owl:ObjectProperty ;
+                 rdfs:label "has allergen" ;
+                 rdfs:domain [ a owl:Class ;
+                               owl:unionOf ( sphn:Allergy sphn:SPHNConcept sphn:AllergyEpisode ) ] ;
+                 rdfs:range sphn:Allergen ;
+                 rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                 skos:definition "any substance, product or physical force producing immediate hypersensitivity responsible for the concept" .
+
+sphn:hasQuantity a owl:ObjectProperty ;
+                 rdfs:label "has quantity" ;
+                 rdfs:domain [ a owl:Class ;
+                               owl:unionOf ( sphn:SPHNConcept sphn:AllergyEpisode ) ] ;
+                 rdfs:range sphn:Quantity ;
+                 rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                 skos:definition "an amount or a number of the concept" .
+
+sphn:hasCode a owl:ObjectProperty ;
+    rdfs:label "has code" ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( sphn:SPHNConcept  sphn:Allergen sphn:BodySite sphn:Laterality sphn:Unit sphn:Allergy sphn:AllergyEpisode sphn:DataProvider ) ] ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+    rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+    skos:definition "coded information specifying the concept" .
+
+sphn:hasReactionTypeCode a owl:ObjectProperty ;
+                         rdfs:label "has reaction type code" ;
+                         rdfs:domain [ a owl:Class ;
+                                       owl:unionOf ( sphn:Allergy sphn:SPHNConcept ) ] ;
+                         rdfs:range [ a owl:Class ;
+                                      owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                         rdfs:subPropertyOf sphn:hasCode ;
+                         skos:definition "coded information specifying the type of reaction" .
+
+sphn:hasSubjectPseudoIdentifier a owl:ObjectProperty ;
+                                rdfs:label "has subject pseudo identifier" ;
+                                rdfs:domain [ a owl:Class ;
+                                              owl:unionOf ( sphn:SPHNConcept sphn:Allergy sphn:AllergyEpisode ) ] ;
+                                rdfs:range sphn:SubjectPseudoIdentifier ;
+                                rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                                skos:definition "link to a pseudo code assigned as unique identifier to an individual by a data provider institute" .
+
+sphn:hasDataProvider a owl:ObjectProperty ;
+                     rdfs:label "has data provider" ;
+                     rdfs:domain [ a owl:Class ;
+                                   owl:unionOf ( sphn:DataRelease sphn:SPHNConcept sphn:SubjectPseudoIdentifier sphn:Allergy sphn:AllergyEpisode ) ] ;
+                     rdfs:range sphn:DataProvider ;
+                     rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                     skos:definition "link to the unique business identification number (UID) of the healthcare institute providing the data" ;
+                     sphn:replaces sphn-deprecated:hasDataProviderInstitute .
+
+sphn-deprecated:hasDataProviderInstitute a owl:ObjectProperty ;
+                                         rdfs:label "has data provider institute" ;
+                                         skos:definition "has data provider institute" .
+
+sphn:hasInstitutionCode a owl:ObjectProperty ;
+                        rdfs:label "has institution code" ;
+                        rdfs:domain [ a owl:Class ;
+                                      owl:unionOf ( sphn:DataProvider sphn:SPHNConcept ) ] ;
+                        rdfs:range [ a owl:Class ;
+                                     owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                        rdfs:subPropertyOf sphn:hasCode ;
+                        skos:definition "coded information specifying the institution of the concept" .
+
+sphn:hasSeverityCode a owl:ObjectProperty ;
+                     rdfs:label "has severity code" ;
+                     rdfs:domain [ a owl:Class ;
+                                   owl:unionOf (  sphn:SPHNConcept sphn:Allergy sphn:AllergyEpisode ) ] ;
+                     rdfs:range [ a owl:Class ;
+                                  owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                     rdfs:subPropertyOf sphn:hasCode ;
+                     skos:definition "coded information specifying the severity of the concept" .
+
+sphn:hasVerificationStatusCode a owl:ObjectProperty ;
+                               rdfs:label "has verification status code" ;
+                               rdfs:domain [ a owl:Class ;
+                                             owl:unionOf ( sphn:Allergy sphn:SPHNConcept ) ] ;
+                               rdfs:range [ a owl:Class ;
+                                            owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                               rdfs:subPropertyOf sphn:hasCode ;
+                               skos:definition "coded information specifying the verification status of the concept" .
+
+sphn:hasCertaintyCode a owl:ObjectProperty ;
+                      rdfs:label "has certainty code" ;
+                      rdfs:domain [ a owl:Class ;
+                                    owl:unionOf ( sphn:AllergyEpisode sphn:SPHNConcept ) ] ;
+                      rdfs:range [ a owl:Class ;
+                                   owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                      rdfs:subPropertyOf sphn:hasCode ;
+                      skos:definition "coded information specifying the degree of certainty associated to the concept" .
+
+sphn:hasManifestationCode a owl:ObjectProperty ;
+                          rdfs:label "has manifestation code" ;
+                          rdfs:domain [ a owl:Class ;
+                                        owl:unionOf ( sphn:AllergyEpisode sphn:SPHNConcept ) ] ;
+                          rdfs:range [ a owl:Class ;
+                                       owl:unionOf ( sphn:Terminology sphn:Code ) ] ;
+                          rdfs:subPropertyOf sphn:hasCode ;
+                          skos:definition "coded information specifying the clinical symptom and/or sign that occurred during the specific concept" .
+
+sphn:hasLaterality a owl:ObjectProperty ;
+                   rdfs:label "has laterality" ;
+                   rdfs:domain [ a owl:Class ;
+                                 owl:unionOf ( sphn:BodySite sphn:SPHNConcept ) ] ;
+                   rdfs:range sphn:Laterality ;
+                   rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                   skos:definition "localization with respect to the side of the body" .
+
+sphn:hasComparator a owl:ObjectProperty ;
+                   rdfs:label "has comparator" ;
+                   rdfs:domain [ a owl:Class ;
+                                 owl:unionOf ( sphn:SPHNConcept sphn:Quantity ) ] ;
+                   rdfs:range sphn:SPHNConcept ;
+                   rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                   skos:definition "qualifier describing imprecise values" .
+
+sphn:hasUnit a owl:ObjectProperty ;
+             rdfs:label "has unit" ;
+             rdfs:domain [ a owl:Class ;
+                           owl:unionOf ( sphn:Quantity sphn:SPHNConcept ) ] ;
+             rdfs:range sphn:Unit ;
+             rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+             skos:definition "unit of the concept" .
+
+sphn:hasDuration a owl:ObjectProperty ;
+                 rdfs:label "has duration" ;
+                 rdfs:domain [ a owl:Class ;
+                               owl:unionOf ( sphn:AllergyEpisode sphn:SPHNConcept ) ] ;
+                 rdfs:range sphn:Quantity ;
+                 rdfs:subPropertyOf sphn:hasQuantity ;
+                 skos:definition "elapsed time from start to end of the concept" .
+
+sphn:hasBodySite a owl:ObjectProperty ;
+                 rdfs:label "has body site" ;
+                 rdfs:domain [ a owl:Class ;
+                               owl:unionOf ( sphn:AllergyEpisode sphn:SPHNConcept ) ] ;
+                 rdfs:range sphn:BodySite ;
+                 rdfs:subPropertyOf sphn:SPHNAttributeObject ;
+                 skos:definition "anatomical site or structure associated to the concept" .
+
+#---------- DatatypeProperty ----------
+
+sphn:hasFirstRecordDateTime a owl:DatatypeProperty ;
+                            rdfs:label "has first record datetime" ;
+                            rdfs:domain [ a owl:Class ;
+                                          owl:unionOf ( sphn:Allergy sphn:SPHNConcept ) ] ;
+                            rdfs:range xsd:dateTime ;
+                            rdfs:subPropertyOf sphn:hasRecordDateTime ;
+                            skos:definition "datetime the concept was first recorded" ;
+                            sphn:subjectToDeIdentification true .
+
+sphn:hasRecordDateTime a owl:DatatypeProperty ;
+                       rdfs:label "has record datetime" ;
+                       rdfs:domain [ a owl:Class ;
+                                     owl:unionOf ( sphn:SPHNConcept sphn:Allergy ) ] ;
+                       rdfs:range xsd:dateTime ;
+                       rdfs:subPropertyOf sphn:hasDateTime ;
+                       skos:definition "datetime the concept was recorded" ;
+                       sphn:subjectToDeIdentification true .
+
+sphn:hasLastReactionDateTime a owl:DatatypeProperty ;
+                             rdfs:label "has last reaction datetime" ;
+                             rdfs:domain [ a owl:Class ;
+                                           owl:unionOf ( sphn:Allergy sphn:SPHNConcept ) ] ;
+                             rdfs:range xsd:dateTime ;
+                             rdfs:subPropertyOf sphn:hasDateTime ;
+                             skos:definition "datetime of the last reaction" ;
+                             sphn:subjectToDeIdentification true .
+
+sphn:hasExtractionDateTime a owl:DatatypeProperty ;
+                           rdfs:label "has extraction datetime" ;
+                           rdfs:domain [ a owl:Class ;
+                                         owl:unionOf ( sphn:DataRelease sphn:SPHNConcept ) ] ;
+                           rdfs:range xsd:dateTime ;
+                           rdfs:subPropertyOf sphn:hasDateTime ;
+                           skos:definition "date of the extraction of the data" .
+
+sphn:hasDateTime a owl:DatatypeProperty ;
+                 rdfs:label "has datetime" ;
+                 rdfs:domain [ a owl:Class ;
+                               owl:unionOf ( sphn:AllergyEpisode sphn:SPHNConcept sphn:DataRelease sphn:Allergy ) ] ;
+                 rdfs:range xsd:dateTime ;
+                 rdfs:subPropertyOf sphn:SPHNAttributeDatatype ;
+                 skos:definition "datetime of the concept" ;
+                 sphn:subjectToDeIdentification true .
+
+sphn:hasName a owl:DatatypeProperty ;
+             rdfs:label "has name" ;
+             rdfs:domain [ a owl:Class ;
+                           owl:unionOf ( sphn:SPHNConcept sphn:Code ) ] ;
+             rdfs:range xsd:string ;
+             rdfs:subPropertyOf sphn:SPHNAttributeDatatype ;
+             skos:definition "name associated to the concept" .
+
+sphn:hasIdentifier a owl:DatatypeProperty ;
+                   rdfs:label "has identifier" ;
+                   rdfs:domain [ a owl:Class ;
+                                 owl:unionOf ( sphn:SPHNConcept sphn:Code sphn:SubjectPseudoIdentifier ) ] ;
+                   rdfs:range xsd:string ;
+                   rdfs:subPropertyOf sphn:SPHNAttributeDatatype ;
+                   skos:definition "unique identifier identifying the concept" ;
+                   sphn:subjectToDeIdentification true .
+
+sphn:hasCodingSystemAndVersion a owl:DatatypeProperty ;
+                               rdfs:label "has coding system and version" ;
+                               rdfs:domain [ a owl:Class ;
+                                             owl:unionOf ( sphn:Code sphn:SPHNConcept ) ] ;
+                               rdfs:range xsd:string ;
+                               rdfs:subPropertyOf sphn:SPHNAttributeDatatype ;
+                               skos:definition "name and version of the coding system" .
+
+sphn:hasValue a owl:DatatypeProperty ;
+              rdfs:label "has value" ;
+              rdfs:domain [ a owl:Class ;
+                            owl:unionOf ( sphn:Quantity sphn:SPHNConcept ) ] ;
+              rdfs:range [ a rdfs:Datatype ;
+                           owl:unionOf ( xsd:double xsd:string ) ] ;
+              rdfs:subPropertyOf sphn:SPHNAttributeDatatype ;
+              skos:definition "value of the concept" .
+
+
+
+#---------- resource ----------
+
+resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5
+    a sphn:DataProvider;
+    sphn:hasCode resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 .
+
+resource:CHE-229_707_417-Allergen-de1b372a-d3fb-447a-be5b-1e7f9ca5499d a sphn:Allergen;
+  sphn:hasCode resource:Code-SNOMED-CT-1255069002 .
+
+resource:CHE-229_707_417-Allergen-f77383c1-3458-4748-a9bb-17bca3f2c9bf a sphn:Allergen;
+  sphn:hasCode resource:Code-SNOMED-CT-396327004 .
+
+resource:CHE-229_707_417-Allergy-6f25e2a2-5a92-4187-99c7-8df48f4ff31e a sphn:Allergy;
+  sphn:hasAllergen resource:CHE-229_707_417-Allergen-f77383c1-3458-4748-a9bb-17bca3f2c9bf;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasFirstRecordDateTime "1991-07-09T02:40:42+00:00"^^xsd:dateTime;
+  sphn:hasLastReactionDateTime "2011-07-28T16:16:28+00:00"^^xsd:dateTime;
+  sphn:hasReactionTypeCode resource:Code-SNOMED-CT-419199007;
+  sphn:hasSeverityCode resource:Code-SNOMED-CT-723507007;
+  sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c;
+  sphn:hasVerificationStatusCode resource:Code-SNOMED-CT-723511001 .
+
+resource:CHE-229_707_417-AllergyEpisode-dd84f39e-7154-4a13-ba1d-50068d723104 a sphn:AllergyEpisode;
+  sphn:hasAllergen resource:CHE-229_707_417-Allergen-de1b372a-d3fb-447a-be5b-1e7f9ca5499d;
+  sphn:hasCertaintyCode resource:Code-SNOMED-CT-410592001;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasManifestationCode resource:Code-SNOMED-CT-65872000;
+  sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c .
+
+resource:CHE-229_707_417-BodySite-d3290a4c-b5d3-4b16-a619-4cb1d71037d1 a sphn:BodySite;
+  sphn:hasCode resource:Code-SNOMED-CT-308829001;
+  sphn:hasLaterality resource:CHE-229_707_417-Laterality-004ae545-a011-4be5-ab0c-1681c8f8e3d0 .
+
+resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 a sphn:Code;
+  sphn:hasCodingSystemAndVersion "adipisicing adipisicing adipisicing reprehenderit";
+  sphn:hasIdentifier "ID-593824-iWg";
+  sphn:hasName "odit reprehenderit Lorem accusantium" .
+
+resource:CHE-229_707_417-DataRelease-f728b4fa-4248-4e3a-8a5d-2f346baa9455 a sphn:DataRelease;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasExtractionDateTime "2004-10-16T19:14:57+00:00"^^xsd:dateTime .
+
+resource:CHE-229_707_417-Laterality-004ae545-a011-4be5-ab0c-1681c8f8e3d0 a sphn:Laterality;
+  sphn:hasCode resource:Code-SNOMED-CT-7771000 .
+
+resource:CHE-229_707_417-Quantity-534097ca-baf3-497a-be70-f16a55485822 a sphn:Quantity;
+  sphn:hasComparator sphn-individual:LessThan;
+  sphn:hasUnit resource:CHE-229_707_417-Unit-30e9c5cc-101f-4ccc-9ed7-33e8b421eaeb;
+  sphn:hasValue 5.523E3 .
+
+resource:CHE-229_707_417-Quantity-8c778ea6-eb20-43e6-8e16-4dba0ff18e02 a sphn:Quantity;
+  sphn:hasComparator sphn-individual:GreaterThan;
+  sphn:hasUnit resource:CHE-229_707_417-Unit-b83e90ec-17e0-4a3c-8398-3ca8ea7e9d49;
+  sphn:hasValue 2.845E3 .
+
+resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c
+  a sphn:SubjectPseudoIdentifier;
+  sphn:hasDataProvider resource:CHE-229_707_417-DataProvider-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasIdentifier "ID-892411-RvE" .
+
+resource:CHE-229_707_417-Unit-30e9c5cc-101f-4ccc-9ed7-33e8b421eaeb a sphn:Unit;
+  sphn:hasCode resource:Code-UCUM-Torr .
+
+resource:CHE-229_707_417-Unit-b83e90ec-17e0-4a3c-8398-3ca8ea7e9d49 a sphn:Unit;
+  sphn:hasCode resource:Code-UCUM-Lperh .
+
+resource:Code-SNOMED-CT-1255069002 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-255604002 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-308829001 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-372459003 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-396327004 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-410592001 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-419199007 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-65872000 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-723507007 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-723511001 a snomed:138875005 .
+
+resource:Code-SNOMED-CT-7771000 a snomed:138875005 .
+
+resource:Code-UCUM-Lperh a ucum:Lperh .
+
+resource:Code-UCUM-Torr a ucum:Torr .

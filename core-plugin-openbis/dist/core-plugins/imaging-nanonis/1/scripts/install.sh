@@ -18,12 +18,12 @@
 VENV_NAME=imaging_nanonis_venv
 echo "Installing required libraries. Please wait."
 # Creates python virtual environment for the sake of handling imaging-nanonis data
-python3 -m venv $VENV_NAME
+python3.10 -m venv $VENV_NAME
 
 # Activation
 source $VENV_NAME/bin/activate
 # Installation of packages remove '-q' flag to see output
-pip3 install -r python_requirements.txt -q
+pip3.10 install -r python_requirements.txt -q
 
 echo python3-path=$(pwd)/$VENV_NAME/bin/python >> ../../../imaging/1/dss/services/imaging/plugin.properties
 echo "Installation finished"
