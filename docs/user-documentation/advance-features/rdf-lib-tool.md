@@ -16,14 +16,18 @@ This tool supports various input and output formats and includes options for spe
 
 ## Installation
 
+### Requirements
+
+1. Java 17
+
 To use `rdf-lib-tool`, you need to have Java 17 installed on your system. 
 
-You can download the JAR file from the [? releases page](#).
+### Build the JAR
 
-### Download the JAR
+1. Download and set up the openBIS project (follow [building openBIS](#https://openbis.readthedocs.io/en/latest/software-developer-documentation/development-environment/installation-and-configuration-guide.html#building-openbis) guide)
+2. Run the gradle task `buildRdfTool`
+3. The JAR will be located under `lib-rdf/build/libs/lib-rdf-tool.jar`
 
-1. Download the latest version of `rdf-lib-tool.jar` from the [releases page](#).
-2. Save the JAR file to your desired directory.
 
 ## Usage
 
@@ -39,11 +43,13 @@ java -jar rdf-lib-tool.jar [options]
 
 ### Options
 ```bash
-(mandatory) -i, --input-format <file>:  Specifies the format of the input file (currently supports TTL).
-(mandatory) -o, --output-format <file>: Specifies the format of the output (currently supports XLSX, OPENBIS, OPENBIS-DEV).
--u, --username <username>: Specifies the username for authentication (needed for OPENBIS and OPENBIS-DEV output format options).
--p, --password <password>: Specifies the password for authentication (needed for OPENBIS and OPENBIS-DEV output format options).
--h, --help: Displays the help message.
+(mandatory) -i, --input-format <file>:  specifies the format of the input file (currently supports TTL).
+(mandatory) -o, --output-format <file>: specifies the format of the output (currently supports XLSX, OPENBIS, OPENBIS-DEV).
+-pid, --project: specifies the openBIS project identifier. Must be of the format '/{space}/{project}' e.g. '/DEFAULT/DEFAULT'
+-u, --username <username>: specifies the username for authentication (needed for OPENBIS and OPENBIS-DEV output format options).
+-p, --password <password>: specifies the password for authentication (needed for OPENBIS and OPENBIS-DEV output format options).
+-v, --verbose: displays detailed information on the process.
+-h, --help: displays the help message.
 ```
 
 Other mandatory parameters must be provided based on what output format has been chosen:
@@ -74,7 +80,7 @@ java -jar lib-rdf-tool.jar -i TTL -o XLSX path/to/schema.ttl path/to/output.xlsx
 ### Connect to openBIS
 Import an RDF file in TTL format directly in to openBIS instances as `Sample Types`:
 ```bash
-java -jar lib-rdf-tool.jar -i TTL -o OPENBIS path/to/schema.ttl -u yourUsername -p http://localhost:8888/openbis/openbis
+java -jar lib-rdf-tool.jar -i TTL -o OPENBIS path/to/schema.ttl -u yourUsername -p http://localhost:8888
 ```
 
 For development environment add the DSS URL:
@@ -82,7 +88,6 @@ For development environment add the DSS URL:
 java -jar lib-rdf-tool.jar -i TTL -o OPENBIS-DEV path/to/schema.ttl -u yourUsername -p http://localhost:8888/openbis/openbis http://localhost:8889/datastore_server
 ```
 
-In both cases a username and a password to log in in the openBIS instance are required. 
+In both cases a username and a password to login into the openBIS instance are required. 
 
 The password will be inserted in a safe prompt.
-
