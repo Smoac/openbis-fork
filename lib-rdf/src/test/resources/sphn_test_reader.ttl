@@ -144,11 +144,7 @@ resource:CHE-229_707_417-Unit-b83e90ec-17e0-4a3c-8398-3ca8ea7e9d49 a sphn:Unit;
 
 resource:Code-SNOMED-CT-1255069002 a snomed:138875005 .
 
-resource:Code-SNOMED-CT-255604002 a snomed:138875005 .
-
 resource:Code-SNOMED-CT-308829001 a snomed:138875005 .
-
-resource:Code-SNOMED-CT-372459003 a snomed:138875005 .
 
 resource:Code-SNOMED-CT-396327004 a snomed:138875005 .
 
