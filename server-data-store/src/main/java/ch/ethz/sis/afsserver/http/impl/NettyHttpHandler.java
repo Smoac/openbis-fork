@@ -15,22 +15,30 @@
  */
 package ch.ethz.sis.afsserver.http.impl;
 
+import ch.ethz.sis.afsserver.exception.HTTPExceptions;
 import ch.ethz.sis.afsserver.http.HttpResponse;
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.stream.ChunkedStream;
 
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
 
@@ -45,14 +53,15 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
     private static final Set<HttpMethod> allowedMethods = Set.of(GET, POST, PUT, DELETE, OPTIONS);
 
-    private final String uri;
 
-    private final HttpServerHandler httpServerHandler;
+    private final Map<String, HttpServerHandler> httpServerHandler;
 
-    public NettyHttpHandler(String uri, HttpServerHandler httpServerHandler)
+    public NettyHttpHandler(String uri, HttpServerHandler[] httpServerHandlersAux)
     {
-        this.uri = uri;
-        this.httpServerHandler = httpServerHandler;
+        httpServerHandler = new ConcurrentHashMap<>(httpServerHandlersAux.length);
+        for (HttpServerHandler httpServerHandler:httpServerHandlersAux) {
+            this.httpServerHandler.put(uri + "/" + httpServerHandler.getPath(), httpServerHandler);
+        }
     }
 
     @Override
@@ -63,7 +72,8 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
             final FullHttpRequest request = (FullHttpRequest) msg;
             QueryStringDecoder queryStringDecoderForPath = new QueryStringDecoder(request.uri(), true);
 
-            if (queryStringDecoderForPath.path().equals(uri) &&
+            HttpServerHandler httpServerHandler = this.httpServerHandler.get(queryStringDecoderForPath.path());
+            if (httpServerHandler != null &&
                     allowedMethods.contains(request.method()))
             {
                 if (OPTIONS.equals(request.method()))
@@ -84,7 +94,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
                     final FullHttpResponse response = getHttpResponse(
                             responseStatus,
-                            HttpResponse.CONTENT_TYPE_TEXT,
+                            Map.of(HttpResponse.CONTENT_TYPE_HEADER, HttpResponse.CONTENT_TYPE_TEXT),
                             new EmptyByteBuf(ByteBufAllocator.DEFAULT),
                             0);
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -108,15 +118,39 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
                         HttpResponse apiResponse = httpServerHandler.process(request.method(),
                                 queryStringDecoderForParameters.parameters(), null);
-                        HttpResponseStatus status = (!apiResponse.isError()) ?
-                                HttpResponseStatus.OK :
-                                HttpResponseStatus.BAD_REQUEST;
-                        final FullHttpResponse response = getHttpResponse(
-                                status,
-                                apiResponse.getContentType(),
-                                Unpooled.wrappedBuffer(apiResponse.getBody()),
-                                apiResponse.getBody().length);
-                        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+
+                        HttpResponseStatus status = null;
+                        switch (apiResponse.getStatus()) {
+                            case HttpResponse.OK:
+                                status = HttpResponseStatus.OK;
+                                break;
+                            case HttpResponse.BAD_REQUEST:
+                                status = HttpResponseStatus.BAD_REQUEST;
+                                break;
+                            case HttpResponse.NOT_FOUND:
+                                status = HttpResponseStatus.NOT_FOUND;
+                                break;
+                            case HttpResponse.INTERNAL_SERVER_ERROR:
+                                status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+                                break;
+                            default:
+                                HTTPExceptions.throwInstance(HTTPExceptions.UNKNOWN);
+                        }
+
+                        if (apiResponse.getStatus() == HttpResponse.OK &&
+                                HttpResponse.CONTENT_TYPE_ZIP.equals(apiResponse.getHeaders().get(HttpResponse.CONTENT_TYPE_HEADER))) {
+                            ctx.writeAndFlush(new ChunkedStream(apiResponse.getInput()))
+                                    .addListener(ChannelFutureListener.CLOSE);
+                        } else {
+                            byte[] bytes = apiResponse.getInput().readAllBytes();
+                            final FullHttpResponse response = getHttpResponse(
+                                    status,
+                                    apiResponse.getHeaders(),
+                                    Unpooled.wrappedBuffer(bytes),
+                                    bytes.length);
+                            ctx.writeAndFlush(response)
+                                    .addListener(ChannelFutureListener.CLOSE);
+                        }
                     } finally
                     {
                         content.release();
@@ -126,7 +160,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
             {
                 FullHttpResponse response = getHttpResponse(
                         HttpResponseStatus.NOT_FOUND,
-                        HttpResponse.CONTENT_TYPE_TEXT,
+                        Map.of(HttpResponse.CONTENT_TYPE_HEADER, HttpResponse.CONTENT_TYPE_TEXT),
                         NOT_FOUND_BUFFER,
                         NOT_FOUND.length);
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -150,7 +184,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
         byte[] causeBytes = cause.getMessage().getBytes();
         FullHttpResponse response = getHttpResponse(
                 HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                "text/plain",
+                Map.of(HttpResponse.CONTENT_TYPE_HEADER, HttpResponse.CONTENT_TYPE_TEXT),
                 Unpooled.wrappedBuffer(causeBytes),
                 causeBytes.length
         );
@@ -159,7 +193,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
     public FullHttpResponse getHttpResponse(
             HttpResponseStatus status,
-            String contentType,
+            Map<String, String> headers,
             ByteBuf content,
             int contentLength)
     {
@@ -173,7 +207,11 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
         response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,
                 String.join(", ", allowedMethods.stream().map(HttpMethod::name).collect(Collectors.toUnmodifiableList())));
         response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "*");
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+
+        for (Map.Entry<String, String> header: headers.entrySet()) {
+            response.headers().set(header.getKey(), header.getValue());
+        }
+
         response.headers().set(HttpHeaderNames.CONNECTION, "close");
         return response;
     }

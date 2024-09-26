@@ -17,7 +17,9 @@ package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.afsserver.http.HttpServer;
+import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
+import ch.ethz.sis.afsserver.server.impl.HttpDownloadAdapter;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
@@ -44,6 +46,8 @@ public final class Server<CONNECTION, API>
     private JacksonObjectMapper jsonObjectMapper;
 
     private ApiServerAdapter<CONNECTION, API> apiServerAdapter;
+
+    private HttpDownloadAdapter<CONNECTION, API> httpDownloadAdapter;
 
     private HttpServer httpServer;
 
@@ -106,15 +110,19 @@ public final class Server<CONNECTION, API>
         jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
         apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
 
-        // 2.6 Creating HTTP Service
+        // 2.6 Creating Download Service
+        logger.info("Creating Download Server adaptor");
+        httpDownloadAdapter = new HttpDownloadAdapter<>(apiServer, jsonObjectMapper);
+
+        // 2.7 Creating HTTP Service
         int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         int maxContentLength = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpMaxContentLength);
         logger.info("Starting HTTP Service on port " + httpServerPort + " with maxContentLength " + maxContentLength);
         httpServer = configuration.getSharableInstance(AtomicFileSystemServerParameter.httpServerClass);
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
-        httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
+        httpServer.start(httpServerPort, maxContentLength, httpServerUri, new HttpServerHandler[] { apiServerAdapter });
 
-        // 2.7 Init observer
+        // 2.8 Init observer
         observer = configuration.getInstance(AtomicFileSystemServerParameter.serverObserver);
         if (observer == null)
         {

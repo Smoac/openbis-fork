@@ -15,6 +15,10 @@
  */
 package ch.ethz.sis.afsserver.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.afsserver.core.AbstractPublicAPIWrapper;
 import ch.ethz.sis.afsserver.http.HttpResponse;
@@ -23,11 +27,6 @@ import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
 {
@@ -105,11 +104,9 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
                 throw new IllegalArgumentException("Not supported HTTP method type!");
             }
 
-
-
             HttpResponse response = apiServerAdapter.process(httpMethod, requestParameters, requestBody);
-            String contentType = response.getContentType();
-            byte[] body = response.getBody();
+            String contentType = response.getHeaders().get(HttpResponse.CONTENT_TYPE_HEADER);
+            byte[] body = response.getInput().readAllBytes();
 
             return AfsClient.getResponseResult(responseType, contentType, body);
         } catch (Throwable throwable)

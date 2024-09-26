@@ -12,7 +12,7 @@ function _DataStoreServerInternal(datastoreUrlOrNull, httpServerUri){
 }
 
 _DataStoreServerInternal.prototype.init = function(datastoreUrlOrNull, httpServerUri){
-	this.datastoreUrl = this.normalizeUrl(datastoreUrlOrNull, httpServerUri);
+	this.datastoreUrl = this.normalizeUrl(datastoreUrlOrNull, httpServerUri) + "/api";
 	this.httpServerUri = httpServerUri;
 }
 
