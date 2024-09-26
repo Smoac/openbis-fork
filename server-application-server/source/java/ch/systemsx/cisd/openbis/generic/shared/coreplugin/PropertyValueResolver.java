@@ -39,6 +39,15 @@ final class PropertyValueResolver {
         this.getEnvVariableMethod = getEnvVariableMethod;
     }
 
+    /**
+     * Resolves value of property. If the value is referencing another variable (e.g. ${some.variable}),
+     * it checks its existence in order:
+     * 1. sys arguments
+     * 2. environment variables
+     * 3. provided properties
+     * 4. default value (if provided in form ${some.variable:defaultValue})
+     * If nothing is found, original value is returned.
+     */
     public String resolvePropertyValue(final String propertyValue)
     {
         if(propertyValue != null && !propertyValue.isEmpty()) {
