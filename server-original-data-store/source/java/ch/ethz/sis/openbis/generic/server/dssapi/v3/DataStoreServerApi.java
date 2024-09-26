@@ -32,10 +32,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.IExecuteCustomDSSServiceExecutor;
-
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +61,11 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSe
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.download.DataSetFileDownloadInputStream;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.ICreateUploadedDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.IExecuteCustomDSSServiceExecutor;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.pathinfo.PathInfoFeeder;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -154,6 +153,12 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     public SearchResult<DataSetFile> searchFiles(String sessionToken,
             DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
     {
+        if (fetchOptions.getFrom() != null || fetchOptions.getCount() != null)
+        {
+            throw new IllegalArgumentException("Pagination parameters are not supported. Try to make the search more specific, "
+                    + "if you want to make the result set smaller.");
+        }
+
         getOpenBISService().checkSession(sessionToken);
 
         List<DataSetFile> result = new ArrayList<>();

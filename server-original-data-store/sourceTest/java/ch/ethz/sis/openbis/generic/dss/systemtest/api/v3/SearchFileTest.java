@@ -111,8 +111,41 @@ public class SearchFileTest extends AbstractFileTest
         dss.searchFiles(sessionToken, c, fo);
 
         assertAccessLog(
-                "search-files  SEARCH_CRITERIA:\n'FILE\n    with dataset:\n        with attribute 'perm id' equal to '" + dataSetCode
-                        + "'\n'\nFETCH_OPTIONS:\n'DataSetFile\n'");
+                "search-files  SEARCH_CRITERIA:\n"
+                + "'FILE\n"
+                + "    with dataset:\n"
+                + "        with operator 'AND'\n"
+                + "        with data_store:\n"
+                + "            with data store kinds [DSS]\n"
+                + "        with attribute 'perm id' equal to '" + dataSetCode + "'\n"
+                + "'\n"
+                + "FETCH_OPTIONS:\n"
+                + "'DataSetFile\n"
+                + "'");
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Pagination parameters are not supported\\. Try to make the search more specific, "
+            + "if you want to make the result set smaller\\.")
+    public void testPagingWithFrom() throws Exception
+    {
+        final String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        final int from = 2;
+        final DataSetFileFetchOptions fetchOptions = new DataSetFileFetchOptions();
+        fetchOptions.from(from);
+        dss.searchFiles(sessionToken, new DataSetFileSearchCriteria(), fetchOptions); // Exception expected here.
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Pagination parameters are not supported\\. Try to make the search more specific, "
+            + "if you want to make the result set smaller\\.")
+    public void testPagingWithCount() throws Exception
+    {
+        final String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+        final int count = 4;
+        final DataSetFileFetchOptions fetchOptions = new DataSetFileFetchOptions();
+        fetchOptions.count(count);
+        dss.searchFiles(sessionToken, new DataSetFileSearchCriteria(), fetchOptions); // Exception expected here.
     }
 
 }
