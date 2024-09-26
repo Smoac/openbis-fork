@@ -118,7 +118,7 @@ public class CorePluginsInjector
         LinkedList<String> listOfDisabledMasterDataInitialization = new LinkedList<String>();
 
         Map<IPluginType, Map<String, NamedCorePluginFolder>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
+                scanForCorePlugins(properties, corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
                         pluginNames, listOfDisabledMasterDataInitialization);
 
         injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, 
@@ -197,7 +197,7 @@ public class CorePluginsInjector
     }
 
     private Map<IPluginType, Map<String, NamedCorePluginFolder>> scanForCorePlugins(
-            String corePluginsFolderPath, ModuleEnabledChecker moduleEnabledChecker,
+            Properties properties, String corePluginsFolderPath, ModuleEnabledChecker moduleEnabledChecker,
             List<String> disabledPlugins, Set<String> pluginNames, List<String> disabledMasterDataInitialization)
     {
         Map<IPluginType, Map<String, NamedCorePluginFolder>> typeToPluginsMap =
@@ -234,7 +234,7 @@ public class CorePluginsInjector
                     {
                         String pluginName = pluginFolder.getName();
                         NamedCorePluginFolder plugin =
-                                new NamedCorePluginFolder(module, pluginType, pluginFolder);
+                                new NamedCorePluginFolder(properties, module, pluginType, pluginFolder);
                         String fullPluginName = plugin.getFullPluginName();
                         if (isDisabled(enabledPlugins, disabledPlugins, fullPluginName) == false)
                         {
@@ -425,7 +425,7 @@ public class CorePluginsInjector
 
         private Properties pluginProperties;
 
-        NamedCorePluginFolder(String technology, IPluginType pluginType, File definingFolder)
+        NamedCorePluginFolder(Properties existingProperties, String technology, IPluginType pluginType, File definingFolder)
         {
             this.technology = technology;
             name = definingFolder.getName();
@@ -435,7 +435,7 @@ public class CorePluginsInjector
             {
                 throw new EnvironmentFailureException("Is not a directory: " + definingFolder);
             }
-            pluginProperties = getPluginProperties(definingFolder);
+            pluginProperties = getPluginProperties(existingProperties, definingFolder);
         }
 
         String getTechnology()
@@ -472,8 +472,9 @@ public class CorePluginsInjector
         /**
          * Load plugin properties file where all references to script names are replaced by script paths.
          */
-        private Properties getPluginProperties(File folder)
+        private Properties getPluginProperties(Properties existingProperties, File folder)
         {
+            PropertyValueResolver resolver = new PropertyValueResolver(existingProperties);
             File pluginPropertiesFile = new File(folder, PLUGIN_PROPERTIES_FILE_NAME);
             if (pluginPropertiesFile.exists() == false)
             {
@@ -492,6 +493,7 @@ public class CorePluginsInjector
             for (Entry<Object, Object> keyValuePair : properties.entrySet())
             {
                 String value = keyValuePair.getValue().toString();
+                value = resolver.resolvePropertyValue(value);
                 for (File script : scripts)
                 {
                     value = value.replace(script.getName(), script.getPath());

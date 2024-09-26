@@ -224,10 +224,10 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty
                 + "fdata = ../my-data\n" + "inputs = a, b, my-drop-box\n"
-                + "my-drop-box.class = blabla\n" + "my-drop-box.incoming = ${fdata}\n"
+                + "my-drop-box.class = blabla\n" + "my-drop-box.incoming = ../my-data\n"
                 + "my-drop-box.script = " + myDropBox + "/handler.py\n", properties);
         assertEquals("../my-data", properties.getProperty("my-drop-box.incoming"));
-
+        System.getenv();
         context.assertIsSatisfied();
     }
 
