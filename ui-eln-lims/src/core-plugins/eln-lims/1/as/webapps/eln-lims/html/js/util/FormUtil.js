@@ -823,11 +823,27 @@ var FormUtil = new function() {
 	    var isLink = propertyType.dataType === "HYPERLINK";
 	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
-			if(propertyType.vocabulary.urlTemplate) {
-			    hyperlinkLabel = propertyValue;
-			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
-			    isLink = true;
+		    if(propertyValue && propertyValue.includes(',')) {
+		        //multivalue vocabulary property case
+		        var values = propertyValue.split(',');
+		        var result = [];
+		        for(let value of values) {
+		            var singleValue = this.getVocabularyLabelForTermCode(propertyType, value.trim());
+                    if(propertyType.vocabulary.urlTemplate) {
+                        hyperlinkLabel = singleValue;
+                        singleValue = propertyType.vocabulary.urlTemplate.replace('${term}', singleValue);
+                        isLink = true;
+                    }
+                    result.push(singleValue);
+		        }
+		        propertyValue = result.join(', ');
+		    } else {
+                propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
+                if(propertyType.vocabulary.urlTemplate) {
+                    hyperlinkLabel = propertyValue;
+                    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
+                    isLink = true;
+                }
 			}
 		} else if (propertyType.dataType === "INTEGER" || propertyType.dataType === "REAL") {
 		    var numberFormat = new Intl.NumberFormat('en-US', { notation : "standard",
