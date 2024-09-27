@@ -26,9 +26,9 @@ public abstract class AbstractPostRegistrationTask implements IPostRegistrationT
 {
     protected final Properties properties;
 
-    protected final EncapsulatedOpenBISService service;
+    protected final IEncapsulatedOpenBISService service;
 
-    public AbstractPostRegistrationTask(Properties properties, EncapsulatedOpenBISService service)
+    public AbstractPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this.properties = properties;
         this.service = service;

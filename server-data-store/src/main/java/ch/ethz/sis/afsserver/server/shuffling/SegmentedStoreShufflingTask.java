@@ -63,7 +63,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
         @Override
         public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
-                EncapsulatedOpenBISService service, IDataSetMover dataSetMover,
+                IEncapsulatedOpenBISService service, IDataSetMover dataSetMover,
                 ISimpleLogger logger)
         {
             logger.log(INFO, "Data Store Shares:");
@@ -114,7 +114,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
     private final Set<String> incomingShares;
 
-    private final EncapsulatedOpenBISService service;
+    private final IEncapsulatedOpenBISService service;
 
     private final IDataSetMover dataSetMover;
 
@@ -137,7 +137,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
                 new SimpleLogger(operationLog));
     }
 
-    SegmentedStoreShufflingTask(Set<String> incomingShares, EncapsulatedOpenBISService service,
+    SegmentedStoreShufflingTask(Set<String> incomingShares, IEncapsulatedOpenBISService service,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
         this.incomingShares = incomingShares;

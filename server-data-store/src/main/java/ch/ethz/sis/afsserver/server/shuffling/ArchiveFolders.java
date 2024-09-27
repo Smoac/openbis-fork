@@ -146,7 +146,7 @@ public abstract class ArchiveFolders
 
         private Long smallDataSetsSizeLimit;
 
-        private EncapsulatedOpenBISService service;
+        private IEncapsulatedOpenBISService service;
 
         private IShareIdManager shareIdManager;
 
@@ -215,7 +215,7 @@ public abstract class ArchiveFolders
             return shareIdManager;
         }
 
-        private EncapsulatedOpenBISService getService()
+        private IEncapsulatedOpenBISService getService()
         {
             if (service == null)
             {

@@ -38,4 +38,9 @@ public class ConnectionFactory extends AbstractFactory<Configuration, Configurat
     public TransactionConnection create(Configuration configuration) throws Exception {
         return transactionManager.getTransactionConnection();
     }
+
+    public TransactionManager getTransactionManager()
+    {
+        return transactionManager;
+    }
 }

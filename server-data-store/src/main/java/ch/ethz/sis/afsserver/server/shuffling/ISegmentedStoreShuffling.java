@@ -35,5 +35,5 @@ public interface ISegmentedStoreShuffling
      * Moves data sets from source shares to some target shares if necessary.
      */
     public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
-            EncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger);
+            IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger);
 }

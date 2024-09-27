@@ -101,19 +101,22 @@ public class ShareIdManager implements IShareIdManager
 
     private static final Logger operationLog = LogManager.getLogger(ShareIdManager.class);
 
-    private final EncapsulatedOpenBISService service;
+    private final IEncapsulatedOpenBISService service;
 
     private final int lockingTimeOut;
 
     private final Map<String, Set<Thread>> lockedDataSets = new HashMap<String, Set<Thread>>();
 
+    private final IShareIdLockManager lockManager;
+
     private final Object dataSetCodeToShareIdMapMonitor = new Object();
 
     private Map<String, GuardedShareID> dataSetCodeToShareIdMap;
 
-    public ShareIdManager(EncapsulatedOpenBISService service, int lockingTimeOutInSeconds)
+    public ShareIdManager(IEncapsulatedOpenBISService service, IShareIdLockManager lockManager, int lockingTimeOutInSeconds)
     {
         this.service = service;
+        this.lockManager = lockManager;
         this.lockingTimeOut = lockingTimeOutInSeconds;
     }
 

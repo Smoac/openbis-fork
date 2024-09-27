@@ -28,7 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.search.DataStoreKind;
 
-public class EncapsulatedOpenBISService
+public class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService
 {
 
     private final OpenBISFacade openBISFacade;
@@ -38,7 +38,7 @@ public class EncapsulatedOpenBISService
         this.openBISFacade = openBISFacade;
     }
 
-    public List<SimpleDataSetInformationDTO> listDataSets()
+    @Override public List<SimpleDataSetInformationDTO> listDataSets()
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withDataStore().withKind().thatIn(DataStoreKind.AFS);
@@ -55,7 +55,7 @@ public class EncapsulatedOpenBISService
         return searchResult.getObjects().stream().map(EncapsulatedOpenBISService::convert).collect(Collectors.toList());
     }
 
-    public SimpleDataSetInformationDTO tryGetDataSet(String dataSetCode)
+    @Override public SimpleDataSetInformationDTO tryGetDataSet(String dataSetCode)
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withDataStore().withKind().thatIn(DataStoreKind.AFS);
@@ -80,7 +80,7 @@ public class EncapsulatedOpenBISService
         }
     }
 
-    public void updateShareIdAndSize(final String dataSetCode, final String shareId, final long size)
+    @Override public void updateShareIdAndSize(final String dataSetCode, final String shareId, final long size)
     {
         PhysicalDataUpdate physicalDataUpdate = new PhysicalDataUpdate();
         physicalDataUpdate.setShareId(shareId);

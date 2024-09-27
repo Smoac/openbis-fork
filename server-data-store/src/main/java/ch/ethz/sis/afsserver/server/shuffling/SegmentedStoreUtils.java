@@ -151,7 +151,7 @@ public class SegmentedStoreUtils
      */
     public static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, Set<String> incomingShares,
-            IFreeSpaceProvider freeSpaceProvider, EncapsulatedOpenBISService service,
+            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
             ISimpleLogger log)
     {
         final long start = System.currentTimeMillis();
@@ -170,7 +170,7 @@ public class SegmentedStoreUtils
 
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
-            EncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
+            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares =
                 getShares(storeRoot, dataStoreCode, filterOptions,
@@ -182,7 +182,7 @@ public class SegmentedStoreUtils
 
     private static Map<String, Share> getShares(File storeRoot, String dataStoreCode,
             FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
-            EncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
+            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares = new HashMap<String, Share>();
         final SharesHolder sharesHolder =
@@ -217,7 +217,7 @@ public class SegmentedStoreUtils
      * @param checksumProvider
      */
     public static void moveDataSetToAnotherShare(final File dataSetDirInStore, File share,
-            EncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
+            IEncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
             IChecksumProvider checksumProvider, final ISimpleLogger logger)
     {
         if (FileOperations.getMonitoredInstanceForCurrentThread().exists(dataSetDirInStore) == false)

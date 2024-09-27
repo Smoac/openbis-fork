@@ -26,11 +26,11 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
  */
 public class DataSetMover implements IDataSetMover
 {
-    private final EncapsulatedOpenBISService service;
+    private final IEncapsulatedOpenBISService service;
 
     private final IShareIdManager manager;
 
-    public DataSetMover(EncapsulatedOpenBISService service, IShareIdManager shareIdManager)
+    public DataSetMover(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager)
     {
         this.service = service;
         manager = shareIdManager;

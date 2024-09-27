@@ -1,6 +1,13 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
+import java.util.List;
+import java.util.UUID;
+
+import ch.ethz.sis.afs.dto.Lock;
+import ch.ethz.sis.afs.manager.TransactionManager;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
+import ch.ethz.sis.afsserver.worker.ConnectionFactory;
 import ch.ethz.sis.shared.startup.Configuration;
 
 public class ServiceProvider
@@ -11,7 +18,7 @@ public class ServiceProvider
 
     private static IShareIdManager shareIdManager;
 
-    private static EncapsulatedOpenBISService openBISService;
+    private static IEncapsulatedOpenBISService openBISService;
 
     private static IConfigProvider configProvider;
 
@@ -26,7 +33,7 @@ public class ServiceProvider
         return shareIdManager;
     }
 
-    public static EncapsulatedOpenBISService getOpenBISService()
+    public static IEncapsulatedOpenBISService getOpenBISService()
     {
         initialize();
         return openBISService;
@@ -53,10 +60,10 @@ public class ServiceProvider
                         throw new RuntimeException("Cannot initialize with null configuration");
                     }
 
-                    EncapsulatedOpenBISService encapsulatedOpenBISService =
+                    IEncapsulatedOpenBISService encapsulatedOpenBISService =
                             new EncapsulatedOpenBISService(AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration));
-                    ShareIdManager shareIdManager =
-                            new ShareIdManager(encapsulatedOpenBISService,
+                    IShareIdManager shareIdManager =
+                            new ShareIdManager(encapsulatedOpenBISService, getLockManager(),
                                     AtomicFileSystemServerParameterUtil.getDataSetLockingTimeout(configuration));
                     ConfigProvider configProvider = new ConfigProvider(configuration);
 
@@ -66,6 +73,41 @@ public class ServiceProvider
                     initialized = true;
                 }
             }
+        }
+    }
+
+    private static IShareIdLockManager getLockManager()
+    {
+        Object connectionFactoryObject;
+
+        try
+        {
+            connectionFactoryObject = configuration.getSharableInstance(AtomicFileSystemServerParameter.connectionFactoryClass);
+        } catch (Exception e)
+        {
+            throw new RuntimeException("Could not get instance of connection factory", e);
+        }
+
+        if (connectionFactoryObject instanceof ConnectionFactory)
+        {
+            ConnectionFactory connectionFactory = (ConnectionFactory) connectionFactoryObject;
+            TransactionManager transactionManager = connectionFactory.getTransactionManager();
+            return new IShareIdLockManager()
+            {
+                @Override public void lock(final List<Lock<UUID, String>> locks)
+                {
+                    transactionManager.lock(locks);
+                }
+
+                @Override public void unlock(final List<Lock<UUID, String>> locks)
+                {
+                    transactionManager.unlock(locks);
+                }
+            };
+        } else
+        {
+            throw new RuntimeException("Unsupported connection factory class " + connectionFactoryObject.getClass()
+                    + ". Cannot extract instance of transaction manager from it.");
         }
     }
 

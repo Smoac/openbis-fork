@@ -92,7 +92,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
 
     @Override
     public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
-            EncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger)
+            IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
         List<ShareAndFreeSpace> fullShares = getFullShares(sourceShares);
         for (ShareAndFreeSpace fullShare : fullShares)
