@@ -169,7 +169,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			var $row = $("<tr>");
 			$table.append($row);
 			for(var j = 0; j < tableData.modelDetailed[i].length; j++) {
-				var $column = $("<td>", { 'style' : 'border: 1px solid #AAAAAA; height: 34px;' });
+				var $column = $("<td>", { 'style' : 'border: 1px solid #AAAAAA; height: 40px;' });
 				$row.append($column);
 				
 				if(this._freeFormTableModel.isEnabled) {
