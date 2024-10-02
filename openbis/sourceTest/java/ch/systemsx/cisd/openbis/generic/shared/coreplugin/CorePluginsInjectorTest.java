@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import static ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME;
@@ -88,24 +87,24 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         PluginType type4 = new PluginType("miscellaneous", null);
         PluginType type5 = new PluginType("processing-plugins", "processing-plugins");
         PluginType type6 = new PluginType("dss-data-sources", "prefix.dss")
+        {
+            @Override
+            public String getPluginKey(String technology, String pluginFolderName,
+                                       Properties properties)
             {
-                @Override
-                public String getPluginKey(String technology, String pluginFolderName,
-                        Properties properties)
-                {
-                    String actualTechnology = properties.getProperty("technology", technology);
-                    return pluginFolderName + "[" + actualTechnology + "]";
-                }
+                String actualTechnology = properties.getProperty("technology", technology);
+                return pluginFolderName + "[" + actualTechnology + "]";
+            }
 
-                @Override
-                public String getPrefix()
-                {
-                    return "prefix.";
-                }
-            };
+            @Override
+            public String getPrefix()
+            {
+                return "prefix.";
+            }
+        };
         PluginType typeWebapps = new PluginType("webapps", "webapps");
         injector = new CorePluginsInjector(ScannerType.DSS, new IPluginType[]
-        { type1, type2, type3, type4, type5, type6, typeWebapps }, logger);
+                { type1, type2, type3, type4, type5, type6, typeWebapps }, logger);
         corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         corePluginsFolderProperty =
@@ -225,10 +224,10 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty
                 + "fdata = ../my-data\n" + "inputs = a, b, my-drop-box\n"
-                + "my-drop-box.class = blabla\n" + "my-drop-box.incoming = ${fdata}\n"
+                + "my-drop-box.class = blabla\n" + "my-drop-box.incoming = ../my-data\n"
                 + "my-drop-box.script = " + myDropBox + "/handler.py\n", properties);
         assertEquals("../my-data", properties.getProperty("my-drop-box.incoming"));
-
+        System.getenv();
         context.assertIsSatisfied();
     }
 
@@ -359,7 +358,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDependentPlugins()
     {
@@ -378,22 +377,22 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         File s2 = new File(corePluginsFolder, "dep/1/dss/services/s2");
         s2.mkdirs();
         FileUtilities.writeToFile(new File(s2, PLUGIN_PROPERTIES_FILE_NAME), "");
-        FileUtilities.writeToFile(new File(corePluginsFolder, "dep/1/" + CORE_PLUGIN_PROPERTIES_FILE_NAME), 
+        FileUtilities.writeToFile(new File(corePluginsFolder, "dep/1/" + CORE_PLUGIN_PROPERTIES_FILE_NAME),
                 CorePluginScanner.REQUIRED_PLUGINS_KEY + " = dep2:reporting-plugins, dep2:services");
         File misc = new File(corePluginsFolder, "screening/1/dss/miscellaneous/c");
         misc.mkdirs();
         FileUtilities.writeToFile(new File(misc, PLUGIN_PROPERTIES_FILE_NAME), "");
-        FileUtilities.writeToFile(new File(corePluginsFolder, "screening/1/" + CORE_PLUGIN_PROPERTIES_FILE_NAME), 
+        FileUtilities.writeToFile(new File(corePluginsFolder, "screening/1/" + CORE_PLUGIN_PROPERTIES_FILE_NAME),
                 CorePluginScanner.REQUIRED_PLUGINS_KEY + " = dep:drop-boxes:a, dep:services");
-        
+
         Properties properties = createProperties();
-        preparePluginNameLog("dep2:reporting-plugins:r1 [" + r1 + "]", "dep:drop-boxes:a [" + dpa + "]", 
-                "dep:services:s1 [" + s1 + "]", 
+        preparePluginNameLog("dep2:reporting-plugins:r1 [" + r1 + "]", "dep:drop-boxes:a [" + dpa + "]",
+                "dep:services:s1 [" + s1 + "]",
                 "dep:services:s2 [" + s2 + "]", "screening:miscellaneous:c [" + misc + "]");
-        
+
         injector.injectCorePlugins(properties);
-        
-        assertProperties(corePluginsFolderProperty 
+
+        assertProperties(corePluginsFolderProperty
                 + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = dep,dep2\n" + enabledScreeningProperty
                 + "inputs = a\n" + "plugin-services = s1, s2\n"
                 + "reporting-plugins = r1\n", properties);
@@ -429,7 +428,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         assertProperties(corePluginsFolderProperty
                 + "disabled-core-plugins = screening:miscellaneous, screening:drop-boxes:dp1, screening:"
                 + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME + "\n"
-                + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = proteomics,screening\n" 
+                + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = proteomics,screening\n"
                 + enabledScreeningProperty + "inputs = dp2\n", properties);
         context.assertIsSatisfied();
     }
@@ -602,14 +601,14 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     private void preparePluginNameLog(final String... fullPluginNames)
     {
         context.checking(new Expectations()
+        {
             {
+                for (String fullPluginName : fullPluginNames)
                 {
-                    for (String fullPluginName : fullPluginNames)
-                    {
-                        one(logger).log(LogLevel.INFO, "Plugin " + fullPluginName + " added.");
-                    }
+                    one(logger).log(LogLevel.INFO, "Plugin " + fullPluginName + " added.");
                 }
-            });
+            }
+        });
     }
 
     private void assertProperties(String expectedProperties, Properties properties)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2024 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.io.File;
@@ -51,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.Scan
 
 /**
  * Injector of DSS plugin.properties from core plugins folder into service.properties.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class CorePluginsInjector
@@ -108,7 +107,7 @@ public class CorePluginsInjector
     }
 
     public Map<String, File> injectCorePlugins(Properties properties,
-            String corePluginsFolderPath)
+                                               String corePluginsFolderPath)
     {
         ModuleEnabledChecker moduleEnabledChecker =
                 new ModuleEnabledChecker(properties, Constants.ENABLED_MODULES_KEY);
@@ -119,10 +118,10 @@ public class CorePluginsInjector
         LinkedList<String> listOfDisabledMasterDataInitialization = new LinkedList<String>();
 
         Map<IPluginType, Map<String, NamedCorePluginFolder>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
+                scanForCorePlugins(properties, corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
                         pluginNames, listOfDisabledMasterDataInitialization);
 
-        injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, 
+        injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION,
                 StringUtils.join(listOfDisabledMasterDataInitialization, ","));
 
         for (Entry<IPluginType, Map<String, NamedCorePluginFolder>> entry : plugins.entrySet())
@@ -198,7 +197,7 @@ public class CorePluginsInjector
     }
 
     private Map<IPluginType, Map<String, NamedCorePluginFolder>> scanForCorePlugins(
-            String corePluginsFolderPath, ModuleEnabledChecker moduleEnabledChecker,
+            Properties properties, String corePluginsFolderPath, ModuleEnabledChecker moduleEnabledChecker,
             List<String> disabledPlugins, Set<String> pluginNames, List<String> disabledMasterDataInitialization)
     {
         Map<IPluginType, Map<String, NamedCorePluginFolder>> typeToPluginsMap =
@@ -224,25 +223,25 @@ public class CorePluginsInjector
                 if (file.isDirectory())
                 {
                     File[] pluginFolders = file.listFiles(new FilenameFilter()
+                    {
+                        @Override
+                        public boolean accept(File dir, String name)
                         {
-                            @Override
-                            public boolean accept(File dir, String name)
-                            {
-                                return name.startsWith(".") == false;
-                            }
-                        });
+                            return name.startsWith(".") == false;
+                        }
+                    });
                     for (File pluginFolder : pluginFolders)
                     {
                         String pluginName = pluginFolder.getName();
                         NamedCorePluginFolder plugin =
-                                new NamedCorePluginFolder(module, pluginType, pluginFolder);
+                                new NamedCorePluginFolder(properties, module, pluginType, pluginFolder);
                         String fullPluginName = plugin.getFullPluginName();
                         if (isDisabled(enabledPlugins, disabledPlugins, fullPluginName) == false)
                         {
                             String fullPluginKey =
                                     pluginType.getPrefix()
                                             + pluginType.getPluginKey(module, pluginName,
-                                                    plugin.getPluginProperties());
+                                            plugin.getPluginProperties());
                             assertAndAddPluginName(fullPluginKey, pluginNames, pluginType);
                             Map<String, NamedCorePluginFolder> map = typeToPluginsMap.get(pluginType);
                             if (map == null)
@@ -258,7 +257,7 @@ public class CorePluginsInjector
         }
         return typeToPluginsMap;
     }
-    
+
     private boolean isDisabled(Set<String> enabledPlugins, List<String> disabledPlugins, String fullPluginName)
     {
         for (String disabledPlugin : disabledPlugins)
@@ -279,7 +278,7 @@ public class CorePluginsInjector
     }
 
     private void assertAndAddPluginName(String pluginName, Set<String> pluginNames,
-            IPluginType pluginType)
+                                        IPluginType pluginType)
     {
         for (int i = 0; i < UNALLOWED_PLUGIN_NAME_CHARACTERS.length(); i++)
         {
@@ -426,7 +425,7 @@ public class CorePluginsInjector
 
         private Properties pluginProperties;
 
-        NamedCorePluginFolder(String technology, IPluginType pluginType, File definingFolder)
+        NamedCorePluginFolder(Properties existingProperties, String technology, IPluginType pluginType, File definingFolder)
         {
             this.technology = technology;
             name = definingFolder.getName();
@@ -436,7 +435,7 @@ public class CorePluginsInjector
             {
                 throw new EnvironmentFailureException("Is not a directory: " + definingFolder);
             }
-            pluginProperties = getPluginProperties(definingFolder);
+            pluginProperties = getPluginProperties(existingProperties, definingFolder);
         }
 
         String getTechnology()
@@ -473,8 +472,9 @@ public class CorePluginsInjector
         /**
          * Load plugin properties file where all references to script names are replaced by script paths.
          */
-        private Properties getPluginProperties(File folder)
+        private Properties getPluginProperties(Properties existingProperties, File folder)
         {
+            PropertyValueResolver resolver = new PropertyValueResolver(existingProperties);
             File pluginPropertiesFile = new File(folder, PLUGIN_PROPERTIES_FILE_NAME);
             if (pluginPropertiesFile.exists() == false)
             {
@@ -482,17 +482,18 @@ public class CorePluginsInjector
                         + pluginPropertiesFile);
             }
             File[] scripts = folder.listFiles(new FilenameFilter()
+            {
+                @Override
+                public boolean accept(File dir, String fileName)
                 {
-                    @Override
-                    public boolean accept(File dir, String fileName)
-                    {
-                        return fileName.equals(PLUGIN_PROPERTIES_FILE_NAME) == false;
-                    }
-                });
+                    return fileName.equals(PLUGIN_PROPERTIES_FILE_NAME) == false;
+                }
+            });
             Properties properties = loadProperties(pluginPropertiesFile);
             for (Entry<Object, Object> keyValuePair : properties.entrySet())
             {
                 String value = keyValuePair.getValue().toString();
+                value = resolver.resolvePropertyValue(value);
                 for (File script : scripts)
                 {
                     value = value.replace(script.getName(), script.getPath());
