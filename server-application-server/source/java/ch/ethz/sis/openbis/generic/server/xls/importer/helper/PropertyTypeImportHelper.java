@@ -302,20 +302,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     }
 
     @Override
-    public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
-    {
-        Map<String, Integer> header = parseHeader(page.get(start), false);
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, page.get(start + 1), Attribute.Code));
-
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
-        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
-
-        if(canUpdate) {
-            super.importBlock(page, pageIndex, start, end);
-        }
-    }
-
-    @Override
     protected void validateHeader(Map<String, Integer> headers)
     {
         attributeValidator.validateHeaders(Attribute.values(), headers);
