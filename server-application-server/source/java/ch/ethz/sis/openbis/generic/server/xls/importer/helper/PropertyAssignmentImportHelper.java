@@ -165,7 +165,6 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
             code = ImportUtils.getPropertyCode(code);
             internalAssignment = true;
         }
-//        String internalAssignment = getValueByColumnName(headers, values, Attribute.InternalAssignment);
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
@@ -177,7 +176,6 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setPattern(pattern);
         creation.setPatternType(patternType);
         creation.setManagedInternally(internalAssignment);
-//        creation.setManagedInternally(Boolean.parseBoolean(internalAssignment));
 
         ListUpdateValue newAssignments = new ListUpdateValue();
         Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();
