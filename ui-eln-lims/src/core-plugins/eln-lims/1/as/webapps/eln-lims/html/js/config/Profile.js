@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2014 - 2024 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -270,7 +270,7 @@ $.extend(DefaultProfile.prototype, {
 		    return groupCodes;
 		}
 
-		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
+		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE", "$IMAGING_DATA_CONFIG"];
 		this.forcedDisableRTF = [];
 		this.forceMonospaceFont = [];
 		this.imageViewerDataSetCodes = [];

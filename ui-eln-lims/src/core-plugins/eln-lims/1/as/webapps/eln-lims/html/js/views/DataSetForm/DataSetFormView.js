@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2014 - 2024 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -778,6 +778,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					continue;
 				} else if(propertyType.dinamic && this._dataSetFormController.mode === FormMode.CREATE) { //Skip
 					continue;
+				} else if(profile.isSystemProperty(propertyType)) {
+				    continue;
 				}
 				
                 if(propertyType.code === "$XMLCOMMENTS") {
