@@ -72,16 +72,12 @@ public class TransactionManager {
         }
     }
 
-    public boolean lock(List<Lock<UUID, String>> locks){
-        return lockManager.add(locks);
+    public void lock(List<Lock<UUID, String>> locks){
+        lockManager.add(locks);
     }
 
-    public boolean unlock(List<Lock<UUID, String>> locks){
-        return lockManager.remove(locks);
-    }
-
-    public void addListener(ILockListener<UUID, String> listener){
-        lockManager.addListener(listener);
+    public void unlock(List<Lock<UUID, String>> locks){
+        lockManager.remove(locks);
     }
 
     public void reCommitTransactionsAfterCrash() throws Exception {

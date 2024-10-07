@@ -23,13 +23,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import ch.ethz.sis.afs.dto.Lock;
-import ch.ethz.sis.afs.dto.LockType;
-import ch.ethz.sis.afs.manager.ILockListener;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -105,8 +101,6 @@ public class ShareIdManager implements IShareIdManager
 
     private static final Logger operationLog = LogManager.getLogger(ShareIdManager.class);
 
-    static final UUID SHARE_ID_MANAGER_OWNER = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
-
     private final IEncapsulatedOpenBISService service;
 
     private final int lockingTimeOut;
@@ -124,31 +118,6 @@ public class ShareIdManager implements IShareIdManager
         this.service = service;
         this.lockManager = lockManager;
         this.lockingTimeOut = lockingTimeOutInSeconds;
-
-        lockManager.addListener(new ILockListener<UUID, String>()
-        {
-            @Override public void onLocksAdded(final List<Lock<UUID, String>> locks)
-            {
-                for (Lock<UUID, String> lock : locks)
-                {
-                    if (!SHARE_ID_MANAGER_OWNER.equals(lock.getOwner()))
-                    {
-                        lock(lock.getResource());
-                    }
-                }
-            }
-
-            @Override public void onLocksRemoved(final List<Lock<UUID, String>> locks)
-            {
-                for (Lock<UUID, String> lock : locks)
-                {
-                    if (!SHARE_ID_MANAGER_OWNER.equals(lock.getOwner()))
-                    {
-                        releaseLock(lock.getResource());
-                    }
-                }
-            }
-        });
     }
 
     private void addShareId(Map<String, GuardedShareID> map, String dataSetCode, String shareId)
@@ -196,7 +165,6 @@ public class ShareIdManager implements IShareIdManager
             {
                 set = new LinkedHashSet<Thread>();
                 GuardedShareID guardedShareId = getGuardedShareId(dataSetCode);
-                lockWithLockManager(dataSetCode);
                 lockedDataSets.put(dataSetCode, set);
                 guardedShareId.lock();
                 if (operationLog.isTraceEnabled())
@@ -226,7 +194,6 @@ public class ShareIdManager implements IShareIdManager
                     {
                         set = new LinkedHashSet<Thread>();
                         GuardedShareID guardedShareId = getGuardedShareId(dataSetCode);
-                        lockWithLockManager(dataSetCode);
                         lockedDataSets.put(dataSetCode, set);
                         guardedShareId.lock();
                         if (operationLog.isTraceEnabled())
@@ -248,15 +215,6 @@ public class ShareIdManager implements IShareIdManager
                 }
                 throw CheckedExceptionTunnel.wrapIfNecessary(th);
             }
-        }
-    }
-
-    private void lockWithLockManager(String dataSetCode)
-    {
-        boolean locked = lockManager.lock(List.of(new Lock<>(SHARE_ID_MANAGER_OWNER, dataSetCode, LockType.Shared)));
-        if (!locked)
-        {
-            throw new RuntimeException("Couldn't lock data set " + dataSetCode + ".");
         }
     }
 
@@ -315,19 +273,9 @@ public class ShareIdManager implements IShareIdManager
                     operationLog.traceAccess("Unlock data set " + dataSetCode);
                 }
                 lockedDataSets.remove(dataSetCode);
-                releaseLockWithLockManager(dataSetCode);
                 getGuardedShareId(dataSetCode).unlock();
             }
             log(dataSetCode, set);
-        }
-    }
-
-    private void releaseLockWithLockManager(String dataSetCode)
-    {
-        boolean unlocked = lockManager.unlock(List.of(new Lock<>(SHARE_ID_MANAGER_OWNER, dataSetCode, LockType.Shared)));
-        if (!unlocked)
-        {
-            throw new RuntimeException("Couldn't unlock data set " + dataSetCode + ".");
         }
     }
 
