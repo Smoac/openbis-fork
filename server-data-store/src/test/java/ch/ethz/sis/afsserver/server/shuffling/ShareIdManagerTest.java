@@ -15,7 +15,10 @@
  */
 package ch.ethz.sis.afsserver.server.shuffling;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 import org.jmock.Expectations;
@@ -27,6 +30,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testng.AssertJUnit;
 
+import ch.ethz.sis.afs.dto.Lock;
+import ch.ethz.sis.afs.dto.LockType;
+import ch.ethz.sis.afs.manager.ILockListener;
 import ch.ethz.sis.afsserver.server.common.TestLogger;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -88,6 +94,8 @@ public class ShareIdManagerTest extends AssertJUnit
 
                 allowing(service).tryGetDataSet("ds?");
                 will(returnValue(null));
+
+                one(lockManager).addListener(with(any(ILockListener.class)));
             }
         });
         manager = new ShareIdManager(service, lockManager, 1);
@@ -159,6 +167,14 @@ public class ShareIdManagerTest extends AssertJUnit
     @Test
     public void testLockingTimeOut()
     {
+        context.checking(new Expectations()
+        {
+            {
+                one(lockManager).lock(List.of(new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)));
+                will(returnValue(true));
+            }
+        });
+
         final MessageChannel ch = new MessageChannel(2000);
         new Thread(new Runnable()
         {
@@ -196,6 +212,17 @@ public class ShareIdManagerTest extends AssertJUnit
     @Test
     public void testLocking()
     {
+        context.checking(new Expectations()
+        {
+            {
+                one(lockManager).lock(List.of(new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)));
+                will(returnValue(true));
+
+                one(lockManager).unlock(List.of(new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)));
+                will(returnValue(true));
+            }
+        });
+
         final MessageChannel ch1 = new MessageChannel();
         new Thread(new Runnable()
         {
@@ -235,6 +262,14 @@ public class ShareIdManagerTest extends AssertJUnit
     @Test
     public void testMultipleLocking()
     {
+        context.checking(new Expectations()
+        {
+            {
+                one(lockManager).lock(List.of(new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)));
+                will(returnValue(true));
+            }
+        });
+
         final MessageChannel ch1 = new MessageChannel();
         final MessageChannel ch3 = new MessageChannel();
         final MessageChannel ch4 = new MessageChannel();
@@ -290,4 +325,114 @@ public class ShareIdManagerTest extends AssertJUnit
                 + "ERROR ch.ethz.sis.afsserver.server.shuffling.ShareIdManager - Catching\n"
                 + "java.lang.RuntimeException: Timeout: Lock for data set ds1 is held by threads 'T2' for 1 seconds."));
     }
+
+    @Test
+    public void testLocksSynchronization()
+    {
+        TestLockManager lockManager = new TestLockManager();
+        ShareIdManager manager = new ShareIdManager(service, lockManager, 1);
+
+        final MessageChannel toThread0 = new MessageChannel();
+        final MessageChannel toThread1 = new MessageChannel();
+        final MessageChannel toThread2 = new MessageChannel();
+
+        final MessageChannel fromThread0 = new MessageChannel();
+        final MessageChannel fromThread1 = new MessageChannel();
+        final MessageChannel fromThread2 = new MessageChannel();
+
+        UUID uuid = UUID.randomUUID();
+
+        new Thread(() ->
+        {
+            lockManager.lock(List.of(new Lock<>(uuid, DS1, LockType.Exclusive)));
+            fromThread0.send("locked");
+            toThread0.assertNextMessage("unlock");
+            lockManager.unlock(List.of(new Lock<>(uuid, DS1, LockType.Exclusive)));
+            fromThread0.send("unlocked");
+        }).start();
+
+        fromThread0.assertNextMessage("locked");
+
+        assertEquals(List.of(new Lock<>(uuid, DS1, LockType.Exclusive), new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)),
+                lockManager.getLocks());
+
+        new Thread(() ->
+        {
+            manager.lock(DS1);
+            fromThread1.send("locked");
+            toThread1.assertNextMessage("unlock");
+            manager.releaseLock(DS1);
+            fromThread1.send("unlocked");
+        }).start();
+
+        new Thread(() ->
+        {
+            manager.lock(DS1);
+            fromThread2.send("locked");
+            toThread2.assertNextMessage("unlock");
+            manager.releaseLock(DS1);
+            fromThread2.send("unlocked");
+        }).start();
+
+        fromThread1.assertNextMessage("locked");
+        fromThread2.assertNextMessage("locked");
+
+        assertEquals(List.of(new Lock<>(uuid, DS1, LockType.Exclusive), new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)),
+                lockManager.getLocks());
+        toThread0.send("unlock");
+        fromThread0.assertNextMessage("unlocked");
+
+        assertEquals(List.of(new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)),
+                lockManager.getLocks());
+        toThread1.send("unlock");
+        fromThread1.assertNextMessage("unlocked");
+
+        assertEquals(List.of(new Lock<>(ShareIdManager.SHARE_ID_MANAGER_OWNER, DS1, LockType.Shared)),
+                lockManager.getLocks());
+
+        toThread2.send("unlock");
+        fromThread2.assertNextMessage("unlocked");
+
+        assertEquals(List.of(), lockManager.getLocks());
+    }
+
+    private static class TestLockManager implements IShareIdLockManager
+    {
+        private List<Lock<UUID, String>> locks = new ArrayList<>();
+
+        private ILockListener<UUID, String> listener;
+
+        @Override public boolean lock(final List<Lock<UUID, String>> locks)
+        {
+            this.locks.addAll(locks);
+
+            if (listener != null)
+            {
+                listener.onLocksAdded(locks);
+            }
+            return true;
+        }
+
+        @Override public boolean unlock(final List<Lock<UUID, String>> locks)
+        {
+            this.locks.removeAll(locks);
+
+            if (listener != null)
+            {
+                listener.onLocksRemoved(locks);
+            }
+            return true;
+        }
+
+        @Override public void addListener(final ILockListener<UUID, String> listener)
+        {
+            this.listener = listener;
+        }
+
+        public List<Lock<UUID, String>> getLocks()
+        {
+            return locks;
+        }
+    }
+
 }

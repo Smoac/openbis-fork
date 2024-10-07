@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.ethz.sis.afs.dto.Lock;
+import ch.ethz.sis.afs.manager.ILockListener;
 import ch.ethz.sis.afs.manager.TransactionManager;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
@@ -94,14 +95,19 @@ public class ServiceProvider
             TransactionManager transactionManager = connectionFactory.getTransactionManager();
             return new IShareIdLockManager()
             {
-                @Override public void lock(final List<Lock<UUID, String>> locks)
+                @Override public boolean lock(final List<Lock<UUID, String>> locks)
                 {
-                    transactionManager.lock(locks);
+                    return transactionManager.lock(locks);
                 }
 
-                @Override public void unlock(final List<Lock<UUID, String>> locks)
+                @Override public boolean unlock(final List<Lock<UUID, String>> locks)
                 {
-                    transactionManager.unlock(locks);
+                    return transactionManager.unlock(locks);
+                }
+
+                @Override public void addListener(final ILockListener<UUID, String> listener)
+                {
+                    transactionManager.addListener(listener);
                 }
             };
         } else

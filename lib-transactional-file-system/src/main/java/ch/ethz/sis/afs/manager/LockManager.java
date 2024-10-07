@@ -15,13 +15,18 @@
  */
 package ch.ethz.sis.afs.manager;
 
+import static ch.ethz.sis.afs.exception.AFSExceptions.DeadlockDetected;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import ch.ethz.sis.afs.dto.Lock;
 import ch.ethz.sis.afs.dto.LockType;
 import ch.ethz.sis.afs.exception.AFSExceptions;
-
-import java.util.*;
-
-import static ch.ethz.sis.afs.exception.AFSExceptions.DeadlockDetected;
 
 class LockManager<O, E> {
 
@@ -30,6 +35,7 @@ class LockManager<O, E> {
     private Map<E, Set<Lock<O, E>>> sharedLocks;
     private Map<O, Map<O, Set<E>>> waitingFor;
     private Map<O, Map<O, Set<E>>> waitedBy;
+    private List<ILockListener<O, E>> listeners;
 
     LockManager(HierarchicalLockFinder<O, E> hierarchicalLockFinder) {
         if (hierarchicalLockFinder == null) {
@@ -63,6 +69,7 @@ class LockManager<O, E> {
         sharedLocks = new HashMap<>();
         waitingFor = new HashMap<>();
         waitedBy = new HashMap<>();
+        listeners = new ArrayList<>();
     }
 
     Map<E, Lock<O, E>> getHierarchicallyExclusiveLocks() {
@@ -148,6 +155,12 @@ class LockManager<O, E> {
             }
         }
 
+        if(listeners != null){
+            for(ILockListener<O, E> listener : listeners){
+                listener.onLocksAdded(locksToAdd);
+            }
+        }
+
         return Boolean.TRUE;
     }
 
@@ -172,9 +185,19 @@ class LockManager<O, E> {
             }
             removeWait(lock);
         }
+
+        if(listeners != null){
+            for(ILockListener<O, E> listener : listeners){
+                listener.onLocksRemoved(locks);
+            }
+        }
+
         return Boolean.TRUE;
     }
 
+    synchronized void addListener(ILockListener<O, E> listener){
+        this.listeners.add(listener);
+    }
 
     /*
      * Used to detect deadlocks
