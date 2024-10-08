@@ -130,8 +130,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             mainMenu : this._mainMenuItemsTableModel.getValues(),
             sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
             showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
-//            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
-//            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
+            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
             inventorySpaces : this._inventorySpacesTableModel.getValues(),
             inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues()
         };
