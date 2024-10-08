@@ -95,6 +95,13 @@ public class VocabularyTermImportHelper extends BasicImportHelper
             throw new UserFailureException("Internal Vocabulary Terms can only be created on Internal Vocabularies: " + vocabularyTermCode);
         }
 
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(vocabularyCode);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
+
+        if (canUpdate == false) {
+            return false;
+        }
+
         return isNewVersionWithInternalNamespace(header, values, versions,
                 delayedExecutor.isSystem(),
                 ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode,
