@@ -158,6 +158,8 @@ public abstract class AbstractIntegrationTest
         cleanupAfsServerFolders();
         cleanupDataStoreServerFolders();
 
+        configureShares();
+
         startApplicationServer(true);
         startApplicationServerProxy();
         createApplicationServerData();
@@ -250,6 +252,14 @@ public abstract class AbstractIntegrationTest
             FileUtilities.deleteRecursively(new File(folderPath));
             log("Deleted folder: " + new File(folderPath).getAbsolutePath());
         }
+    }
+
+    private void configureShares() throws Exception
+    {
+        Configuration configuration = getAfsServerConfiguration();
+        String storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
+        ch.ethz.sis.shared.io.IOUtils.copy("etc/shares", storageRoot);
+        log("Configured shares.");
     }
 
     private void startApplicationServer(boolean createDatabase) throws Exception
@@ -639,6 +649,28 @@ public abstract class AbstractIntegrationTest
         SampleCreation sampleCreation = new SampleCreation();
         sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
         sampleCreation.setSpaceId(spaceId);
+        sampleCreation.setCode(sampleCode);
+        List<SamplePermId> sampleIds = openBIS.createSamples(List.of(sampleCreation));
+        Sample sample = getSample(openBIS, sampleIds.get(0));
+        log("Created " + sample.getIdentifier() + " sample.");
+        return sample;
+    }
+
+    public static Sample createSample(OpenBIS openBIS, IExperimentId experimentId, String sampleCode)
+    {
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withProject().withSpace();
+
+        Experiment experiment = openBIS.getExperiments(List.of(experimentId), experimentFetchOptions).get(experimentId);
+        if (experiment == null)
+        {
+            throw new RuntimeException("Experiment with id " + experimentId + " hasn't been found.");
+        }
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        sampleCreation.setSpaceId(experiment.getProject().getSpace().getPermId());
+        sampleCreation.setExperimentId(experiment.getPermId());
         sampleCreation.setCode(sampleCode);
         List<SamplePermId> sampleIds = openBIS.createSamples(List.of(sampleCreation));
         Sample sample = getSample(openBIS, sampleIds.get(0));

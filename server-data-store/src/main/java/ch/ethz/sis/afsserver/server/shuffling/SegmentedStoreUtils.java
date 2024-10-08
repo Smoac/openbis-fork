@@ -239,7 +239,7 @@ public class SegmentedStoreUtils
 
         final UUID transactionId = UUID.randomUUID();
 
-        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
         if (!locked)
         {
             throw new RuntimeException("Data set " + dataSetCode + " could not be locked");
@@ -270,7 +270,7 @@ public class SegmentedStoreUtils
             deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
         } finally
         {
-            lockManager.unlock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+            lockManager.unlock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
         }
     }
 
@@ -345,7 +345,7 @@ public class SegmentedStoreUtils
 
         final UUID transactionId = UUID.randomUUID();
 
-        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
         if (!locked)
         {
             throw new RuntimeException("Data set " + dataSetCode + " could not be locked");
@@ -356,7 +356,7 @@ public class SegmentedStoreUtils
             deleteDataSetInstantly(dataSetCode, new File(shareFolder, location), logger);
         } finally
         {
-            lockManager.unlock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+            lockManager.unlock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
         }
     }
 
@@ -454,11 +454,11 @@ public class SegmentedStoreUtils
         return sourceSize;
     }
 
-    private static int calculateCRC(File file)
+    private static long calculateCRC(File file)
     {
         try
         {
-            return (int) FileUtils.checksumCRC32(file);
+            return FileUtils.checksumCRC32(file);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
