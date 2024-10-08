@@ -16,9 +16,10 @@ $.extend(InstanceProfile.prototype, StandardProfile.prototype, {
 // END ANSIBLE MANAGED BLOCK (sso)
 		this.hideSectionsByDefault = true;
         this.showSemanticAnnotations = false;
-        this.minBarcodeLength = 10;
-        this.barcodePattern = /^[-a-z0-9]+$/i
-        this.docuBaseUrl = "https://unlimited.ethz.ch/display/openBISDoc2010";
-        this.showUserManagementConfig = false;
+// Logo and Logo title Updates
+// Please put your logo on the etc folder
+//		this.mainLogo = "./etc/your-logo.png";
+//		this.mainLogoTitle = "Lab Notebook & Inventory Manager";
+
 }
 })	

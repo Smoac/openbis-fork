@@ -257,6 +257,12 @@ function SettingsManager(serverFacade) {
                 }
             }
 
+            if(settings.instanceSettings) {
+                for(settingName of Object.keys(settings.instanceSettings)) {
+                    targetProfile[settingName] = settings.instanceSettings[settingName];
+                }
+            }
+
              // Forced Disable RTF
              if(isMergeGroup) { // Merge found values
                 targetProfile["forcedDisableRTF"] = targetProfile["forcedDisableRTF"].concat(settings["forcedDisableRTF"]).unique();
@@ -461,8 +467,8 @@ function SettingsManager(serverFacade) {
 				if (dataSetTypeForFileName.dataSetType == null) {
 					errors.push("dataSetTypeForFileNameMap must contain a field named dataSetType.");
 				} else if (this.getAllDatasetTypeCodeOptions().indexOf(dataSetTypeForFileName.dataSetType) === -1) {
-					errors.push("Dataset type " + 
-								dataSetTypeForFileName.dataSetType + 
+					errors.push("Dataset type " +
+								dataSetTypeForFileName.dataSetType +
 								" is not allowed. Available types: " +
 								this.getAllDatasetTypeCodeOptions().join(", ") +
 								".");
@@ -477,4 +483,3 @@ function SettingsManager(serverFacade) {
 	}
 
 }
-

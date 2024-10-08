@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2024 ETH Zuerich, Scientific IT Services
+ * Copyright 2024 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-function SettingsFormModel(settingsSample, mode) {
-	this.settingsSample = settingsSample;
-	this.mode = mode;
-	this.customWidgetSettings = [];
-	this.finishedLoading = false;
+function InstanceSettingsController(mode, profileToEdit) {
+    this._instanceSettingsModel = new InstanceSettingsModel(mode, profileToEdit);
+	this._instanceSettingsView = new InstanceSettingsView(this, this._instanceSettingsModel);
+
+	this.init = function($container) {
+		this._instanceSettingsView.repaint($container);
+	}
+
+	this.getValues = function() {
+	    return this._instanceSettingsView.getValues();
+	}
+
 }

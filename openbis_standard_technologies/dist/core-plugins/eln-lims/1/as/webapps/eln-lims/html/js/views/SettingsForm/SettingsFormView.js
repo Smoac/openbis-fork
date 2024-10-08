@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2014 - 2024 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
 	            this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
+	            this._paintMiscellaneousSection($formColumn, texts.miscellaneous);
 			}
 
             if(isNoGroup) {
@@ -129,8 +130,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             mainMenu : this._mainMenuItemsTableModel.getValues(),
             sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
             showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
-            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
-            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+//            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
+//            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
             inventorySpaces : this._inventorySpacesTableModel.getValues(),
             inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues()
         };
@@ -139,6 +140,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             settings.dataSetTypeForFileNameMap = this._datasetTypesTableModel.getValues();
             settings.forceMonospaceFont = this._forcedMonospaceTableModel.getValues();
             settings.forcedDisableRTF = this._forcedDisableRTFTableModel.getValues();
+            settings.instanceSettings = this._instanceSettingsWidget.getValues();
         }
 
 		return settings;
@@ -159,13 +161,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			for (var key in settingsValues) {
 				sampleTypeSection[key] = settingsValues[key];
 			}
-			
+
 			var miscellaneousSettingsTableModel = this._sampleTypeDefinitionsMiscellaneousSettingsTableModels[sampleType];
 			var miscellaneousSettingsValues = miscellaneousSettingsTableModel.getValues();
 			for (var key in miscellaneousSettingsValues) {
 				sampleTypeSection[key] = miscellaneousSettingsValues[key];
 			}
-			
+
 			sampleTypeDefinitionsSettings[sampleType] = sampleTypeSection;
 		}
 		return sampleTypeDefinitionsSettings;
@@ -200,12 +202,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
                 "1" : { type : "Experiment",  name : "ATTR.IDENTIFIER", value : experimentIdentifier }
             }
         }
-        var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, 
+        var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria,
                 null, null, null, null, true, null, false, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
-	
+
 	this._paintTemplateSection = function($container, text) {
 		var _this = this;
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-templates");
@@ -229,12 +231,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             }
         }
 
-        var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, 
+        var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null,
                 null, true, null, false, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
-	
+
 
 	this._paintMainMenuSection = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-main-menu");
@@ -380,6 +382,16 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		return tableModel;
 	}
 
+	this._getSortedArray = function(array, comparator) {
+	    if(array) {
+	        if(comparator) {
+	            return array.sort(comparator);
+	        }
+	        return array.sort();
+	    }
+	    return array;
+	}
+
 	this._getForcedMonospaceTableModel = function() {
 		return this._getSingleColumnDropdownTableModel({
 			columnName : "Property Type",
@@ -392,20 +404,20 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._getInventorySpacesTableModel = function() {
 		// Not accessible spaces are known on the config anyway, hiding them now will not increase security
 		// Removing them can bring more issues so better keep them
-		
+
 		var spacesOptions = this._settingsFormController.getInventorySpacesOptions();
 			spacesOptions = JSON.parse(JSON.stringify(spacesOptions));
 		var initialValues = [];
 		if(this._profileToEdit.inventorySpaces) {
 			initialValues = this._profileToEdit.inventorySpaces.filter(space => space != null);
 		}
-		
+
 		for(var i = 0; i < initialValues.length; i++) {
 			if($.inArray(initialValues[i], spacesOptions) === -1) {
 				spacesOptions.push(initialValues[i]);
 			}
 		}
-		
+
 		return this._getSingleColumnDropdownTableModel({
 			columnName : "Space",
 			placeholder : "select space",
@@ -446,6 +458,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._datasetTypesTableModel = this._getDatasetTypesTableModel();
 		$fieldset.append(this._getTable(this._datasetTypesTableModel));
+	}
+
+	this._paintMiscellaneousSection = function($formColumn, text) {
+        var $fieldset = this._getFieldset($formColumn, text.title, "settings-section-miscellaneous", true);
+        $fieldset.append(FormUtil.getInfoText(text.info));
+        this._instanceSettingsWidget = new InstanceSettingsController(this._settingsFormModel.mode, this._profileToEdit);
+        this._instanceSettingsWidget.init($fieldset);
 	}
 
 	this._getDatasetTypesTableModel = function() {
@@ -511,9 +530,9 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			miscellaneousSettingsTable.css( { "margin-left" : "30px" } );
 			$sampleTypeFieldset.append(miscellaneousSettingsTable);
 			this._sampleTypeDefinitionsMiscellaneousSettingsTableModels[sampleType.code] = miscellaneousSettingsTableModel;
-			
+
 			// table for parents / children settings:
-			// SAMPLE_PARENTS_TITLE, SAMPLE_PARENTS_DISABLED, SAMPLE_PARENTS_ANY_TYPE_DISABLED, 
+			// SAMPLE_PARENTS_TITLE, SAMPLE_PARENTS_DISABLED, SAMPLE_PARENTS_ANY_TYPE_DISABLED,
 			// SAMPLE_CHILDREN_TITLE, SAMPLE_CHILDREN_DISABLED, SAMPLE_CHILDREN_ANY_TYPE_DISABLED
 			var settingsTableModel = this._getSampleTypesDefinitionSettingsTableModel(sampleTypeSettings);
 			var settingsTable = this._getTable(settingsTableModel);
@@ -564,7 +583,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		tableModel.addRow({
 			label : "Hide sections by default",
 			enabled : this._profileToEdit.hideSectionsByDefault
-			
+
 		});
 		// transform output
 		tableModel.valuesTransformer = function(values) {
@@ -663,7 +682,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 		return tableModel;
 	}
-	
+
 	this._getSampleTypesDefinitionSettingsTableModel = function(sampleTypeSettings) {
 		var tableModel = this._getTableModel();
 		// define columns
@@ -841,7 +860,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				if (rowValues["Min"]) { hints.MIN_COUNT = Number(rowValues["Min"]); };
 				if (rowValues["Max"]) { hints.MAX_COUNT = Number(rowValues["Max"]); };
 				hints.ANNOTATION_PROPERTIES = rowValues.extraValues;
-				definitionsExtension[hintTypeField].push(hints);				
+				definitionsExtension[hintTypeField].push(hints);
 			}
 			return definitionsExtension;
 		}
@@ -904,7 +923,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			}), params.placeholder);
 		}
 		// add data
-		for (var item of params.initialValues) {
+		for (var item of this._getSortedArray(params.initialValues)) {
 			tableModel.addRow(item);
 		}
 		// transform output
@@ -1010,7 +1029,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$table.append($thead);
 		// body
         var $tbody = $("<tbody>");
-		for (var i of Object.keys(tableModel.rows)) {
+        // keys in reverse order because we are adding rows on top
+		for (var i of Object.keys(tableModel.rows).reverse()) {
 			var row = tableModel.rows[i];
 
 			if (tableModel.rowExtraBuilder) {
@@ -1027,7 +1047,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._addRow = function($tbody, tableModel, tableModelRow, $extra, canRemoveFunction) {
 		var $tr = $("<tr>");
-		$tbody.append($tr);
+		$tbody.prepend($tr);
 		var $extraRow = null;
         var rowIndex = tableModel.rows.indexOf(tableModelRow);
 
