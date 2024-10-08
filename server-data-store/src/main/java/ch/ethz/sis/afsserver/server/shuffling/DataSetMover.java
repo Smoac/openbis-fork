@@ -21,26 +21,26 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
  * Implementation of {@link IDataSetMover}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class DataSetMover implements IDataSetMover
 {
     private final IEncapsulatedOpenBISService service;
 
-    private final IShareIdManager manager;
+    private final ILockManager lockManager;
 
-    public DataSetMover(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager)
+    public DataSetMover(IEncapsulatedOpenBISService service, ILockManager lockManager)
     {
         this.service = service;
-        manager = shareIdManager;
+        this.lockManager = lockManager;
     }
 
     @Override
     public void moveDataSetToAnotherShare(File dataSetDirInStore, File share,
             IChecksumProvider checksumProvider, ISimpleLogger logger)
     {
-        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share, service, manager,
+        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share, service, lockManager,
                 checksumProvider, logger);
     }
 }

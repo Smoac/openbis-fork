@@ -26,10 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.ethz.sis.afs.dto.Lock;
+import ch.ethz.sis.afs.dto.LockType;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -46,6 +49,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+
 /**
  * Utility methods for segmented stores.
  *
@@ -217,7 +221,7 @@ public class SegmentedStoreUtils
      * @param checksumProvider
      */
     public static void moveDataSetToAnotherShare(final File dataSetDirInStore, File share,
-            IEncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
+            IEncapsulatedOpenBISService service, final ILockManager lockManager,
             IChecksumProvider checksumProvider, final ISimpleLogger logger)
     {
         if (FileOperations.getMonitoredInstanceForCurrentThread().exists(dataSetDirInStore) == false)
@@ -232,7 +236,15 @@ public class SegmentedStoreUtils
         {
             throw new UserFailureException("Unknown data set: " + dataSetCode);
         }
-        shareIdManager.lock(dataSetCode);
+
+        final UUID transactionId = UUID.randomUUID();
+
+        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+        if (!locked)
+        {
+            throw new RuntimeException("Data set " + dataSetCode + " could not be locked");
+        }
+
         try
         {
             File oldShare =
@@ -255,12 +267,11 @@ public class SegmentedStoreUtils
                             dataSetDirInNewShare, dataSetDirInNewShare, checksumProvider);
             String shareId = share.getName();
             service.updateShareIdAndSize(dataSetCode, shareId, size);
-            shareIdManager.setShareId(dataSetCode, shareId);
+            deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
         } finally
         {
-            shareIdManager.releaseLock(dataSetCode);
+            lockManager.unlock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
         }
-        deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
     }
 
     private static void assertNoUnarchivingScratchShare(File share, ISimpleLogger logger)
@@ -271,17 +282,6 @@ public class SegmentedStoreUtils
                     + "' is a scratch share for unarchiving purposes. "
                     + "No data sets can be moved from/to such a share.");
         }
-    }
-
-    /**
-     * Deletes specified data set at specified location. This methods waits until any locks on the specified data set have been released.
-     */
-    protected static void deleteDataSet(final String dataSetCode, final File dataSetDirInStore,
-            final IShareIdManager shareIdManager, final ISimpleLogger logger)
-    {
-        logger.log(LogLevel.INFO, "Await for data set " + dataSetCode + " to be unlocked.");
-        shareIdManager.await(dataSetCode);
-        deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
     }
 
     /**
@@ -306,33 +306,58 @@ public class SegmentedStoreUtils
 
     /**
      * Deletes specified data set in the old share if it is already in the new one or in the new one if it is still in the old one.
-     *
-     * @param shareIdManager provides the current share.
      */
     public static void cleanUp(SimpleDataSetInformationDTO dataSet, File storeRoot,
-            String newShareId, IShareIdManager shareIdManager, ISimpleLogger logger)
+            String newShareId, IEncapsulatedOpenBISService service, ILockManager lockManager, ISimpleLogger logger)
     {
         String dataSetCode = dataSet.getDataSetCode();
-        String shareId = shareIdManager.getShareId(dataSetCode);
+        SimpleDataSetInformationDTO currentDataSet = service.tryGetDataSet(dataSetCode);
+
+        if (currentDataSet == null)
+        {
+            logger.log(LogLevel.WARN, "No clean up will be performed because data set "
+                    + dataSetCode + " was not found.");
+            return;
+        }
+
         String oldShareId = dataSet.getDataSetShareId();
+
         if (newShareId.equals(oldShareId))
         {
             logger.log(LogLevel.WARN, "No clean up will be performed because for data set "
-                    + dataSetCode + " both shares are the same: " + oldShareId);
+                    + dataSetCode + " the new share and the old share are the same: " + oldShareId);
             return;
         }
-        boolean currentIsOld = shareId.equals(oldShareId);
-        boolean currentIsNew = shareId.equals(newShareId);
+
+        String currentShareId = currentDataSet.getDataSetShareId();
+        boolean currentIsOld = currentShareId.equals(oldShareId);
+        boolean currentIsNew = currentShareId.equals(newShareId);
+
         if (currentIsOld == false && currentIsNew == false)
         {
             logger.log(LogLevel.WARN, "No clean up will be performed because data set "
                     + dataSetCode + " is neither in share " + oldShareId + " nor in share "
-                    + newShareId + " but in share " + shareId + ".");
+                    + newShareId + " but in share " + currentShareId + ".");
             return;
         }
         File shareFolder = new File(storeRoot, currentIsOld ? newShareId : oldShareId);
         String location = dataSet.getDataSetLocation();
-        deleteDataSet(dataSetCode, new File(shareFolder, location), shareIdManager, logger);
+
+        final UUID transactionId = UUID.randomUUID();
+
+        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+        if (!locked)
+        {
+            throw new RuntimeException("Data set " + dataSetCode + " could not be locked");
+        }
+
+        try
+        {
+            deleteDataSetInstantly(dataSetCode, new File(shareFolder, location), logger);
+        } finally
+        {
+            lockManager.unlock(List.of(new Lock<>(transactionId, dataSetCode, LockType.HierarchicallyExclusive)));
+        }
     }
 
     private static void copyToShare(File file, File share, ISimpleLogger logger)

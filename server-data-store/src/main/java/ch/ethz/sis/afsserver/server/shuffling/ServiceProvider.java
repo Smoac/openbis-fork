@@ -16,9 +16,9 @@ public class ServiceProvider
 
     private static Configuration configuration;
 
-    private static IShareIdManager shareIdManager;
-
     private static IEncapsulatedOpenBISService openBISService;
+
+    private static ILockManager lockManager;
 
     private static IConfigProvider configProvider;
 
@@ -27,16 +27,16 @@ public class ServiceProvider
         ServiceProvider.configuration = configuration;
     }
 
-    public static IShareIdManager getShareIdManager()
-    {
-        initialize();
-        return shareIdManager;
-    }
-
     public static IEncapsulatedOpenBISService getOpenBISService()
     {
         initialize();
         return openBISService;
+    }
+
+    public static ILockManager getLockManager()
+    {
+        initialize();
+        return lockManager;
     }
 
     public static IConfigProvider getConfigProvider()
@@ -60,23 +60,17 @@ public class ServiceProvider
                         throw new RuntimeException("Cannot initialize with null configuration");
                     }
 
-                    IEncapsulatedOpenBISService encapsulatedOpenBISService =
+                    ServiceProvider.openBISService =
                             new EncapsulatedOpenBISService(AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration));
-                    IShareIdManager shareIdManager =
-                            new ShareIdManager(encapsulatedOpenBISService, getLockManager(),
-                                    AtomicFileSystemServerParameterUtil.getDataSetLockingTimeout(configuration));
-                    ConfigProvider configProvider = new ConfigProvider(configuration);
-
-                    ServiceProvider.openBISService = encapsulatedOpenBISService;
-                    ServiceProvider.shareIdManager = shareIdManager;
-                    ServiceProvider.configProvider = configProvider;
+                    ServiceProvider.lockManager = createLockManager();
+                    ServiceProvider.configProvider = new ConfigProvider(configuration);
                     initialized = true;
                 }
             }
         }
     }
 
-    private static IShareIdLockManager getLockManager()
+    private static ILockManager createLockManager()
     {
         Object connectionFactoryObject;
 
@@ -92,16 +86,16 @@ public class ServiceProvider
         {
             ConnectionFactory connectionFactory = (ConnectionFactory) connectionFactoryObject;
             TransactionManager transactionManager = connectionFactory.getTransactionManager();
-            return new IShareIdLockManager()
+            return new ILockManager()
             {
-                @Override public void lock(final List<Lock<UUID, String>> locks)
+                @Override public boolean lock(final List<Lock<UUID, String>> locks)
                 {
-                    transactionManager.lock(locks);
+                    return transactionManager.lock(locks);
                 }
 
-                @Override public void unlock(final List<Lock<UUID, String>> locks)
+                @Override public boolean unlock(final List<Lock<UUID, String>> locks)
                 {
-                    transactionManager.unlock(locks);
+                    return transactionManager.unlock(locks);
                 }
             };
         } else

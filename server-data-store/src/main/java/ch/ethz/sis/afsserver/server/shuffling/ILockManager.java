@@ -5,11 +5,9 @@ import java.util.UUID;
 
 import ch.ethz.sis.afs.dto.Lock;
 
-public interface IShareIdLockManager
+public interface ILockManager
 {
+    boolean lock(List<Lock<UUID, String>> locks);
 
-    void lock(List<Lock<UUID, String>> locks);
-
-    void unlock(List<Lock<UUID, String>> locks);
-
+    boolean unlock(List<Lock<UUID, String>> locks);
 }

@@ -148,8 +148,6 @@ public abstract class ArchiveFolders
 
         private IEncapsulatedOpenBISService service;
 
-        private IShareIdManager shareIdManager;
-
         private IConfigProvider configProvider;
 
         private SizeDependentArchiveFolders(String bigDataSetsFolderPath, String smallDataSetsFolderPath, boolean createFolders,
@@ -169,7 +167,12 @@ public abstract class ArchiveFolders
         {
             if (dataSetDescription.getDataSetSize() == null)
             {
-                String shareId = getShareIdManager().getShareId(dataSetDescription.getDataSetCode());
+                SimpleDataSetInformationDTO dataSet = getService().tryGetDataSet(dataSetDescription.getDataSetCode());
+                if (dataSet == null)
+                {
+                    throw new RuntimeException("Data set " + dataSetDescription.getDataSetCode() + " wasn't found");
+                }
+                String shareId = dataSet.getDataSetShareId();
                 File shareFolder = new File(getConfigProvider().getStoreRoot(), shareId);
                 long size = FileUtils.sizeOfDirectory(new File(shareFolder, dataSetDescription.getDataSetLocation()));
                 getService().updateShareIdAndSize(dataSetDescription.getDataSetCode(), shareId, size);
@@ -204,15 +207,6 @@ public abstract class ArchiveFolders
                 configProvider = ServiceProvider.getConfigProvider();
             }
             return configProvider;
-        }
-
-        private IShareIdManager getShareIdManager()
-        {
-            if (shareIdManager == null)
-            {
-                shareIdManager = ServiceProvider.getShareIdManager();
-            }
-            return shareIdManager;
         }
 
         private IEncapsulatedOpenBISService getService()

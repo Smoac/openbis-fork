@@ -63,24 +63,6 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
 
     private static final Logger notificationLog = LogManager.getLogger(EagerShufflingTask.class);
 
-    private static SimpleDataSetInformationDTO findDataSet(List<Share> shares, String dataSetCode)
-    {
-        for (Share share : shares)
-        {
-            List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
-            for (SimpleDataSetInformationDTO dataSet : dataSets)
-            {
-                if (dataSet.getDataSetCode().equals(dataSetCode))
-                {
-                    return dataSet;
-                }
-            }
-        }
-        throw new IllegalStateException("Data set " + dataSetCode + " not found.");
-    }
-
-    private final IShareIdManager shareIdManager;
-
     private final IFreeSpaceProvider freeSpaceProvider;
 
     private final IDataSetMover dataSetMover;
@@ -107,23 +89,21 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
 
     public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
-        this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
-                        .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
-                        ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
+        this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, new SimpleFreeSpaceProvider(),
+                new DataSetMover(service, ServiceProvider.getLockManager()), ServiceProvider.getConfigProvider(),
                 new SimpleChecksumProvider(), new SimpleLogger(
                         operationLog), new SimpleLogger(notificationLog));
     }
 
     @Private
     public EagerShufflingTask(Properties properties, Set<String> incomingShares,
-            IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
+            IEncapsulatedOpenBISService service,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
             IConfigProvider configProvider, IChecksumProvider checksumProvider,
             ISimpleLogger logger, ISimpleLogger notifyer)
     {
         super(properties, service);
         this.incomingShares = incomingShares;
-        this.shareIdManager = shareIdManager;
         this.freeSpaceProvider = freeSpaceProvider;
         this.dataSetMover = dataSetMover;
         this.checksumProvider = checksumProvider;
@@ -205,15 +185,24 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         @Override
         public ICleanupTask createCleanupTask()
         {
-            List<Share> currentShares = getShares();
-            dataSet = findDataSet(currentShares, dataSetCode);
+            dataSet = service.tryGetDataSet(dataSetCode);
+
+            if (dataSet == null)
+            {
+                logger.log(LogLevel.WARN, "Data set " + dataSetCode + " will not be shuffled because it is in the trash can or has been deleted.");
+                return new NoCleanupTask();
+            }
+
             if (dataSet.getStatus().isAvailable() == false)
             {
                 logger.log(LogLevel.WARN, "Data set " + dataSetCode + " couldn't been shuffled because "
                         + "its archiving status is " + dataSet.getStatus());
                 return new NoCleanupTask();
             }
+
+            List<Share> currentShares = getShares();
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, currentShares);
+
             if (shareWithMostFreeOrNull == null)
             {
                 String message = "No share found for shuffling data set " + dataSetCode + ".";
@@ -225,6 +214,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                 logger.log(LogLevel.WARN, message);
                 return new NoCleanupTask();
             }
+
             return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());
         }
 
@@ -236,34 +226,26 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                 String shareId = shareWithMostFreeOrNull.getShareId();
                 try
                 {
-                    if (service.tryGetDataSet(dataSetCode) == null)
-                    {
-                        logger.log(LogLevel.WARN, "Data set " + dataSetCode + " will not be moved from share "
-                                + dataSet.getDataSetShareId() + " to " + shareId
-                                + " because it is in the trash can or has been deleted.");
-                    } else
-                    {
-                        long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
-                        File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
+                    long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
+                    File share = new File(storeRoot, dataSet.getDataSetShareId());
 
-                        dataSetMover.moveDataSetToAnotherShare(
-                                new File(share, dataSet.getDataSetLocation()),
-                                shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
+                    dataSetMover.moveDataSetToAnotherShare(
+                            new File(share, dataSet.getDataSetLocation()),
+                            shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
 
-                        logger.log(LogLevel.INFO, "Data set " + dataSetCode
-                                + " successfully moved from share " + dataSet.getDataSetShareId()
-                                + " to " + shareId + ".");
-                        long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
-                        if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
-                                && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
-                        {
-                            notifyer.log(
-                                    LogLevel.WARN,
-                                    "After moving data set " + dataSetCode + " to share " + shareId
-                                            + " that share has only "
-                                            + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
-                                            + " free space. It might be necessary to add a new share.");
-                        }
+                    logger.log(LogLevel.INFO, "Data set " + dataSetCode
+                            + " successfully moved from share " + dataSet.getDataSetShareId()
+                            + " to " + shareId + ".");
+                    long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
+                    if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
+                            && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
+                    {
+                        notifyer.log(
+                                LogLevel.WARN,
+                                "After moving data set " + dataSetCode + " to share " + shareId
+                                        + " that share has only "
+                                        + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
+                                        + " free space. It might be necessary to add a new share.");
                     }
                 } catch (Throwable t)
                 {
@@ -295,8 +277,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         @Override
         public void cleanup(ISimpleLogger logger)
         {
-            IShareIdManager shareIdManager = ServiceProvider.getShareIdManager();
-            SegmentedStoreUtils.cleanUp(dataSet, storeRoot, newShareId, shareIdManager, logger);
+            SegmentedStoreUtils.cleanUp(dataSet, storeRoot, newShareId, ServiceProvider.getOpenBISService(), ServiceProvider.getLockManager(),
+                    logger);
         }
     }
 

@@ -143,11 +143,11 @@ public class TaskExecutor
                 {
                     ICleanupTask cleanupTask = deserializeFromFile(file);
                     cleanupTask.cleanup(logger);
+                    file.delete();
                 } catch (Exception ex)
                 {
                     operationLog.catching(new RuntimeException("Couldn't performed clean up task " + file, ex));
                 }
-                file.delete();
             }
         }
     }

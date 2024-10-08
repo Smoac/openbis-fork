@@ -7,5 +7,4 @@ public class Constants
 
     public static final int DEFAULT_SPEED_HINT = -MAX_SPEED / 2;
 
-    public static final String DEFAULT_SHARE_ID = "1";
 }
