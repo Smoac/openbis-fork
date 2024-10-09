@@ -98,11 +98,11 @@ public class FileTransferServerServlet extends HttpServlet
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FileTransferServerServlet.class);
 
-    private IDownloadServer downloadServer;
+    protected IDownloadServer downloadServer;
 
-    private JsonFactory jsonFactory;
+    protected JsonFactory jsonFactory;
 
-    private IDataStoreServiceInternal dataStoreService;
+    protected IDataStoreServiceInternal dataStoreService;
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException
@@ -148,22 +148,30 @@ public class FileTransferServerServlet extends HttpServlet
             Map<String, String[]> parameterMap = getParams(request);
             String[] methodParam = parameterMap.getOrDefault(
                     FastDownloadParameter.METHOD_PARAMETER.getParameterName(), new String[0]);
+            String[] versionParam = parameterMap.getOrDefault(
+                    FastDownloadParameter.VERSION_PARAMETER.getParameterName(), new String[0]);
+            int version = 1;
+            if(versionParam.length == 1) {
+                if(versionParam[0].strip().equals("2")) {
+                    version = 2;
+                }
+            }
             if (methodParam.length == 1)
             {
                 String method = methodParam[0];
                 if (FastDownloadMethod.START_DOWNLOAD_SESSION_METHOD.getMethodName().equals(method))
                 {
-                    handleStartDownloadSession(parameterMap, response);
+                    handleStartDownloadSession(parameterMap, response, version);
                 } else if (FastDownloadMethod.QUEUE_METHOD.getMethodName().equals(method))
                 {
-                    handleQueue(parameterMap, response);
+                    handleQueue(parameterMap, response, version);
                 } else if (FastDownloadMethod.DOWNLOAD_METHOD.getMethodName().equals(method))
                 {
-                    handleDownload(parameterMap, response);
+                    handleDownload(parameterMap, response, version);
                 } else if (FastDownloadMethod.FINISH_DOWNLOAD_SESSION_METHOD.getMethodName()
                         .equals(method))
                 {
-                    handleFinishDownloadSession(parameterMap, response);
+                    handleFinishDownloadSession(parameterMap, response, version);
                 } else
                 {
                     throw new IllegalArgumentException("Unknown method '" + method + "'.");
@@ -212,12 +220,12 @@ public class FileTransferServerServlet extends HttpServlet
     }
 
     private void handleStartDownloadSession(Map<String, String[]> parameterMap,
-            HttpServletResponse response) throws ServletException, IOException
+            HttpServletResponse response, int version) throws ServletException, IOException
     {
         IUserSessionId userSessionId = getUserSessionId(parameterMap);
         String sessionToken = userSessionId.getId();
         List<IDownloadItemId> itemIds =
-                filterByAccessRights(getDownloadItemIds(parameterMap), sessionToken);
+                filterByAccessRights(getDownloadItemIds(parameterMap, version), sessionToken);
         Integer wishedNumberOfStreams =
                 getInteger(parameterMap, FastDownloadParameter.WISHED_NUMBER_OF_STREAMS_PARAMETER);
         DownloadPreferences preferences = new DownloadPreferences(wishedNumberOfStreams);
@@ -297,7 +305,7 @@ public class FileTransferServerServlet extends HttpServlet
         return true;
     }
 
-    private void handleQueue(Map<String, String[]> parameterMap, HttpServletResponse response)
+    private void handleQueue(Map<String, String[]> parameterMap, HttpServletResponse response, int version)
             throws ServletException
     {
         DownloadSessionId downloadSessionId = getDownloadSessionId(parameterMap);
@@ -319,7 +327,7 @@ public class FileTransferServerServlet extends HttpServlet
         downloadServer.queue(downloadSessionId, ranges);
     }
 
-    private void handleDownload(Map<String, String[]> parameterMap, HttpServletResponse response)
+    private void handleDownload(Map<String, String[]> parameterMap, HttpServletResponse response, int version)
             throws ServletException, IOException
     {
         DownloadSessionId downloadSessionId = getDownloadSessionId(parameterMap);
@@ -336,7 +344,7 @@ public class FileTransferServerServlet extends HttpServlet
     }
 
     private void handleFinishDownloadSession(Map<String, String[]> parameterMap,
-            HttpServletResponse response) throws ServletException
+            HttpServletResponse response, int version) throws ServletException
     {
         downloadServer.finishDownloadSession(getDownloadSessionId(parameterMap));
     }
@@ -349,11 +357,16 @@ public class FileTransferServerServlet extends HttpServlet
                         0));
     }
 
-    private List<IDownloadItemId> getDownloadItemIds(Map<String, String[]> parameterMap)
+    private List<IDownloadItemId> getDownloadItemIds(Map<String, String[]> parameterMap, int version)
             throws ServletException
     {
-        return getParameters(parameterMap, FastDownloadParameter.DOWNLOAD_ITEM_IDS_PARAMETER)
-                .stream().map(DownloadItemId::new).collect(Collectors.toList());
+        if(version == 2) {
+            return getParametersV2(parameterMap, FastDownloadParameter.DOWNLOAD_ITEM_IDS_PARAMETER)
+                    .stream().map(DownloadItemId::new).collect(Collectors.toList());
+        } else {
+            return getParameters(parameterMap, FastDownloadParameter.DOWNLOAD_ITEM_IDS_PARAMETER)
+                    .stream().map(DownloadItemId::new).collect(Collectors.toList());
+        }
     }
 
     private DownloadSessionId getDownloadSessionId(Map<String, String[]> parameterMap)
@@ -384,6 +397,24 @@ public class FileTransferServerServlet extends HttpServlet
             }
         }
         return result;
+    }
+
+    private List<String> getParametersV2(Map<String, String[]> parameterMap,
+                                       FastDownloadParameter parameter) throws ServletException
+    {
+        String parameterName = parameter.getParameterName();
+        String[] items = parameterMap.get(parameterName);
+        if (items == null)
+        {
+            throw new ServletException("Unspecified parameter '" + parameterName + "'.");
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<String> params = mapper.readValue(items[0], List.class);
+            return params;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Integer getInteger(Map<String, String[]> parameterMap, FastDownloadParameter parameter)
