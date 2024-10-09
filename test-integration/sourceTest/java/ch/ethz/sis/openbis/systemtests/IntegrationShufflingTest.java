@@ -31,6 +31,10 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
     private static final long WAITING_TIME_FOR_SHUFFLING = 3000L;
 
+    private static final String TEST_FILE_NAME = "test-file.txt";
+
+    private static final String TEST_FILE_CONTENT = "test-content";
+
     private Experiment experimentShuffledToShare2;
 
     private Experiment experimentShuffledToShare3;
@@ -64,7 +68,7 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
         Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
         openBIS.getAfsServerFacade()
-                .write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+                .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
 
         assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, null);
         assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, true);
@@ -72,7 +76,7 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
         Thread.sleep(WAITING_TIME_FOR_SHUFFLING);
 
-        assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 2, (long) "test-content".getBytes().length);
+        assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 2, (long) TEST_FILE_CONTENT.getBytes().length);
         assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 2, true);
         assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, false);
     }
@@ -86,7 +90,32 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
     @Test
     public void testDataIsLockedDuringShuffling() throws Exception
     {
-        // TODO
+        try
+        {
+            TestShuffling.getDataSetMover().getChecksumProvider().setDelayByMillis(1000L);
+
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+            Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+            openBIS.getAfsServerFacade()
+                    .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
+
+            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, null);
+
+            long startTimestamp = System.currentTimeMillis();
+            while (System.currentTimeMillis() < startTimestamp + WAITING_TIME_FOR_SHUFFLING)
+            {
+                openBIS.getAfsServerFacade().read(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes().length);
+                Thread.sleep(100L);
+            }
+
+            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 2, (long) TEST_FILE_CONTENT.getBytes().length);
+        } finally
+        {
+            TestShuffling.getDataSetMover().getChecksumProvider().setDelayByMillis(null);
+        }
     }
 
     @Test
@@ -102,7 +131,7 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
             Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
             openBIS.getAfsServerFacade()
-                    .write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
+                    .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
 
             assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, null);
             assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, true);
@@ -110,7 +139,7 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
             Thread.sleep(WAITING_TIME_FOR_SHUFFLING);
 
-            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, (long) "test-content".getBytes().length);
+            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, (long) TEST_FILE_CONTENT.getBytes().length);
             assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, true);
             assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 2, false);
         } finally
@@ -130,7 +159,6 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
         assertEquals(dataSet.getPhysicalData().getShareId(), String.valueOf(shareId));
         assertEquals(dataSet.getPhysicalData().getSize(), size);
-
     }
 
     private static void assertDataSetExistsInStore(OpenBIS openBIS, String dataSetCode, int shareId, boolean exists)

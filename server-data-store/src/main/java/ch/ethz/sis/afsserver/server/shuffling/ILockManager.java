@@ -3,11 +3,11 @@ package ch.ethz.sis.afsserver.server.shuffling;
 import java.util.List;
 import java.util.UUID;
 
-import ch.ethz.sis.afs.dto.Lock;
+import ch.ethz.sis.afs.dto.LockType;
 
 public interface ILockManager
 {
-    boolean lock(List<Lock<UUID, String>> locks);
+    boolean lock(UUID owner, List<SimpleDataSetInformationDTO> dataSets, LockType lockType);
 
-    boolean unlock(List<Lock<UUID, String>> locks);
+    boolean unlock(UUID owner, List<SimpleDataSetInformationDTO> dataSets, LockType lockType);
 }

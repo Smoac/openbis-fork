@@ -239,11 +239,13 @@ public class SegmentedStoreUtils
 
         final UUID transactionId = UUID.randomUUID();
 
-        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
+        boolean locked = lockManager.lock(transactionId, List.of(dataSet), LockType.HierarchicallyExclusive);
         if (!locked)
         {
             throw new RuntimeException("Data set " + dataSetCode + " could not be locked");
         }
+
+        logger.log(LogLevel.INFO, "Locked data set " + dataSetCode + " before shuffling.");
 
         try
         {
@@ -270,7 +272,8 @@ public class SegmentedStoreUtils
             deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
         } finally
         {
-            lockManager.unlock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
+            lockManager.unlock(transactionId, List.of(dataSet), LockType.HierarchicallyExclusive);
+            logger.log(LogLevel.INFO, "Unlocked data set " + dataSetCode + " after shuffling.");
         }
     }
 
@@ -345,18 +348,21 @@ public class SegmentedStoreUtils
 
         final UUID transactionId = UUID.randomUUID();
 
-        boolean locked = lockManager.lock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
+        boolean locked = lockManager.lock(transactionId, List.of(currentDataSet), LockType.HierarchicallyExclusive);
         if (!locked)
         {
             throw new RuntimeException("Data set " + dataSetCode + " could not be locked");
         }
+
+        logger.log(LogLevel.INFO, "Locked data set " + dataSetCode + " before clean up.");
 
         try
         {
             deleteDataSetInstantly(dataSetCode, new File(shareFolder, location), logger);
         } finally
         {
-            lockManager.unlock(List.of(new Lock<>(transactionId, "/" + dataSetCode, LockType.HierarchicallyExclusive)));
+            lockManager.unlock(transactionId, List.of(currentDataSet), LockType.HierarchicallyExclusive);
+            logger.log(LogLevel.INFO, "Unlocked data set " + dataSetCode + " after clean up.");
         }
     }
 

@@ -1,9 +1,12 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import ch.ethz.sis.afs.dto.Lock;
+import ch.ethz.sis.afs.dto.LockType;
 import ch.ethz.sis.afs.manager.TransactionManager;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
@@ -88,14 +91,30 @@ public class ServiceProvider
             TransactionManager transactionManager = connectionFactory.getTransactionManager();
             return new ILockManager()
             {
-                @Override public boolean lock(final List<Lock<UUID, String>> locks)
+
+                @Override public boolean lock(final UUID owner, final List<SimpleDataSetInformationDTO> dataSets, final LockType lockType)
                 {
-                    return transactionManager.lock(locks);
+                    return transactionManager.lock(convert(owner, dataSets, lockType));
                 }
 
-                @Override public boolean unlock(final List<Lock<UUID, String>> locks)
+                @Override public boolean unlock(final UUID owner, final List<SimpleDataSetInformationDTO> dataSets, final LockType lockType)
                 {
-                    return transactionManager.unlock(locks);
+                    return transactionManager.unlock(convert(owner, dataSets, lockType));
+                }
+
+                private List<Lock<UUID, String>> convert(UUID owner, List<SimpleDataSetInformationDTO> dataSets, LockType lockType)
+                {
+                    List<Lock<UUID, String>> locks = new ArrayList<>();
+
+                    String storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
+
+                    for (SimpleDataSetInformationDTO dataSet : dataSets)
+                    {
+                        String resource = Paths.get(storageRoot, dataSet.getDataSetShareId(), dataSet.getDataSetLocation()).toString();
+                        locks.add(new Lock<>(owner, resource, lockType));
+                    }
+
+                    return locks;
                 }
             };
         } else

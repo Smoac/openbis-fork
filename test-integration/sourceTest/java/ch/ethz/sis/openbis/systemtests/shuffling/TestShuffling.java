@@ -111,7 +111,7 @@ public class TestShuffling implements ISegmentedStoreShuffling
             this.failWithException = failWithException;
         }
 
-        public void setDelayByMillis(final long delayByMillis)
+        public void setDelayByMillis(final Long delayByMillis)
         {
             this.delayByMillis = delayByMillis;
         }
