@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * Simple shuffling which moves data sets from full shares to the share with initial most free space until it is full.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class SimpleShuffling implements ISegmentedStoreShuffling
@@ -72,10 +72,11 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
 
     public SimpleShuffling(Properties properties)
     {
-        this(properties, new EagerShufflingTask(properties, ServiceProvider.getOpenBISService()));
+        this(properties, new EagerShufflingTask(properties, ServiceProvider.getOpenBISService(),
+                new DataSetMover(ServiceProvider.getOpenBISService(), ServiceProvider.getLockManager())));
     }
 
-    SimpleShuffling(Properties properties, IPostRegistrationTask shufflingTask)
+    public SimpleShuffling(Properties properties, IPostRegistrationTask shufflingTask)
     {
         this.shufflingTask = shufflingTask;
         minimumFreeSpace =
@@ -107,8 +108,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
                 numberOfDataSetsToMove = dataSets.size();
                 logger.log(INFO, "All " + numberOfDataSetsToMove
                         + " data sets should be moved for share " + share.getShareId());
-            }
-            else
+            } else
             {
                 logger.log(INFO,
                         "BEGIN Computing number of data sets to be moved for share " + share.getShareId());
@@ -183,15 +183,15 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
             shareStates.add(new ShareAndFreeSpace(share));
         }
         Collections.sort(shareStates, new Comparator<ShareAndFreeSpace>()
+        {
+            @Override
+            public int compare(ShareAndFreeSpace o1, ShareAndFreeSpace o2)
             {
-                @Override
-                public int compare(ShareAndFreeSpace o1, ShareAndFreeSpace o2)
-                {
-                    long s1 = o1.getFreeSpace();
-                    long s2 = o2.getFreeSpace();
-                    return s1 < s2 ? -1 : (s1 > s2 ? 1 : 0);
-                }
-            });
+                long s1 = o1.getFreeSpace();
+                long s2 = o2.getFreeSpace();
+                return s1 < s2 ? -1 : (s1 > s2 ? 1 : 0);
+            }
+        });
         return shareStates;
     }
 

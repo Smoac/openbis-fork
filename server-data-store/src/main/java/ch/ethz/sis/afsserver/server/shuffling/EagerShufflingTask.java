@@ -87,10 +87,10 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
 
     private boolean verifyChecksum;
 
-    public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
+    public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service, IDataSetMover dataSetMover)
     {
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, new SimpleFreeSpaceProvider(),
-                new DataSetMover(service, ServiceProvider.getLockManager()), ServiceProvider.getConfigProvider(),
+                dataSetMover, ServiceProvider.getConfigProvider(),
                 new SimpleChecksumProvider(), new SimpleLogger(
                         operationLog), new SimpleLogger(notificationLog));
     }
