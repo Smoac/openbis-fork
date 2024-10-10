@@ -1,5 +1,16 @@
 # OpenBIS Change Log
 
+## Version 20.10.10 (10 Oct 2024)
+
+### Core
+- Remove rotateLogFiles from datastore_server.sh and datamover.sh (BIS-1396)
+- Make SFTP Certificate configurable on the dss service.properties (BIS-1401)
+- Forward all properties from plugins we ship to the as and dss service.properties (BIS-1399)
+- Forward all properties from plugins we ship to OS environment variables (BIS-1587)
+
+### ELN
+- ELN: Move InstanceProfile.js parameters to the ELN Settings UI (BIS-1400)
+
 ## Version 20.10.9.1 (16 Aug 2024)
 
 ### ELN
