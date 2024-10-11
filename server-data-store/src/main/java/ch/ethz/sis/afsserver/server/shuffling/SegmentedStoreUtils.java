@@ -318,7 +318,7 @@ public class SegmentedStoreUtils
 
         if (currentDataSet == null)
         {
-            logger.log(LogLevel.WARN, "No clean up will be performed because data set "
+            logger.log(LogLevel.INFO, "No clean up will be performed because data set "
                     + dataSetCode + " was not found.");
             return;
         }
@@ -327,7 +327,7 @@ public class SegmentedStoreUtils
 
         if (newShareId.equals(oldShareId))
         {
-            logger.log(LogLevel.WARN, "No clean up will be performed because for data set "
+            logger.log(LogLevel.INFO, "No clean up will be performed because for data set "
                     + dataSetCode + " the new share and the old share are the same: " + oldShareId);
             return;
         }
@@ -338,7 +338,7 @@ public class SegmentedStoreUtils
 
         if (currentIsOld == false && currentIsNew == false)
         {
-            logger.log(LogLevel.WARN, "No clean up will be performed because data set "
+            logger.log(LogLevel.INFO, "No clean up will be performed because data set "
                     + dataSetCode + " is neither in share " + oldShareId + " nor in share "
                     + newShareId + " but in share " + currentShareId + ".");
             return;

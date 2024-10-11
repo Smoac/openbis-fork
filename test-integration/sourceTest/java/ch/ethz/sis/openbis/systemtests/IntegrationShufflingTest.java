@@ -1,35 +1,33 @@
 package ch.ethz.sis.openbis.systemtests;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
+import org.apache.logging.log4j.Level;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.afsserver.server.common.TestLogger;
 import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
-import ch.ethz.sis.openbis.systemtests.shuffling.TestShuffling;
+import ch.ethz.sis.openbis.systemtests.shuffling.TestSegmentedStoreShufflingTask;
+import ch.ethz.sis.openbis.systemtests.shuffling.TestSegmentedStoreShufflingTask.TestChecksumProvider;
 
 public class IntegrationShufflingTest extends AbstractIntegrationTest
 {
 
     private static final String ENTITY_CODE_PREFIX = "SHUFFLING_TEST_";
-
-    private static final long WAITING_TIME_FOR_SHUFFLING = 3000L;
 
     private static final String TEST_FILE_NAME = "test-file.txt";
 
@@ -58,6 +56,20 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
         openBIS.logout();
     }
 
+    @BeforeMethod
+    public void beforeMethod(Method method)
+    {
+        super.beforeMethod(method);
+        TestLogger.startLogRecording(Level.TRACE);
+    }
+
+    @AfterMethod
+    public void afterMethod(Method method) throws Exception
+    {
+        super.afterMethod(method);
+        TestLogger.stopLogRecording();
+    }
+
     @Test
     public void testAFSDataIsShuffledByAFS() throws Exception
     {
@@ -70,110 +82,94 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
         openBIS.getAfsServerFacade()
                 .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
 
-        assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, null);
-        assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, true);
-        assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 2, false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 2);
 
-        Thread.sleep(WAITING_TIME_FOR_SHUFFLING);
+        TestChecksumProvider checksumProvider = new TestChecksumProvider();
+        TestSegmentedStoreShufflingTask.executeOnce(checksumProvider);
 
-        assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 2, (long) TEST_FILE_CONTENT.getBytes().length);
-        assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 2, true);
-        assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 2);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 1);
     }
 
     @Test
     public void testDSSDataIsNotShuffledByAFS() throws Exception
     {
-        // TODO
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        // create data at DSS (should be stored in the incoming share i.e. 1)
+        DataSet dataSet = createDataSet(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID(), TEST_FILE_NAME,
+                TEST_FILE_CONTENT.getBytes());
+
+        assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), true, 1);
+        assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), false, 2);
+
+        TestChecksumProvider checksumProvider = new TestChecksumProvider();
+        TestSegmentedStoreShufflingTask.executeOnce(checksumProvider);
+
+        assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), true, 1);
+        assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), false, 2);
     }
 
     @Test
     public void testDataIsLockedDuringShuffling() throws Exception
     {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+        Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+
+        openBIS.getAfsServerFacade()
+                .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
+
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
+
+        Thread shufflingThread = new Thread(() ->
+        {
+            TestChecksumProvider checksumProvider = new TestChecksumProvider();
+            checksumProvider.setDelayByMillis(1000L);
+            TestSegmentedStoreShufflingTask.executeOnce(checksumProvider);
+        });
+        shufflingThread.start();
+
+        Thread.sleep(500L);
         try
         {
-            TestShuffling.getDataSetMover().getChecksumProvider().setDelayByMillis(1000L);
-
-            OpenBIS openBIS = createOpenBIS();
-            openBIS.login(INSTANCE_ADMIN, PASSWORD);
-
-            Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
-
-            openBIS.getAfsServerFacade()
-                    .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
-
-            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, null);
-
-            long startTimestamp = System.currentTimeMillis();
-            while (System.currentTimeMillis() < startTimestamp + WAITING_TIME_FOR_SHUFFLING)
-            {
-                openBIS.getAfsServerFacade().read(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes().length);
-                Thread.sleep(100L);
-            }
-
-            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 2, (long) TEST_FILE_CONTENT.getBytes().length);
-        } finally
+            byte[] content = openBIS.getAfsServerFacade()
+                    .read(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes().length);
+            assertEquals(new String(content), TEST_FILE_CONTENT);
+            fail();
+        } catch (Exception e)
         {
-            TestShuffling.getDataSetMover().getChecksumProvider().setDelayByMillis(null);
+            assertTrue(e.getMessage().contains(TEST_FILE_NAME + " is currently being used"), e.getMessage());
         }
+
+        shufflingThread.join();
+
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 2);
     }
 
     @Test
     public void testFailedShufflingIsCleanedUp() throws Exception
     {
-        try
-        {
-            TestShuffling.getDataSetMover().getChecksumProvider().setFailWithException(new RuntimeException("Test checksum exception"));
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
-            OpenBIS openBIS = createOpenBIS();
-            openBIS.login(INSTANCE_ADMIN, PASSWORD);
+        Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
 
-            Sample sample = createSample(openBIS, experimentShuffledToShare2.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
+        openBIS.getAfsServerFacade()
+                .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
 
-            openBIS.getAfsServerFacade()
-                    .write(sample.getPermId().getPermId(), TEST_FILE_NAME, 0L, TEST_FILE_CONTENT.getBytes());
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 2);
 
-            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, null);
-            assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, true);
-            assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 2, false);
+        TestChecksumProvider checksumProvider = new TestChecksumProvider();
+        checksumProvider.setFailWithException(new RuntimeException("Test checksum exception"));
+        TestSegmentedStoreShufflingTask.executeOnce(checksumProvider);
 
-            Thread.sleep(WAITING_TIME_FOR_SHUFFLING);
-
-            assertDataSetShareAndSizeInDB(openBIS, sample.getPermId().getPermId(), 1, (long) TEST_FILE_CONTENT.getBytes().length);
-            assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 1, true);
-            assertDataSetExistsInStore(openBIS, sample.getPermId().getPermId(), 2, false);
-        } finally
-        {
-            TestShuffling.getDataSetMover().getChecksumProvider().setFailWithException(null);
-        }
-    }
-
-    private static void assertDataSetShareAndSizeInDB(OpenBIS openBIS, String dataSetCode, int shareId, Long size)
-    {
-        IDataSetId dataSetId = new DataSetPermId(dataSetCode);
-
-        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withPhysicalData();
-
-        DataSet dataSet = openBIS.getDataSets(List.of(dataSetId), fetchOptions).get(dataSetId);
-
-        assertEquals(dataSet.getPhysicalData().getShareId(), String.valueOf(shareId));
-        assertEquals(dataSet.getPhysicalData().getSize(), size);
-    }
-
-    private static void assertDataSetExistsInStore(OpenBIS openBIS, String dataSetCode, int shareId, boolean exists)
-    {
-        IDataSetId dataSetId = new DataSetPermId(dataSetCode);
-
-        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withPhysicalData();
-
-        DataSet dataSet = openBIS.getDataSets(List.of(dataSetId), fetchOptions).get(dataSetId);
-
-        String storageRoot = getAfsServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
-        Path dataSetFolder = Paths.get(storageRoot, String.valueOf(shareId), dataSet.getPhysicalData().getLocation());
-
-        assertEquals(Files.exists(dataSetFolder), exists);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 2);
     }
 
 }

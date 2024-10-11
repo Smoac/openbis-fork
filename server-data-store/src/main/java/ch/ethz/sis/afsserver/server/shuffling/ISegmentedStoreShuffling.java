@@ -16,12 +16,14 @@
 package ch.ethz.sis.afsserver.server.shuffling;
 
 import java.util.List;
+import java.util.Set;
 
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
  * Strategy of shuffling data sets from source shares to target shares. Source shares are incoming shares. Target shares are all shares.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface ISegmentedStoreShuffling
@@ -34,6 +36,7 @@ public interface ISegmentedStoreShuffling
     /**
      * Moves data sets from source shares to some target shares if necessary.
      */
-    public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
-            IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger);
+    public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares, Set<String> incomingShares,
+            IEncapsulatedOpenBISService service, IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover, IConfigProvider configProvider,
+            IChecksumProvider checksumProvider, ISimpleLogger logger);
 }

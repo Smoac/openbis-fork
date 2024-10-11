@@ -87,28 +87,18 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
 
     private boolean verifyChecksum;
 
-    public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service, IDataSetMover dataSetMover)
-    {
-        this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, new SimpleFreeSpaceProvider(),
-                dataSetMover, ServiceProvider.getConfigProvider(),
-                new SimpleChecksumProvider(), new SimpleLogger(
-                        operationLog), new SimpleLogger(notificationLog));
-    }
-
-    @Private
     public EagerShufflingTask(Properties properties, Set<String> incomingShares,
             IEncapsulatedOpenBISService service,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
-            IConfigProvider configProvider, IChecksumProvider checksumProvider,
-            ISimpleLogger logger, ISimpleLogger notifyer)
+            IConfigProvider configProvider, IChecksumProvider checksumProvider)
     {
         super(properties, service);
         this.incomingShares = incomingShares;
         this.freeSpaceProvider = freeSpaceProvider;
         this.dataSetMover = dataSetMover;
         this.checksumProvider = checksumProvider;
-        this.logger = logger;
-        this.notifyer = notifyer;
+        this.logger = new SimpleLogger(operationLog);
+        this.notifyer = new SimpleLogger(notificationLog);
 
         dataStoreCode = configProvider.getDataStoreCode();
         storeRoot = configProvider.getStoreRoot();

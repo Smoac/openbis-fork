@@ -19,6 +19,11 @@ repositories {
     }
 }
 
+configurations {
+    tests.extendsFrom testImplementation
+    tests.canBeResolved true
+}
+
 dependencies {
     annotationProcessor 'lombok:lombok:1.18.22'
     implementation project(':lib-transactional-file-system'),
@@ -56,4 +61,13 @@ task AFSServerZip(type: Zip, dependsOn: compileJava) {
     from('dist') {
         into 'afs-server/'
     }
+}
+
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.name}"
+    from sourceSets.test.output
+}
+
+artifacts {
+    tests testJar
 }

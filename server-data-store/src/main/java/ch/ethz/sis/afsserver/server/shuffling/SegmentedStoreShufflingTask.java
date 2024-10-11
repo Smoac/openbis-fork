@@ -61,12 +61,13 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         {
         }
 
-        @Override
-        public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
-                IEncapsulatedOpenBISService service, IDataSetMover dataSetMover,
-                ISimpleLogger logger)
+        @Override public void shuffleDataSets(final List<Share> sourceShares, final List<Share> targetShares, final Set<String> incomingShares,
+                final IEncapsulatedOpenBISService service, final IFreeSpaceProvider freeSpaceProvider, final IDataSetMover dataSetMover,
+                final IConfigProvider configProvider,
+                final IChecksumProvider checksumProvider, final ISimpleLogger logger)
         {
             logger.log(INFO, "Data Store Shares:");
+
             for (Share share : targetShares)
             {
                 List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
@@ -118,7 +119,11 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
     private final IDataSetMover dataSetMover;
 
+    private final IConfigProvider configProvider;
+
     private final IFreeSpaceProvider freeSpaceProvider;
+
+    private final IChecksumProvider checksumProvider;
 
     private final ISimpleLogger operationLogger;
 
@@ -133,19 +138,21 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
     {
         this(IncomingShareIdProvider.getIdsOfIncomingShares(), ServiceProvider.getOpenBISService(),
                 new SimpleFreeSpaceProvider(), new DataSetMover(
-                        ServiceProvider.getOpenBISService(), ServiceProvider.getLockManager()),
-                new SimpleLogger(operationLog));
+                        ServiceProvider.getOpenBISService(), ServiceProvider.getLockManager()), new SimpleChecksumProvider(),
+                ServiceProvider.getConfigProvider());
     }
 
-    SegmentedStoreShufflingTask(Set<String> incomingShares, IEncapsulatedOpenBISService service,
-            IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover, ISimpleLogger logger)
+    public SegmentedStoreShufflingTask(Set<String> incomingShares, IEncapsulatedOpenBISService service,
+            IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover, IChecksumProvider checksumProvider, IConfigProvider configProvider)
     {
-        this.incomingShares = incomingShares;
         LogInitializer.init();
+        this.incomingShares = incomingShares;
         this.freeSpaceProvider = freeSpaceProvider;
+        this.checksumProvider = checksumProvider;
         this.service = service;
         this.dataSetMover = dataSetMover;
-        operationLogger = logger;
+        this.configProvider = configProvider;
+        operationLogger = new SimpleLogger(operationLog);
     }
 
     @Override
@@ -208,7 +215,9 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
                 nonEmptyShares.add(share.getShareId());
             }
         }
-        shuffling.shuffleDataSets(sourceShares, shares, service, dataSetMover, operationLogger);
+        shuffling.shuffleDataSets(sourceShares, shares, incomingShares, service, freeSpaceProvider, dataSetMover, configProvider, checksumProvider,
+                operationLogger);
+
         operationLog.info("Segmented store shuffling finished.");
         Set<String> emptyShares = new TreeSet<String>();
         for (Share share : listShares())

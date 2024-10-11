@@ -4,20 +4,14 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.IOUtils;
@@ -74,20 +68,20 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
         // create data at AFS
         openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-        assertDataExistsInStore(sample.getPermId().getPermId(), true);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
 
         openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-        assertDataExistsInStore(sample.getPermId().getPermId(), true);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
     }
 
     @Test
@@ -106,7 +100,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
         // create data at AFS
         openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
@@ -114,14 +108,14 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
         // COMMIT
         openBIS.commitTransaction();
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-        assertDataExistsInStore(sample.getPermId().getPermId(), true);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
     }
 
     @Test
@@ -140,7 +134,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), false);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
         // create data at AFS
         openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
@@ -148,14 +142,14 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), false);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
         // COMMIT
         openBIS.commitTransaction();
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-        assertDataExistsInStore(sample.getPermId().getPermId(), true);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
     }
 
     @Test
@@ -184,7 +178,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-            assertDataExistsInStore(sample.getPermId().getPermId(), true);
+            assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
 
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(userId, PASSWORD);
@@ -214,7 +208,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-            assertDataExistsInStore(sample.getPermId().getPermId(), true);
+            assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
         }
     }
 
@@ -254,7 +248,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-            assertDataExistsInStore(sample.getPermId().getPermId(), false);
+            assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(userId, PASSWORD);
@@ -269,7 +263,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                     assertEquals(readData, testData.getBytes());
                     assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
                     assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-                    assertDataExistsInStore(sample.getPermId().getPermId(), true);
+                    assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
                 } else
                 {
                     fail();
@@ -284,7 +278,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                     assertTrue(e.getMessage().contains("don't have rights [Write] over " + sample.getPermId().getPermId()));
                     assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
                     assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-                    assertDataExistsInStore(sample.getPermId().getPermId(), false);
+                    assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
                 }
             }
         }
@@ -317,7 +311,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
-            assertDataExistsInStore(experiment.getPermId().getPermId(), true);
+            assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), true, 1);
 
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(userId, PASSWORD);
@@ -347,7 +341,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
-            assertDataExistsInStore(experiment.getPermId().getPermId(), true);
+            assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), true, 1);
         }
     }
 
@@ -388,7 +382,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
-            assertDataExistsInStore(experiment.getPermId().getPermId(), false);
+            assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), false, null);
 
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(userId, PASSWORD);
@@ -403,7 +397,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                     assertEquals(readData, testData.getBytes());
                     assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
                     assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
-                    assertDataExistsInStore(experiment.getPermId().getPermId(), true);
+                    assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), true, 1);
                 } else
                 {
                     fail();
@@ -418,7 +412,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
                     assertTrue(e.getMessage().contains("don't have rights [Write] over " + experiment.getPermId().getPermId()));
                     assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
                     assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
-                    assertDataExistsInStore(experiment.getPermId().getPermId(), false);
+                    assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), false, null);
                 }
             }
         }
@@ -452,7 +446,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
-            assertDataExistsInStore(dataSet.getPermId().getPermId(), true);
+            assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), true, 1);
 
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(userId, PASSWORD);
@@ -482,7 +476,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
-            assertDataExistsInStore(dataSet.getPermId().getPermId(), true);
+            assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), true, 1);
         }
     }
 
@@ -505,11 +499,12 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
             // create dataset with instance admin user
             Project project = createProject(openBISInstanceAdmin, new SpacePermId(TEST_SPACE), ENTITY_CODE_PREFIX + UUID.randomUUID());
             Experiment experiment = createExperiment(openBISInstanceAdmin, project.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID());
-            DataSet dataSet = createDataSet(openBISInstanceAdmin, experiment.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID(), null, null);
+            DataSet dataSet = createDataSet(openBISInstanceAdmin, experiment.getPermId(), ENTITY_CODE_PREFIX + UUID.randomUUID(), testFile,
+                    testData.getBytes());
 
             assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
-            assertDataExistsInStore(dataSet.getPermId().getPermId(), false);
+            assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), true, 1);
 
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(userId, PASSWORD);
@@ -525,7 +520,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
             assertDSSDataSetExistsAtAS(dataSet.getPermId().getPermId(), true);
             assertAFSDataSetExistsAtAS(dataSet.getPermId().getPermId(), false);
-            assertDataExistsInStore(dataSet.getPermId().getPermId(), false);
+            assertDataExistsInStoreInShare(dataSet.getPermId().getPermId(), true, 1);
         }
     }
 
@@ -541,7 +536,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
-        assertDataExistsInStore(experiment.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), false, null);
 
         openBIS.getAfsServerFacade().write(experiment.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
         openBIS.getAfsServerFacade().write(experiment.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
@@ -551,7 +546,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertExperimentExistsAtAS(experiment.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), true);
-        assertDataExistsInStore(experiment.getPermId().getPermId(), true);
+        assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), true, 1);
 
         IDeletionId deletionId = openBIS.deleteExperiments(List.of(experiment.getPermId()), options);
         openBIS.confirmDeletions(List.of(deletionId));
@@ -560,7 +555,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         assertAFSDataSetExistsAtAS(experiment.getPermId().getPermId(), false);
         // we need to wait for both AS events-search-task and AFS serverObserver
         Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
-        assertDataExistsInStore(experiment.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(experiment.getPermId().getPermId(), false, null);
     }
 
     @Test
@@ -574,7 +569,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
 
         openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file.txt", 0L, "test-content".getBytes());
         openBIS.getAfsServerFacade().write(sample.getPermId().getPermId(), "test-file-2.txt", 0L, "test-content-2".getBytes());
@@ -584,7 +579,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
 
         assertSampleExistsAtAS(sample.getPermId().getPermId(), true);
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), true);
-        assertDataExistsInStore(sample.getPermId().getPermId(), true);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
 
         IDeletionId deletionId = openBIS.deleteSamples(List.of(sample.getPermId()), options);
         openBIS.confirmDeletions(List.of(deletionId));
@@ -593,7 +588,7 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         assertAFSDataSetExistsAtAS(sample.getPermId().getPermId(), false);
         // we need to wait for both AS events-search-task and AFS serverObserver
         Thread.sleep(WAITING_TIME_FOR_ASYNC_TASKS);
-        assertDataExistsInStore(sample.getPermId().getPermId(), false);
+        assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, null);
     }
 
     @Test
@@ -699,59 +694,6 @@ public class IntegrationAfsDataTest extends AbstractIntegrationTest
         assertEquals(downloadedFiles.get(""), "");
         assertEquals(downloadedFiles.get("test-file.txt"), "test-content");
         assertEquals(downloadedFiles.get("test-file-2.txt"), "test-content-2");
-    }
-
-    private void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
-    {
-        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
-                Statement statement = connection.createStatement())
-        {
-            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM experiments_all WHERE perm_id = '" + experimentPermId + "'");
-            resultSet.next();
-            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
-        }
-    }
-
-    private void assertSampleExistsAtAS(String samplePermId, boolean exists) throws Exception
-    {
-        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
-                Statement statement = connection.createStatement())
-        {
-            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM samples_all WHERE perm_id = '" + samplePermId + "'");
-            resultSet.next();
-            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
-        }
-    }
-
-    private void assertDSSDataSetExistsAtAS(String dataSetPermId, boolean exists) throws Exception
-    {
-        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
-                Statement statement = connection.createStatement())
-        {
-            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE afs_data = 'f' AND code = '" + dataSetPermId + "'");
-            resultSet.next();
-            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
-        }
-    }
-
-    private void assertAFSDataSetExistsAtAS(String dataSetPermId, boolean exists) throws Exception
-    {
-        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
-                Statement statement = connection.createStatement())
-        {
-            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE afs_data = 't' AND code = '" + dataSetPermId + "'");
-            resultSet.next();
-            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
-        }
-    }
-
-    private void assertDataExistsInStore(String owner, boolean exists) throws Exception
-    {
-        final String storageRoot = getAfsServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
-        final List<File> dataSetFolders = Files.find(Path.of(storageRoot), Integer.MAX_VALUE,
-                        (path, basicFileAttributes) -> path.getFileName().toString().equals(owner) && Files.isDirectory(path))
-                .map(Path::toFile).collect(Collectors.toList());
-        assertEquals(dataSetFolders.size(), exists ? 1 : 0);
     }
 
     private void deleteLastSeenDeletionFile() throws Exception

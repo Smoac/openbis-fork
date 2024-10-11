@@ -37,6 +37,11 @@ public class TestLogger
         LogManager.setLogFactory(new Log4J2LogFactory());
     }
 
+    public static void startLogRecording(Level level)
+    {
+        startLogRecording(level, "%-5p %c - %m%n", ".*");
+    }
+
     public static void startLogRecording(Level level, String pattern, String loggerNameRegex)
     {
         if (loggerContext == null)
@@ -225,6 +230,11 @@ public class TestLogger
         {
             return filterByLoggerName(logger.getName());
         }
+    }
+
+    public static void main(String[] args)
+    {
+        TestLogger.configure();
     }
 
 }

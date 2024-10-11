@@ -22,11 +22,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
 import ch.ethz.sis.shared.log.LogManager;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -64,21 +66,15 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         }
     }
 
-    private final long minimumFreeSpace;
+    private final Properties properties;
 
-    private IPostRegistrationTask shufflingTask;
+    private final long minimumFreeSpace;
 
     private TaskExecutor taskExecutor;
 
     public SimpleShuffling(Properties properties)
     {
-        this(properties, new EagerShufflingTask(properties, ServiceProvider.getOpenBISService(),
-                new DataSetMover(ServiceProvider.getOpenBISService(), ServiceProvider.getLockManager())));
-    }
-
-    public SimpleShuffling(Properties properties, IPostRegistrationTask shufflingTask)
-    {
-        this.shufflingTask = shufflingTask;
+        this.properties = properties;
         minimumFreeSpace =
                 FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
         taskExecutor = new TaskExecutor(properties, LogManager.getLogger(SimpleShuffling.class));
@@ -91,9 +87,10 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         logger.log(LogLevel.INFO, "Simple shuffling strategy initialized");
     }
 
-    @Override
-    public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
-            IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger)
+    @Override public void shuffleDataSets(final List<Share> sourceShares, final List<Share> targetShares, final Set<String> incomingShares,
+            final IEncapsulatedOpenBISService service, final IFreeSpaceProvider freeSpaceProvider, final IDataSetMover dataSetMover,
+            final IConfigProvider configProvider,
+            final IChecksumProvider checksumProvider, final ISimpleLogger logger)
     {
         List<ShareAndFreeSpace> fullShares = getFullShares(sourceShares);
         for (ShareAndFreeSpace fullShare : fullShares)
@@ -122,6 +119,10 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
                             + " has not enough free space even if it is empty.");
                 }
             }
+
+            EagerShufflingTask shufflingTask =
+                    new EagerShufflingTask(properties, incomingShares, service, freeSpaceProvider, dataSetMover, configProvider, checksumProvider);
+
             for (int i = 0; i < numberOfDataSetsToMove; i++)
             {
                 SimpleDataSetInformationDTO dataSet = dataSets.get(i);
