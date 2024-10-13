@@ -9,8 +9,8 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.afsserver.server.common.TestLogger;
@@ -37,10 +37,8 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
     private Experiment experimentShuffledToShare3;
 
-    @BeforeSuite @Override public void beforeSuite() throws Exception
+    @BeforeClass public void beforeClass() throws Exception
     {
-        super.beforeSuite();
-
         OpenBIS openBIS = createOpenBIS();
         openBIS.login(INSTANCE_ADMIN, PASSWORD);
 

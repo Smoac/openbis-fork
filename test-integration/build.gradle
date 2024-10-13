@@ -1,7 +1,15 @@
 apply from: '../build/javaproject.gradle'
 
-sourceCompatibility=null
-targetCompatibility=null
+sourceCompatibility = null
+targetCompatibility = null
+
+sourceSets {
+    main {
+        resources {
+            srcDirs "etc/as"
+        }
+    }
+}
 
 dependencies {
     implementation project(path: ':lib-commonbase', configuration: 'tests'),
