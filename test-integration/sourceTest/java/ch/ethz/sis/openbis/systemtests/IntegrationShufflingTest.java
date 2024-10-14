@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 import ch.ethz.sis.openbis.systemtests.shuffling.TestSegmentedStoreShufflingTask;
 import ch.ethz.sis.openbis.systemtests.shuffling.TestSegmentedStoreShufflingTask.TestChecksumProvider;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 public class IntegrationShufflingTest extends AbstractIntegrationTest
 {
@@ -60,7 +61,7 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
     public void beforeMethod(Method method)
     {
         super.beforeMethod(method);
-        TestLogger.startLogRecording(Level.TRACE);
+        TestLogger.startLogRecording(Level.TRACE, TestLogger.DEFAULT_LOG_LAYOUT_PATTERN, ".*Shuffling.*");
     }
 
     @AfterMethod
@@ -90,6 +91,16 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 2);
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 1);
+
+        AssertionUtil.assertContainsLines(
+                "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Locked data set " + sample.getPermId().getPermId()
+                        + " before shuffling.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Verifying structure, size and optional checksum of data set content in share 2.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Unlocked data set " + sample.getPermId().getPermId()
+                        + " after shuffling.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Data set " + sample.getPermId().getPermId()
+                        + " successfully moved from share 1 to 2.\n",
+                TestLogger.getRecordedLog());
     }
 
     @Test
@@ -161,6 +172,16 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
         shufflingThread.join();
 
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 2);
+
+        AssertionUtil.assertContainsLines(
+                "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Locked data set " + sample.getPermId().getPermId()
+                        + " before shuffling.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Verifying structure, size and optional checksum of data set content in share 2.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Unlocked data set " + sample.getPermId().getPermId()
+                        + " after shuffling.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Data set " + sample.getPermId().getPermId()
+                        + " successfully moved from share 1 to 2.\n",
+                TestLogger.getRecordedLog());
     }
 
     @Test
@@ -190,6 +211,20 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 2);
+
+        AssertionUtil.assertContainsLines(
+                "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Locked data set " + sample.getPermId().getPermId()
+                        + " before shuffling.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Verifying structure, size and optional checksum of data set content in share 2.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Unlocked data set " + sample.getPermId().getPermId()
+                        + " after shuffling.\n"
+                        + "ERROR ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Catching\n"
+                        + "java.lang.RuntimeException: Couldn't move data set " + sample.getPermId().getPermId() + " to share 2.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.SimpleShuffling - Locked data set " + sample.getPermId().getPermId()
+                        + " before clean up.\n"
+                        + "INFO  ch.ethz.sis.afsserver.server.shuffling.SimpleShuffling - Unlocked data set " + sample.getPermId().getPermId()
+                        + " after clean up.\n",
+                TestLogger.getRecordedLog());
     }
 
 }
