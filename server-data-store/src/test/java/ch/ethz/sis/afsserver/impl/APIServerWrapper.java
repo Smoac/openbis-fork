@@ -25,6 +25,8 @@ import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -48,10 +50,12 @@ public class APIServerWrapper extends AbstractPublicAPIWrapper
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
-    public <E> E process(Class<E> responseType, String method, Map<String, Object> params) {
+    public <E> E process(Class<E> responseType, String method, Map<String, Object> params, byte[] data) {
         PerformanceAuditor performanceAuditor = new PerformanceAuditor();
         // Random Session token just works for tests with dummy authentication
-        ApiRequest request = new ApiRequest("test", method, params, sessionToken, interactiveSessionKey, transactionManagerKey);
+        Map<String, Object> requestParams = prepareParameters(params, data);
+
+        ApiRequest request = new ApiRequest("test", method, requestParams, sessionToken, interactiveSessionKey, transactionManagerKey);
 
         try {
             Response response = apiServer.processOperation(request, apiResponseBuilder, performanceAuditor);
@@ -59,6 +63,16 @@ public class APIServerWrapper extends AbstractPublicAPIWrapper
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
+    }
+
+    private Map<String, Object> prepareParameters(Map<String, Object> params, byte[] data) {
+        if (data == null)
+        {
+            return params;
+        }
+        Map<String, Object> updatedParams = new HashMap<>(params);
+        updatedParams.put("data", data);
+        return Collections.unmodifiableMap(updatedParams);
     }
 
 }

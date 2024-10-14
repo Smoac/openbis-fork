@@ -31,4 +31,13 @@ public class Pair<KEY,VALUE> {
     public VALUE getValue() {
         return value;
     }
+
+    @Override
+    public String toString()
+    {
+        return "(" + key +
+                " , " + value +
+                ')';
+    }
+
 }

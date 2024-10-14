@@ -92,6 +92,10 @@ public abstract class AbstractAdapter<CONNECTION, API> implements HttpServerHand
             String transactionManagerKey = null;
             Map<String, Object> parsedParameters = new HashMap<>();
 
+            if(requestBody != null && requestBody.length > 0){
+                parsedParameters.put("data", requestBody);
+            }
+
             for (Map.Entry<String, List<String>> entry : parameters.entrySet())
             {
                 try

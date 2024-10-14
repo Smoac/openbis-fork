@@ -71,7 +71,7 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
         return result;
     }
 
-    public <E> E process(Class<E> responseType, String apiMethod, Map<String, Object> params)
+    public <E> E process(Class<E> responseType, String apiMethod, Map<String, Object> params, byte[] data)
     {
         try
         {
@@ -91,8 +91,6 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
             }
             requestParameters.put("method", List.of(apiMethod));
 
-            byte[] requestBody = null;
-
             if (HttpMethod.GET.equals(httpMethod))
             {
                 // Do nothing
@@ -104,7 +102,7 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
                 throw new IllegalArgumentException("Not supported HTTP method type!");
             }
 
-            HttpResponse response = apiServerAdapter.process(httpMethod, requestParameters, requestBody);
+            HttpResponse response = apiServerAdapter.process(httpMethod, requestParameters, data);
             String contentType = response.getHeaders().get(HttpResponse.CONTENT_TYPE_HEADER);
             byte[] body = response.getInput().readAllBytes();
 
