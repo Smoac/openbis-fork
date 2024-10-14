@@ -399,7 +399,7 @@ This table shows the metadata of the datasets. The content of the datasets can b
 
 To navigate and open data registered in openBIS via Finder or Explorer, open the *Dataset* folder and click on the drive icon next to the Dataset type name (see above). *If* SFTP has been configured on system level, you will be provided with a link to copy/paste in an application such as [Cyberduck](https://cyberduck.io/) or other.
 
-Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](../../system-documentation/standalone/optional-datastore-server-configuration.md)
+Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](../../system-documentation/configuration/optional-datastore-server-configuration.md)
 
  
 
