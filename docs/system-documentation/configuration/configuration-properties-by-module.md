@@ -1,3 +1,5 @@
+# Configuration properties by module
+
 # CORE MODULES 
 
 ## AS  MODULES
