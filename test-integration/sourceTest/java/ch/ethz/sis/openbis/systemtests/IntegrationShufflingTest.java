@@ -14,6 +14,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.afsserver.server.common.TestLogger;
+import ch.ethz.sis.afsserver.server.shuffling.SimpleChecksumProvider;
 import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -23,6 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 import ch.ethz.sis.openbis.systemtests.shuffling.TestSegmentedStoreShufflingTask;
 import ch.ethz.sis.openbis.systemtests.shuffling.TestSegmentedStoreShufflingTask.TestChecksumProvider;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 
 public class IntegrationShufflingTest extends AbstractIntegrationTest
 {
@@ -123,15 +125,27 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
 
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
 
+        MessageChannel toShuffling = new MessageChannel();
+        MessageChannel fromShuffling = new MessageChannel();
+
         Thread shufflingThread = new Thread(() ->
         {
-            TestChecksumProvider checksumProvider = new TestChecksumProvider();
-            checksumProvider.setDelayByMillis(1000L);
+            TestChecksumProvider checksumProvider = new TestChecksumProvider((dataSetCode, relativePath) ->
+            {
+                if (dataSetCode.equals(sample.getPermId().getPermId()))
+                {
+                    fromShuffling.send("beforeChecksum");
+                    toShuffling.assertNextMessage("afterRead");
+                }
+
+                return new SimpleChecksumProvider().getChecksum(dataSetCode, relativePath);
+            });
             TestSegmentedStoreShufflingTask.executeOnce(checksumProvider);
         });
-        shufflingThread.start();
 
-        Thread.sleep(500L);
+        shufflingThread.start();
+        fromShuffling.assertNextMessage("beforeChecksum");
+
         try
         {
             byte[] content = openBIS.getAfsServerFacade()
@@ -143,6 +157,7 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
             assertTrue(e.getMessage().contains(TEST_FILE_NAME + " is currently being used"), e.getMessage());
         }
 
+        toShuffling.send("afterRead");
         shufflingThread.join();
 
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 2);
@@ -162,8 +177,15 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), false, 2);
 
-        TestChecksumProvider checksumProvider = new TestChecksumProvider();
-        checksumProvider.setFailWithException(new RuntimeException("Test checksum exception"));
+        TestChecksumProvider checksumProvider = new TestChecksumProvider((dataSetCode, relativePath) ->
+        {
+            if (dataSetCode.equals(sample.getPermId().getPermId()))
+            {
+                throw new RuntimeException("Test checksum exception");
+            }
+
+            return new SimpleChecksumProvider().getChecksum(dataSetCode, relativePath);
+        });
         TestSegmentedStoreShufflingTask.executeOnce(checksumProvider);
 
         assertDataExistsInStoreInShare(sample.getPermId().getPermId(), true, 1);

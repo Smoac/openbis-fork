@@ -43,55 +43,28 @@ public class TestSegmentedStoreShufflingTask implements IMaintenanceTask
     public static class TestChecksumProvider implements IChecksumProvider
     {
 
-        private boolean returnIncorrectChecksum;
+        private final TestChecksumAction action;
 
-        private RuntimeException failWithException;
+        public TestChecksumProvider()
+        {
+            action = (dataSetCode, relativePath) -> new SimpleChecksumProvider().getChecksum(dataSetCode, relativePath);
+        }
 
-        private Long delayByMillis;
-
-        private final IChecksumProvider simpleChecksumProvider = new SimpleChecksumProvider();
+        public TestChecksumProvider(TestChecksumAction action)
+        {
+            this.action = action;
+        }
 
         @Override public long getChecksum(final String dataSetCode, final String relativePath) throws IOException
         {
-            if (returnIncorrectChecksum)
-            {
-                return -1;
-            }
-
-            if (failWithException != null)
-            {
-                throw failWithException;
-            }
-
-            if (delayByMillis != null)
-            {
-                try
-                {
-                    Thread.sleep(delayByMillis);
-                } catch (InterruptedException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            return this.simpleChecksumProvider.getChecksum(dataSetCode, relativePath);
+            return action.execute(dataSetCode, relativePath);
         }
 
-        public void setReturnIncorrectChecksum(final boolean returnIncorrectChecksum)
-        {
-            this.returnIncorrectChecksum = returnIncorrectChecksum;
-        }
+    }
 
-        public void setFailWithException(final RuntimeException failWithException)
-        {
-            this.failWithException = failWithException;
-        }
-
-        public void setDelayByMillis(final Long delayByMillis)
-        {
-            this.delayByMillis = delayByMillis;
-        }
-
+    public interface TestChecksumAction
+    {
+        long execute(String dataSetCode, String relativePath) throws IOException;
     }
 
 }
