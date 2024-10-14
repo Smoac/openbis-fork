@@ -25,6 +25,10 @@ import ch.ethz.sis.shared.log.log4j2.Log4J2LogFactory;
 public class TestLogger
 {
 
+    public static String DEFAULT_LOG_LAYOUT_PATTERN = "%-5p %c - %m%n";
+
+    public static String DEFAULT_LOGGER_NAME_REGEX = ".*";
+
     private static LoggerContext loggerContext;
 
     private static Appender recordingAppender;
@@ -39,10 +43,10 @@ public class TestLogger
 
     public static void startLogRecording(Level level)
     {
-        startLogRecording(level, "%-5p %c - %m%n", ".*");
+        startLogRecording(level, DEFAULT_LOG_LAYOUT_PATTERN, DEFAULT_LOGGER_NAME_REGEX);
     }
 
-    public static void startLogRecording(Level level, String pattern, String loggerNameRegex)
+    public static void startLogRecording(Level level, String logLayoutPattern, String loggerNameRegex)
     {
         if (loggerContext == null)
         {
@@ -55,7 +59,8 @@ public class TestLogger
         }
 
         recordedLog = new ByteArrayOutputStream();
-        recordingAppender = TestAppender.createAppender(recordedLog, level, PatternLayout.newBuilder().withPattern(pattern).build(), loggerNameRegex);
+        recordingAppender =
+                TestAppender.createAppender(recordedLog, level, PatternLayout.newBuilder().withPattern(logLayoutPattern).build(), loggerNameRegex);
         recordingAppender.start();
         loggerContext.getRootLogger().addAppender(recordingAppender);
     }
