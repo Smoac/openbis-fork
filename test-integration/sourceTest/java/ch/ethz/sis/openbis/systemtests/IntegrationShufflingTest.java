@@ -221,6 +221,10 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
                         + "INFO  ch.ethz.sis.afsserver.server.shuffling.SimpleShuffling - Unlocked data set " + sample.getPermId().getPermId()
                         + " after clean up.\n",
                 TestLogger.getRecordedLog());
+
+        AssertionUtil.assertDoesNotContainLines(
+                "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Data set " + sample.getPermId().getPermId()
+                        + " successfully moved from share 1 to 2.\n", TestLogger.getRecordedLog());
     }
 
     @Test
@@ -263,6 +267,10 @@ public class IntegrationShufflingTest extends AbstractIntegrationTest
                         + "INFO  ch.ethz.sis.afsserver.server.shuffling.SimpleShuffling - Unlocked data set " + sample.getPermId().getPermId()
                         + " after clean up.\n",
                 TestLogger.getRecordedLog());
+
+        AssertionUtil.assertDoesNotContainLines(
+                "INFO  ch.ethz.sis.afsserver.server.shuffling.EagerShufflingTask - Data set " + sample.getPermId().getPermId()
+                        + " successfully moved from share 1 to 2.\n", TestLogger.getRecordedLog());
     }
 
 }
