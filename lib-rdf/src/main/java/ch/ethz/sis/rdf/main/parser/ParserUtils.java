@@ -208,7 +208,7 @@ public class ParserUtils {
     }
 
     private static String getPropertySafely(Resource ontology, Property property){
-        return (ontology != null && ontology.getProperty(property) != null) ? ontology.getProperty(DC.description).getObject().toString() : "";
+        return (ontology != null && ontology.getProperty(property) != null) ? ontology.getProperty(property).getObject().toString() : "";
     }
 
     public static String getVersionIRI(Model model){
