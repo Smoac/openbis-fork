@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 
@@ -96,23 +97,27 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         for (ShareAndFreeSpace fullShare : fullShares)
         {
             Share share = fullShare.getShare();
-            List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
-            long initalFreeSpaceAboveMinimum = fullShare.getFreeSpace() - minimumFreeSpace;
+
+            List<SimpleDataSetInformationDTO> allDataSets = share.getDataSetsOrderedBySize();
+            List<SimpleDataSetInformationDTO> dataSetsWithCalculatedSize =
+                    allDataSets.stream().filter(dataSet -> dataSet.getDataSetSize() != null).collect(Collectors.toList());
+
+            long initialFreeSpaceAboveMinimum = fullShare.getFreeSpace() - minimumFreeSpace;
 
             int numberOfDataSetsToMove;
             if (share.isWithdrawShare())
             {
-                numberOfDataSetsToMove = dataSets.size();
+                numberOfDataSetsToMove = dataSetsWithCalculatedSize.size();
                 logger.log(INFO, "All " + numberOfDataSetsToMove
-                        + " data sets should be moved for share " + share.getShareId());
+                        + " data sets with calculated size will be moved away from share " + share.getShareId());
             } else
             {
                 logger.log(INFO,
-                        "BEGIN Computing number of data sets to be moved for share " + share.getShareId());
-                numberOfDataSetsToMove = getNumberOfDataSetsToMove(dataSets,
-                        initalFreeSpaceAboveMinimum, logger);
+                        "BEGIN Computing number of data sets to be moved from share " + share.getShareId());
+                numberOfDataSetsToMove = getNumberOfDataSetsToMove(dataSetsWithCalculatedSize,
+                        initialFreeSpaceAboveMinimum, logger);
                 logger.log(INFO,
-                        "END Computing number of data sets to move for share " + share.getShareId());
+                        "END Computing number of data sets to move from share " + share.getShareId());
                 if (numberOfDataSetsToMove < 0)
                 {
                     throw new IllegalStateException("Share " + share.getShareId()
@@ -125,7 +130,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
 
             for (int i = 0; i < numberOfDataSetsToMove; i++)
             {
-                SimpleDataSetInformationDTO dataSet = dataSets.get(i);
+                SimpleDataSetInformationDTO dataSet = dataSetsWithCalculatedSize.get(i);
                 try
                 {
                     taskExecutor.execute(shufflingTask, "shuffling", dataSet.getDataSetCode(), false);
@@ -138,9 +143,9 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
     }
 
     private int getNumberOfDataSetsToMove(List<SimpleDataSetInformationDTO> dataSets,
-            long initalFreeSpaceAboveMinimum, ISimpleLogger logger)
+            long initialFreeSpaceAboveMinimum, ISimpleLogger logger)
     {
-        long freeSpaceAboveMinimum = initalFreeSpaceAboveMinimum;
+        long freeSpaceAboveMinimum = initialFreeSpaceAboveMinimum;
 
         long spaceBelowMinimum = freeSpaceAboveMinimum * -1;
         float spaceBelowMinimumkB = spaceBelowMinimum / 1024.f;
