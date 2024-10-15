@@ -552,7 +552,7 @@ class DataSet(
 
         fast_download = FastDownload(self.openbis.token, download_url, self.permId, files,
                                      final_destination, create_default_folders, wait_until_finished,
-                                     self.openbis.verify_certificates,
+                                     self.openbis.verify_certificates, self.openbis.get_server_information(),
                                      wished_number_of_streams=4)
         return fast_download.download()
 

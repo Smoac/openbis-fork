@@ -27,13 +27,19 @@ from requests.adapters import HTTPAdapter, Retry
 DSS_V3 = "/datastore_server/rmi-data-store-server-v3.json"
 REQUEST_RETRIES_COUNT = 3
 DOWNLOAD_RETRIES_COUNT = 3
+FAST_DOWNLOAD_PROTOCOL_VERSION = 2
 
 
-def make_fileserver_body_params(**params):
+def make_fileserver_body_params(server_information, **params):
     """create a proper pam of key-values for fileserver request"""
     result = {}
+    if server_information.is_version_greater_than(3, 6):
+        result = {
+            "version": [str(FAST_DOWNLOAD_PROTOCOL_VERSION)]
+        }
+
     for key, value in params.items():
-        result[str(key)] = [str(value)]
+        result[str(key)] = [str(value).replace("'", '"')]
     return result
 
 
@@ -76,9 +82,10 @@ def post_request(session, full_url, verify_certificates, request, parse_response
         raise ValueError("general error while performing post request")
 
 
-def queue_chunks(session, base_url, download_session_id, chunks, verify_certificates):
+def queue_chunks(session, base_url, download_session_id, chunks, verify_certificates, server_information):
     """Queue particular session chunks for download"""
-    queue_request = make_fileserver_body_params(method='queue',
+    queue_request = make_fileserver_body_params(server_information,
+                                                method='queue',
                                                 downloadSessionId=download_session_id,
                                                 ranges=comma_separated_items(chunks))
     response = post_request(session, base_url, verify_certificates, queue_request,
@@ -191,7 +198,7 @@ class DownloadThread(Thread):
 
     def __init__(self, session, download_url_base, download_session_id, stream_id,
                  counter: AtomicChecker, verify_certificates, create_default_folders, destination,
-                 number_of_chunks=1):
+                 server_information, number_of_chunks=1):
         Thread.__init__(self)
         self.session = session
         self.download_url = download_url_base
@@ -203,10 +210,12 @@ class DownloadThread(Thread):
         self.destination = destination
         self.verify_certificates = verify_certificates
         self.exc = None
+        self.server_information = server_information
 
     def run(self):
         repeated_chunks = {}
-        download_params = make_fileserver_body_params(method='download',
+        download_params = make_fileserver_body_params(self.server_information,
+                                                      method='download',
                                                       downloadSessionId=self.download_session_id,
                                                       numberOfChunks=self.number_of_chunks,
                                                       downloadStreamId=self.stream_id)
@@ -236,7 +245,7 @@ class DownloadThread(Thread):
                                 queue_chunks(self.session, self.download_url,
                                              self.download_session_id,
                                              [f"{sequence_number}:{sequence_number}"],
-                                             self.verify_certificates)
+                                             self.verify_certificates, self.server_information)
                                 self.counter.repeat_call()  # queue additional download chunk run
 
                         if retry_counter >= REQUEST_RETRIES_COUNT:
@@ -295,6 +304,7 @@ class FastDownload:
             create_default_folders,
             wait_until_finished,
             verify_certificates,
+            server_information,
             wished_number_of_streams=4
     ):
         self.dss_facade_url = urljoin(download_url, DSS_V3)
@@ -306,6 +316,7 @@ class FastDownload:
         self.create_default_folders = create_default_folders
         self.wait_until_finished = wait_until_finished
         self.wished_number_of_streams = wished_number_of_streams
+        self.server_information = server_information
 
         if files is None:
             raise ValueError("please provide at least one file")
@@ -331,11 +342,16 @@ class FastDownload:
 
         # Step 2 - Request fileserver to start the download session
 
-        files_str = comma_separated_items(
-            map(lambda file: file['filePath'], create_fast_download_response['files']))
-        start_session_params = make_fileserver_body_params(method="startDownloadSession",
+        if self.server_information.is_version_greater_than(3, 6):
+            download_item_ids = list(map(lambda file: file['filePath'], create_fast_download_response['files']))
+        else:
+            download_item_ids = comma_separated_items(
+                map(lambda file: file['filePath'], create_fast_download_response['files']))
+
+        start_session_params = make_fileserver_body_params(self.server_information,
+                                                           method="startDownloadSession",
                                                            userSessionId=user_session_id,
-                                                           downloadItemIds=files_str,
+                                                           downloadItemIds=download_item_ids,
                                                            wishedNumberOfStreams=self.wished_number_of_streams)
 
         start_download_session = post_request(self.session, download_url,
@@ -403,7 +419,7 @@ class FastDownload:
         for file, chunks_range in ranges.items():
             chunks += [chunks_range]
         queue_chunks(self.session, base_url, download_session_id, chunks,
-                     self.verify_certificates)
+                     self.verify_certificates, self.server_information)
 
     def _download_step(self, download_url, download_session_id, session_stream_ids, ranges,
                        exception_list):
@@ -426,7 +442,7 @@ class FastDownload:
                 streams = [
                     DownloadThread(self.session, download_url, download_session_id, stream_id, checker,
                                    self.verify_certificates, self.create_default_folders,
-                                   self.destination) for stream_id in session_stream_ids]
+                                   self.destination, self.server_information) for stream_id in session_stream_ids]
 
                 for thread in streams:
                     thread.start()
@@ -450,10 +466,10 @@ class FastDownload:
                     # queue chunks that failed to download in the previous pass
                     queue_chunks(self.session, download_url, download_session_id,
                                  [f"{x}:{x}" for x in chunks_to_download],
-                                 self.verify_certificates)
+                                 self.verify_certificates, self.server_information)
         finally:
             # Step 5 - Close the session
-            finish_download_session_params = make_fileserver_body_params(
+            finish_download_session_params = make_fileserver_body_params(self.server_information,
                 method='finishDownloadSession',
                 downloadSessionId=download_session_id)
 
