@@ -109,6 +109,9 @@ final class SharesHolder
                                     log.log(LogLevel.WARN, "Data set " + dataSetCode
                                             + " no longer exists in share " + shareId + ".");
                                 }
+                            } catch (Exception e)
+                            {
+                                log.log(LogLevel.ERROR, "Data set " + dataSetCode + " size could not be calculated.", e);
                             } finally
                             {
                                 lockManager.unlock(transactionId, List.of(dataSet), LockType.HierarchicallyExclusive);
@@ -120,6 +123,9 @@ final class SharesHolder
                                             + " size could not be calculated because the data set could not be locked (i.e. it is being used by another operation).");
                             share.addDataSet(dataSet);
                         }
+                    } else
+                    {
+                        share.addDataSet(dataSet);
                     }
                 }
             }
