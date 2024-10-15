@@ -84,7 +84,7 @@ public class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService
     {
         PhysicalDataUpdate physicalDataUpdate = new PhysicalDataUpdate();
         physicalDataUpdate.setShareId(shareId);
-        physicalDataUpdate.setSize(size > 0 ? size : null);
+        physicalDataUpdate.setSize(size);
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(new DataSetPermId(dataSetCode));
