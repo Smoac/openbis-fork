@@ -6,8 +6,11 @@ import ch.ethz.sis.rdf.main.xlsx.ExcelImportMessage;
 import ch.ethz.sis.rdf.main.xlsx.write.XLSXWriter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.apache.commons.cli.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.Console;
+import java.io.*;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.util.ArrayList;
@@ -279,7 +282,7 @@ public class RDFCommandLine {
 
         var importer = new Importer(openbisURL, username, password, tempFile);
 
-        int maxRetries = 3;
+        int maxRetries = 3000;
         boolean shouldTry = true;
         int numRetries = 0;
         List<ExcelImportMessage> messageList = new ArrayList<>();
@@ -291,9 +294,9 @@ public class RDFCommandLine {
                 numRetries++;
                 importer.connect(tempFile);
                 shouldTry = false;
-            }
-            catch (UserFailureException e)
+            } catch (UserFailureException e)
             {
+
                 ExcelImportMessage message = ExcelImportMessage.from(e);
                 if (message == null)
                 {
@@ -302,13 +305,49 @@ public class RDFCommandLine {
                 {
                     messageList.add(message);
                     shouldTry = numRetries < maxRetries;
-
+                    if (!shouldTry)
+                    {
+                        throw e;
+                    }
+                    deleteRow(tempFile, message.getSheet(), message.getLine());
                 }
             }
         }
+        printMessageList(messageList);
+    }
 
+    private static void printMessageList(List<ExcelImportMessage> messageList)
+    {
+        if (messageList.isEmpty())
+        {
+            return;
+        }
+        System.out.println("File was imported, individual entries had problems");
+        messageList.forEach(x -> {
+            System.out.println(
+                    "Sheet" + x.getSheet() + " row: " + x.getLine() + " message: " + x.getMessage());
+        });
 
+    }
 
+    private static void deleteRow(Path path, int sheet, int row)
+    {
+        try
+        {
+            FileInputStream fis = new FileInputStream(new File(path.toUri()));
+            XSSFWorkbook wb = new XSSFWorkbook(fis);
+            XSSFSheet curSheet = wb.getSheetAt(sheet - 1);
+            curSheet.removeRow(curSheet.getRow(row - 1));
+            if (row - 1 < curSheet.getLastRowNum())
+            {
+                curSheet.shiftRows(row, curSheet.getLastRowNum(), -1);
+            }
+
+            wb.write(new FileOutputStream(path.toFile()));
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
 
     }
 
