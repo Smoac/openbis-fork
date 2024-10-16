@@ -2,11 +2,16 @@ package ch.ethz.sis.rdf.main;
 
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.parser.RDFReader;
+import ch.ethz.sis.rdf.main.xlsx.ExcelImportMessage;
 import ch.ethz.sis.rdf.main.xlsx.write.XLSXWriter;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.apache.commons.cli.*;
 
 import java.io.Console;
 import java.nio.file.Path;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -213,7 +218,7 @@ public class RDFCommandLine {
                 break;
             case "OPENBIS":
                 username = cmd.getOptionValue("user");
-                password = getPassword(cmd);
+                password = "changeit";
                 inputFilePath = remainingArgs[0];
                 openbisASURL = remainingArgs[1];
 
@@ -272,7 +277,39 @@ public class RDFCommandLine {
         System.out.println(
                 "Connect to openBIS instance " + openbisURL + " with username[" + username + "]"); //and password[" + new String(password) +"]");
 
-        new Importer(openbisURL, username, password, tempFile).connect(tempFile);
+        var importer = new Importer(openbisURL, username, password, tempFile);
+
+        int maxRetries = 3;
+        boolean shouldTry = true;
+        int numRetries = 0;
+        List<ExcelImportMessage> messageList = new ArrayList<>();
+
+
+        while (shouldTry){
+            try
+            {
+                numRetries++;
+                importer.connect(tempFile);
+                shouldTry = false;
+            }
+            catch (UserFailureException e)
+            {
+                ExcelImportMessage message = ExcelImportMessage.from(e);
+                if (message == null)
+                {
+                    shouldTry = false;
+                } else
+                {
+                    messageList.add(message);
+                    shouldTry = numRetries < maxRetries;
+
+                }
+            }
+        }
+
+
+
+
     }
 
     private static void handleOpenBISDevOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String openBISDSSURL,
