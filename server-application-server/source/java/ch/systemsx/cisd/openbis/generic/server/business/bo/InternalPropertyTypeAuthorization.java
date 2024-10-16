@@ -81,7 +81,7 @@ public class InternalPropertyTypeAuthorization
         if (propertyAssignment.isManagedInternallyNamespace() && isSystemUser(session) == false)
         {
             throw new AuthorizationFailureException(
-                    "Property assignments created by the system user for internal property types can be managed only by the system user.");
+                    "Internal property assignments created by the system user for internal property types can be managed only by the system user.");
         }
     }
 
