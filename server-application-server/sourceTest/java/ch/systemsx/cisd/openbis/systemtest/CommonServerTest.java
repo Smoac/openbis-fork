@@ -391,51 +391,51 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerTestUpdatePropertyTypeAssignmentAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, true, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, true, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, true, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, false,
-                        "Property assignments created by the system user for internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, false,
+                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, false,
+                        "Internal property assignments created by the system user for internal property types can be managed only by the system user" },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, true,
+                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, null },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_USER, true, null },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", TEST_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, false, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, false,
+                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, false, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, false, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", TEST_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, true,
+                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, true, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, true, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdatePropertyTypeAssignmentAuthorization")
-    public void testUpdatePropertyTypeAssignmentAuthorization(String propertyTypeCode, String propertyAssignmentRegistrator,
+    public void testUpdatePropertyTypeAssignmentAuthorization(String propertyTypeCode, boolean isInternal, String propertyAssignmentRegistrator,
             String propertyAssignmentUpdater, boolean updateLayoutFieldsOnly, String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
@@ -449,6 +449,7 @@ public class CommonServerTest extends SystemTestCase
         SampleType sampleType = new SampleType();
         sampleType.setCode("NEW_ENTITY_TYPE");
         sampleType.setGeneratedCodePrefix("PREFIX_");
+        sampleType.setManagedInternally(isInternal);
         commonServer.registerSampleType(systemSession.getSessionToken(), sampleType);
 
         PropertyType propertyType = new PropertyType();
@@ -466,6 +467,7 @@ public class CommonServerTest extends SystemTestCase
         assignment.setSection("Test section");
         assignment.setOrdinal(1L);
         assignment.setMandatory(false);
+        assignment.setManagedInternally(isInternal);
         commonServer.assignPropertyType(registratorSession.getSessionToken(), assignment);
 
         NewETPTAssignment assignmentUpdate = new NewETPTAssignment();
@@ -511,31 +513,31 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerUnassignPropertyTypeAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER,
-                        "Property assignments created by the system user for internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER,
+                        "Internal property assignments created by the system user for internal property types can be managed only by the system user" },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_POWER_USER_CISD,
+                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
         };
     }
 
     @Test(dataProvider = "providerUnassignPropertyTypeAuthorization")
-    public void testUnassignPropertyTypeAuthorization(String propertyTypeCode, String propertyAssignmentRegistrator,
+    public void testUnassignPropertyTypeAuthorization(String propertyTypeCode, boolean isInternal, String propertyAssignmentRegistrator,
             String propertyAssignmentDeleter, String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
@@ -549,6 +551,7 @@ public class CommonServerTest extends SystemTestCase
         SampleType sampleType = new SampleType();
         sampleType.setCode("NEW_ENTITY_TYPE");
         sampleType.setGeneratedCodePrefix("PREFIX_");
+        sampleType.setManagedInternally(isInternal);
         commonServer.registerSampleType(systemSession.getSessionToken(), sampleType);
 
         PropertyType propertyType = new PropertyType();
@@ -563,6 +566,7 @@ public class CommonServerTest extends SystemTestCase
         assignment.setEntityKind(EntityKind.SAMPLE);
         assignment.setEntityTypeCode(sampleType.getCode());
         assignment.setPropertyTypeCode(propertyTypeCode);
+        assignment.setManagedInternally(isInternal);
         commonServer.assignPropertyType(registratorSession.getSessionToken(), assignment);
 
         assertExceptionMessage(new IDelegatedAction()

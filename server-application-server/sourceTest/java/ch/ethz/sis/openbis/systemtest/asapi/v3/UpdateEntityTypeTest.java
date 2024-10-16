@@ -281,7 +281,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
                 { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
                 { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER,
-                        "Property assignments created by the system user for internal property types can be managed only by the system user" },
+                        "Internal property assignments created by the system user for internal property types can be managed only by the system user" },
                 { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
