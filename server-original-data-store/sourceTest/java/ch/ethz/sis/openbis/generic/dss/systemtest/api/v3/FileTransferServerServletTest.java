@@ -4,7 +4,9 @@ import ch.ethz.sis.filetransfer.*;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.FileTransferServerServlet;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssSessionAuthorizer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -50,6 +53,12 @@ public final class FileTransferServerServletTest {
         downloadServer = context.mock(IDownloadServer.class);
         dataStoreService = context.mock(IDataStoreServiceInternal.class);
         servlet = new FileTransferServerServletTestWrapper(downloadServer, dataStoreService);
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void tearDown()
+    {
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer());
     }
 
     private BufferedReader prepareReaderForRequest(Map<String, List<String>> params) throws Exception {
