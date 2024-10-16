@@ -25,7 +25,7 @@ public class NamedIndividualMapper
         Map<String, List<VocabularyType>> groupedByCode = getVocabularyTypeListGroupedByType(model);
 
         List<VocabularyType> mergedList = groupedByCode.entrySet().stream().map(entry -> {
-            String code = entry.getKey();
+            String code = entry.getKey().length() > 50 ? entry.getKey().substring(0, 49) : entry.getKey();
             List<VocabularyTypeOption> mergedOptions = new ArrayList<>();
 
             entry.getValue().forEach(vocabularyType -> mergedOptions.addAll(vocabularyType.getOptions()));
@@ -53,8 +53,10 @@ public class NamedIndividualMapper
     {
         try {
             String optionLabel = model.getProperty(subject, RDFS.label).getString();
+            //TODO check with Juan for increasing vocabulary type code length > 50
+            String optionCode = subject.getLocalName().length() > 50 ? subject.getLocalName().substring(0, 49).toLowerCase(Locale.ROOT) : subject.getLocalName().toUpperCase(Locale.ROOT);
             VocabularyTypeOption option = new VocabularyTypeOption(
-                    subject.getLocalName().toUpperCase(Locale.ROOT),
+                    optionCode,
                     optionLabel,
                     subject.getURI());
 
