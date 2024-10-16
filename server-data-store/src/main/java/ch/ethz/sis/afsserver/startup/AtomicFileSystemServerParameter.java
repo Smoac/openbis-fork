@@ -45,7 +45,6 @@ public enum AtomicFileSystemServerParameter
     authenticationInfoProviderClass,
     authorizationInfoProviderClass,
     poolSize,
-    dataSetLockingTimeout,
     connectionFactoryClass,
     workerFactoryClass,
     publicApiInterface,
