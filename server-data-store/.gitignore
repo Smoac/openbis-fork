@@ -2,6 +2,6 @@
 /bin/
 /out/
 /.idea/
-/target/
+/targets/
 *.iml
 *.eml

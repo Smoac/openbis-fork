@@ -1,7 +1,15 @@
 apply from: '../build/javaproject.gradle'
 
-sourceCompatibility=null
-targetCompatibility=null
+sourceCompatibility = null
+targetCompatibility = null
+
+sourceSets {
+    main {
+        resources {
+            srcDirs "etc/as"
+        }
+    }
+}
 
 dependencies {
     implementation project(path: ':lib-commonbase', configuration: 'tests'),
@@ -10,5 +18,7 @@ dependencies {
             project(path: ':server-application-server', configuration: 'tests'),
             project(':server-original-data-store'),
             project(':server-data-store'),
-            'eclipse:jetty-proxy:9.4.44.v20210927'
+            project(path: ':server-data-store', configuration: 'tests'),
+            'eclipse:jetty-proxy:9.4.44.v20210927',
+            'log4j:log4j-api:2.10.0'
 }

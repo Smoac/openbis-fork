@@ -20,26 +20,35 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.spi.AbstractLogger;
 import org.apache.logging.log4j.spi.ExtendedLoggerWrapper;
 
-class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.log.Logger {
+class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.log.Logger
+{
 
     private final String FQCN;
 
-    Log4JLogger(final Logger logger) {
+    Log4JLogger(final Logger logger)
+    {
         super((AbstractLogger) logger, logger.getName(), logger.getMessageFactory());
         FQCN = this.getClass().getName();
     }
 
     @Override
-    public void traceAccess(String message, Object... args) {
+    public void traceAccess(String message, Object... args)
+    {
+        traceAccess(message, null, args);
+    }
+
+    @Override public void traceAccess(String message, Throwable ex, Object... args)
+    {
         this.logMessage(FQCN,
                 Level.TRACE,
                 ENTRY_MARKER,
                 entryMsg(message, args),
-                (Throwable) null);
+                ex);
     }
 
     @Override
-    public <R> R traceExit(R result) {
+    public <R> R traceExit(R result)
+    {
         this.logMessage(FQCN,
                 Level.TRACE,
                 EXIT_MARKER,
@@ -49,7 +58,8 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
     }
 
     @Override
-    public void catching(Throwable ex) {
+    public void catching(Throwable ex)
+    {
         this.logMessage(FQCN,
                 Level.ERROR,
                 CATCHING_MARKER,
@@ -58,7 +68,8 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
     }
 
     @Override
-    public <T extends Throwable> T throwing(T ex) {
+    public <T extends Throwable> T throwing(T ex)
+    {
         this.logMessage(FQCN,
                 Level.ERROR,
                 THROWING_MARKER,
@@ -67,10 +78,34 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
         return ex;
     }
 
+    @Override public void debug(String message, Object... args)
+    {
+        this.logMessage(FQCN,
+                Level.DEBUG,
+                null,
+                logger.getMessageFactory().newMessage(message, args),
+                (Throwable) null);
+    }
+
     @Override
-    public void info(String message, Object... args) {
+    public void info(String message, Object... args)
+    {
+        info(message, null, args);
+    }
+
+    @Override public void info(String message, Throwable ex, Object... args)
+    {
         this.logMessage(FQCN,
                 Level.INFO,
+                null,
+                logger.getMessageFactory().newMessage(message, args),
+                ex);
+    }
+
+    @Override public void warn(String message, Object... args)
+    {
+        this.logMessage(FQCN,
+                Level.WARN,
                 null,
                 logger.getMessageFactory().newMessage(message, args),
                 (Throwable) null);

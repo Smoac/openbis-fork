@@ -436,8 +436,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
         // HTTP Client
         //
         final URI uri =
-                new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
-                        serverUri.getPath(), queryParameters, null);
+                new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(), serverUri.getPath() + "/api", queryParameters, null);
+
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(uri)

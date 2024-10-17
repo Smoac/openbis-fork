@@ -21,19 +21,21 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.query.NativeQuery;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 
 public class AbstractDataSetTest extends AbstractTest
 {
     protected static final SimpleComparator<DataSet, String> DATA_SET_COMPARATOR = new SimpleComparator<DataSet, String>()
+    {
+        @Override
+        public String evaluate(DataSet item)
         {
-            @Override
-            public String evaluate(DataSet item)
-            {
-                return item.getCode();
-            }
-        };
+            return item.getCode();
+        }
+    };
 
     protected static void assertIdentifiers(Collection<DataSet> dataSets, String... expectedCodesIdentifiers)
     {
@@ -44,6 +46,20 @@ public class AbstractDataSetTest extends AbstractTest
         }
 
         assertCollectionContainsOnly(actualSet, expectedCodesIdentifiers);
+    }
+
+    protected int selectNumberOfDataSetsInDataAllTable(String dataSetCode)
+    {
+        NativeQuery query = daoFactory.getSessionFactory().getCurrentSession()
+                .createNativeQuery("select count(*) from data_all where code = '" + dataSetCode.toUpperCase() + "'");
+        return ((Number) query.uniqueResult()).intValue();
+    }
+
+    protected int selectNumberOfDataSetsInDataView(String dataSetCode)
+    {
+        NativeQuery query = daoFactory.getSessionFactory().getCurrentSession()
+                .createNativeQuery("select count(*) from data where code = '" + dataSetCode.toUpperCase() + "'");
+        return ((Number) query.uniqueResult()).intValue();
     }
 
 }

@@ -50,6 +50,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
@@ -1316,6 +1317,96 @@ public class UpdateDataSetTest extends AbstractDataSetTest
                         + " can not be deleted because it is mandatory.");
     }
 
+    @Test
+    public void testUpdateAfsDataWithETLServerUser()
+    {
+        testUpdateAfsDataWithUser(TEST_INSTANCE_ETLSERVER, true, false);
+    }
+
+    @Test
+    public void testUpdateAfsDataWithNonETLServerUser()
+    {
+        testUpdateAfsDataWithUser(TEST_SPACE_USER, true, false);
+    }
+
+    @Test
+    public void testUpdateAfsDataSystemFieldsWithETLServerUser()
+    {
+        testUpdateAfsDataWithUser(TEST_INSTANCE_ETLSERVER, false, true);
+    }
+
+    @Test
+    public void testUpdateAfsDataSystemFieldsWithNonETLServerUser()
+    {
+        assertAuthorizationFailureException(() -> testUpdateAfsDataWithUser(TEST_SPACE_USER, false, true));
+    }
+
+    private void testUpdateAfsDataWithUser(String userName, boolean updateProperties, boolean updateSystemFields)
+    {
+        String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyTypePermId propertyType = createAPropertyType(adminSessionToken, DataType.VARCHAR);
+        EntityTypePermId dataSetType = createADataSetType(adminSessionToken, false, propertyType);
+
+        v3api.logout(adminSessionToken);
+
+        String sessionToken = v3api.login(userName, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setAfsData(true);
+        if (updateProperties)
+        {
+            creation.setProperty(propertyType.getPermId(), "initial value");
+        }
+        if (updateSystemFields)
+        {
+            creation.getPhysicalData().setSize(1L);
+            creation.getPhysicalData().setShareId("1");
+        }
+
+        DataSetPermId dataSetId = v3api.createDataSets(sessionToken, Collections.singletonList(creation)).get(0);
+
+        assertEquals(selectNumberOfDataSetsInDataAllTable(creation.getCode()), 1);
+        assertEquals(selectNumberOfDataSetsInDataView(creation.getCode()), 0);
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        if (updateProperties)
+        {
+            update.setProperty(propertyType.getPermId(), "updated value");
+        }
+        if (updateSystemFields)
+        {
+            PhysicalDataUpdate physicalUpdate = new PhysicalDataUpdate();
+            physicalUpdate.setSize(2L);
+            physicalUpdate.setShareId("2");
+            update.setPhysicalData(physicalUpdate);
+        }
+
+        v3api.updateDataSets(sessionToken, List.of(update));
+
+        assertEquals(selectNumberOfDataSetsInDataAllTable(creation.getCode()), 1);
+        assertEquals(selectNumberOfDataSetsInDataView(creation.getCode()), 0);
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withPhysicalData();
+        fetchOptions.withProperties();
+
+        DataSet dataSet = v3api.getDataSets(sessionToken, List.of(dataSetId), fetchOptions).get(dataSetId);
+        if (updateProperties)
+        {
+            assertEquals(dataSet.getProperties().get(propertyType.getPermId()), "updated value");
+        }
+        if (updateSystemFields)
+        {
+            assertEquals(dataSet.getPhysicalData().getSize(), Long.valueOf(2));
+            assertEquals(dataSet.getPhysicalData().getShareId(), "2");
+        }
+
+        v3api.logout(sessionToken);
+    }
 
     @Test
     public void testUpdateMetaData()

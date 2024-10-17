@@ -39,6 +39,12 @@ public class PhysicalDataUpdate implements IUpdate
     @JsonProperty
     private FieldUpdateValue<Boolean> archivingRequested = new FieldUpdateValue<Boolean>();
 
+    @JsonProperty
+    private FieldUpdateValue<String> shareId = new FieldUpdateValue<String>();
+
+    @JsonProperty
+    private FieldUpdateValue<Long> size = new FieldUpdateValue<Long>();
+
     @JsonIgnore
     @Deprecated
     public FieldUpdateValue<IFileFormatTypeId> getFileFormatTypeId()
@@ -63,6 +69,30 @@ public class PhysicalDataUpdate implements IUpdate
     public void setArchivingRequested(boolean archivingRequested)
     {
         this.archivingRequested.setValue(archivingRequested);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<String> getShareId()
+    {
+        return shareId;
+    }
+
+    @JsonIgnore
+    public void setShareId(String shareId)
+    {
+        this.shareId.setValue(shareId);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<Long> getSize()
+    {
+        return size;
+    }
+
+    @JsonIgnore
+    public void setSize(Long size)
+    {
+        this.size.setValue(size);
     }
 
     @Override

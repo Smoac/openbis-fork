@@ -1278,6 +1278,44 @@ public class GetDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testGetAfsDataWithETLServerUser()
+    {
+        testGetAfsData(TEST_INSTANCE_ETLSERVER);
+    }
+
+    @Test
+    public void testGetAfsDataWithNonETLServerUser()
+    {
+        testGetAfsData(TEST_SPACE_USER);
+    }
+
+    private void testGetAfsData(String userName)
+    {
+        String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setAfsData(true);
+
+        DataSetPermId dataSetId = v3api.createDataSets(adminSessionToken, Collections.singletonList(creation)).get(0);
+
+        assertEquals(selectNumberOfDataSetsInDataAllTable(creation.getCode()), 1);
+        assertEquals(selectNumberOfDataSetsInDataView(creation.getCode()), 0);
+
+        v3api.logout(adminSessionToken);
+
+        String sessionToken = v3api.login(userName, PASSWORD);
+
+        DataSet dataSet = v3api.getDataSets(sessionToken, List.of(dataSetId), new DataSetFetchOptions()).get(dataSetId);
+        assertEquals(dataSet.getPermId(), dataSetId);
+
+        assertEquals(selectNumberOfDataSetsInDataAllTable(creation.getCode()), 1);
+        assertEquals(selectNumberOfDataSetsInDataView(creation.getCode()), 0);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testLogging()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

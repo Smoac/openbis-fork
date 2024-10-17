@@ -3332,18 +3332,4 @@ public class CreateDataSetTest extends AbstractDataSetTest
         return dataSets.values().iterator().next();
     }
 
-    private int selectNumberOfDataSetsInDataAllTable(String dataSetCode)
-    {
-        NativeQuery query = daoFactory.getSessionFactory().getCurrentSession()
-                .createNativeQuery("select count(*) from data_all where code = '" + dataSetCode.toUpperCase() + "'");
-        return ((Number) query.uniqueResult()).intValue();
-    }
-
-    private int selectNumberOfDataSetsInDataView(String dataSetCode)
-    {
-        NativeQuery query = daoFactory.getSessionFactory().getCurrentSession()
-                .createNativeQuery("select count(*) from data where code = '" + dataSetCode.toUpperCase() + "'");
-        return ((Number) query.uniqueResult()).intValue();
-    }
-
 }

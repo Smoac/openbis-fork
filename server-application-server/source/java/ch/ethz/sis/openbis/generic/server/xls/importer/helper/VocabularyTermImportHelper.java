@@ -90,26 +90,22 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, Attribute.Version);
-        String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        String vocabularyTermCode = getValueByColumnName(header, values, Attribute.Code);
+        if (ImportUtils.isInternalNamespace(vocabularyTermCode) && !ImportUtils.isInternalNamespace(vocabularyCode)) {
+            throw new UserFailureException("Internal Vocabulary Terms can only be created on Internal Vocabularies: " + vocabularyTermCode);
         }
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code) || ImportUtils.isInternalNamespace(vocabularyCode);
-        boolean isSystem = delayedExecutor.isSystem();
-        boolean canUpdate = (isInternalNamespace == false) || isSystem;
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(vocabularyCode);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
 
         if (canUpdate == false) {
             return false;
-        } if (canUpdate && (version == null || version.isEmpty())) {
-            return true;
-        } else {
-            return VersionUtils.isNewVersion(version,
-                    VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code));
         }
+
+        return isNewVersionWithInternalNamespace(header, values, versions,
+                delayedExecutor.isSystem(),
+                ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode,
+                Attribute.Version, Attribute.Code);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)

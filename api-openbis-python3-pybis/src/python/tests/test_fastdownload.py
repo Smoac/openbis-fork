@@ -139,6 +139,12 @@ def run_around_tests(base_data):
     yield temp_folder, download_url, streams, perm_id, file
     cleanup(temp_folder)
 
+def get_server_information(major, minor):
+    class ServerInfo:
+        def is_version_greater_than(self, x, y):
+            return x > major or (x == major and y > minor)
+
+    return ServerInfo()
 
 def test_download_fails_after_retries(run_around_tests):
     temp_folder, download_url, streams, perm_id, file = run_around_tests
@@ -150,7 +156,7 @@ def test_download_fails_after_retries(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, True, False, streams)
+                                 True, True, False, get_server_information(3,7), streams)
     try:
         fast_download.download()
         assert False
@@ -176,7 +182,7 @@ def test_download_file(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, True, False, streams)
+                                 True, True, False, get_server_information(3,7), streams)
     fast_download.download()
 
     downloaded_files = [
@@ -215,7 +221,7 @@ def test_download_file_wait_flag_disabled(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, False, False, streams)
+                                 True, False, False, get_server_information(3,7), streams)
     fast_download.download()
 
     # Verify that file has not been downloaded yet
@@ -269,7 +275,7 @@ def test_download_file_starts_with_fail(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, True, False, streams)
+                                 True, True, False, get_server_information(3,7), streams)
     fast_download.download()
 
     downloaded_files = [
@@ -314,7 +320,7 @@ def test_download_fails_after_getting_java_exception(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, True, False, streams)
+                                 True, True, False, get_server_information(3,7), streams)
     try:
         fast_download.download()
         assert False
@@ -348,7 +354,7 @@ def test_download_passes_after_getting_java_exception(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, True, False, streams)
+                                 True, True, False, get_server_information(3,7), streams)
     fast_download.download()
 
     downloaded_files = [
@@ -396,7 +402,7 @@ def test_download_file_payload_failure(run_around_tests):
     MyServer.next_response['download'] = generate_download_response()
 
     fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
-                                 True, True, False, streams)
+                                 True, True, False, get_server_information(3,7), streams)
     try:
         fast_download.download()
         assert False

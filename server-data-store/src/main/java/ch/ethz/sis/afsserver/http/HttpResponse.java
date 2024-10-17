@@ -15,7 +15,8 @@
  */
 package ch.ethz.sis.afsserver.http;
 
-import java.util.Arrays;
+import java.io.InputStream;
+import java.util.Map;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,37 +27,33 @@ import lombok.Value;
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class HttpResponse {
+
+    // Status Field Values
+
+    public static final int OK = 200;
+    public static final int BAD_REQUEST = 400;
+    public static final int NOT_FOUND =  404;
+    public static final int INTERNAL_SERVER_ERROR = 500;
+
+    // Content Type Header and Values
+
+    public static final String CONTENT_TYPE_HEADER = "content-type";
+
     public static final String CONTENT_TYPE_TEXT = "text/plain";
     public static final String CONTENT_TYPE_BINARY_DATA = "application/octet-stream";
     public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String CONTENT_TYPE_ZIP = "application/zip";
 
-    private static final int MAX_TO_STRING_BODY_LENGTH = 1000;
+    // Content Disposition Header and Values
 
-    private final boolean error;
-    private final String contentType;
-    private final byte[] body;
+    public static final String CONTENT_DISPOSITION_HEADER = "content-disposition";
+    public static final String CONTENT_DISPOSITION_VALUE = "attachment; filename=\"download.zip\"";
 
-    @Override
-    public String toString()
-    {
-        final String bodyStr;
+    //
+    //
+    //
 
-        if (body.length <= MAX_TO_STRING_BODY_LENGTH)
-        {
-            bodyStr = Arrays.toString(body);
-        } else
-        {
-            final String tempBodyStr = Arrays.toString(Arrays.copyOf(body, MAX_TO_STRING_BODY_LENGTH));
-            bodyStr = String.format("[%s...]", tempBodyStr.substring(1, tempBodyStr.length() - 1));
-        }
-
-        final StringBuilder sb = new StringBuilder("HttpResponse(");
-        sb.append("error=").append(error);
-        sb.append(", contentType='").append(contentType).append('\'');
-        sb.append(", body=").append(bodyStr); // Cropping output to prevent logging too much data
-        sb.append(')');
-        return sb.toString();
-    }
-
-
+    private final int status;
+    private final Map<String, String> headers;
+    private final InputStream input;
 }

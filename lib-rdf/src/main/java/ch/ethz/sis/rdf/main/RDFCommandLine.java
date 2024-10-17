@@ -22,7 +22,7 @@ public class RDFCommandLine {
 
     //private static final String openBISURL = "http://localhost:8888";
 
-    //private static final String openBISURL = "https://openbis-sis-ci-sprint.ethz.ch";
+    private static final String openBISURL = "https://openbis-sis-ci-sprint.ethz.ch";
 
     private static final String asURL = "http://localhost:8888/openbis/openbis";
 
@@ -32,6 +32,8 @@ public class RDFCommandLine {
 
     //!!! DEV_MODE is used only for pure dev turn it to FALSE for PRODUCTION !!!
     private static final boolean DEV_MODE = false;
+    private static final String OPENBIS_HOME = "/home/mdanaila/Projects/rdf/openbis/";
+    private static final String TEMP_OUTPUT_XLSX = OPENBIS_HOME + "lib-rdf/test-data/sphn-data-small/output.xlsx";
 
     public static void main(String[] args) {
 
@@ -64,25 +66,35 @@ public class RDFCommandLine {
 
     private static void runTestCases()
     {
-        //handleXlsxOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/sphn_rdf_schema_with_data.ttl","/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/output.xlsx");
-        //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/rdf_schema_sphn_dataset_release_2024_2_with_data.ttl",
-        //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN");
-        //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-model/sphn_rdf_schema_with_data.ttl",
-        //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN");
-        //handleOpenBISDevOutput("TTL",
-        //        "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
-        //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN", false);
-        //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/smallMaterialMLinfo.owl.ttl",
-        //        asURL, dssURL, "admin", "changeit", "/DEFAULT/PREMISE", false);
-        //handleOpenBISOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
-        //        openBISURL, "admin", "changeit", "/DEFAULT/SPHN", false);
-        handleXlsxOutput("TTL",
-                "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
-                "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx",
-                "/DEFAULT/SPHN",
+        final String USERNAME = "admin";
+        final String PASSWORD = "changeit";
+        final String PROJECT_ID = "/DEFAULT/SPHN";
+        //final String PROJECT_ID = "/DEFAULT/PREMISE";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/herbie/new_binder_comp_1.0.0.ttl";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/link-ml/smallMaterialMLinfo.owl.ttl";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/sphn-data/mockdata.ttl";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/sphn-model/rdf_schema_sphn_dataset_release_2024_2.ttl";
+        final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/sphn-model/rdf_schema_sphn_dataset_release_2024_2_with_data.ttl";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/sphn-model/sphn_rdf_schema_2023_2.ttl";
+        //final String TTL_FILE_PATH = OPENBIS_HOME + "lib-rdf/test-data/sphn-model/sphn_rdf_schema_2023_2_with_data.ttl";
+
+        //handleXlsxOutput("TTL", TTL_FILE_PATH,
+        //        TEMP_OUTPUT_XLSX,
+        //        PROJECT_ID,
+        //        false);
+
+        //handleOpenBISOutput("TTL", TTL_FILE_PATH,
+        //        openBISURL,
+        //        USERNAME, PASSWORD,
+        //        PROJECT_ID,
+        //        false);
+
+        handleOpenBISDevOutput("TTL", TTL_FILE_PATH,
+                asURL, dssURL,
+                USERNAME, PASSWORD,
+                PROJECT_ID,
                 false);
-        //handleOpenBISDevOutput("TTL", "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/mockdata_allergy.ttl",
-        //        asURL, dssURL, "admin", "changeit", "/DEFAULT/SPHN", false);
     }
 
     //TODO: add flag -d for dependecies list of files or zip
@@ -270,7 +282,7 @@ public class RDFCommandLine {
         if (DEV_MODE)
         {
             //change to your local path
-            tempFileOutput = "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx";
+            tempFileOutput = TEMP_OUTPUT_XLSX;
             tempFile = Path.of(tempFileOutput);
         }
 
@@ -359,7 +371,7 @@ public class RDFCommandLine {
         if (DEV_MODE)
         {
             //change to your local path
-            tempFileOutput = "/home/mdanaila/Projects/rdf/openbis/lib-rdf/test-data/sphn-data-small/output.xlsx";
+            tempFileOutput = TEMP_OUTPUT_XLSX;
             tempFile = Path.of(tempFileOutput);
         }
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);

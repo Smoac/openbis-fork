@@ -31,7 +31,8 @@ public enum FastDownloadParameter
     WISHED_NUMBER_OF_STREAMS_PARAMETER("wishedNumberOfStreams"),
     DOWNLOAD_STREAM_ID_PARAMETER("downloadStreamId"),
     DOWNLOAD_SESSION_ID_PARAMETER("downloadSessionId"),
-    USER_SESSION_ID_PARAMETER("userSessionId");
+    USER_SESSION_ID_PARAMETER("userSessionId"),
+    VERSION_PARAMETER("version");
 
     private final String parameterName;
 

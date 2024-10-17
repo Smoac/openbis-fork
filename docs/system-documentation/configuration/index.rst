@@ -5,6 +5,7 @@ Advanced Configuration
    :maxdepth: 4
 
    required-configuration
+   configuration-properties-by-module
    optional-application-server-configuration
    optional-datastore-server-configuration
    authentication-systems

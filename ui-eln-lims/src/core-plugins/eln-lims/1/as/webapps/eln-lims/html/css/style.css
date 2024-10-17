@@ -256,6 +256,7 @@ body,
    	background-position: 12px 50% !important;
 	border-radius: 15px 15px 15px 15px;
 	width: 80%;
+	height: auto;
 }
 
 .search-query-searching {
@@ -299,7 +300,37 @@ body,
 }
 
 .toolBox a {
-	margin-right: 4px;
+	margin-right: 8px;
+}
+
+.dropdown-toggle {
+    align-content: center;
+}
+
+.btn-default {
+    min-height: 40px;
+    align-content: center;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    height: 40px;
+    align-content: center;
+}
+
+.select2-container--bootstrap .select2-selection--single {
+  height: 40px;
+  line-height: 1.42857143;
+  padding: 6px 24px 6px 12px;
+  align-content: center;
+}
+
+.select2-container--bootstrap .select2-selection--multiple {
+  min-height: 40px;
+  padding: 0;
+  height: auto;
 }
 
 /* filter and pagination */
