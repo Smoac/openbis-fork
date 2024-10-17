@@ -54,9 +54,8 @@ public class NamedIndividualMapper
         try {
             String optionLabel = model.getProperty(subject, RDFS.label).getString();
             //TODO check with Juan for increasing vocabulary type code length > 50
-            String optionCode = subject.getLocalName().length() > 50 ? subject.getLocalName().substring(0, 49).toLowerCase(Locale.ROOT) : subject.getLocalName().toUpperCase(Locale.ROOT);
             VocabularyTypeOption option = new VocabularyTypeOption(
-                    optionCode,
+                    subject.getLocalName(),
                     optionLabel,
                     subject.getURI());
 
