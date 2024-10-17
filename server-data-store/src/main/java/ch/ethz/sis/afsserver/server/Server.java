@@ -15,14 +15,23 @@
  */
 package ch.ethz.sis.afsserver.server;
 
+import java.util.List;
+
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.afsserver.http.HttpServer;
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
+import ch.ethz.sis.afsserver.server.common.ApacheCommonsLoggingConfiguration;
+import ch.ethz.sis.afsserver.server.common.ApacheLog4j1Configuration;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.impl.HttpDownloadAdapter;
+import ch.ethz.sis.afsserver.server.maintenance.MaintenancePlugin;
+import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskParameters;
+import ch.ethz.sis.afsserver.server.maintenance.MaintenanceTaskUtils;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.afsserver.server.shuffling.IncomingShareIdProvider;
+import ch.ethz.sis.afsserver.server.shuffling.ServiceProvider;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
@@ -55,6 +64,8 @@ public final class Server<CONNECTION, API>
 
     private ServerObserver<CONNECTION> observer;
 
+    private List<MaintenancePlugin> maintenancePlugins;
+
     public Server(Configuration configuration) throws Exception
     {
         //1. Load logging plugin, Initializing LogManager
@@ -65,6 +76,10 @@ public final class Server<CONNECTION, API>
         logFactory.configure(configuration.getStringProperty(AtomicFileSystemServerParameter.logConfigFile));
         LogManager.setLogFactory(logFactory);
         logger = LogManager.getLogger(Server.class);
+
+        // Make the legacy code that bases on Apache Commons Logging or Log4j use the same logging mechanism as the rest of AFS
+        ApacheCommonsLoggingConfiguration.reconfigureToUseAFSLogging();
+        ApacheLog4j1Configuration.reconfigureToUseAFSLogging();
 
         logger.info("=== Server Bootstrap ===");
         logger.info("Running with java.version: " + System.getProperty("java.version"));
@@ -122,7 +137,16 @@ public final class Server<CONNECTION, API>
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, new HttpServerHandler[] { apiServerAdapter });
 
-        // 2.8 Init observer
+        // 2.8 Create objects used by the old DSS code
+        ServiceProvider.configure(configuration);
+        IncomingShareIdProvider.configure(configuration);
+
+        // 2.9 Create maintenance tasks
+        logger.info("Starting maintenance tasks");
+        MaintenanceTaskParameters[] maintenanceTaskParameters = MaintenanceTaskUtils.createMaintenancePlugins(configuration.getProperties());
+        maintenancePlugins = MaintenanceTaskUtils.startupMaintenancePlugins(maintenanceTaskParameters);
+
+        // 2.10 Init observer
         observer = configuration.getInstance(AtomicFileSystemServerParameter.serverObserver);
         if (observer == null)
         {
@@ -154,6 +178,8 @@ public final class Server<CONNECTION, API>
         {
             observer.beforeShutdown();
             shutdown = true;
+            logger.info("Shutting down - maintenance tasks");
+            MaintenanceTaskUtils.shutdownMaintenancePlugins(maintenancePlugins);
             logger.info("Shutting down - http server");
             httpServer.shutdown(gracefully);
             logger.info("Shutting down - api server");

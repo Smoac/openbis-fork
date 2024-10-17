@@ -16,6 +16,7 @@
 package ch.ethz.sis.afs.manager;
 
 import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.dto.Lock;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
@@ -69,6 +70,14 @@ public class TransactionManager {
         if (!isSameVolume) {
             throwInstance(PathsOnDifferentVolumes);
         }
+    }
+
+    public boolean lock(List<Lock<UUID, String>> locks){
+        return lockManager.add(locks);
+    }
+
+    public boolean unlock(List<Lock<UUID, String>> locks){
+        return lockManager.remove(locks);
     }
 
     public void reCommitTransactionsAfterCrash() throws Exception {

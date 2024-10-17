@@ -13,13 +13,13 @@ import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsserver.server.APIServer;
 import ch.ethz.sis.afsserver.server.APIServerException;
+import ch.ethz.sis.afsserver.server.common.OpenBISFacade;
 import ch.ethz.sis.afsserver.server.impl.ApiRequest;
 import ch.ethz.sis.afsserver.server.impl.ApiResponse;
 import ch.ethz.sis.afsserver.server.impl.ApiResponseBuilder;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
-import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
@@ -42,10 +42,6 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
     private Configuration configuration;
 
-    private String openBISUser;
-
-    private String openBISPassword;
-
     private String openBISLastSeenDeletionFile;
 
     private Integer openBISLastSeenDeletionBatchSize;
@@ -60,8 +56,6 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     public void init(APIServer<TransactionConnection, ?, ?, ?> apiServer, Configuration configuration) throws Exception
     {
         this.configuration = configuration;
-        this.openBISUser = AtomicFileSystemServerParameterUtil.getOpenBISUser(configuration);
-        this.openBISPassword = AtomicFileSystemServerParameterUtil.getOpenBISPassword(configuration);
         this.openBISLastSeenDeletionFile = AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionFile(configuration);
         this.openBISLastSeenDeletionBatchSize =
                 AtomicFileSystemServerParameterUtil.getOpenBISLastSeenDeletionBatchSize(configuration);
@@ -94,18 +88,10 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     {
         while (true)
         {
-            OpenBIS openBIS = AtomicFileSystemServerParameterUtil.getOpenBIS(configuration);
+            OpenBISFacade openBISFacade = AtomicFileSystemServerParameterUtil.getOpenBISFacade(configuration);
 
             try
             {
-                String sessionToken = openBIS.login(openBISUser, openBISPassword);
-
-                if (sessionToken == null)
-                {
-                    throw new RuntimeException(
-                            "Could not login to the AS server. Please check openBIS user and openBIS password in the AFS server configuration.");
-                }
-
                 final LastSeenEvent lastSeenEvent = loadLastSeenEvent();
                 LastSeenEvent newLastSeenEvent = null;
 
@@ -127,7 +113,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
                     logger.info("No last seen event file found. All deletion events will be processed.");
                 }
 
-                SearchResult<Event> foundEvents = openBIS.searchEvents(criteria, fo);
+                SearchResult<Event> foundEvents = openBISFacade.searchEvents(criteria, fo);
 
                 if (foundEvents.getObjects().isEmpty())
                 {
@@ -155,7 +141,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
                     {
                         for (Event event : newEvents)
                         {
-                            processEvent(sessionToken, event);
+                            processEvent(openBISFacade.getSessionToken(), event);
                             lastEvent = event;
                         }
                     } finally
@@ -188,12 +174,6 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
             {
                 logger.throwing(e);
                 return;
-            } finally
-            {
-                if (openBIS.getSessionToken() != null)
-                {
-                    openBIS.logout();
-                }
             }
         }
     }

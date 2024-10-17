@@ -38,24 +38,54 @@ public class UpdateDataSetPhysicalDataExecutor implements IUpdateDataSetPhysical
     @Autowired
     private IUpdateDataSetFileFormatTypeExecutor updateDataSetFileFormatTypeExecutor;
 
+    @Autowired
+    private IDataSetAuthorizationExecutor authorizationExecutor;
+
     @Override
     public void update(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch)
     {
+        for (Entry<DataSetUpdate, DataPE> entry : batch.getObjects().entrySet())
+        {
+            DataSetUpdate dataSetUpdate = entry.getKey();
+            DataPE dataSet = entry.getValue();
+
+            if (dataSetUpdate.getPhysicalData() != null && dataSetUpdate.getPhysicalData().getValue() != null)
+            {
+                authorizationExecutor.canUpdateSystemFields(context, dataSetUpdate.getDataSetId(), dataSet);
+            }
+        }
+
         updateDataSetFileFormatTypeExecutor.update(context, batch);
-        for (Entry<DataSetUpdate, DataPE> entry : batch.getObjects().entrySet()) {
+
+        for (Entry<DataSetUpdate, DataPE> entry : batch.getObjects().entrySet())
+        {
             DataSetUpdate dataSetUpdate = entry.getKey();
             DataPE dataPE = entry.getValue();
-            if (dataPE instanceof ExternalDataPE) {
+            if (dataPE instanceof ExternalDataPE)
+            {
                 ExternalDataPE externalDataPE = (ExternalDataPE) dataPE;
                 FieldUpdateValue<PhysicalDataUpdate> physicalData = dataSetUpdate.getPhysicalData();
-                if (physicalData != null && physicalData.getValue() != null) {
+                if (physicalData != null && physicalData.getValue() != null)
+                {
                     FieldUpdateValue<Boolean> archivingRequested = physicalData.getValue().isArchivingRequested();
-                    if (archivingRequested != null && archivingRequested.getValue() != null) {
+                    if (archivingRequested != null && archivingRequested.isModified())
+                    {
                         externalDataPE.setArchivingRequested(archivingRequested.getValue());
+                    }
+
+                    FieldUpdateValue<String> shareId = physicalData.getValue().getShareId();
+                    if (shareId != null && shareId.isModified())
+                    {
+                        externalDataPE.setShareId(shareId.getValue());
+                    }
+
+                    FieldUpdateValue<Long> size = physicalData.getValue().getSize();
+                    if (size != null && size.isModified())
+                    {
+                        externalDataPE.setSize(size.getValue());
                     }
                 }
             }
         }
     }
-
 }

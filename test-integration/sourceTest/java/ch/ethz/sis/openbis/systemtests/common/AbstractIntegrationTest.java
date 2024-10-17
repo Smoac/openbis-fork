@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.systemtests.common;
 
+import static org.testng.Assert.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +27,10 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import javax.servlet.ReadListener;
@@ -40,6 +45,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpMethod;
@@ -64,6 +70,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
+import ch.ethz.sis.afsserver.server.common.TestLogger;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.openbis.generic.OpenBIS;
@@ -158,12 +165,16 @@ public abstract class AbstractIntegrationTest
         cleanupAfsServerFolders();
         cleanupDataStoreServerFolders();
 
+        configureShares();
+
         startApplicationServer(true);
         startApplicationServerProxy();
         createApplicationServerData();
         startDataStoreServer();
         startAfsServer();
         startAfsServerProxy();
+
+        TestLogger.configure();
     }
 
     @AfterSuite
@@ -250,6 +261,14 @@ public abstract class AbstractIntegrationTest
             FileUtilities.deleteRecursively(new File(folderPath));
             log("Deleted folder: " + new File(folderPath).getAbsolutePath());
         }
+    }
+
+    private void configureShares() throws Exception
+    {
+        Configuration configuration = getAfsServerConfiguration();
+        String storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
+        ch.ethz.sis.shared.io.IOUtils.copy("etc/shares", storageRoot);
+        log("Configured shares.");
     }
 
     private void startApplicationServer(boolean createDatabase) throws Exception
@@ -646,6 +665,28 @@ public abstract class AbstractIntegrationTest
         return sample;
     }
 
+    public static Sample createSample(OpenBIS openBIS, IExperimentId experimentId, String sampleCode)
+    {
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withProject().withSpace();
+
+        Experiment experiment = openBIS.getExperiments(List.of(experimentId), experimentFetchOptions).get(experimentId);
+        if (experiment == null)
+        {
+            throw new RuntimeException("Experiment with id " + experimentId + " hasn't been found.");
+        }
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        sampleCreation.setSpaceId(experiment.getProject().getSpace().getPermId());
+        sampleCreation.setExperimentId(experiment.getPermId());
+        sampleCreation.setCode(sampleCode);
+        List<SamplePermId> sampleIds = openBIS.createSamples(List.of(sampleCreation));
+        Sample sample = getSample(openBIS, sampleIds.get(0));
+        log("Created " + sample.getIdentifier() + " sample.");
+        return sample;
+    }
+
     public static Sample getSample(OpenBIS openBIS, ISampleId sampleId)
     {
         return openBIS.getSamples(List.of(sampleId), new SampleFetchOptions()).get(sampleId);
@@ -659,11 +700,22 @@ public abstract class AbstractIntegrationTest
         String storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(afsServerConfiguration);
         Integer shareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(afsServerConfiguration);
 
+        List<String> dataSetFolderLocation = new ArrayList<>();
+        dataSetFolderLocation.add(storageUuid);
+        dataSetFolderLocation.addAll(Arrays.asList(ch.ethz.sis.shared.io.IOUtils.getShards(dataSetCode.toUpperCase())));
+        dataSetFolderLocation.add(dataSetCode.toUpperCase());
+
+        File dataSetFolder = new File(new File(storageRoot, String.valueOf(shareId)), String.join(File.separator, dataSetFolderLocation));
+
+        Files.createDirectories(dataSetFolder.toPath());
+        Path testFilePath = Files.createFile(Path.of(dataSetFolder.getPath(), testFile));
+        ch.ethz.sis.shared.io.IOUtils.write(testFilePath.toFile().getAbsolutePath(), 0L, testData);
+
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
         physicalCreation.setShareId(shareId.toString());
+        physicalCreation.setLocation(String.join(File.separator, dataSetFolderLocation));
         physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
         physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-        physicalCreation.setLocation("test-location-" + UUID.randomUUID());
         physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
         physicalCreation.setH5arFolders(false);
         physicalCreation.setH5Folders(false);
@@ -678,21 +730,6 @@ public abstract class AbstractIntegrationTest
 
         List<DataSetPermId> dataSetIds = openBIS.createDataSetsAS(List.of(dataSetCreation));
         DataSet dataSet = openBIS.getDataSets(dataSetIds, new DataSetFetchOptions()).get(dataSetIds.get(0));
-
-        if (testFile != null && testData != null)
-        {
-            List<String> dataSetFolderParts = new ArrayList<>();
-            dataSetFolderParts.add(storageRoot);
-            dataSetFolderParts.add(shareId.toString());
-            dataSetFolderParts.add(storageUuid);
-            dataSetFolderParts.addAll(Arrays.asList(ch.ethz.sis.shared.io.IOUtils.getShards(dataSet.getCode())));
-            dataSetFolderParts.add(dataSet.getCode());
-            File dataSetFolder = new File(String.join(File.separator, dataSetFolderParts));
-
-            Files.createDirectories(dataSetFolder.toPath());
-            Path testFilePath = Files.createFile(Path.of(dataSetFolder.getPath(), testFile));
-            ch.ethz.sis.shared.io.IOUtils.write(testFilePath.toFile().getAbsolutePath(), 0L, testData);
-        }
 
         log("Created " + dataSet.getPermId() + " dataSet.");
         return dataSet;
@@ -735,6 +772,83 @@ public abstract class AbstractIntegrationTest
             parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
         }
         return parameters;
+    }
+
+    public void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM experiments_all WHERE perm_id = '" + experimentPermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
+    public void assertSampleExistsAtAS(String samplePermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM samples_all WHERE perm_id = '" + samplePermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
+    public void assertDSSDataSetExistsAtAS(String dataSetPermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE afs_data = 'f' AND code = '" + dataSetPermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
+    public void assertAFSDataSetExistsAtAS(String dataSetPermId, boolean exists) throws Exception
+    {
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) FROM data_all WHERE afs_data = 't' AND code = '" + dataSetPermId + "'");
+            resultSet.next();
+            assertEquals(resultSet.getInt(1), exists ? 1 : 0);
+        }
+    }
+
+    public void assertDataExistsInStoreInShare(String dataSetPermId, boolean exists, Integer shareId) throws Exception
+    {
+        Configuration afsServerConfiguration = getAfsServerConfiguration();
+        String storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(afsServerConfiguration);
+        String storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(afsServerConfiguration);
+
+        List<String> dataSetFolderLocation = new ArrayList<>();
+        dataSetFolderLocation.add(storageUuid);
+        dataSetFolderLocation.addAll(Arrays.asList(ch.ethz.sis.shared.io.IOUtils.getShards(dataSetPermId.toUpperCase())));
+        dataSetFolderLocation.add(dataSetPermId.toUpperCase());
+
+        Path dataSetFolder = Paths.get(storageRoot, String.valueOf(shareId), String.join(File.separator, dataSetFolderLocation));
+        assertEquals(Files.exists(dataSetFolder), exists);
+
+        try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();
+                Statement statement = connection.createStatement())
+        {
+            ResultSet resultSet = statement.executeQuery(
+                    "SELECT location, share_id FROM data_all d LEFT OUTER JOIN external_data ed on d.id = ed.id WHERE d.code = '"
+                            + dataSetPermId.toUpperCase() + "'");
+            resultSet.next();
+
+            if (exists)
+            {
+                String locationInDB = resultSet.getString(1);
+                String shareInDB = resultSet.getString(2);
+
+                assertEquals(shareInDB, String.valueOf(shareId));
+                assertEquals(locationInDB, String.join(File.separator, dataSetFolderLocation));
+            }
+        }
     }
 
 }

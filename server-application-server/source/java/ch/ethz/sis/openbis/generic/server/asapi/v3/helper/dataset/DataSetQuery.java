@@ -28,7 +28,7 @@ import net.lemnik.eodsql.Select;
  */
 public interface DataSetQuery extends ObjectQuery
 {
-    @Select(sql = "select id, code as identifier from data where code = any(?{1})", parameterBindings = {
+    @Select(sql = "select id, code as identifier from data_all where code = any(?{1}) and del_id is null", parameterBindings = {
             StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<TechIdStringIdentifierRecord> listDataSetTechIdsByPermIds(String[] permIds);
 
