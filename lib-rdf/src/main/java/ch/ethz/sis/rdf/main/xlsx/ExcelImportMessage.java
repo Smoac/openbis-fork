@@ -1,7 +1,6 @@
 package ch.ethz.sis.rdf.main.xlsx;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import org.apache.jena.base.Sys;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,26 +34,27 @@ public class ExcelImportMessage
         return message;
     }
 
-    private static final Pattern p = Pattern.compile("^\\d+");
+    private static final Pattern PATTERN_LINE_NUMBER = Pattern.compile("line: \\d+");
+    private static final Pattern PATTERN_SHEET_NUMBER = Pattern.compile("sheet: \\d+");
 
 
 
     public static ExcelImportMessage from(UserFailureException userFailureException){
         try
         {
-            String a = userFailureException.getMessage().replace("Exception importing data: sheet:", "");
-            Matcher m = p.matcher(a);
-            if (m.find())
-            {
-                String line1 = m.group();
+            Matcher matcherLine = PATTERN_LINE_NUMBER.matcher(userFailureException.getMessage());
+            Matcher matcherSheet = PATTERN_SHEET_NUMBER.matcher(userFailureException.getMessage());
+            if (!matcherLine.find()){
+                return null;
             }
-            String sheetString = a.split(" ")[1];
-            int sheet = Integer.parseInt(sheetString);
-            String b = a.replace(sheetString, "").replace("line: ", "").trim();
-            String lineString = b.split(" ")[0];
+            if (!matcherSheet.find()){
+                return null;
+            }
 
-            int line = Integer.parseInt(lineString);
-            String c = b.replace(lineString, "").trim().replace("message: ", "");
+            Integer line = Integer.parseInt(matcherLine.group().replace("line: ", "")) ;
+            Integer sheet = Integer.parseInt(matcherSheet.group().replace("sheet: ", "")) ;
+
+            String c = userFailureException.getMessage().split("message: ")[1];
 
             return new ExcelImportMessage(c, sheet, line);
         } catch (RuntimeException e){

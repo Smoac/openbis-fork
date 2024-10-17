@@ -17,12 +17,12 @@ public class ExcelImportMessageTest extends TestCase
         assertEquals(1, result.getSheet());
 
         String oracleString =
-                "Given code 'ORTHOPAEDICSURGERYANDTRAUMATOLOGYOFTHELOCOMOTORAPPARATUS' is either too short (minimal length:  character) or too long (maximal length: 50 characters).";
+                "Given code 'ORTHOPAEDICSURGERYANDTRAUMATOLOGYOFTHELOCOMOTORAPPARATUS' is either too short (minimal length: 1 character) or too long (maximal length: 50 characters).";
         assertTrue(result.getMessage().contains(oracleString));
 
     }
 
-    public void testFromWithError()
+    public void testFromWithNoLineNumbers()
     {
         String exceptionMsg = "Something else!";
         UserFailureException userFailureException = new UserFailureException(exceptionMsg);
@@ -30,4 +30,15 @@ public class ExcelImportMessageTest extends TestCase
         assertNull(result);
 
     }
+
+    public void testFromDifferentExample(){
+        String exceptionMsg = "Exception importing data: sheet: 1 line: 11 message: Invalid terms:Invalid terms:\n" +
+                "Given code 'ORTHOPAEDICSURGERYANDTRAUMATOLOGYOFTHELOCOMOTORAPPARATUS' is either too short (minimal length: 1 character) or too long (maximal length: 50 characters). (Context: []) (Context: [])";
+        UserFailureException userFailureException = new UserFailureException(exceptionMsg);
+        ExcelImportMessage result = ExcelImportMessage.from(userFailureException);
+        assertEquals(11, result.getLine());
+        assertEquals(1, result.getSheet());
+
+    }
+
 }
