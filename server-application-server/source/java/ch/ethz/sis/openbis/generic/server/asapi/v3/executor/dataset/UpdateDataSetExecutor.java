@@ -15,10 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.metadata.IUpdateMetaDataForEntityExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -30,12 +33,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IEventExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.metadata.IUpdateMetaDataForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.FreezingEvent;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.FreezingFlags;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.DataSetUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -116,6 +121,21 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
         authorizationExecutor.canUpdate(context, id, entity);
     }
 
+    @Override public List<DataSetPermId> update(final IOperationContext context, final List<DataSetUpdate> dataSetUpdates)
+    {
+        Collection<IDataSetId> dataSetIds = new ArrayList<>();
+
+        if (dataSetUpdates != null)
+        {
+            for (DataSetUpdate dataSetUpdate : dataSetUpdates)
+            {
+                dataSetIds.add(dataSetUpdate.getDataSetId());
+            }
+        }
+
+        return DataSetUtils.executeWithAfsDataVisible(daoFactory, dataSetIds, () -> super.update(context, dataSetUpdates));
+    }
+
     @Override
     protected void updateBatch(final IOperationContext context, final MapBatch<DataSetUpdate, DataPE> batch)
     {
@@ -133,7 +153,8 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
 
         for (Entry<DataSetUpdate, DataPE> entry : batch.getObjects().entrySet())
         {
-            DataSetUpdate update = entry.getKey();;
+            DataSetUpdate update = entry.getKey();
+            ;
             DataPE entity = entry.getValue();
             FreezingFlags freezingFlags = new FreezingFlags();
             RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
@@ -184,22 +205,22 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     private void updateTags(final IOperationContext context, final MapBatch<DataSetUpdate, DataPE> batch)
     {
         new MapBatchProcessor<DataSetUpdate, DataPE>(context, batch)
+        {
+            @Override
+            public void process(DataSetUpdate update, DataPE entity)
             {
-                @Override
-                public void process(DataSetUpdate update, DataPE entity)
+                if (update.getTagIds() != null && update.getTagIds().hasActions())
                 {
-                    if (update.getTagIds() != null && update.getTagIds().hasActions())
-                    {
-                        updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-                    }
+                    updateTagForEntityExecutor.update(context, entity, update.getTagIds());
                 }
+            }
 
-                @Override
-                public IProgress createProgress(DataSetUpdate key, DataPE value, int objectIndex, int totalObjectCount)
-                {
-                    return new UpdateRelationProgress(key, value, "dataset-tag", objectIndex, totalObjectCount);
-                }
-            };
+            @Override
+            public IProgress createProgress(DataSetUpdate key, DataPE value, int objectIndex, int totalObjectCount)
+            {
+                return new UpdateRelationProgress(key, value, "dataset-tag", objectIndex, totalObjectCount);
+            }
+        };
     }
 
     @Override

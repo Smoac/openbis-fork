@@ -32,7 +32,7 @@ import org.jmock.api.ExpectationError;
 
 /**
  * Utilities for making assertions in unit tests.
- * 
+ *
  * @author Tomasz Pylak
  */
 public class AssertionUtil
@@ -72,7 +72,7 @@ public class AssertionUtil
                         unExpectedSubstring, text);
         assertFalse(errorMsg, text.contains(unExpectedSubstring));
     }
-    
+
     /** asserts that given text contains expectedSubstring */
     public static void assertSize(Collection<?> collection, int size)
     {
@@ -118,6 +118,16 @@ public class AssertionUtil
         assertTrue("Expected to contain lines:\n" + expected + "\nactual lines:\n" + actual, expectedLines.equals(actualLines));
     }
 
+    public static void assertDoesNotContainLines(String notExpected, String actual)
+    {
+        Collection<String> notExpectedLines = getLines(notExpected);
+        Collection<String> actualLines = getLines(actual);
+
+        actualLines.retainAll(notExpectedLines);
+
+        assertTrue("Not expected lines:\n" + notExpected + "\nactual lines:\n" + actual, actualLines.isEmpty());
+    }
+
     /** asserts that two int arrays are equal **/
     public static void assertArraysEqual(int[] a1, int[] a2)
     {
@@ -140,7 +150,7 @@ public class AssertionUtil
 
     /**
      * asserts that two enums have the same values. Usage example:
-     * 
+     *
      * <pre>
      * List&lt;MyEnum1&gt; values1 = Arrays.asList(MyEnum1.values());
      * List&lt;MyEnum2&gt; values2 = Arrays.asList(MyEnum2.values());
@@ -243,7 +253,7 @@ public class AssertionUtil
             assertCollectionContains(objectsSet, item);
         }
     }
-    
+
     /**
      * Assert given collection contains only given items
      */

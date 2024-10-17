@@ -51,6 +51,15 @@ public class Configuration {
         }
     }
 
+    public Configuration(Properties properties) {
+        Enumeration propertyNames = properties.propertyNames();
+
+        while(propertyNames.hasMoreElements()) {
+            Object propertyName = propertyNames.nextElement();
+            this.properties.setProperty(String.valueOf(propertyName), properties.getProperty(String.valueOf(propertyName)));
+        }
+    }
+
     public <E extends Enum<E>> void setProperty(E parameter, String value) {
         properties.setProperty(parameter.name(), value);
     }
@@ -96,5 +105,9 @@ public class Configuration {
         } else {
             return null;
         }
+    }
+
+    public Properties getProperties(){
+        return this.properties;
     }
 }

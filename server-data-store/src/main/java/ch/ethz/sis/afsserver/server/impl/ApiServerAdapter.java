@@ -15,30 +15,31 @@
  */
 package ch.ethz.sis.afsserver.server.impl;
 
+import static io.netty.handler.codec.http.HttpMethod.DELETE;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpMethod.POST;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.afsapi.dto.DTO;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.afsserver.exception.HTTPExceptions;
 import ch.ethz.sis.afsserver.http.HttpResponse;
-import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.afsserver.server.APIServer;
-import ch.ethz.sis.afsserver.server.APIServerException;
 import ch.ethz.sis.afsserver.server.Request;
 import ch.ethz.sis.afsserver.server.Response;
-import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
 
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import static io.netty.handler.codec.http.HttpMethod.*;
-
 /*
  * This class is supposed to be called by a TCP or HTTP transport class
  */
-public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
+public class ApiServerAdapter<CONNECTION, API> extends AbstractAdapter<CONNECTION, API>
 {
 
     private static final Logger logger = LogManager.getLogger(ApiServerAdapter.class);
@@ -49,13 +50,19 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
 
     private final ApiResponseBuilder apiResponseBuilder;
 
-    public ApiServerAdapter(
-            APIServer<CONNECTION, Request, Response, API> server,
-            JsonObjectMapper jsonObjectMapper)
+    public ApiServerAdapter(APIServer<CONNECTION, Request, Response, API> server, JsonObjectMapper jsonObjectMapper)
     {
+        super(server, jsonObjectMapper);
         this.server = server;
         this.jsonObjectMapper = jsonObjectMapper;
         this.apiResponseBuilder = new ApiResponseBuilder();
+    }
+
+    @Override
+    protected boolean isValidHttpMethod(final HttpMethod givenMethod, final String apiMethod)
+    {
+        final HttpMethod correctMethod = getHttpMethod(apiMethod);
+        return correctMethod == givenMethod;
     }
 
     public static HttpMethod getHttpMethod(String apiMethod)
@@ -85,144 +92,57 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
         throw new UnsupportedOperationException(String.format("This line SHOULD be unreachable! apiMethod=\"%s\"", apiMethod));
     }
 
-    public boolean isValidMethod(HttpMethod givenMethod, String apiMethod)
+    @Override
+    protected boolean isValidHttpMethod(final HttpMethod givenMethod)
     {
-        HttpMethod correctMethod = getHttpMethod(apiMethod);
-        return correctMethod == givenMethod;
+        return givenMethod == HttpMethod.GET || givenMethod == HttpMethod.POST || givenMethod == DELETE;
     }
 
-    public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> parameters,
-            byte[] requestBody)
+    @Override
+    protected void parseParameters(final String key, final List<String> values, final Map<String, Object> parsedParameters)
     {
-        try
+        final String value = getFirst(values);
+        switch (key)
         {
-            logger.traceAccess(null);
-            PerformanceAuditor performanceAuditor = new PerformanceAuditor();
-
-
-            if (httpMethod != GET && httpMethod != POST && httpMethod != DELETE)
-            {
-                return getHTTPResponse(new ApiResponse("1", null,
-                        HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
-            }
-
-            String method = null;
-            String sessionToken = null;
-            String interactiveSessionKey = null;
-            String transactionManagerKey = null;
-            Map<String, Object> methodParameters = new HashMap<>();
-
-            for (Map.Entry<String, List<String>> entry : parameters.entrySet())
-            {
-                String value = null;
-                if (entry.getValue() != null)
-                {
-                    if (entry.getValue().size() == 1)
-                    {
-                        value = entry.getValue().get(0);
-                    } else if (entry.getValue().size() > 1)
-                    {
-                        return getHTTPResponse(new ApiResponse("1", null,
-                                HTTPExceptions.INVALID_PARAMETERS.getCause()));
-                    }
-                }
-
-                try
-                {
-                    switch (entry.getKey())
-                    {
-                        case "method":
-                            method = value;
-                            if (!isValidMethod(httpMethod, method))
-                            {
-                                return getHTTPResponse(new ApiResponse("1", null,
-                                        HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
-                            }
-                            break;
-                        case "sessionToken":
-                            sessionToken = value;
-                            break;
-                        case "interactiveSessionKey":
-                            interactiveSessionKey = value;
-                            break;
-                        case "transactionManagerKey":
-                            transactionManagerKey = value;
-                            break;
-                        case "transactionId":
-                            methodParameters.put(entry.getKey(), UUID.fromString(value));
-                            break;
-                        case "directory":
-                            // Fall though
-                        case "recursively":
-                            methodParameters.put(entry.getKey(), Boolean.valueOf(value));
-                            break;
-                        case "offset":
-                            methodParameters.put(entry.getKey(), Long.valueOf(value));
-                            break;
-                        case "limit":
-                            methodParameters.put(entry.getKey(), Integer.valueOf(value));
-                            break;
-                        case "data":
-                            // Fall though
-                        case "md5Hash":
-                            methodParameters.put(entry.getKey(), Base64.getUrlDecoder().decode(value));
-                            break;
-                        default:
-                            methodParameters.put(entry.getKey(), value);
-                            break;
-                    }
-                } catch (Exception e)
-                {
-                    logger.catching(e);
-                    return getHTTPResponse(new ApiResponse("1", null,
-                            HTTPExceptions.INVALID_PARAMETERS.getCause(
-                                    e.getClass().getSimpleName(),
-                                    e.getMessage())));
-                }
-            }
-
-            ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken,
-                    interactiveSessionKey, transactionManagerKey);
-            Response response = server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
-            HttpResponse httpResponse = getHTTPResponse(response);
-            performanceAuditor.audit(Event.WriteResponse);
-            logger.traceExit(performanceAuditor);
-            logger.traceExit(httpResponse);
-            return httpResponse;
-        } catch (APIServerException e)
-        {
-            logger.catching(e);
-            switch (e.getType())
-            {
-                case MethodNotFound:
-                case IncorrectParameters:
-                case InternalError:
-                    try
-                    {
-                        return getHTTPResponse(new ApiResponse("1", null, e.getData()));
-                    } catch (Exception ex)
-                    {
-                        logger.catching(ex);
-                    }
-            }
-        } catch (Exception e)
-        {
-            logger.catching(e);
-            try
-            {
-                return getHTTPResponse(new ApiResponse("1", null,
-                        HTTPExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(),
-                                e.getMessage())));
-            } catch (Exception ex)
-            {
-                logger.catching(ex);
-            }
+            case "directory":
+                // Fall though
+            case "recursively":
+                parsedParameters.put(key, Boolean.valueOf(value));
+                break;
+            case "offset":
+                parsedParameters.put(key, Long.valueOf(value));
+                break;
+            case "limit":
+                parsedParameters.put(key, Integer.valueOf(value));
+                break;
+            case "data":
+                // Fall though
+            case "md5Hash":
+                parsedParameters.put(key, Base64.getUrlDecoder().decode(value));
+                break;
+            default:
+                parsedParameters.put(key, value);
+                break;
         }
-        return null; // This should never happen, it would mean an error writing the Unknown error happened.
     }
 
-    public HttpResponse getHTTPResponse(Response response)
-            throws Exception
+    @Override
+    protected HttpResponse process(final String method, final Map<String, Object> parsedParameters, final String sessionToken,
+            final String interactiveSessionKey, final String transactionManagerKey, final PerformanceAuditor performanceAuditor) throws Exception
+    {
+        final ApiRequest apiRequest = new ApiRequest("1", method, parsedParameters, sessionToken, interactiveSessionKey, transactionManagerKey);
+        final Response response = server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
+        final HttpResponse httpResponse = getHTTPResponse(response);
+        return httpResponse;
+    }
+
+    @Override
+    public String getPath()
+    {
+        return "api";
+    }
+
+    public HttpResponse getHTTPResponse(Response response) throws Exception
     {
         boolean error = response.getError() != null;
         String contentType = null;
@@ -244,7 +164,8 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                 body = String.valueOf(result).getBytes(StandardCharsets.UTF_8);
             }
         }
-        return new HttpResponse(error, contentType, body);
+        return new HttpResponse((error)? HttpResponse.BAD_REQUEST :HttpResponse.OK, Map.of(HttpResponse.CONTENT_TYPE_HEADER ,contentType),
+                new ByteArrayInputStream(body));
     }
 
 }

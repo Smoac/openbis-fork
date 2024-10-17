@@ -49,7 +49,7 @@ public class NettyHttpServer implements HttpServer
     }
 
     public void start(int port, int maxContentLength, String uri,
-            HttpServerHandler httpServerHandler)
+            HttpServerHandler[] httpServerHandlers)
     {
         Integer maxQueueLengthForIncomingConnections = 128;
 
@@ -76,7 +76,7 @@ public class NettyHttpServer implements HttpServer
                             ch.pipeline().addLast("aggregator",
                                     new HttpObjectAggregator(maxContentLength));
                             ch.pipeline().addLast("request",
-                                    new NettyHttpHandler(uri, httpServerHandler));
+                                    new NettyHttpHandler(uri, httpServerHandlers));
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, maxQueueLengthForIncomingConnections)

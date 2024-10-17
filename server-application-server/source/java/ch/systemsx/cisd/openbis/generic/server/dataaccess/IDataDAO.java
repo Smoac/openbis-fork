@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * An interface that contains all data access operations on {@link ExternalDataPE}s.
- * 
+ *
  * @author Christian Ribeaud
  */
 public interface IDataDAO extends IGenericDAO<DataPE>
@@ -54,7 +54,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     /**
      * List the {@link DataPE} related to given <var>entities</var> of specified <var>entityKind</var>.
-     * 
+     *
      * @returns list of {@link DataPE}s that are related to given {@link IEntityInformationHolder}.
      */
     public List<DataPE> listRelatedDataSets(final List<IEntityInformationHolder> entities,
@@ -62,14 +62,14 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     /**
      * List the {@link DataPE} for given <var>sample</var>.
-     * 
+     *
      * @returns list of {@link DataPE}s that are related to given {@link SamplePE}.
      */
     public List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException;
 
     /**
      * List the {@link DataPE} for given <var>sample</var>. The datasets are fetched without the additional relationships or properties.
-     * 
+     *
      * @returns list of {@link DataPE}s that are related to given {@link SamplePE}.
      */
     public List<DataPE> listDataSetsWithoutRelationships(final SamplePE sample)
@@ -77,7 +77,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     /**
      * List the {@link DataPE} for given <var>experiment</var>.
-     * 
+     *
      * @returns list of {@link DataPE}s that are related to given {@link ExperimentPE}.
      */
     public List<DataPE> listDataSets(final ExperimentPE experiment) throws DataAccessException;
@@ -150,7 +150,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      * Returns unique set of ids of parents/container of data sets specified by ids.
      * <p>
      * NOTE: does not check if specified ids are proper data set ids.
-     * 
+     *
      * @param relationshipTypeId The type of relation (parent-child or container-component)
      */
     public Set<TechId> findParentIds(Collection<TechId> dataSetIds, long relationshipTypeId);
@@ -188,6 +188,12 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     /** Returns ids of AFS data sets that are connected with experiments with given ids */
     List<TechId> listAfsDataSetIdsByExperimentIds(final Collection<TechId> experimentIds) throws DataAccessException;
 
+    /** Returns ids of AFS data sets with given codes */
+    List<TechId> listAfsDataSetIdsByCodes(final Collection<String> dataSetCodes);
+
+    /** Updates AFS data flag of data sets with given ids */
+    void updateAfsDataFlag(final Collection<TechId> dataSetIds, boolean afsDataFlag);
+
     /**
      * Delete data sets with given ids by specified registrator with specified reason.
      */
@@ -196,14 +202,14 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     /**
      * Confirms a storage for the specified data set. It confirms the storage even if the data set is in the trash.
-     * 
+     *
      * @return Returns true if the data sets exists and the storage confirmed value has been changed.
      */
     boolean confirmStorage(String dataSetCode);
 
     /**
      * Checks whether a data set with the specified code exists. It takes into consideration also data sets that are in the trash.
-     * 
+     *
      * @return Returns true if the data set exists.
      */
     boolean exists(String dataSetCode);
@@ -222,4 +228,5 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      * @return the id of the data set with given code
      */
     TechId tryToFindDataSetIdByCode(String dataSetCode);
+
 }

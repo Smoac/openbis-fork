@@ -72,8 +72,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         MultiValued("Multivalued", false),
         Unique("Unique", false),
         Pattern("Pattern", false),
-        PatternType("Pattern Type", false),
-        InternalAssignment("Internal Assignment", false);
+        PatternType("Pattern Type", false);
 
         private final String headerName;
 
@@ -272,11 +271,15 @@ public class PropertyTypeImportHelper extends BasicImportHelper
                 delayedExecutor.getPropertyType(propertyTypePermId, propertyTypeFetchOptions);
         if (vocabularyCode != null && !vocabularyCode.isEmpty())
         {
-            if (vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
+            if (propertyType.getVocabulary() != null  && vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
             {
                 operationLog.warn(
                         "PROPERTY TYPE [" + code + "] : Vocabulary types can't be updated. Ignoring the update.");
-                //   throw new UserFailureException("Vocabulary types can't be updated.");
+                throw new UserFailureException("Vocabulary types can't be updated.");
+            } else if (propertyType.getVocabulary() == null) {
+                operationLog.warn(
+                        "PROPERTY TYPE [" + code + "] : Types that are not vocabulary cannot become one. Ignoring the update.");
+                throw new UserFailureException("Types that are not of type Vocabulary can't be updated to Vocabulary.");
             }
         }
         if (dataType != null && !dataType.isEmpty())
@@ -299,20 +302,6 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         }
 
         delayedExecutor.updatePropertyType(update, page, line);
-    }
-
-    @Override
-    public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
-    {
-        Map<String, Integer> header = parseHeader(page.get(start), false);
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, page.get(start + 1), Attribute.Code));
-
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
-        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
-
-        if(canUpdate) {
-            super.importBlock(page, pageIndex, start, end);
-        }
     }
 
     @Override

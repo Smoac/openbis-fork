@@ -29,3 +29,15 @@ following properties of `plugin.properties` are recognized:
 
 Properties `database-driver` and `database-url` can be omitted if a
 `etc/dss-datasource-mapping` is defined. For more see [Sharing Databases](../../uncategorized/sharing-databases.md).
+
+
+## SFTP configuration
+
+DSS includes a default SFTP configuration that is ready for immediate use. For customized configurations, appropriate properties can be adjusted in the `etc/service.properties` file.
+
+| Property Key                                     | Description                                                                                                      |
+|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| ftp.server.enable                                       | `true`/`false` to enable/disable FTP                                                                             |
+| ftp.server.sftp-port                                  | SFTP connection port (default 2222)                                                                              |
+| ftp.server.certificate                                    | (OPTIONAL) Path to the .pem file with cryptographic key-pair used to sign and verify sftp connections.           |
+| keystore.key-password                                     | If custom ftp.server.certificate is configured, this property configures password used for decrypting certificate |

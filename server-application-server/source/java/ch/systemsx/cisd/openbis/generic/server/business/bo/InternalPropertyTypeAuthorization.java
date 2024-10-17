@@ -60,12 +60,12 @@ public class InternalPropertyTypeAuthorization
 
     public void canUpdatePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
-        checkPropertyAssignment(session, propertyType, propertyAssignment);
+        checkPropertyAssignment(session, propertyAssignment);
     }
 
     public void canDeletePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
-        checkPropertyAssignment(session, propertyType, propertyAssignment);
+        checkPropertyAssignment(session, propertyAssignment);
     }
 
     private void checkPropertyType(Session session, PropertyTypePE propertyType)
@@ -76,25 +76,12 @@ public class InternalPropertyTypeAuthorization
         }
     }
 
-    private void checkPropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
+    private void checkPropertyAssignment(Session session, EntityTypePropertyTypePE propertyAssignment)
     {
-        if (propertyType.isManagedInternally() && isSystemPropertyAssignment(propertyAssignment) && isSystemUser(session) == false)
+        if (propertyAssignment.isManagedInternallyNamespace() && isSystemUser(session) == false)
         {
             throw new AuthorizationFailureException(
-                    "Property assignments created by the system user for internal property types can be managed only by the system user.");
-        }
-    }
-
-    private boolean isSystemPropertyAssignment(EntityTypePropertyTypePE propertyAssignment)
-    {
-        PersonPE registrator = propertyAssignment.getRegistrator();
-
-        if (registrator == null)
-        {
-            throw new AuthorizationFailureException("Could not check access because the property assignment does not have any registrator assigned.");
-        } else
-        {
-            return registrator.isSystemUser();
+                    "Internal property assignments created by the system user for internal property types can be managed only by the system user.");
         }
     }
 

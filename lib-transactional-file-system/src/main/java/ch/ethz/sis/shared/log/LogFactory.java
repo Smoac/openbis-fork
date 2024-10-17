@@ -17,5 +17,6 @@ package ch.ethz.sis.shared.log;
 
 public interface LogFactory {
     <T> Logger getLogger(Class<T> clazz);
+    Logger getLogger(String name);
     void configure(String pathToConfigurationFile);
 }

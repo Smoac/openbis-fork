@@ -19,6 +19,14 @@ import ch.ethz.sis.afsserver.client.DummyAuthApiClientTest;
 import ch.ethz.sis.afsserver.client.OpenBisAuthApiClientTest;
 import ch.ethz.sis.afsserver.impl.ApiServerAdapterTest;
 import ch.ethz.sis.afsserver.impl.ApiServerTest;
+import ch.ethz.sis.afsserver.server.shuffling.DataSetTypeBasedShareFinderTest;
+import ch.ethz.sis.afsserver.server.shuffling.ExperimentBasedShareFinderTest;
+import ch.ethz.sis.afsserver.server.shuffling.IdentifierAttributeMappingManagerTest;
+import ch.ethz.sis.afsserver.server.shuffling.MappingBasedShareFinderTest;
+import ch.ethz.sis.afsserver.server.shuffling.SimpleShareFinderTest;
+import ch.ethz.sis.afsserver.server.shuffling.SpeedOptimizedShareFinderTest;
+import ch.ethz.sis.afsserver.server.shuffling.StandardShareFinderTest;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -27,9 +35,17 @@ import org.junit.runners.Suite;
         ApiServerTest.class,
         ApiServerAdapterTest.class,
         DummyAuthApiClientTest.class,
-        OpenBisAuthApiClientTest.class
+        OpenBisAuthApiClientTest.class,
+        DataSetTypeBasedShareFinderTest.class,
+        ExperimentBasedShareFinderTest.class,
+        IdentifierAttributeMappingManagerTest.class,
+        MappingBasedShareFinderTest.class,
+        SimpleShareFinderTest.class,
+        SpeedOptimizedShareFinderTest.class,
+        StandardShareFinderTest.class
 })
 
-public class TestSuite {
+public class TestSuite
+{
 
 }

@@ -140,51 +140,51 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
     public Object[][] providerTestUpdateAuthorizationWithUpdateAssignment()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, true, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, false,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, true, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, true, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, true,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, false,
-                        "Property assignments created by the system user for internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, false,
+                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, false,
+                        "Internal property assignments can be managed only by the system user." },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, true,
+                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, null },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_USER, true, null },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "$NEW_INTERNAL", TEST_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, false, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, false,
+                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, false, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, false, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, false,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "$NEW_INTERNAL", TEST_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, true,
+                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, true, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, true, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, true,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAuthorizationWithUpdateAssignment")
-    public void testUpdateAuthorizationWithUpdateAssignment(String propertyTypeCode, String propertyAssignmentRegistrator,
+    public void testUpdateAuthorizationWithUpdateAssignment(String propertyTypeCode, boolean isInternal, String propertyAssignmentRegistrator,
             String propertyAssignmentUpdater, boolean updateLayoutFieldsOnly, String expectedError)
     {
         String systemSessionToken = v3api.loginAsSystem();
@@ -195,6 +195,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
         CREATION entityTypeCreation = newTypeCreation();
         entityTypeCreation.setCode("NEW_ENTITY_TYPE");
+        entityTypeCreation.setManagedInternally(isInternal);
         List<EntityTypePermId> entityTypeIds = createTypes(systemSessionToken, Arrays.asList(entityTypeCreation));
 
         PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
@@ -211,6 +212,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
         propertyAssignmentCreation.setSection("Test section");
         propertyAssignmentCreation.setOrdinal(1);
         propertyAssignmentCreation.setMandatory(false);
+        propertyAssignmentCreation.setManagedInternally(isInternal);
 
         UPDATE entityTypeUpdateWithAssignmentCreation = newTypeUpdate();
         entityTypeUpdateWithAssignmentCreation.setTypeId(entityTypeIds.get(0));
@@ -267,31 +269,31 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
     public Object[][] providerTestUpdateAuthorizationWithDeleteAssignment()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false,SYSTEM_USER, TEST_POWER_USER_CISD,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER,
-                        "Property assignments created by the system user for internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER,
+                        "Internal property assignments created by the system user for internal property types can be managed only by the system user" },
+                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
 
-                { "$NEW_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_POWER_USER_CISD,
+                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
                         "Access denied to object with EntityTypePermId = [NEW_ENTITY_TYPE (" + getEntityKind() + ")]" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAuthorizationWithDeleteAssignment")
-    public void testUpdateAuthorizationWithDeleteAssignment(String propertyTypeCode, String propertyAssignmentRegistrator,
+    public void testUpdateAuthorizationWithDeleteAssignment(String propertyTypeCode, boolean isAssignmentInternal, String propertyAssignmentRegistrator,
             String propertyAssignmentDeleter, String expectedError)
     {
         String systemSessionToken = v3api.loginAsSystem();
@@ -302,6 +304,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
         CREATION entityTypeCreation = newTypeCreation();
         entityTypeCreation.setCode("NEW_ENTITY_TYPE");
+        entityTypeCreation.setManagedInternally(isAssignmentInternal);
         List<EntityTypePermId> entityTypeIds = createTypes(systemSessionToken, Arrays.asList(entityTypeCreation));
 
         PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
@@ -315,6 +318,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
         PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
         propertyAssignmentCreation.setPropertyTypeId(propertyTypeIds.get(0));
+        propertyAssignmentCreation.setManagedInternally(isAssignmentInternal);
 
         UPDATE entityTypeUpdateWithAssignmentCreation = newTypeUpdate();
         entityTypeUpdateWithAssignmentCreation.setTypeId(entityTypeIds.get(0));

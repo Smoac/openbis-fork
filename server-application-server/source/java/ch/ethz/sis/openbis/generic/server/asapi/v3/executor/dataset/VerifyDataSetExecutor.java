@@ -24,6 +24,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.DataSetUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -32,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 @Component
 public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
@@ -56,17 +61,21 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
     {
         if (dataSetIds != null && false == dataSetIds.isEmpty())
         {
-            Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds.getObjects());
+            DataSetUtils.executeWithAfsDataVisible(daoFactory, dataSetIds.getObjects(), () ->
+            {
+                Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds.getObjects());
 
-            CollectionBatch<DataPE> dataSets =
-                    new CollectionBatch<DataPE>(dataSetIds.getBatchIndex(), dataSetIds.getFromObjectIndex(),
-                            dataSetIds.getToObjectIndex(), map.values(), dataSetIds.getTotalObjectCount());
+                CollectionBatch<DataPE> dataSets =
+                        new CollectionBatch<DataPE>(dataSetIds.getBatchIndex(), dataSetIds.getFromObjectIndex(),
+                                dataSetIds.getToObjectIndex(), map.values(), dataSetIds.getTotalObjectCount());
 
-            verifyDataSetSampleAndExperimentExecutor.verify(context, dataSets);
-            verifyEntityPropertyExecutor.verify(context, dataSets);
-            verifyDataSetContainersExecutor.verify(context, dataSets);
-            verifyDataSetParentsExecutor.verify(context, dataSets);
-            verifyDataSetContentCopyExecutor.verify(context, dataSets);
+                verifyDataSetSampleAndExperimentExecutor.verify(context, dataSets);
+                verifyEntityPropertyExecutor.verify(context, dataSets);
+                verifyDataSetContainersExecutor.verify(context, dataSets);
+                verifyDataSetParentsExecutor.verify(context, dataSets);
+                verifyDataSetContentCopyExecutor.verify(context, dataSets);
+                return null;
+            });
         }
     }
 
