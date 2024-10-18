@@ -148,6 +148,15 @@ public class RDFReader
                     tempProperties.add(property);
                 }
 
+                boolean required = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(object.type))
+                        .findFirst()
+                        .map(x -> x.properties)
+                        .flatMap(x -> x.stream().filter(y -> y.code.equals(object.type)).findFirst())
+                                .filter(x -> x.isMandatory == 1)
+                                        .isPresent();
+                System.out.println(required);
+
+
             }
             if (change)
             {
