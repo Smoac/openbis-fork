@@ -572,3 +572,35 @@ def test_dataset_with_multivalue_property_vocabulary(space):
     key, val = dataset.props().popitem()
     assert key == property_type_code
     assert val == ['term_code3'.upper()]
+
+def test_create_new_dataset_with_parent(space):
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["original/testfile"]
+
+    new_dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+        parents=[dataset.permId]
+    )
+    new_dataset.save()
+
+    assert new_dataset.permId is not None
+    assert new_dataset.file_list == ["original/testfile"]
+    assert new_dataset.parents == [dataset.permId]
+
+
+
