@@ -1,6 +1,7 @@
 package ch.ethz.sis.rdf.main.parser;
 
 import ch.ethz.sis.rdf.main.ClassCollector;
+import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
@@ -143,18 +144,23 @@ public class RDFReader
                 {
                     change = true;
 
+
+                    boolean required = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(property.getLabel()))
+                            .findFirst()
+                            .map(x -> x.properties)
+                            .flatMap(x -> x.stream().filter(y -> y.code.equals(object.type)).findFirst())
+                            .filter(x -> x.isMandatory == 1)
+                            .isPresent();
+                    System.out.println(required);
+                    if (required){
+                        SampleObjectProperty dummyProperty = new SampleObjectProperty(property.propertyURI , Constants.UNKNOWN, property.value, property.valueURI);
+                        tempProperties.add(dummyProperty);
+                    }
                 } else
                 {
                     tempProperties.add(property);
                 }
 
-                boolean required = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(object.type))
-                        .findFirst()
-                        .map(x -> x.properties)
-                        .flatMap(x -> x.stream().filter(y -> y.code.equals(object.type)).findFirst())
-                                .filter(x -> x.isMandatory == 1)
-                                        .isPresent();
-                System.out.println(required);
 
 
             }
