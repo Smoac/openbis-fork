@@ -1014,11 +1014,11 @@ class DataSet(
             parent_ids = []
         counter = 5
         for parent_id in parent_ids:
-            param["parentIds"] += {
+            param["parentIds"] += [{
                 "@type": "as.dto.dataset.id.DataSetPermId",
                 "@id": str(counter),
                 "permId": parent_id
-            }
+            }]
             counter += 1
 
         request = {
