@@ -1,5 +1,7 @@
 ## Changes with pybis-1.37.1
 
+- Implemented Fast download V2
+- Fixed dataset with parents creation
 
 ## Changes with pybis-1.37.0
 
