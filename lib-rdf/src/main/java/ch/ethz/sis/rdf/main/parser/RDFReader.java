@@ -6,10 +6,9 @@ import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
-import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
-import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.model.xlsx.*;
+import com.google.protobuf.MapEntry;
+import com.google.protobuf.Parser;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.OWL;
@@ -34,7 +33,9 @@ public class RDFReader
 
         handleSubclassChains(model, modelRDF);
         handleOntologyModel(model, inputFileName, inputFormatValue, modelRDF);
-        handleResources(model, modelRDF);
+        ResourceParsingResult resourceParsingResult =  handleResources(model, modelRDF);
+        printResourceParsingResult(resourceParsingResult);
+
 
         if (verbose) ParserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
 
@@ -86,24 +87,101 @@ public class RDFReader
         modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
     }
 
-    private void handleResources(Model model, ModelRDF modelRDF)
+    private ResourceParsingResult handleResources(Model model, ModelRDF modelRDF)
     {
         boolean modelContainsResources = ParserUtils.containsResources(model);
         System.out.println("Model contains Resources ? " + (modelContainsResources ? "YES" : "NO"));
 
-        modelRDF.resourcesGroupedByType = modelContainsResources ? ParserUtils.getResourceMap(model) : Collections.emptyMap();
+        modelRDF.resourcesGroupedByType =
+                modelContainsResources ? ParserUtils.getResourceMap(model) : Collections.emptyMap();
 
         Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap =
-                modelContainsResources ? ParserUtils.getSampleObjectsGroupedByTypeMap(model) : Collections.emptyMap();
+                modelContainsResources ?
+                        ParserUtils.getSampleObjectsGroupedByTypeMap(model) :
+                        Collections.emptyMap();
 
-        List<String> sampleObjectMapKeyList = sampleObjectsGroupedByTypeMap.keySet().stream().toList();
+        List<String> sampleObjectMapKeyList =
+                sampleObjectsGroupedByTypeMap.keySet().stream().toList();
         Map<String, String> sampleTypeUriToCodeMap = modelRDF.sampleTypeList.stream()
                 .collect(Collectors.toMap(
                         sampleType -> sampleType.ontologyAnnotationId,
                         sampleType -> sampleType.code
                 ));
 
-        modelRDF.sampleObjectsGroupedByTypeMap = checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList, sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap, modelRDF.subClassChanisMap);
+        modelRDF.sampleObjectsGroupedByTypeMap =
+                checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList,
+                        sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap,
+                        modelRDF.subClassChanisMap);
+        Map<String, List<SampleObject>> unknownTypeSampleObjects =
+                sampleObjectsGroupedByTypeMap.entrySet().stream()
+                        .filter(x -> !canResolveSampleType(modelRDF, x.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, List<SampleObject>> objectsKnownTypes =
+                sampleObjectsGroupedByTypeMap.entrySet().stream()
+                        .filter(x -> canResolveSampleType(modelRDF, x.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        ;
+
+        List<SampleObject> objects =
+                unknownTypeSampleObjects.entrySet().stream().map(x -> x.getValue())
+                        .flatMap(Collection::stream).toList();
+        List<SampleObject> objectsWritten =
+                objectsKnownTypes.entrySet().stream().map(x -> x.getValue())
+                        .flatMap(Collection::stream).toList();
+        var deletedCodes = objects.stream().map(x -> x.code).collect(Collectors.toSet());
+
+        List<SampleObject> changedObjects = new ArrayList<>();
+        List<SampleObject> unchangedObjects = new ArrayList<>();
+        for (SampleObject object : objectsWritten)
+        {
+            List<SampleObjectProperty> tempProperties = new ArrayList<>();
+
+            boolean change = false;
+            for (var property : object.properties)
+            {
+                if (deletedCodes.contains(property.getValue()))
+                {
+                    change = true;
+
+                } else
+                {
+                    tempProperties.add(property);
+                }
+
+            }
+            if (change)
+            {
+                changedObjects.add(object);
+                object.properties = tempProperties;
+
+            } else
+            {
+                unchangedObjects.add(object);
+            }
+
+        }
+
+        return new ResourceParsingResult(objects, unchangedObjects, changedObjects);
+
+    }
+
+
+    private boolean canResolveSampleType(ModelRDF modelRDF, String sampleType){
+        boolean typeFound = modelRDF.sampleTypeList.stream().anyMatch(x -> x.code.equals(sampleType));
+        if (typeFound){
+            return typeFound;
+        }
+
+        List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleType);
+        if (typeFoundChain==null){
+            return false;
+        }
+
+
+        return typeFoundChain.contains(sampleType);
+
+
+
     }
 
     private Map<String, List<SampleObject>> checkForNotSampleTypeInSampleObjectMap(List<String> sampleObjectMapKeyList,
@@ -343,5 +421,23 @@ public class RDFReader
         // Remove the last element added if no valid chain is found
         chain.remove(chain.size() - 1);
         return false;
+    }
+
+    private void printResourceParsingResult(ResourceParsingResult resourceParsingResult){
+        if (resourceParsingResult.getDeletedObjects().isEmpty()){
+            return;
+        }
+        System.out.println("There were resources whose types could not be resolved");
+        resourceParsingResult.getDeletedObjects().forEach(x -> System.out.println(x.code));
+
+        if (resourceParsingResult.getEditedObjects().isEmpty()){
+            return;
+        }
+        System.out.println("------------------------------");
+        System.out.println("The resources were referenced in the following objects, these references are now deleted");
+        resourceParsingResult.getEditedObjects().forEach(x -> System.out.println(x.code));
+
+
+
     }
 }
