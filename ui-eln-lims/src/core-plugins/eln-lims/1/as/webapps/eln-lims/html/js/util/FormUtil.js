@@ -654,12 +654,16 @@ var FormUtil = new function() {
 		return $("<i>", { 'class' : 'fa ' + iconClass });
 	}
 	
-    this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id) {
+    this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id, customClass) {
         var $btn = null;
+        var buttonClass = 'btn btn-default';
+        if(customClass) {
+            buttonClass = customClass;
+        }
         if(iconClass) {
-            $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+            $btn = $("<a>", { 'class' : buttonClass }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
         } else {
-            $btn = $("<a>", { 'class' : 'btn btn-default' });
+            $btn = $("<a>", { 'class' : buttonClass });
         }
         if(text && iconClass) {
             $btn.append("&nbsp;");
@@ -714,7 +718,7 @@ var FormUtil = new function() {
 				mainController.serverFacade.setSetting(key,"false");
 			}
 			
-		}, null, "Show/Hide section", key);
+		}, null, "Show/Hide section", key, 'btn');
 		
 		if (dontRestoreState) {
 			$elementToHide.hide();
