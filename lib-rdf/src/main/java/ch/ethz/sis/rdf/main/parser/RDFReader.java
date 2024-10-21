@@ -19,6 +19,7 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RDFReader
 {
@@ -113,7 +114,12 @@ public class RDFReader
                 checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList,
                         sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap,
                         modelRDF.subClassChanisMap);
-        return ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap);
+        ResourceParsingResult resourceParsingResult =
+                ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap);
+
+        modelRDF.sampleObjectsGroupedByTypeMap = Stream.concat( resourceParsingResult.getUnchangedObjects()
+                .stream(), resourceParsingResult.getEditedObjects().stream() ).collect(Collectors.groupingBy(x -> x.type));
+        return resourceParsingResult;
 
     }
 
