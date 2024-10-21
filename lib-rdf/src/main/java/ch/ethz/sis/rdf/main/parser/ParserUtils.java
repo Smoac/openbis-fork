@@ -1,14 +1,19 @@
 package ch.ethz.sis.rdf.main.parser;
 
+import ch.ethz.sis.rdf.main.Constants;
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
+import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ParserUtils {
 
@@ -306,4 +311,92 @@ public class ParserUtils {
         return resource.hasProperty(RDF.type, OWL.Restriction) || resource.hasProperty(RDF.type, OWL.Class)
                 && (resource.hasProperty(OWL.unionOf) || resource.hasProperty(OWL.intersectionOf) || resource.hasProperty(OWL.allValuesFrom));
     }
+
+    public static ResourceParsingResult removeObjectsOfUnknownType(ModelRDF modelRDF,
+            Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap)
+    {
+        Map<String, List<SampleObject>> unknownTypeSampleObjects =
+                sampleObjectsGroupedByTypeMap.entrySet().stream()
+                        .filter(x -> !canResolveSampleType(modelRDF, x.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, List<SampleObject>> objectsKnownTypes =
+                sampleObjectsGroupedByTypeMap.entrySet().stream()
+                        .filter(x -> canResolveSampleType(modelRDF, x.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        ;
+
+        List<SampleObject> objects =
+                unknownTypeSampleObjects.entrySet().stream().map(x -> x.getValue())
+                        .flatMap(Collection::stream).toList();
+        List<SampleObject> objectsWritten =
+                objectsKnownTypes.entrySet().stream().map(x -> x.getValue())
+                        .flatMap(Collection::stream).toList();
+        Set<String> deletedCodes = objects.stream().map(x -> x.code).collect(Collectors.toSet());
+
+        Map<String, SamplePropertyType> codeToPropertyType = modelRDF.sampleTypeList.stream().map(x -> x.properties)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toMap(x -> x.code, Function.identity()));
+
+        List<SampleObject> changedObjects = new ArrayList<>();
+        List<SampleObject> unchangedObjects = new ArrayList<>();
+
+        for (SampleObject object : objectsWritten)
+        {
+            List<SampleObjectProperty> tempProperties = new ArrayList<>();
+
+            boolean change = false;
+            for (var property : object.properties)
+            {
+                if (deletedCodes.contains(property.getValue()))
+                {
+                    change = true;
+
+                    boolean required =
+                            codeToPropertyType.get(property.label.toUpperCase()).isMandatory == 1;
+                    if (required){
+                        SampleObjectProperty dummyProperty = new SampleObjectProperty(property.propertyURI , Constants.UNKNOWN, property.value, property.valueURI);
+                        tempProperties.add(dummyProperty);
+                    }
+                } else
+                {
+                    tempProperties.add(property);
+                }
+
+
+
+            }
+            if (change)
+            {
+                changedObjects.add(object);
+                object.properties = tempProperties;
+
+            } else
+            {
+                unchangedObjects.add(object);
+            }
+
+        }
+
+        return new ResourceParsingResult(objects, unchangedObjects, changedObjects);
+    }
+
+    private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType){
+        boolean typeFound = modelRDF.sampleTypeList.stream().anyMatch(x -> x.code.equals(sampleType));
+        if (typeFound){
+            return typeFound;
+        }
+
+        List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleType);
+        if (typeFoundChain==null){
+            return false;
+        }
+
+
+        return typeFoundChain.contains(sampleType);
+
+
+
+    }
+
 }
