@@ -145,13 +145,15 @@ public class RDFReader
                     change = true;
 
 
-                    boolean required = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(property.getLabel()))
-                            .findFirst()
+
+                    boolean required =                     modelRDF.sampleTypeList.stream()
                             .map(x -> x.properties)
-                            .flatMap(x -> x.stream().filter(y -> y.code.equals(object.type)).findFirst())
+                            .filter(x -> x.stream().anyMatch(y -> y.code.equals(property.getLabel().toUpperCase())))
+                            .findFirst()
+                            .flatMap(x -> x.stream().filter(y -> y.code.equals(property.getLabel().toUpperCase())).findFirst())
                             .filter(x -> x.isMandatory == 1)
                             .isPresent();
-                    System.out.println(required);
+                    ;
                     if (required){
                         SampleObjectProperty dummyProperty = new SampleObjectProperty(property.propertyURI , Constants.UNKNOWN, property.value, property.valueURI);
                         tempProperties.add(dummyProperty);
