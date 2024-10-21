@@ -1,0 +1,51 @@
+package ch.ethz.sis.rdf.main.parser;
+
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
+import junit.framework.TestCase;
+
+import java.util.List;
+import java.util.Map;
+
+public class ParserUtilsTest extends TestCase {
+
+    public void testRemoveObjectsOfUnknownType()
+    {
+        ModelRDF modelRDF = new ModelRDF();
+        String typeCode = "MYTYPE";
+
+        String typeURI = "typeURI";
+        modelRDF.sampleTypeList = List.of(new SampleType(typeCode, typeURI));
+
+        SampleObject object = new SampleObject("code", typeURI,typeCode);
+
+        Map<String, List<SampleObject>> objects = Map.of(typeCode, List.of(object));
+
+        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects);
+        assertEquals(1, result.getUnchangedObjects().size());
+
+
+
+    }
+
+    public void testRemoveObjectsOfUnknownTypeWithUnknownType()
+    {
+        ModelRDF modelRDF = new ModelRDF();
+        String typeCode = "MYTYPE";
+
+        String typeURI = "typeURI";
+        modelRDF.sampleTypeList = List.of(new SampleType(typeCode, typeURI));
+        modelRDF.subClassChanisMap = Map.of();
+        String typeCode2 = "MYTYPEBUTDIFFERENT";
+
+        SampleObject object = new SampleObject("code", typeURI,typeCode2);
+
+        Map<String, List<SampleObject>> objects = Map.of(typeCode2, List.of(object));
+
+        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects);
+        assertEquals(0, result.getUnchangedObjects().size());
+        assertEquals(1, result.getDeletedObjects().size());
+
+    }
+}

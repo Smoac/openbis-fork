@@ -1,7 +1,6 @@
 package ch.ethz.sis.rdf.main.parser;
 
 import ch.ethz.sis.rdf.main.ClassCollector;
-import ch.ethz.sis.rdf.main.Constants;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
@@ -19,7 +18,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RDFReader
@@ -115,91 +113,12 @@ public class RDFReader
                 checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList,
                         sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap,
                         modelRDF.subClassChanisMap);
-        Map<String, List<SampleObject>> unknownTypeSampleObjects =
-                sampleObjectsGroupedByTypeMap.entrySet().stream()
-                        .filter(x -> !canResolveSampleType(modelRDF, x.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Map<String, List<SampleObject>> objectsKnownTypes =
-                sampleObjectsGroupedByTypeMap.entrySet().stream()
-                        .filter(x -> canResolveSampleType(modelRDF, x.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        ;
-
-        List<SampleObject> objects =
-                unknownTypeSampleObjects.entrySet().stream().map(x -> x.getValue())
-                        .flatMap(Collection::stream).toList();
-        List<SampleObject> objectsWritten =
-                objectsKnownTypes.entrySet().stream().map(x -> x.getValue())
-                        .flatMap(Collection::stream).toList();
-        var deletedCodes = objects.stream().map(x -> x.code).collect(Collectors.toSet());
-
-        Map<String, SamplePropertyType> codeToPropertyType = modelRDF.sampleTypeList.stream().map(x -> x.properties)
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(Collectors.toMap(x -> x.code, Function.identity()));
-
-        List<SampleObject> changedObjects = new ArrayList<>();
-        List<SampleObject> unchangedObjects = new ArrayList<>();
-
-        for (SampleObject object : objectsWritten)
-        {
-            List<SampleObjectProperty> tempProperties = new ArrayList<>();
-
-            boolean change = false;
-            for (var property : object.properties)
-            {
-                if (deletedCodes.contains(property.getValue()))
-                {
-                    change = true;
-
-                    boolean required =
-                            codeToPropertyType.get(property.label.toUpperCase()).isMandatory == 1;
-                    if (required){
-                        SampleObjectProperty dummyProperty = new SampleObjectProperty(property.propertyURI , Constants.UNKNOWN, property.value, property.valueURI);
-                        tempProperties.add(dummyProperty);
-                    }
-                } else
-                {
-                    tempProperties.add(property);
-                }
-
-
-
-            }
-            if (change)
-            {
-                changedObjects.add(object);
-                object.properties = tempProperties;
-
-            } else
-            {
-                unchangedObjects.add(object);
-            }
-
-        }
-
-        return new ResourceParsingResult(objects, unchangedObjects, changedObjects);
+        return ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap);
 
     }
 
 
-    private boolean canResolveSampleType(ModelRDF modelRDF, String sampleType){
-        boolean typeFound = modelRDF.sampleTypeList.stream().anyMatch(x -> x.code.equals(sampleType));
-        if (typeFound){
-            return typeFound;
-        }
 
-        List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleType);
-        if (typeFoundChain==null){
-            return false;
-        }
-
-
-        return typeFoundChain.contains(sampleType);
-
-
-
-    }
 
     private Map<String, List<SampleObject>> checkForNotSampleTypeInSampleObjectMap(List<String> sampleObjectMapKeyList,
             Map<String, String> sampleTypeUriToCodeMap,
