@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.node-gradle.node" version "3.2.1"
+    id "com.github.node-gradle.node" version "3.6.0"
 }
 
 evaluationDependsOn(':lib-commonbase')
@@ -103,7 +103,7 @@ import org.gradle.internal.os.OperatingSystem
 
 node {
     download = true
-    version = '18.12.1'
+    version = '20.18.0'
     workDir = file("${projectDir}/node/nodejs")
     nodeModulesDir = file("${projectDir}")
 }
