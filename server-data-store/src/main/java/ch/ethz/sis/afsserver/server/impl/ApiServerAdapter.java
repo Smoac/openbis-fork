@@ -115,8 +115,6 @@ public class ApiServerAdapter<CONNECTION, API> extends AbstractAdapter<CONNECTIO
             case "limit":
                 parsedParameters.put(key, Integer.valueOf(value));
                 break;
-            case "data":
-                // Fall though
             case "md5Hash":
                 parsedParameters.put(key, Base64.getUrlDecoder().decode(value));
                 break;
