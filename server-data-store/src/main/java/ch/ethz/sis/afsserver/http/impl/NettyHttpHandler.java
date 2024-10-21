@@ -22,25 +22,35 @@ import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.stream.ChunkedStream;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
-import static io.netty.handler.codec.http.HttpMethod.*;
+import static io.netty.handler.codec.http.HttpMethod.DELETE;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpMethod.OPTIONS;
+import static io.netty.handler.codec.http.HttpMethod.POST;
+import static io.netty.handler.codec.http.HttpMethod.PUT;
+import static io.netty.handler.codec.http.HttpMethod.valueOf;
 
 public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 {
@@ -84,7 +94,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
                     if (requestMethod == null)
                     {
                         responseStatus = HttpResponseStatus.BAD_REQUEST;
-                    } else if (!allowedMethods.contains(HttpMethod.valueOf(requestMethod)))
+                    } else if (!allowedMethods.contains(valueOf(requestMethod)))
                     {
                         responseStatus = HttpResponseStatus.METHOD_NOT_ALLOWED;
                     } else
@@ -103,21 +113,11 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
                     ByteBuf content = request.content();
                     try
                     {
-                        QueryStringDecoder queryStringDecoderForParameters;
                         byte[] array = new byte[content.readableBytes()];
                         content.readBytes(array);
 
-                        if (GET.equals(request.method()))
-                        {
-                            queryStringDecoderForParameters = queryStringDecoderForPath;
-                        } else
-                        {
-                            queryStringDecoderForParameters =
-                                    new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
-                        }
-
                         HttpResponse apiResponse = httpServerHandler.process(request.method(),
-                                queryStringDecoderForParameters.parameters(), null);
+                                queryStringDecoderForPath.parameters(), array);
 
                         HttpResponseStatus status = null;
                         switch (apiResponse.getStatus()) {

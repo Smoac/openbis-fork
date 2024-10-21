@@ -27,7 +27,12 @@ import lombok.NonNull;
 public abstract class AbstractPublicAPIWrapper implements PublicAPI
 {
 
-    public abstract <E> E process(Class<E> responseType, String method, Map<String, Object> params);
+    public abstract <E> E process(Class<E> responseType, String method, Map<String, Object> params, byte[] data);
+
+    public <E> E process(Class<E> responseType, String method, Map<String, Object> params)
+    {
+        return  process(responseType,method,params, null);
+    }
 
     @Override
     public List<File> list(@NonNull String owner, @NonNull String source,
@@ -60,9 +65,8 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
                 "owner", owner,
                 "source", source,
                 "offset", offset,
-                "data", data,
                 "md5Hash", md5Hash);
-        return process(Boolean.class, "write", args);
+        return process(Boolean.class, "write", args, data);
     }
 
     @Override
