@@ -109,7 +109,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             return;
         }
 
-        new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(session, assignment.getPropertyType(), assignment);
+        new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(session, assignment.getEntityType(), assignment.getPropertyType(), assignment);
 
         getEntityPropertyTypeDAO(entityKind).delete(assignment);
         assignment = null;
@@ -355,7 +355,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
         if (snapshotBefore.equals(snapshotAfter) == false)
         {
-            new InternalPropertyTypeAuthorization().canUpdatePropertyAssignment(session, assignment.getPropertyType(), assignment);
+            new InternalPropertyTypeAuthorization().canUpdatePropertyAssignment(session, assignment.getEntityType(), assignment.getPropertyType(), assignment);
         }
 
         validateAndSave();
@@ -412,7 +412,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setPattern(pattern);
         etpt.setPatternRegex(patternRegex);
 
-        new InternalPropertyTypeAuthorization().canCreatePropertyAssignment(session, etpt.getPropertyType(), etpt);
+        new InternalPropertyTypeAuthorization().canCreatePropertyAssignment(session, entityType, etpt.getPropertyType(), etpt);
 
         try
         {

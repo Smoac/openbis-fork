@@ -315,8 +315,8 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
             }
             if (forceRemovingAssignments || totalCount == 0)
             {
-                new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(context.getSession(), entityTypePropertyType.getPropertyType(),
-                        entityTypePropertyType);
+                new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(context.getSession(), entityTypePropertyType.getEntityType(),
+                        entityTypePropertyType.getPropertyType(), entityTypePropertyType);
 
                 entityTypePropertyType.getEntityType().getEntityTypePropertyTypes().remove(entityTypePropertyType);
             } else

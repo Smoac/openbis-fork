@@ -17,10 +17,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 
 public class InternalPropertyTypeAuthorization
 {
@@ -40,7 +37,7 @@ public class InternalPropertyTypeAuthorization
         checkPropertyType(session, propertyType);
     }
 
-    public void canCreatePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
+    public void canCreatePropertyAssignment(Session session, EntityTypePE entityType, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
         if(propertyAssignment.isManagedInternallyNamespace())
         {
@@ -55,17 +52,20 @@ public class InternalPropertyTypeAuthorization
                 throw new UserFailureException(
                         "Internal property assignments can be added only to internal property types.");
             }
+        } else if(entityType.isManagedInternally() && propertyAssignment.isMandatory() && isSystemUser(session) == false) {
+            throw new AuthorizationFailureException(
+                    "Mandatory property assignments for internal types can be managed only by the system user.");
         }
     }
 
-    public void canUpdatePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
+    public void canUpdatePropertyAssignment(Session session, EntityTypePE entityType, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
-        checkPropertyAssignment(session, propertyAssignment);
+        checkPropertyAssignment(session, entityType, propertyType, propertyAssignment);
     }
 
-    public void canDeletePropertyAssignment(Session session, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
+    public void canDeletePropertyAssignment(Session session, EntityTypePE entityType, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
-        checkPropertyAssignment(session, propertyAssignment);
+        checkPropertyAssignment(session, entityType, propertyType, propertyAssignment);
     }
 
     private void checkPropertyType(Session session, PropertyTypePE propertyType)
@@ -76,12 +76,18 @@ public class InternalPropertyTypeAuthorization
         }
     }
 
-    private void checkPropertyAssignment(Session session, EntityTypePropertyTypePE propertyAssignment)
+    private void checkPropertyAssignment(Session session, EntityTypePE entityType, PropertyTypePE propertyType, EntityTypePropertyTypePE propertyAssignment)
     {
-        if (propertyAssignment.isManagedInternallyNamespace() && isSystemUser(session) == false)
+        boolean isNotASystemUser = isSystemUser(session) == false;
+        if (propertyAssignment.isManagedInternallyNamespace() && isNotASystemUser)
         {
             throw new AuthorizationFailureException(
                     "Internal property assignments created by the system user for internal property types can be managed only by the system user.");
+        }
+        if (entityType.isManagedInternally() && propertyAssignment.isMandatory() && isNotASystemUser)
+        {
+            throw new AuthorizationFailureException(
+                    "Mandatory property assignments for internal types can be can be managed only by the system user.");
         }
     }
 
