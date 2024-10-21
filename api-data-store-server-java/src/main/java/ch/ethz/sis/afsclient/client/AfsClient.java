@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ch.ethz.sis.afsapi.api.ClientAPI;
@@ -165,15 +166,16 @@ public final class AfsClient implements PublicAPI, ClientAPI
                         offset.toString(), "limit", limit.toString()));
     }
 
+    static int i  = 0;
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, @NonNull final byte[] data,
             @NonNull final byte[] md5Hash) throws Exception
     {
         validateSessionToken();
-        return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
-                "offset", offset.toString(), "data", Base64.getUrlEncoder().encodeToString(data),
-                "md5Hash", Base64.getUrlEncoder().encodeToString(md5Hash)));
+        return request("POST", "write", Boolean.class, Map.of("owner",
+                owner, "source", source,"offset", offset.toString(),
+                "md5Hash", Base64.getUrlEncoder().encodeToString(md5Hash)) , data );
     }
 
     @Override
@@ -372,81 +374,60 @@ public final class AfsClient implements PublicAPI, ClientAPI
         }
     }
 
-    private static String getQueryString(String apiMethod, Map<String, String> params, boolean encode){
+    private static String getQueryString(String apiMethod, Map<String, String> params) {
         return Stream.concat(
                         Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
                         params.entrySet().stream())
-                .map(entry -> (encode ? urlEncode(entry.getKey()) : entry.getKey()) + "=" + (encode ? urlEncode(entry.getValue()) : entry.getValue()))
-                .reduce((s1, s2) -> s1 + "&" + s2).get();
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
     }
 
-    @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
             Class<T> responseType,
             @NonNull Map<String, String> params)
             throws Exception
     {
-        //
-        // General Parameter Handling
-        //
+        return request(httpMethod,apiMethod, responseType, params, null);
+    }
 
-        HashMap<String, String> mutableParams = new HashMap<>(params);
-        params = mutableParams;
+    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
+            Class<T> responseType,
+            @NonNull Map<String, String> paramsP, byte[] body)
+            throws Exception
+    {
+
+        HashMap<String, String> mutableParams = new HashMap<>(paramsP);
 
         if (sessionToken != null)
         {
-            params.put("sessionToken", sessionToken);
+            mutableParams.put("sessionToken", sessionToken);
         }
 
         if (interactiveSessionKey != null)
         {
-            params.put("interactiveSessionKey", interactiveSessionKey);
+            mutableParams.put("interactiveSessionKey", interactiveSessionKey);
         }
 
         if (transactionManagerKey != null)
         {
-            params.put("transactionManagerKey", transactionManagerKey);
+            mutableParams.put("transactionManagerKey", transactionManagerKey);
         }
 
-        //
-        // GET Request - Parameters on the query string
-        //
+        String queryParameters = getQueryString(apiMethod, mutableParams);
+        byte[] bodyBytes = (body != null) ? body : new byte[0];
 
-        String queryParameters = null;
-        if (httpMethod.equals("GET"))
-        {
-            // skip the encoding as it is later done by URI class (we don't want to encode twice as the server will get wrong values)
-            queryParameters = getQueryString(apiMethod, params, false);
-        }
-
-        //
-        // POST and DELETE Request - Parameters on body
-        //
-
-        byte[] body = null;
-        if (httpMethod.equals("POST") || httpMethod.equals("DELETE"))
-        {
-            body = getQueryString(apiMethod, params, true).getBytes(StandardCharsets.UTF_8);
-        } else
-        {
-            body = new byte[0];
-        }
-
-        //
-        // HTTP Client
-        //
         final URI uri =
-                new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(), serverUri.getPath() + "/api", queryParameters, null);
-
-
+                new URI(serverUri.getScheme(), null, serverUri.getHost(),
+                        serverUri.getPort(), serverUri.getPath() + "/api",
+                        queryParameters, null);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(uri)
                 .version(HttpClient.Version.HTTP_1_1)
                 .timeout(Duration.ofMillis(timeout))
-                .method(httpMethod, HttpRequest.BodyPublishers.ofByteArray(body));
+                .header("Content-Type", "application/octet-stream")
+                .method(httpMethod, HttpRequest.BodyPublishers.ofByteArray(bodyBytes));
 
         final HttpRequest request = builder.build();
-
         HttpClient.Builder clientBuilder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
                 .followRedirects(HttpClient.Redirect.NORMAL)
@@ -490,9 +471,9 @@ public final class AfsClient implements PublicAPI, ClientAPI
         switch (contentType)
         {
             case "text/plain":
-                return AfsClient.parseFormDataResponse(responseType, responseBody);
+                return parseFormDataResponse(responseType, responseBody);
             case "application/json":
-                return AfsClient.parseJsonResponse(responseBody);
+                return parseJsonResponse(responseBody);
             case "application/octet-stream":
                 return (T) responseBody;
             default:

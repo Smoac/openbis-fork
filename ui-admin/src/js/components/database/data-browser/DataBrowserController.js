@@ -165,7 +165,7 @@ export default class DataBrowserController extends ComponentController {
       let totalUploaded = 0
       const totalSize = Array.from(fileList)
         .reduce((acc, file) => acc + file.size, 0)
-
+      console.time("Total upload time for " + totalSize/(1024*1024) + " mb :")
       for (const file of fileList) {
         const filePath = file.webkitRelativePath ? file.webkitRelativePath
           : file.name
@@ -186,8 +186,13 @@ export default class DataBrowserController extends ComponentController {
           totalUploaded += Math.min(offset, file.size)
           while (offset < file.size) {
             const blob = file.slice(offset, offset + CHUNK_SIZE)
-            const binaryString = await this._fileSliceToBinaryString(blob)
-            await this._uploadChunk(targetFilePath, offset, binaryString)
+            const arrayBuffer = await blob.arrayBuffer();
+            const data = new Uint8Array(arrayBuffer);
+
+            console.time("Upload time");
+            await this._uploadChunk(targetFilePath, offset, data)
+            console.timeEnd("Upload time");
+
             offset += blob.size
             totalUploaded += blob.size
 
@@ -201,6 +206,7 @@ export default class DataBrowserController extends ComponentController {
           break
         }
       }
+      console.timeEnd("Total upload time for " + totalSize/(1024*1024) + " mb :")
     })
 
     if (this.gridController) {
