@@ -18,6 +18,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RDFReader
@@ -131,8 +132,14 @@ public class RDFReader
                         .flatMap(Collection::stream).toList();
         var deletedCodes = objects.stream().map(x -> x.code).collect(Collectors.toSet());
 
+        Map<String, SamplePropertyType> codeToPropertyType = modelRDF.sampleTypeList.stream().map(x -> x.properties)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toMap(x -> x.code, Function.identity()));
+
         List<SampleObject> changedObjects = new ArrayList<>();
         List<SampleObject> unchangedObjects = new ArrayList<>();
+
         for (SampleObject object : objectsWritten)
         {
             List<SampleObjectProperty> tempProperties = new ArrayList<>();
@@ -144,16 +151,8 @@ public class RDFReader
                 {
                     change = true;
 
-
-
-                    boolean required =                     modelRDF.sampleTypeList.stream()
-                            .map(x -> x.properties)
-                            .filter(x -> x.stream().anyMatch(y -> y.code.equals(property.getLabel().toUpperCase())))
-                            .findFirst()
-                            .flatMap(x -> x.stream().filter(y -> y.code.equals(property.getLabel().toUpperCase())).findFirst())
-                            .filter(x -> x.isMandatory == 1)
-                            .isPresent();
-                    ;
+                    boolean required =
+                            codeToPropertyType.get(property.label.toUpperCase()).isMandatory == 1;
                     if (required){
                         SampleObjectProperty dummyProperty = new SampleObjectProperty(property.propertyURI , Constants.UNKNOWN, property.value, property.valueURI);
                         tempProperties.add(dummyProperty);
