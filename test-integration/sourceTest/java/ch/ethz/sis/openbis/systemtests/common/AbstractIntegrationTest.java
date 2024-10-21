@@ -417,21 +417,13 @@ public abstract class AbstractIntegrationTest
                 try
                 {
                     ProxyRequest proxyRequest = new ProxyRequest(request);
-
                     Map<String, String> parameters = new HashMap<>();
 
-                    if (HttpMethod.GET.is(proxyRequest.getMethod()))
+                    Iterator<String> iterator = proxyRequest.getParameterNames().asIterator();
+                    while (iterator.hasNext())
                     {
-                        Iterator<String> iterator = proxyRequest.getParameterNames().asIterator();
-                        while (iterator.hasNext())
-                        {
-                            String name = iterator.next();
-                            parameters.put(name, proxyRequest.getParameter(name));
-                        }
-                    } else if (HttpMethod.POST.is(proxyRequest.getMethod()))
-                    {
-                        String parametersString = IOUtils.toString(proxyRequest.getInputStream());
-                        parameters = parseUrlQuery(parametersString);
+                        String name = iterator.next();
+                        parameters.put(name, proxyRequest.getParameter(name));
                     }
 
                     System.out.println(
@@ -758,20 +750,6 @@ public abstract class AbstractIntegrationTest
     public static void log(String message)
     {
         System.out.println("[TEST] " + message);
-    }
-
-    private static Map<String, String> parseUrlQuery(String url) throws Exception
-    {
-        Map<String, String> parameters = new HashMap<>();
-        String[] namesAndValues = url.split("&");
-        for (String nameAndValue : namesAndValues)
-        {
-            int index = nameAndValue.indexOf("=");
-            String name = nameAndValue.substring(0, index);
-            String value = nameAndValue.substring(index + 1);
-            parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
-        }
-        return parameters;
     }
 
     public void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception
