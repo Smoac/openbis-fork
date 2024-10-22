@@ -105,7 +105,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -115,6 +117,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
@@ -166,6 +169,7 @@ public abstract class AbstractIntegrationTest
         cleanupDataStoreServerFolders();
 
         configureShares();
+        configureELN();
 
         startApplicationServer(true);
         startApplicationServerProxy();
@@ -269,6 +273,15 @@ public abstract class AbstractIntegrationTest
         String storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(configuration);
         ch.ethz.sis.shared.io.IOUtils.copy("etc/shares", storageRoot);
         log("Configured shares.");
+    }
+
+    private void configureELN() throws Exception
+    {
+        SoftLinkMaker.createSymbolicLink(new File("../ui-eln-lims/src/core-plugins/eln-lims"), new File("etc/as/core-plugins/eln-lims"));
+        SoftLinkMaker.createSymbolicLink(new File("../ui-eln-lims/src/core-plugins/eln-lims"), new File("etc/dss/core-plugins/eln-lims"));
+        SoftLinkMaker.createSymbolicLink(new File("../ui-admin/src/core-plugins/admin"), new File("etc/as/core-plugins/admin"));
+        SoftLinkMaker.createSymbolicLink(new File("../ui-admin/src/core-plugins/admin"), new File("etc/dss/core-plugins/admin"));
+        log("Configured ELN.");
     }
 
     private void startApplicationServer(boolean createDatabase) throws Exception
@@ -382,6 +395,12 @@ public abstract class AbstractIntegrationTest
         createUser(openBIS, TEST_SPACE_OBSERVER, TEST_SPACE, Role.OBSERVER);
 
         createUser(openBIS, DEFAULT_SPACE_ADMIN, DEFAULT_SPACE, Role.ADMIN);
+
+        SampleUpdate elnSettingsUpdate = new SampleUpdate();
+        elnSettingsUpdate.setSampleId(new SampleIdentifier("/ELN_SETTINGS/GENERAL_ELN_SETTINGS"));
+        elnSettingsUpdate.setProperties(Map.of("$ELN_SETTINGS", FileUtilities.loadToString(new File("etc/as/eln-settings.json"))));
+
+        openBIS.updateSamples(List.of(elnSettingsUpdate));
     }
 
     private void startDataStoreServer() throws Exception
@@ -510,7 +529,6 @@ public abstract class AbstractIntegrationTest
         Properties configuration = new Properties();
         configuration.load(new FileInputStream("etc/as/service.properties"));
         configuration.setProperty("database.create-from-scratch", String.valueOf(createDatabase));
-        configuration.setProperty("enabled-modules", "events-search");
         configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
         configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
                 TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
