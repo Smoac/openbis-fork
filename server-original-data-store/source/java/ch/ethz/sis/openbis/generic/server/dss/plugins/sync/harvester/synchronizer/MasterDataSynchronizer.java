@@ -751,10 +751,6 @@ public class MasterDataSynchronizer
             return null;
         }
         String code = vocabulary.getCode();
-        if (vocabulary.isManagedInternally() && code.startsWith("$") == false)
-        {
-            code = "$" + code;
-        }
         return code;
     }
 
