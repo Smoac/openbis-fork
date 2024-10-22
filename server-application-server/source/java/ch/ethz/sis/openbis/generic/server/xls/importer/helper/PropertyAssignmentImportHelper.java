@@ -16,29 +16,24 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
@@ -73,7 +68,9 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         MultiValued("Multivalued", false),
         Unique("Unique", false),
         Pattern("Pattern", false),
-        PatternType("Pattern Type", false);
+        PatternType("Pattern Type", false),
+        InternalAssignment("Internal Assignment", false),
+        Internal("Internal", false);
 
         private final String headerName;
 
@@ -123,9 +120,10 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
-        String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
-        boolean isInternalNamespace = ImportUtils.isInternalPropertyAssignment(code);
+        String version = getValueByColumnName(header, values, Attribute.Version);
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        String internalAssignment = getValueByColumnName(header, values, Attribute.InternalAssignment);
+        boolean isInternalNamespace = ImportUtils.isTrue(internalAssignment);
 
         if (code == null)
         {
@@ -162,11 +160,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         String unique = getValueByColumnName(headers, values, Attribute.Unique);
         String pattern = getValueByColumnName(headers, values, Attribute.Pattern);
         String patternType = getValueByColumnName(headers, values, Attribute.PatternType);
-        boolean internalAssignment = false;
-        if(ImportUtils.isInternalPropertyAssignment(code)) {
-            code = ImportUtils.getPropertyCode(code);
-            internalAssignment = true;
-        }
+        String internalAssignment = getValueByColumnName(headers, values, Attribute.InternalAssignment);
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
@@ -177,7 +171,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setUnique(Boolean.parseBoolean(unique));
         creation.setPattern(pattern);
         creation.setPatternType(patternType);
-        creation.setManagedInternally(internalAssignment);
+        creation.setManagedInternally(ImportUtils.isTrue(internalAssignment));
 
         ListUpdateValue newAssignments = new ListUpdateValue();
         Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();

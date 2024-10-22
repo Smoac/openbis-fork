@@ -94,15 +94,9 @@ public class CreatePropertyTypeExecutor
         {
             throw new UserFailureException("Code cannot be empty.");
         }
-        if (creation.isManagedInternally() && false == CodeConverter.isInternalNamespace(creation.getCode()))
+        if(creation.getCode().startsWith(BasicConstant.INTERNAL_NAMESPACE_PREFIX))
         {
-            throw new UserFailureException(
-                    "Code of an internally managed property type has to start with '" + BasicConstant.INTERNAL_NAMESPACE_PREFIX + "' prefix.");
-        }
-        if (false == creation.isManagedInternally() && CodeConverter.isInternalNamespace(creation.getCode()))
-        {
-            throw new UserFailureException(
-                    "'" + BasicConstant.INTERNAL_NAMESPACE_PREFIX + "' code prefix can be only used for the internally managed property types.");
+            throw new UserFailureException("Property '" + creation.getCode() + "':Properties can no longer start with '"+BasicConstant.INTERNAL_NAMESPACE_PREFIX +"' prefix");
         }
         if (StringUtils.isEmpty(creation.getLabel()))
         {

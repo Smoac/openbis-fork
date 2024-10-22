@@ -385,11 +385,6 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             IPropertyTypeImmutable propertyType)
     {
         String propTypeCode = propertyType.getCode();
-        if (false == CodeConverter.isInternalNamespace(propTypeCode)
-                && propertyType.isManagedInternally())
-        {
-            propTypeCode = CodeConverter.tryToBusinessLayer(propTypeCode, true);
-        }
         PropertyAssignment assignment =
                 new PropertyAssignment(entityKind, type.getCode(), propTypeCode);
         createdAssignments.add(assignment);

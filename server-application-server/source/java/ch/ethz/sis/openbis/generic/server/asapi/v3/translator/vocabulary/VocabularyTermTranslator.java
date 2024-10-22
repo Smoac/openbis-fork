@@ -82,9 +82,8 @@ public class VocabularyTermTranslator extends AbstractCachingTranslator<Long, Vo
         TranslationResults relations = (TranslationResults) objectRelations;
         VocabularyTermBaseRecord baseRecord = relations.get(IVocabularyTermBaseTranslator.class, termId);
 
-        String termCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.isManagedInternally);
-        result.setPermId(new VocabularyTermPermId(termCode,
-                CodeConverter.tryToBusinessLayer(baseRecord.vocabularyCode, baseRecord.isManagedInternallyVocabulary)));
+        String termCode = baseRecord.code;
+        result.setPermId(new VocabularyTermPermId(termCode, baseRecord.vocabularyCode));
         result.setCode(termCode);
         result.setLabel(baseRecord.label);
         result.setDescription(baseRecord.description);

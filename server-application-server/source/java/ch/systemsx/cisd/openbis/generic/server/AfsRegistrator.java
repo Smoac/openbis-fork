@@ -24,7 +24,7 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AfsRegistrator.class);
 
-    private static final String AFS_DATA_SET_TYPE_CODE = "$AFS_DATA";
+    private static final String AFS_DATA_SET_TYPE_CODE = "AFS_DATA";
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -81,12 +81,13 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
             operationLog.info("AFS server has been already registered in the data stores table before. Nothing to do.");
         }
 
-        DataSetTypePE existingAfsDataSetType = daoFactory.getDataSetTypeDAO().tryToFindDataSetTypeByCode("$AFS_DATA");
+        DataSetTypePE existingAfsDataSetType = daoFactory.getDataSetTypeDAO().tryToFindDataSetTypeByCode("AFS_DATA");
 
         if (existingAfsDataSetType == null)
         {
             DataSetTypePE afsDataSetType = new DataSetTypePE();
             afsDataSetType.setCode(AFS_DATA_SET_TYPE_CODE);
+            afsDataSetType.setManagedInternally(true);
             daoFactory.getDataSetTypeDAO().persist(afsDataSetType);
 
             operationLog.info("Registering AFS data set type " + AFS_DATA_SET_TYPE_CODE + ".");

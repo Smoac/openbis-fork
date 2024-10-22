@@ -22,9 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
@@ -33,7 +31,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class DatasetTypeImportHelper extends BasicImportHelper
 {
@@ -44,7 +41,9 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         ValidationScript("Validation script", true),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        OntologyAnnotationId("Ontology Annotation Id", false),
+        Internal("Internal", false);
+
 
         private final String headerName;
 
@@ -87,7 +86,7 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         return isNewVersionWithInternalNamespace(header, values, versions,
                 delayedExecutor.isSystem(),
                 getTypeName().getType(),
-                Attribute.Version, Attribute.Code);
+                Attribute.Version, Attribute.Code, Attribute.Internal);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
@@ -117,6 +116,7 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String description = getValueByColumnName(header, values, Attribute.Description);
         String validationScript = getValueByColumnName(header, values, Attribute.ValidationScript);
+        String internal = getValueByColumnName(header, values, Attribute.Internal);
 
         DataSetTypeCreation creation = new DataSetTypeCreation();
         creation.setCode(code);
@@ -124,7 +124,7 @@ public class DatasetTypeImportHelper extends BasicImportHelper
 
         creation.setValidationPluginId(ImportUtils.getScriptId(validationScript, null));
 
-        creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
+        creation.setManagedInternally(ImportUtils.isTrue(internal));
 
         delayedExecutor.createDataSetType(creation, page, line);
     }

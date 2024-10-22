@@ -41,7 +41,8 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
         Code("Code", true),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        OntologyAnnotationId("Ontology Annotation Id", false),
+        Internal("Internal", false);
 
         private final String headerName;
 
@@ -187,6 +188,7 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
         type = SemanticAnnotationType.EntityTypeProperty;
         Map<String, Integer> header = parseHeader(page.get(start), false);
         String code = getValueByColumnName(header, page.get(start + 1), Attribute.Code);
+        String internal = getValueByColumnName(header, page.get(start + 1), Attribute.Internal);
 
         switch (importTypes)
         {
@@ -203,7 +205,7 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
                 throw new RuntimeException("Should never happen!");
         }
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean isInternalNamespace = ImportUtils.isTrue(internal);
         boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
 
         if(canUpdate) {
@@ -217,9 +219,9 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
         this.permIdOrNull = null;
 
         Map<String, Integer> header = parseHeader(page.get(start), false);
-        String code = getValueByColumnName(header, page.get(start + 1), Attribute.Code);
+        String internal = getValueByColumnName(header, page.get(start + 1), Attribute.Internal);
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean isInternalNamespace = internal != null && !internal.trim().isEmpty() && Boolean.parseBoolean(internal);
         boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
 
         if(canUpdate) {

@@ -114,10 +114,8 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
         TranslationResults relations = (TranslationResults) objectRelations;
         PropertyTypeRecord baseRecord = relations.get(IPropertyTypeBaseTranslator.class, typeId);
 
-        String businessCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.is_managed_internally);
-
-        result.setCode(businessCode);
-        result.setPermId(new PropertyTypePermId(businessCode));
+        result.setCode(baseRecord.code);
+        result.setPermId(new PropertyTypePermId(baseRecord.code));
         result.setLabel(baseRecord.label);
         result.setDescription(baseRecord.description);
         result.setDataType(DataType.valueOf(baseRecord.data_type));

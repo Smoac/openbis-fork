@@ -113,7 +113,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
 
             final List<Map<String, Object>> queryResultList = sqlExecutor.execute(sql, Collections.emptyList());
             dataTypeByPropertyCode = queryResultList.stream().collect(Collectors.toMap(
-                    (valueByColumnName) -> ((((Boolean) valueByColumnName.get(isManagedInternallyAlias)) ? "$" : "") + ((String) valueByColumnName.get(propertyTypeAlias))),
+                    (valueByColumnName) -> ((String) valueByColumnName.get(propertyTypeAlias)),
                     (valueByColumnName) -> (String) valueByColumnName.get(dataTypeAlias)));
             translationContext.setDataTypeByPropertyCode(dataTypeByPropertyCode);
         } else

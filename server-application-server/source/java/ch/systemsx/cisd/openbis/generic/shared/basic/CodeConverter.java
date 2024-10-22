@@ -96,11 +96,11 @@ public final class CodeConverter
     {
         if (propertyColumnName.startsWith(USER_PREFIX))
         {
-            return tryToBusinessLayer(propertyColumnName.substring(USER_PREFIX.length()), false);
+            return propertyColumnName.substring(USER_PREFIX.length());
         }
         if (propertyColumnName.startsWith(INTERN_PREFIX))
         {
-            return tryToBusinessLayer(propertyColumnName.substring(INTERN_PREFIX.length()), true);
+            return propertyColumnName.substring(INTERN_PREFIX.length());
         }
         return propertyColumnName;
     }

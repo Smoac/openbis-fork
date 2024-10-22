@@ -37,8 +37,7 @@ public class PropertyTypeDataObjectBinding extends NonUpdateCapableDataObjectBin
         into.setId(row.getLong("pt_id"));
         into.setManagedInternally(row.getBoolean("is_managed_internally"));
         into.setSimpleCode(row.getString("pt_code"));
-        into.setCode(CodeConverter.tryToBusinessLayer(into.getSimpleCode(),
-                into.isManagedInternally()));
+        into.setCode(row.getString("pt_code"));
         into.setLabel(row.getString("pt_label"));
         into.setTransformation(row.getString("transformation"));
         final DataType dataType = new DataType();
