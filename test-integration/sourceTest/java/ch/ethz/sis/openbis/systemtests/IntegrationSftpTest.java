@@ -21,6 +21,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 
 public class IntegrationSftpTest extends AbstractIntegrationTest
@@ -85,6 +87,29 @@ public class IntegrationSftpTest extends AbstractIntegrationTest
     }
 
     @Test
+    public void testDefaultViewRootFolderContainsSpaces() throws Exception
+    {
+        final String folder = "/DEFAULT";
+
+        testSftp(INSTANCE_ADMIN, sftp ->
+        {
+            OpenBIS openBIS = createOpenBIS();
+            openBIS.login(INSTANCE_ADMIN, PASSWORD);
+
+            List<Space> spaces = openBIS.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
+            List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
+
+            assertEquals(dirEntries.size(), spaces.size() + 2);
+            assertEquals(dirEntries.get(0).getFilename(), ".");
+            assertEquals(dirEntries.get(1).getFilename(), "..");
+            for (int i = 0; i < spaces.size(); i++)
+            {
+                assertEquals(dirEntries.get(i + 2).getFilename(), spaces.get(i).getCode());
+            }
+        });
+    }
+
+    @Test
     public void testDefaultViewShowsOnlyDssDataSets() throws Exception
     {
         final String folder = "/DEFAULT/SFTP/SFTP/SFTP";
@@ -100,6 +125,24 @@ public class IntegrationSftpTest extends AbstractIntegrationTest
 
             byte[] dssFileContent = readFile(sftp, folder + "/" + dssDataSet.getPermId().getPermId() + "/" + DSS_DATA_SET_FILE_NAME);
             assertEquals(dssFileContent, DSS_DATA_SET_FILE_CONTENT.getBytes());
+        });
+    }
+
+    @Test
+    public void testElnViewRootFolderContainsLabNotebookAndInventoryAndStock() throws Exception
+    {
+        final String folder = "/ELN-LIMS";
+
+        testSftp(INSTANCE_ADMIN, sftp ->
+        {
+            List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
+
+            assertEquals(dirEntries.size(), 5);
+            assertEquals(dirEntries.get(0).getFilename(), ".");
+            assertEquals(dirEntries.get(1).getFilename(), "..");
+            assertEquals(dirEntries.get(2).getFilename(), "Lab Notebook");
+            assertEquals(dirEntries.get(3).getFilename(), "Inventory");
+            assertEquals(dirEntries.get(4).getFilename(), "Stock");
         });
     }
 
