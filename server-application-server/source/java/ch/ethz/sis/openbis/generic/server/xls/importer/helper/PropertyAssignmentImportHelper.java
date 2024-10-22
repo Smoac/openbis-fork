@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -146,8 +147,11 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isObjectExist(Map<String, Integer> headers, List<String> values)
     {
-        String code = getValueByColumnName(headers, values, Attribute.Code);
-        return existingDynamicPluginsByPropertyCode.containsKey(code);
+        String code = ImportUtils.getPropertyCode(getValueByColumnName(headers, values, Attribute.Code));
+        PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
+
+        PropertyTypePermId propertyTypePermId = new PropertyTypePermId(code);
+        return delayedExecutor.getPropertyType(propertyTypePermId, fetchOptions) != null;
     }
 
     @Override protected void createObject(Map<String, Integer> headers, List<String> values, int page, int line)
