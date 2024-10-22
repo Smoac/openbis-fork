@@ -144,9 +144,10 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         }
     }
 
-    @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
+    @Override protected boolean isObjectExist(Map<String, Integer> headers, List<String> values)
     {
-        return false;
+        String code = getValueByColumnName(headers, values, Attribute.Code);
+        return existingDynamicPluginsByPropertyCode.containsKey(code);
     }
 
     @Override protected void createObject(Map<String, Integer> headers, List<String> values, int page, int line)
