@@ -166,7 +166,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
                         offset.toString(), "limit", limit.toString()));
     }
 
-    static int i  = 0;
+
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, @NonNull final byte[] data,
@@ -175,7 +175,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner",
                 owner, "source", source,"offset", offset.toString(),
-                "md5Hash", Base64.getUrlEncoder().encodeToString(md5Hash)) , data );
+                "md5Hash", Base64.getUrlEncoder().encodeToString(md5Hash)) , data, false );
     }
 
     @Override
@@ -374,25 +374,26 @@ public final class AfsClient implements PublicAPI, ClientAPI
         }
     }
 
-    private static String getQueryString(String apiMethod, Map<String, String> params) {
+    private static String getQueryString(String apiMethod, Map<String, String> params, boolean encode){
         return Stream.concat(
                         Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
                         params.entrySet().stream())
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .map(entry -> (encode ? urlEncode(entry.getKey()) : entry.getKey()) + "=" + (encode ? urlEncode(entry.getValue()) : entry.getValue()))
                 .collect(Collectors.joining("&"));
     }
+
 
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
             Class<T> responseType,
             @NonNull Map<String, String> params)
             throws Exception
     {
-        return request(httpMethod,apiMethod, responseType, params, null);
+        return request(httpMethod,apiMethod, responseType, params, null, true);
     }
 
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
             Class<T> responseType,
-            @NonNull Map<String, String> paramsP, byte[] body)
+            @NonNull Map<String, String> paramsP, byte[] body, boolean sendParamsInBodyPostAndDelete)
             throws Exception
     {
 
@@ -413,13 +414,22 @@ public final class AfsClient implements PublicAPI, ClientAPI
             mutableParams.put("transactionManagerKey", transactionManagerKey);
         }
 
-        String queryParameters = getQueryString(apiMethod, mutableParams);
-        byte[] bodyBytes = (body != null) ? body : new byte[0];
+        byte[] bodyBytes = (body != null) ? body : new byte[0];;
+        String queryParameters = null;
+        if (httpMethod.equals("GET") || !sendParamsInBodyPostAndDelete)
+        {
+            queryParameters = getQueryString(apiMethod, mutableParams, false);
+
+        } else if (httpMethod.equals("POST") || httpMethod.equals("DELETE"))
+        {
+            bodyBytes = getQueryString(apiMethod, mutableParams, true).getBytes(StandardCharsets.UTF_8);
+        }
 
         final URI uri =
                 new URI(serverUri.getScheme(), null, serverUri.getHost(),
                         serverUri.getPort(), serverUri.getPath() + "/api",
                         queryParameters, null);
+
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(uri)
                 .version(HttpClient.Version.HTTP_1_1)

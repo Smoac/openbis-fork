@@ -18,7 +18,7 @@ import ComponentController from '@src/js/components/common/ComponentController.j
 import autoBind from 'auto-bind'
 import openbis from '@src/js/services/openbis.js'
 
-const CHUNK_SIZE = 1024 * 1024 // 1MiB
+const CHUNK_SIZE = 1024 * 1024 * 10// 10MiB
 
 export default class DataBrowserController extends ComponentController {
 

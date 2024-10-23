@@ -22,6 +22,8 @@ import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -31,14 +33,14 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.stream.ChunkedStream;
 
-import java.util.HashMap;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,11 +115,14 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
                     ByteBuf content = request.content();
                     try
                     {
-                        byte[] array = new byte[content.readableBytes()];
-                        content.readBytes(array);
+                        Map<String, List<String>> parameters =
+                                queryStringDecoderForPath.parameters();
+
+                        byte[] requestBody = new byte[content.readableBytes()];
+                        content.readBytes(requestBody);
 
                         HttpResponse apiResponse = httpServerHandler.process(request.method(),
-                                queryStringDecoderForPath.parameters(), array);
+                                parameters, requestBody);
 
                         HttpResponseStatus status = null;
                         switch (apiResponse.getStatus()) {
@@ -214,5 +219,11 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
         response.headers().set(HttpHeaderNames.CONNECTION, "close");
         return response;
+    }
+
+    public static Map<String, List<String>> getBodyParameters(byte[] array) {
+        QueryStringDecoder queryStringDecoderForParameters =
+                new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
+        return  queryStringDecoderForParameters.parameters();
     }
 }
