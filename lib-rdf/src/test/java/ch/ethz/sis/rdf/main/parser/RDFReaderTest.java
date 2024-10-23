@@ -88,7 +88,7 @@ public class RDFReaderTest {
         Map<String, List<String>> RDFtoOpenBISDataTypeMap = new HashMap<>();
         RDFtoOpenBISDataTypeMap.put("PropAnnotation", List.of("STRING"));
 
-        rdfReader.verifyPropertyTypes(sampleTypes, RDFtoOpenBISDataTypeMap, new HashMap<>(), new HashMap<>());
+        rdfReader.verifyPropertyTypes(sampleTypes, RDFtoOpenBISDataTypeMap, new HashMap<>(), new HashMap<>(), Map.of());
 
         assertEquals("STRING", sampleType.properties.get(0).dataType);
     }

@@ -84,7 +84,7 @@ public class RDFReader
 
         sampleTypeList.removeIf(sampleType -> modelRDF.vocabularyTypeListGroupedByType.containsKey(sampleType.code));
         restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
-        verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, modelRDF.vocabularyTypeListGroupedByType);
+        verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, modelRDF.vocabularyTypeListGroupedByType, modelRDF.stringOntClassExtensionMap);
 
         modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
     }
@@ -182,7 +182,7 @@ public class RDFReader
 
     //TODO: there is no direct connection from hasComparator to Comparator, from prop to vocabulary type
     void verifyPropertyTypes(List<SampleType> sampleTypeList, Map<String, List<String>> RDFtoOpenBISDataTypeMap,
-            Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap)
+            Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap, Map<String, OntClassExtension> ontClassExtensionMap)
     {
         for(SampleType sampleType: sampleTypeList)
         {
@@ -191,11 +191,23 @@ public class RDFReader
             {
                 if (!Objects.equals(samplePropertyType.dataType, "SAMPLE"))
                 {
-                    if (vocabularyTypeListGroupedByTypeMap.containsKey(samplePropertyType.code) || vocabularyTypeListGroupedByTypeMap.keySet().stream().anyMatch(key -> samplePropertyType.code.contains(key)))
+
+                    var restrictions = findSomeValueRestrictions(ontClassExtensionMap, samplePropertyType.code);
+                    var restrictionCodes = restrictions.stream()
+                            .filter(Objects::nonNull)
+                            .map(x -> getCodeFromSphnUri(x)).toList();
+
+
+                    ontClassExtensionMap.get("aa");
+                    if (vocabularyTypeListGroupedByTypeMap.containsKey(samplePropertyType.code) || restrictionCodes.stream().anyMatch(
+                            vocabularyTypeListGroupedByTypeMap::containsKey) || vocabularyTypeListGroupedByTypeMap.keySet().stream().anyMatch(key -> samplePropertyType.code.contains(key)))
                     {
                         //System.out.println("GET: "+ vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(null));
                         samplePropertyType.dataType = "CONTROLLEDVOCABULARY";
-                        samplePropertyType.vocabularyCode = vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(() -> "UNKNOWN");
+                        samplePropertyType.vocabularyCode = vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(() -> {
+                            return restrictionCodes.stream().filter(
+                                    vocabularyTypeListGroupedByTypeMap::containsKey).findFirst().orElse("UNKNOWN");
+                        });
                         //System.out.println("  VACAB_TYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.code + " -> " + vocabularyTypeListGroupedByTypeMap.get(samplePropertyType.code));
                     } else if (RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId) != null)
                     {
@@ -212,6 +224,35 @@ public class RDFReader
             }
         }
     }
+
+
+
+    private Set<String> findSomeValueRestrictions(Map<String, OntClassExtension> ontClassExtensionMap, String code){
+        return ontClassExtensionMap.values()
+                .stream()
+                .flatMap(x -> x.restrictions.values().stream())
+                .flatMap(Collection::stream)
+                .filter(x -> x.getOnProperty().getURI().toLowerCase().contains(code.toLowerCase()))
+                .filter(x -> {
+                    try {
+                        x.asSomeValuesFromRestriction();
+                        return true;
+                    }
+                    catch (RuntimeException e ){
+                        return false;
+                    }
+
+                })
+                .map(x -> x.asSomeValuesFromRestriction())
+                .map(x -> x.getSomeValuesFrom().getURI())
+                .collect(Collectors.toSet());
+    }
+
+    private String getCodeFromSphnUri(String uri){
+       return uri.replaceAll("https://biomedit.ch/rdf/sphn-schema/sphn#", "").toUpperCase(Locale.ROOT);
+    }
+
+
 
     private void restrictionsToSampleMetadata(List<SampleType> sampleTypeList, Map<String, OntClassExtension> ontClass2OntClassExtensionMap)
     {
