@@ -147,11 +147,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isObjectExist(Map<String, Integer> headers, List<String> values)
     {
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(headers, values, Attribute.Code));
-        PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
-
-        PropertyTypePermId propertyTypePermId = new PropertyTypePermId(code);
-        return delayedExecutor.getPropertyType(propertyTypePermId, fetchOptions) != null;
+        String code = getValueByColumnName(headers, values, Attribute.Code);
+        return existingDynamicPluginsByPropertyCode.containsKey(code);
     }
 
     @Override protected void createObject(Map<String, Integer> headers, List<String> values, int page, int line)
