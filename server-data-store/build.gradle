@@ -43,6 +43,16 @@ task openBISDevelopmentEnvironmentAFSStart(type: JavaExec) {
              '-Xmx256M', '-ea'])
 }
 
+task benchmarkAFS(type: JavaExec) {
+    mainClassName = 'ch.ethz.sis.afsserver.startup.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args(["../server-data-store/src/main/resources/standalone-service.properties"])
+    jvmArgs(['--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
+             '--add-opens=java.base/java.nio=ALL-UNNAMED',
+             '-Dio.netty.tryReflectionSetAccessible=true',
+             "${System.getProperty("serverXmx")}", '-ea'])
+}
+
 task AFSServerZip(type: Zip, dependsOn: compileJava) {
     baseName 'afs-server'
     from (jar) {

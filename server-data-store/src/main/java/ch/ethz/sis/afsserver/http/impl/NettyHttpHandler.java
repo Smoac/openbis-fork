@@ -38,6 +38,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.stream.ChunkedStream;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,8 +117,19 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
                         byte[] array = new byte[content.readableBytes()];
                         content.readBytes(array);
 
+                        Map<String, List<String>> parameters =
+                                queryStringDecoderForPath.parameters();
+
+                        byte[] requestBody = array;
+                        if(!GET.equals(request.method()) && !isWriteMethod(request.method(), parameters)) {
+                            QueryStringDecoder queryStringDecoderForParameters =
+                                    new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
+                            parameters = queryStringDecoderForParameters.parameters();
+                            requestBody = null;
+                        }
+
                         HttpResponse apiResponse = httpServerHandler.process(request.method(),
-                                queryStringDecoderForPath.parameters(), array);
+                                parameters, requestBody);
 
                         HttpResponseStatus status = null;
                         switch (apiResponse.getStatus()) {
@@ -176,6 +188,12 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
     {
         ctx.flush();
     }
+
+    private boolean isWriteMethod(HttpMethod requestMethod, Map<String, List<String>> parameters) {
+        return POST.equals(requestMethod) &&  parameters != null && parameters.get("method") != null &&
+                !parameters.get("method").isEmpty() && "write".equals(parameters.get("method").get(0));
+    }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
