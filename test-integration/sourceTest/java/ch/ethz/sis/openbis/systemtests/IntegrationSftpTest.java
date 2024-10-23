@@ -3,8 +3,11 @@ package ch.ethz.sis.openbis.systemtests;
 import static org.testng.Assert.assertEquals;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.sshd.client.SshClient;
@@ -75,97 +78,131 @@ public class IntegrationSftpTest extends AbstractIntegrationTest
     {
         final String folder = "/";
 
-        testSftp(INSTANCE_ADMIN, sftp ->
+        test(INSTANCE_ADMIN, sftp ->
         {
             List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
-
-            assertEquals(dirEntries.size(), 3);
-            assertEquals(dirEntries.get(0).getFilename(), ".");
-            assertEquals(dirEntries.get(1).getFilename(), "DEFAULT");
-            assertEquals(dirEntries.get(2).getFilename(), "ELN-LIMS");
+            assertDirEntries(dirEntries, ".", "DEFAULT", "ELN-LIMS");
         });
     }
 
     @Test
-    public void testDefaultViewRootFolderContainsSpaces() throws Exception
+    public void testDefaultView() throws Exception
     {
-        final String folder = "/DEFAULT";
-
-        testSftp(INSTANCE_ADMIN, sftp ->
+        test(INSTANCE_ADMIN, sftp ->
         {
             OpenBIS openBIS = createOpenBIS();
             openBIS.login(INSTANCE_ADMIN, PASSWORD);
 
             List<Space> spaces = openBIS.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
-            List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
 
-            assertEquals(dirEntries.size(), spaces.size() + 2);
-            assertEquals(dirEntries.get(0).getFilename(), ".");
-            assertEquals(dirEntries.get(1).getFilename(), "..");
-            for (int i = 0; i < spaces.size(); i++)
+            List<SftpClient.DirEntry> viewEntries = listDir(sftp, "/DEFAULT");
+            List<String> expectedViewEntries = new ArrayList<>();
+            expectedViewEntries.add(".");
+            expectedViewEntries.add("..");
+            for (Space space : spaces)
             {
-                assertEquals(dirEntries.get(i + 2).getFilename(), spaces.get(i).getCode());
+                expectedViewEntries.add(space.getCode());
             }
-        });
-    }
+            assertDirEntries(viewEntries, expectedViewEntries.toArray(new String[0]));
 
-    @Test
-    public void testDefaultViewShowsOnlyDssDataSets() throws Exception
-    {
-        final String folder = "/DEFAULT/SFTP/SFTP/SFTP";
+            List<SftpClient.DirEntry> spaceEntries = listDir(sftp, "/DEFAULT/SFTP");
+            assertDirEntries(spaceEntries, ".", "..", "SFTP");
 
-        testSftp(INSTANCE_ADMIN, sftp ->
-        {
-            List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
+            List<SftpClient.DirEntry> projectEntries = listDir(sftp, "/DEFAULT/SFTP/SFTP");
+            assertDirEntries(projectEntries, ".", "..", "SFTP");
 
-            assertEquals(dirEntries.size(), 3);
-            assertEquals(dirEntries.get(0).getFilename(), ".");
-            assertEquals(dirEntries.get(1).getFilename(), "..");
-            assertEquals(dirEntries.get(2).getFilename(), dssDataSet.getPermId().getPermId());
+            List<SftpClient.DirEntry> experimentEntries = listDir(sftp, "/DEFAULT/SFTP/SFTP/SFTP");
+            assertDirEntries(experimentEntries, ".", "..", dssDataSet.getPermId().getPermId());
 
-            byte[] dssFileContent = readFile(sftp, folder + "/" + dssDataSet.getPermId().getPermId() + "/" + DSS_DATA_SET_FILE_NAME);
+            byte[] dssFileContent = readFile(sftp, "/DEFAULT/SFTP/SFTP/SFTP/" + dssDataSet.getPermId().getPermId() + "/" + DSS_DATA_SET_FILE_NAME);
             assertEquals(dssFileContent, DSS_DATA_SET_FILE_CONTENT.getBytes());
         });
     }
 
     @Test
-    public void testElnViewRootFolderContainsLabNotebookAndInventoryAndStock() throws Exception
+    public void testElnView() throws Exception
     {
-        final String folder = "/ELN-LIMS";
-
-        testSftp(INSTANCE_ADMIN, sftp ->
+        test(INSTANCE_ADMIN, sftp ->
         {
-            List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
-
-            assertEquals(dirEntries.size(), 5);
-            assertEquals(dirEntries.get(0).getFilename(), ".");
-            assertEquals(dirEntries.get(1).getFilename(), "..");
-            assertEquals(dirEntries.get(2).getFilename(), "Lab Notebook");
-            assertEquals(dirEntries.get(3).getFilename(), "Inventory");
-            assertEquals(dirEntries.get(4).getFilename(), "Stock");
+            List<SftpClient.DirEntry> dirEntries = listDir(sftp, "/ELN-LIMS");
+            assertDirEntries(dirEntries, ".", "..", "Lab Notebook", "Inventory", "Stock");
         });
     }
 
     @Test
-    public void testElnViewShowsBothDssAndAfsDataSets() throws Exception
+    public void testElnViewLabNotebook() throws Exception
     {
-        final String folder = "/ELN-LIMS/Lab Notebook/SFTP/SFTP/SFTP";
-
-        testSftp(INSTANCE_ADMIN, sftp ->
+        test(INSTANCE_ADMIN, sftp ->
         {
-            List<SftpClient.DirEntry> dirEntries = listDir(sftp, folder);
+            List<SftpClient.DirEntry> spaceEntries = listDir(sftp, "/ELN-LIMS/Lab Notebook/SFTP");
+            assertDirEntries(spaceEntries, ".", "..", "SFTP");
 
-            assertEquals(dirEntries.size(), 4);
-            assertEquals(dirEntries.get(0).getFilename(), ".");
-            assertEquals(dirEntries.get(1).getFilename(), "..");
-            assertEquals(dirEntries.get(2).getFilename(), afsDataSet.getPermId().getPermId());
-            assertEquals(dirEntries.get(3).getFilename(), dssDataSet.getPermId().getPermId());
+            List<SftpClient.DirEntry> projectEntries = listDir(sftp, "/ELN-LIMS/Lab Notebook/SFTP/SFTP");
+            assertDirEntries(projectEntries, ".", "..", "SFTP");
 
-            byte[] afsFileContent = readFile(sftp, folder + "/" + afsDataSet.getPermId().getPermId() + "/" + AFS_DATA_SET_FILE_NAME);
+            List<SftpClient.DirEntry> experimentEntries = listDir(sftp, "/ELN-LIMS/Lab Notebook/SFTP/SFTP/SFTP");
+            assertDirEntries(experimentEntries, ".", "..", afsDataSet.getPermId().getPermId(), dssDataSet.getPermId().getPermId());
+
+            byte[] afsFileContent =
+                    readFile(sftp, "/ELN-LIMS/Lab Notebook/SFTP/SFTP/SFTP/" + afsDataSet.getPermId().getPermId() + "/" + AFS_DATA_SET_FILE_NAME);
             assertEquals(afsFileContent, AFS_DATA_SET_FILE_CONTENT.getBytes());
 
-            byte[] dssFileContent = readFile(sftp, folder + "/" + dssDataSet.getPermId().getPermId() + "/" + DSS_DATA_SET_FILE_NAME);
+            byte[] dssFileContent =
+                    readFile(sftp, "/ELN-LIMS/Lab Notebook/SFTP/SFTP/SFTP/" + dssDataSet.getPermId().getPermId() + "/" + DSS_DATA_SET_FILE_NAME);
             assertEquals(dssFileContent, DSS_DATA_SET_FILE_CONTENT.getBytes());
+        });
+    }
+
+    @Test
+    public void testElnViewInventory() throws Exception
+    {
+        test(INSTANCE_ADMIN, sftp ->
+        {
+            List<SftpClient.DirEntry> inventoryEntries = listDir(sftp, "/ELN-LIMS/Inventory");
+            assertDirEntries(inventoryEntries, ".", "..", "METHODS", "MATERIALS", "PUBLICATIONS");
+
+            List<SftpClient.DirEntry> materialsEntries = listDir(sftp, "/ELN-LIMS/Inventory/MATERIALS");
+            assertDirEntries(materialsEntries, ".", "..");
+
+            List<SftpClient.DirEntry> methodsEntries = listDir(sftp, "/ELN-LIMS/Inventory/METHODS");
+            assertDirEntries(methodsEntries, ".", "..", "PROTOCOLS");
+
+            List<SftpClient.DirEntry> protocolsEntries = listDir(sftp, "/ELN-LIMS/Inventory/METHODS/PROTOCOLS");
+            assertDirEntries(protocolsEntries, ".", "..", "General Protocols");
+
+            List<SftpClient.DirEntry> publicationsEntries = listDir(sftp, "/ELN-LIMS/Inventory/PUBLICATIONS");
+            assertDirEntries(publicationsEntries, ".", "..", "PUBLIC_REPOSITORIES");
+
+            List<SftpClient.DirEntry> publicRepositoriesEntries = listDir(sftp, "/ELN-LIMS/Inventory/PUBLICATIONS/PUBLIC_REPOSITORIES");
+            assertDirEntries(publicRepositoriesEntries, ".", "..", "Publications Collection");
+        });
+    }
+
+    @Test
+    public void testElnViewStock() throws Exception
+    {
+        test(INSTANCE_ADMIN, sftp ->
+        {
+            List<SftpClient.DirEntry> stockEntries = listDir(sftp, "/ELN-LIMS/Stock");
+            assertDirEntries(stockEntries, ".", "..", "STOCK_CATALOG", "STOCK_ORDERS");
+
+            List<SftpClient.DirEntry> stockCatalogEntries = listDir(sftp, "/ELN-LIMS/Stock/STOCK_CATALOG");
+            assertDirEntries(stockCatalogEntries, ".", "..", "PRODUCTS", "SUPPLIERS", "REQUESTS");
+
+            List<SftpClient.DirEntry> productsEntries = listDir(sftp, "/ELN-LIMS/Stock/STOCK_CATALOG/PRODUCTS");
+            assertDirEntries(productsEntries, ".", "..", "Product Collection");
+
+            List<SftpClient.DirEntry> requestsEntries = listDir(sftp, "/ELN-LIMS/Stock/STOCK_CATALOG/REQUESTS");
+            assertDirEntries(requestsEntries, ".", "..", "Request Collection");
+
+            List<SftpClient.DirEntry> suppliersEntries = listDir(sftp, "/ELN-LIMS/Stock/STOCK_CATALOG/SUPPLIERS");
+            assertDirEntries(suppliersEntries, ".", "..", "Supplier Collection");
+
+            List<SftpClient.DirEntry> stockOrdersEntries = listDir(sftp, "/ELN-LIMS/Stock/STOCK_ORDERS");
+            assertDirEntries(stockOrdersEntries, ".", "..", "ORDERS");
+
+            List<SftpClient.DirEntry> ordersEntries = listDir(sftp, "/ELN-LIMS/Stock/STOCK_ORDERS/ORDERS");
+            assertDirEntries(ordersEntries, ".", "..", "Order Collection");
         });
     }
 
@@ -185,7 +222,12 @@ public class IntegrationSftpTest extends AbstractIntegrationTest
         }
     }
 
-    private void testSftp(String user, SftpTestAction action) throws Exception
+    private void assertDirEntries(List<SftpClient.DirEntry> dirEntries, String... expectedFileNames)
+    {
+        assertEquals(dirEntries.stream().map(SftpClient.DirEntry::getFilename).collect(Collectors.toList()), Arrays.asList(expectedFileNames));
+    }
+
+    private void test(String user, SftpTestAction action) throws Exception
     {
         try (SshClient client = SshClient.setUpDefaultClient())
         {
