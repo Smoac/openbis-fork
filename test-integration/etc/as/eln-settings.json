@@ -1,0 +1,682 @@
+{
+  "mainMenu": {
+    "showLabNotebook": true,
+    "showInventory": true,
+    "showStock": true,
+    "showObjectBrowser": true,
+    "showExports": true,
+    "showStorageManager": true,
+    "showAdvancedSearch": true,
+    "showArchivingHelper": true,
+    "showUnarchivingHelper": true,
+    "showTrashcan": true,
+    "showVocabularyViewer": true,
+    "showUserManager": true,
+    "showUserProfile": true,
+    "showZenodoExportBuilder": false,
+    "showBarcodes": false,
+    "showDatasets": true
+  },
+  "sampleTypeDefinitionsExtension": {
+    "CYTOFLEX_S_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "CYTOFLEX_S_PLATE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "CYTOFLEX_S_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "CYTOFLEX_S_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "CYTOFLEX_S_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "CYTOFLEX_S_WELL": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "ENTRY": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": true,
+      "SHOW_ON_NAV": true
+    },
+    "EXPERIMENTAL_STEP": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "General protocol",
+          "TYPE": "GENERAL_PROTOCOL",
+          "MIN_COUNT": 0,
+          "ANNOTATION_PROPERTIES": [
+            {
+              "TYPE": "ANNOTATION.SYSTEM.COMMENTS",
+              "MANDATORY": false
+            }
+          ]
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": true,
+      "SHOW_ON_NAV": true
+    },
+    "FACS_ARIA_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "FACS_ARIA_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV":false
+    },
+    "FACS_ARIA_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "FACS_ARIA_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "GENERAL_ELN_SETTINGS": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "GENERAL_PROTOCOL": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "General protocol",
+          "TYPE": "GENERAL_PROTOCOL",
+          "MIN_COUNT": 0,
+          "ANNOTATION_PROPERTIES": [
+            {
+              "TYPE": "ANNOTATION.SYSTEM.COMMENTS",
+              "MANDATORY": false
+            }
+          ]
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": true,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "INFLUX_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "INFLUX_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "INFLUX_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "INFLUX_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "LSR_FORTESSA_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "LSR_FORTESSA_PLATE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "LSR_FORTESSA_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "LSR_FORTESSA_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "LSR_FORTESSA_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "LSR_FORTESSA_WELL": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "MICROSCOPY_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": true,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "MICROSCOPY_SAMPLE_TYPE": {
+      "SAMPLE_PARENTS_DISABLED": true,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "MOFLO_XDP_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "MOFLO_XDP_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "MOFLO_XDP_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "MOFLO_XDP_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "ORDER": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Requests",
+          "TYPE": "REQUEST",
+          "MIN_COUNT": 1,
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_TITLE": "Requests",
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": true,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "ORGANIZATION_UNIT": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "PRODUCT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Suppliers",
+          "TYPE": "SUPPLIER",
+          "MIN_COUNT": 1,
+          "MAX_COUNT": 1,
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_TITLE": "Suppliers",
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": true,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "PUBLICATION": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "REQUEST": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Products",
+          "TYPE": "PRODUCT",
+          "MIN_COUNT": 1,
+          "MAX_COUNT": 1,
+          "ANNOTATION_PROPERTIES": [
+            {
+              "TYPE": "ANNOTATION.REQUEST.QUANTITY_OF_ITEMS",
+              "MANDATORY": true
+            },
+            {
+              "TYPE": "ANNOTATION.SYSTEM.COMMENTS",
+              "MANDATORY": false
+            }
+          ]
+        }
+      ],
+      "SAMPLE_PARENTS_TITLE": "Products from Catalog",
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": true,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "S3E_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "S3E_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "S3E_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "S3E_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "SONY_MA900_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "SONY_MA900_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "SONY_MA900_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "SONY_MA900_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "SONY_SH800S_EXPERIMENT": {
+      "SAMPLE_PARENTS_HINT": [
+        {
+          "LABEL": "Organization Units",
+          "TYPE": "ORGANIZATION_UNIT",
+          "ANNOTATION_PROPERTIES": []
+        }
+      ],
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "SONY_SH800S_SPECIMEN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "SONY_SH800S_TUBE": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "SONY_SH800S_TUBESET": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": true
+    },
+    "STORAGE": {
+      "SAMPLE_PARENTS_DISABLED": true,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "STORAGE_POSITION": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "SUPPLIER": {
+      "SAMPLE_PARENTS_DISABLED": true,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": true,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    },
+    "UNKNOWN": {
+      "SAMPLE_PARENTS_DISABLED": false,
+      "SAMPLE_PARENTS_ANY_TYPE_DISABLED": false,
+      "SAMPLE_CHILDREN_DISABLED": false,
+      "SAMPLE_CHILDREN_ANY_TYPE_DISABLED": false,
+      "USE_AS_PROTOCOL": false,
+      "ENABLE_STORAGE": false,
+      "SHOW": false,
+      "SHOW_ON_NAV": false
+    }
+  },
+  "showDatasetArchivingButton": false,
+  "showSemanticAnnotations": false,
+  "hideSectionsByDefault": true,
+  "inventorySpaces": [
+    "MATERIALS",
+    "METHODS",
+    "STOCK_CATALOG",
+    "STORAGE"
+  ],
+  "inventorySpacesReadOnly": [
+    "ELN_SETTINGS",
+    "PUBLICATIONS",
+    "STOCK_ORDERS"
+  ],
+  "dataSetTypeForFileNameMap": [],
+  "forceMonospaceFont": [],
+  "forcedDisableRTF": [],
+  "instanceSettings": {
+    "minBarcodeLength": "10",
+    "barcodePattern": "/^[-a-z0-9]+$/i",
+    "docuBaseUrl": "https://openbis.readthedocs.io/en/20.10.x/",
+    "showUserManagementConfig": false
+  }
+}
