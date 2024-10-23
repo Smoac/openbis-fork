@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import { Draggable, Droppable } from 'react-beautiful-dnd'
+import { Draggable, Droppable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'

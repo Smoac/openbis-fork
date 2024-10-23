@@ -1,6 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import { Draggable } from 'react-beautiful-dnd'
+import { Draggable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import DragHandleIcon from '@material-ui/icons/DragHandle'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'

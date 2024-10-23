@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { Draggable } from 'react-beautiful-dnd'
+import { Draggable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import { withStyles } from '@material-ui/core/styles'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import Message from '@src/js/components/common/form/Message.jsx'

@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import Popover from '@material-ui/core/Popover'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
