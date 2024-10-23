@@ -152,7 +152,7 @@ public class RDFSampleHelper
                             boolean myBool = Boolean.parseBoolean(a);
                             propertyRowValues.createCell(idx).setCellValue(myBool);
                         } else if (matchUris(XSDDatatype.XSDanyURI.getURI(), datatypeURI)){
-                            propertyRowValues.createCell(idx).setCellValue(literal.getString());
+                            propertyRowValues.createCell(idx).setCellValue(literal.getString().replaceAll("\"", ""));
                         }
                     }
                 }
