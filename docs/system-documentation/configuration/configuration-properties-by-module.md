@@ -4,120 +4,171 @@
 
 ## AS  MODULES
 
+### Database Configuration (Required)
 
-| Key                                                                                    | Example Value                         | Short Explanation                                                                                                                                       | More |
-|----------------------------------------------------------------------------------------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|------|
-| database-instance                                                                      | DEFAULT                               | The database instance local unique identifier.                                                                                                          |      |
-| database.url-host-part                                                                 | localhost                             | The host and optionally port.                                                                                                                           |      |
-| database.kind                                                                          | prod                                  |                                                                                                                                                         |      |
-| database.owner                                                                         |                                       | User who owns the database. Default: Operating system user running the server.                                                                          |      |
-| database.owner-password                                                                |                                       |                                                                                                                                                         |      |
-| database.admin-user                                                                    |                                       | Superuser of the database.                                                                                                                              |      |
-| database.admin-password                                                                |                                       |                                                                                                                                                         |      |
-| database.max-active-connections                                                        | 20                                    | Max. number of active database connections.                                                                                                             |      |
-| database.max-idle-connections                                                          | 20                                    | Max. number of idle database connections to keep open.                                                                                                  |      |
-| database.active-connections-log-interval                                               | 3600                                  | Log interval (in seconds) between two regular log entries of the number of active database                                                              |      |
-| download-url                                                                           | https://localhost:8443                | The base URL for Web client access.                                                                                                                     |      |
-| export.data-limit                                                                      | 10737418240                           | Export data limit in bytes                                                                                                                              |      |
-| xls-import.version-data-file                                                           | ../../../xls-import-version-info.json | Path to the file which stores version information of master data imported from Excel sheets.                                                            |      |
-| imaging-database.url-host-part                                                         |                                       | Imaging database for screening and microscopy                                                                                                           |      |
-| imaging-database.kind                                                                  |                                       |                                                                                                                                                         |      |
-| imaging-database.owner                                                                 |                                       |                                                                                                                                                         |      |
-| imaging-database.password                                                              |                                       |                                                                                                                                                         |      |
-| authentication-service                                                                 | file-authentication-service           | Authentication configuration                                                                                                                            |      |
-| allow-missing-user-creation                                                            | false                                 | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service. |      |
-| crowd.service.host                                                                     |                                       | Crowd configuration                                                                                                                                     |      |
-| crowd.service.port                                                                     |                                       |                                                                                                                                                         |      |
-| crowd.application.name                                                                 |                                       |                                                                                                                                                         |      |
-| crowd.application.password                                                             |                                       |                                                                                                                                                         |      |
-| ldap.server.url                                                                        | <LDAP URL1> <LDAP URL2>               | The space-separated URLs of the LDAP servers                                                                                                            |      |
-| ldap.security.principal.distinguished.name                                             |                                       | The distinguished name of the security principal                                                                                                        |      |
-| ldap.security.principal.password                                                       |                                       |                                                                                                                                                         |      |
-| ldap.security.protocol                                                                 |                                       |                                                                                                                                                         |      |
-| ldap.security.authentication-method                                                    |                                       |                                                                                                                                                         |      |
-| ldap.referral                                                                          |                                       |                                                                                                                                                         |      |
-| ldap.searchBase                                                                        |                                       |                                                                                                                                                         |      |
-| ldap.attributenames.user.id                                                            |                                       |                                                                                                                                                         |      |
-| ldap.attributenames.email                                                              |                                       |                                                                                                                                                         |      |
-| ldap.attributenames.first.name                                                         |                                       |                                                                                                                                                         |      |
-| ldap.attributenames.last.name                                                          |                                       |                                                                                                                                                         |      |
-| ldap.queryEmailForAliases                                                              |                                       |                                                                                                                                                         |      |
-| ldap.queryTemplate                                                                     |                                       |                                                                                                                                                         |      |
-| ldap.maxRetries                                                                        |                                       |                                                                                                                                                         |      |
-| ldap.timeout                                                                           |                                       |                                                                                                                                                         |      |
-| ldap.timeToWaitAfterFailure                                                            |                                       |                                                                                                                                                         |      |
-| user-for-anonymous-login                                                               |                                       | Login of the existing user whose settings will be used for anonymous login                                                                              |      |
-| authorization.project-level.enabled                                                    |                                       |                                                                                                                                                         |      |
-| authorization.project-level.users                                                      |                                       |                                                                                                                                                         |      |
-| project-samples-enabled                                                                |                                       |                                                                                                                                                         |      |
-| web-client-configuration-file                                                          |                                       |                                                                                                                                                         |      |
-| trusted-cross-origin-domains                                                           |                                       |                                                                                                                                                         |      |
-| session-timeout                                                                        |                                       | The time after which an inactive session is expired by the service (in minutes).                                                                        |      |
-| session-timeout-no-login                                                               |                                       |                                                                                                                                                         |      |
-| max-number-of-sessions-per-user                                                        |                                       |                                                                                                                                                         |      |
-| users-with-unrestricted-number-of-sessions                                             |                                       |                                                                                                                                                         |      |
-| material-relax-code-constraints                                                        |                                       |                                                                                                                                                         |      |
-| data-set-types-with-no-experiment-needed                                               |                                       |                                                                                                                                                         |      |
-| create-continuous-sample-codes                                                         |                                       |                                                                                                                                                         |      |
-| entity-history.enabled                                                                 |                                       |                                                                                                                                                         |      |
-| onlinehelp.generic.root-url                                                            |                                       |                                                                                                                                                         |      |
-| onlinehelp.generic.page-template                                                       |                                       |                                                                                                                                                         |      |
-| openbis.support.email                                                                  |                                       |                                                                                                                                                         |      |
-| memorymonitor-monitoring-interval                                                      |                                       |                                                                                                                                                         |      |
-| memorymonitor-log-interval                                                             |                                       |                                                                                                                                                         |      |
-| memorymonitor-high-watermark-percent                                                   |                                       |                                                                                                                                                         |      |
-| query-databases                                                                        |                                       | Database Configurations for Query module                                                                                                                |      |
-| openbisDB.label                                                                        |                                       |                                                                                                                                                         |      |
-| openbisDB.data-space                                                                   |                                       |                                                                                                                                                         |      |
-| openbisDB.creator-minimal-role                                                         |                                       |                                                                                                                                                         |      |
-| openbisDB.database-driver                                                              |                                       |                                                                                                                                                         |      |
-| openbisDB.database-url                                                                 |                                       |                                                                                                                                                         |      |
-| openbisDB.database-username                                                            |                                       |                                                                                                                                                         |      |
-| openbisDB.database-password                                                            |                                       |                                                                                                                                                         |      |
-| maintenance-plugins                                                                    |                                       | Maintenance plugins configuration                                                                                                                       |      |
-| authorization-component-factory                                                        | Internal - do not change              |                                                                                                                                                         |      |
-| script-folder                                                                          |                                       | Internal - do not change                                                                                                                                |      |
-| jython-version                                                                         |                                       | Internal - do not change                                                                                                                                |      |
-| api.v3.operation-execution.store.path                                                  |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.name                                            |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.core-size                                       |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.max-size                                        |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.keep-alive-time                                 |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.progress.thread-name                                        |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.progress.interval                                           |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.default                                   |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.max                                       |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.summary.default                           |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.summary.max                               |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.details.default                           |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.details.max                               |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timeout-pending-task.name          |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval      |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name     |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name     |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.capacity                                              |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.class                                                 |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.directory                                             |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.clearance-task-name                                   |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.timeout                                               |                                       |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.timeout-check-interval                                |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.enabled                                                             |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.coordinator-key                                                     |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.interactive-session-key                                             |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.transaction-count-limit                                             |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.transaction-timeout                                                 |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.finish-transactions-interval                                        |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.transaction-log-folder-path                                         |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.participant.application-server.url                                  |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.participant.application-server.timeout                              |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.participant.afs-server.url                                          |                                       |                                                                                                                                                         |      |
-| api.v3.transaction.participant.afs-server.timeout                                      |                                       |                                                                                                                                                         |      |
-| server-public-information.afs-server.url                                               |                                       |                                                                                                                                                         |      |
+| Key                                      | Example Value | Short Explanation                                                                          |
+|------------------------------------------|---------------|--------------------------------------------------------------------------------------------|
+| database-instance                        | DEFAULT       | The database instance local unique identifier.                                             |      
+| database.url-host-part                   | localhost     | The host and optionally port.                                                              |      
+| database.kind                            | prod          |                                                                                            |      
+| database.owner                           | openbis       | User who owns the database. Default: Operating system user running the server.             |      
+| database.owner-password                  |               |                                                                                            |      
+| database.admin-user                      | postgres      | Superuser of the database.                                                                 |      
+| database.admin-password                  |               |                                                                                            |      
+| database.max-active-connections          | 20            | Max. number of active database connections.                                                |      
+| database.max-idle-connections            | 20            | Max. number of idle database connections to keep open.                                     |      
+| database.active-connections-log-interval | 3600          | Log interval (in seconds) between two regular log entries of the number of active database |      
 
+### Session Configuration (Required)
+
+| Key                                            | Example Value                                 | Short Explanation                                                                       | 
+|------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
+| session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        | 
+| session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |     
+| max-number-of-sessions-per-user                |                                               |                                                                                         |      
+| users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |      
+| personal-access-tokens-enabled                 | true                                          | Enable personal access tokens                                                           |
+| personal-access-tokens-file-path               | /home/openbis/run/personal-access-tokens.json |
+| personal-access-tokens-max-validity-period     | 2592000                                       | Validity of personal access tokens                                                      |
+| personal-access-tokens-validity-warning-period | 432000                                        |                                                                                         |
+
+### Exports Configuration (Optional)
+
+| Key               | Example Value     | Short Explanation                   | 
+|-------------------|-------------------|-------------------------------------|
+| download-url      | https://localhost | The base URL for Web client access. |
+| export.data-limit | 10737418240       | Export data limit in bytes          |
+
+### Imports Configuration (Optional)
+
+| Key                          | Example Value                         | Short Explanation                                                                            | 
+|------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------|
+| xls-import.version-data-file | ../../../xls-import-version-info.json | Path to the file which stores version information of master data imported from Excel sheets. |
+
+### Authentication Configuration (Required)
+
+Supported Authentication options are:
+- 'file-authentication-service'
+- 'ldap-authentication-service'
+- 'crowd-authentication-service'
+- 'file-crowd-authentication-service'
+- 'file-ldap-authentication-service'
+- 'stacked-authentication-service' : ldap - crowd
+
+crowd prefixed properties are only used by crowd.
+ldap prefixed properties are only used by ldap.
+
+| Key                                        | Example Value               | Short Explanation                                                                                                                                       |
+|--------------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| authentication-service                     | file-authentication-service | Authentication configuration                                                                                                                            |      
+| user-for-anonymous-login                   |                             | Login of the existing user whose settings will be used for anonymous login                                                                              |      
+| allow-missing-user-creation                | false                       | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service. |      
+| crowd.service.host                         |                             | Crowd configuration                                                                                                                                     |      
+| crowd.service.port                         |                             |                                                                                                                                                         |      
+| crowd.application.name                     |                             |                                                                                                                                                         |      
+| crowd.application.password                 |                             |                                                                                                                                                         |      
+| ldap.server.url                            | <LDAP URL1> <LDAP URL2>     | The space-separated URLs of the LDAP servers                                                                                                            |      
+| ldap.security.principal.distinguished.name |                             | The distinguished name of the security principal                                                                                                        |      
+| ldap.security.principal.password           |                             |                                                                                                                                                         |      
+| ldap.security.protocol                     |                             |                                                                                                                                                         |      
+| ldap.security.authentication-method        |                             |                                                                                                                                                         |      
+| ldap.referral                              |                             |                                                                                                                                                         |      
+| ldap.searchBase                            |                             |                                                                                                                                                         |      
+| ldap.attributenames.user.id                |                             |                                                                                                                                                         |      
+| ldap.attributenames.email                  |                             |                                                                                                                                                         |      
+| ldap.attributenames.first.name             |                             |                                                                                                                                                         |      
+| ldap.attributenames.last.name              |                             |                                                                                                                                                         |      
+| ldap.queryEmailForAliases                  |                             |                                                                                                                                                         |      
+| ldap.queryTemplate                         |                             |                                                                                                                                                         |      
+| ldap.maxRetries                            |                             |                                                                                                                                                         |      
+| ldap.timeout                               |                             |                                                                                                                                                         |      
+| ldap.timeToWaitAfterFailure                |                             |                                                                                                                                                         |      
+
+### Authorization Configuration (Required)
+
+| Key                                 | Example Value | Short Explanation | 
+|-------------------------------------|---------------|-------------------|
+| authorization.project-level.enabled |               |                   |      
+| authorization.project-level.users   |               |                   |      
+
+### Miscellaneous Configuration (Optional)
+
+| Key                           | Example Value | Short Explanation | 
+|-------------------------------|---------------|-------------------|
+| web-client-configuration-file |               |                   |  
+| trusted-cross-origin-domains  |               |                   |    
+
+### Miscellaneous Configuration (Optional)
+
+| Key                                      | Example Value | Short Explanation |
+|------------------------------------------|---------------|-------------------|
+| project-samples-enabled                  | true          |                   |
+| material-relax-code-constraints          |               |                   |      
+| data-set-types-with-no-experiment-needed |               |                   |      
+| create-continuous-sample-codes           |               |                   |
+
+### Support Related Configuration (Optional)
+| Key                                  | Example Value | Short Explanation |
+|--------------------------------------|---------------|-------------------|
+| onlinehelp.generic.root-url          |               |                   |      
+| openbis.support.email                |               |                   |      
+| memorymonitor-monitoring-interval    |               |                   |      
+| memory-monitor-log-interval          |               |                   |      
+| memorymonitor-high-watermark-percent |               |                   |      
+
+
+### Miscellaneous Configuration (Optional)
+
+| Key                             | Example Value            | Short Explanation                 |
+|---------------------------------|--------------------------|-----------------------------------|
+| entity-history.enabled          |                          |                                   |                                                                                                                                                         |
+| maintenance-plugins             |                          | Maintenance plugins configuration |      
+| authorization-component-factory | Internal - do not change |                                   |      
+| script-folder                   |                          | Internal - do not change          |      
+| jython-version                  |                          | Internal - do not change          |      
+
+### V3 API Configuration (Optional)
+
+| Key                                                                                    | Example Value | Short Explanation |
+|----------------------------------------------------------------------------------------|---------------|-------------------|
+| api.v3.operation-execution.store.path                                                  |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.thread-pool.name                                            |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.thread-pool.core-size                                       |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.thread-pool.max-size                                        |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.thread-pool.keep-alive-time                                 |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.progress.thread-name                                        |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.progress.interval                                           |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-time.default                                   |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-time.max                                       |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-time.summary.default                           |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-time.summary.max                               |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-time.details.default                           |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-time.details.max                               |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-update.mark-timeout-pending-task.name          |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval      |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name     |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name     |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.cache.capacity                                              |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.cache.class                                                 |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.cache.directory                                             |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.cache.clearance-task-name                                   |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.cache.timeout                                               |               |                   |                                                                                                                                                         |      |
+| api.v3.operation-execution.cache.timeout-check-interval                                |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.enabled                                                             |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.coordinator-key                                                     |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.interactive-session-key                                             |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.transaction-count-limit                                             |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.transaction-timeout                                                 |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.finish-transactions-interval                                        |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.transaction-log-folder-path                                         |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.participant.application-server.url                                  |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.participant.application-server.timeout                              |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.participant.afs-server.url                                          |               |                   |                                                                                                                                                         |      |
+| api.v3.transaction.participant.afs-server.timeout                                      |               |                   |                                                                                                                                                         |      |
+| server-public-information.afs-server.url                                               |               |                   |                                                                                                                                                         |      |
 
 ## DSS MODULES
-
 
 | Key                                                    | Example Value                         | Short Explanation                                                                                                          | More |
 |--------------------------------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------|------|
@@ -232,8 +283,7 @@ e.g
 | eln-lims.as.services.as-eln-lims-api.script-path                           |               |                   |      |
 | eln-lims.as.services.freeze-api.script-path                                |               |                   |      |
 | eln-lims.as.services.publication-api.script-path                           |               |                   |      |
-| eln-lims.as.webapps.eln-lims.webapp-folder                                 |               |                   |      |
-| file-server.section_eln-lims.download-url-template                         |               |                   |      |
+| eln-lims.as.webapps.eln-lims.webapp-folder                                 |               |                   |      || file-server.section_eln-lims.download-url-template                         |               |                   |      |
 | file-server.section_eln-lims.error-message-template                        |               |                   |      |
 
 #### DSS PROPERTIES
