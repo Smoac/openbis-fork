@@ -78,7 +78,7 @@ public class ImportExperimentTypesTest extends AbstractImportTest
 
         // WHEN
         ExperimentType collection = TestUtils.getExperimentType(v3api, sessionToken, "COLLECTION");
-        List<String> propertyNames = Arrays.asList("$NAME", "DEFAULT_OBJECT_TYPE");
+        List<String> propertyNames = Arrays.asList("NAME", "DEFAULT_OBJECT_TYPE");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(collection, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment defaultObjectTypeProperty = propertyAssignments.get(1);
@@ -119,7 +119,7 @@ public class ImportExperimentTypesTest extends AbstractImportTest
                 FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_UPDATE), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT));
         TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(updateSessionWorkspaceFilePaths[0]));
         ExperimentType collection = TestUtils.getExperimentType(v3api, sessionToken, "COLLECTION");
-        List<String> propertyNames = Arrays.asList("$NAME", "DEFAULT_OBJECT_TYPE");
+        List<String> propertyNames = Arrays.asList("NAME", "DEFAULT_OBJECT_TYPE");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(collection, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment defaultObjectTypeProperty = propertyAssignments.get(1);

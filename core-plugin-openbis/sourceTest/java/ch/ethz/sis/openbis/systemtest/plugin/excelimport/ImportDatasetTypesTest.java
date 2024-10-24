@@ -75,7 +75,7 @@ public class ImportDatasetTypesTest extends AbstractImportTest
 
         // WHEN
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
-        List<String> propertyNames = Arrays.asList("$NAME", "NOTES");
+        List<String> propertyNames = Arrays.asList("NAME", "NOTES");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(rawData, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment notesProperty = propertyAssignments.get(1);
@@ -147,7 +147,7 @@ public class ImportDatasetTypesTest extends AbstractImportTest
                 FilenameUtils.concat(FILES_DIR, DATASET_TYPES_UPDATE), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT));
         TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePaths[0]));
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
-        List<String> propertyNames = Arrays.asList("$NAME", "NOTES");
+        List<String> propertyNames = Arrays.asList("NAME", "NOTES");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(rawData, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment notesProperty = propertyAssignments.get(1);

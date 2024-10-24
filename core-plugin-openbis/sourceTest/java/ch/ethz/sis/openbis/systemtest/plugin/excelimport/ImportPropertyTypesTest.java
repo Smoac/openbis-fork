@@ -114,10 +114,10 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
 
         // WHEN
-        PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "INTERNAL_PROP");
 
         // THEN
-        assertEquals(notes.getCode(), "$INTERNAL_PROP");
+        assertEquals(notes.getCode(), "INTERNAL_PROP");
         assertEquals(notes.getLabel(), "Name");
         assertEquals(notes.getDataType(), DataType.VARCHAR);
         assertEquals(notes.getDescription(), "Name");
@@ -210,7 +210,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         final String sessionWorkspaceFilePath1 = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS));
         TestUtils.createFrom(v3api, sessionToken, UpdateMode.FAIL_IF_EXISTS, Paths.get(sessionWorkspaceFilePath1));
 
-        PropertyType type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        PropertyType type = TestUtils.getPropertyType(v3api, sessionToken, "INTERNAL_PROP");
         assertNotNull(type);
         PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
         deletionOptions.setReason("test");
@@ -222,7 +222,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath2));
 
         // remove all data from DB
-        type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        type = TestUtils.getPropertyType(v3api, sessionToken, "INTERNAL_PROP");
         assertNotNull(type);
         deletionOptions = new PropertyTypeDeletionOptions();
         deletionOptions.setReason("test");

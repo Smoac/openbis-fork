@@ -253,7 +253,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
         String systemSessionToken = v3api.loginAsSystem();
 
         VocabularyCreation vocabularyCreation = new VocabularyCreation();
-        vocabularyCreation.setCode("$VOCABULARY-WITH-TERM-TO-TAKE-OVER");
+        vocabularyCreation.setCode("VOCABULARY-WITH-TERM-TO-TAKE-OVER");
         vocabularyCreation.setManagedInternally(true);
 
         VocabularyPermId vocabularyId = v3api.createVocabularies(systemSessionToken, Arrays.asList(vocabularyCreation)).get(0);

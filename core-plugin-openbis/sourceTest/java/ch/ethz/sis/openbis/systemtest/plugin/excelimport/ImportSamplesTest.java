@@ -508,8 +508,8 @@ public class ImportSamplesTest extends AbstractImportTest
         // test experiment before update
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "DEFAULT_EXPERIMENT", "DEFAULT_PROJECT", "ELN_SETTINGS");
         assertEquals(experiment.getProperties().size(), 1);
-        assertEquals(experiment.getProperties().containsKey("$NAME"), true);
-        assertEquals(experiment.getProperties().get("$NAME"), "Default Experiment");
+        assertEquals(experiment.getProperties().containsKey("NAME"), true);
+        assertEquals(experiment.getProperties().get("NAME"), "Default Experiment");
 
         final String sessionWorkspaceFilePathForUpdate = uploadToAsSessionWorkspace(sessionToken,
                 FilenameUtils.concat(FILES_DIR, GENERAL_ELN_SETTINGS_UPDATE));
@@ -520,8 +520,8 @@ public class ImportSamplesTest extends AbstractImportTest
         assertNotNull(sample);
         // properties have been updated
         assertEquals(sample.getProperties().size(), 1);
-        assertEquals(sample.getProperties().containsKey("$ELN_SETTINGS"), true);
-        assertEquals(sample.getProperties().get("$ELN_SETTINGS"), "{}");
+        assertEquals(sample.getProperties().containsKey("ELN_SETTINGS"), true);
+        assertEquals(sample.getProperties().get("ELN_SETTINGS"), "{}");
 
         // test space after update
         space = TestUtils.getSpace(v3api, sessionToken, "ELN_SETTINGS");
@@ -535,8 +535,8 @@ public class ImportSamplesTest extends AbstractImportTest
         // test experiment after update
         experiment = TestUtils.getExperiment(v3api, sessionToken, "DEFAULT_EXPERIMENT", "DEFAULT_PROJECT", "ELN_SETTINGS");
         assertEquals(experiment.getProperties().size(), 1);
-        assertEquals(experiment.getProperties().containsKey("$NAME"), true);
-        assertEquals(experiment.getProperties().get("$NAME"), "Default Experiment Updated");
+        assertEquals(experiment.getProperties().containsKey("NAME"), true);
+        assertEquals(experiment.getProperties().get("NAME"), "Default Experiment Updated");
     }
 
     @Test(expectedExceptions = UserFailureException.class,
