@@ -11846,7 +11846,7 @@ resource:CHE-229_707_417-sphn-DataDetermination-ae2c9ccf-b0a5-4527-aa4c-e938448e
 
 resource:CHE-229_707_417-sphn-DataProvider-20b342da-ab00-4983-91be-d144fcf74f44 a
                                                                                                         sphn:DataProvider;
-                                                                                sphn:hasCategory sphn-individual:ResearchOrganization;
+                                                                                sphn:hasCategory sphn-individual:Biobank;
                                                                                 sphn:hasDepartment resource:CHE-229_707_417-sphn-Department-a568da4e-2c37-4fb7-be36-8e22ea4296e1;
                                                                                 sphn:hasInstitutionCode resource:CHE-229_707_417-sphn-DataProvider-20b342da-ab00-4983-91be-d144fcf74f44-sphn-Code-0a3d1712-59de-4196-953c-24344665bb06 .
 
@@ -11979,7 +11979,6 @@ resource:CHE-229_707_417-sphn-DrugPrescription-6c1d8f68-61e3-4ae9-bb95-ca7ab8997
     sphn:hasDrug resource:CHE-229_707_417-sphn-Drug-f62c63e9-d81b-4c73-aaba-d04334642230;
     sphn:hasFirstAdministrationDateTime "2006-03-06T04:14:15.219769+00:00"^^xsd:dateTime;
     sphn:hasFrequency resource:CHE-229_707_417-sphn-Quantity-cf3614f2-4fc1-4c5f-b62d-6dcf3a1f1042;
-    sphn:hasIndicationToStart resource:CHE-229_707_417-sphn-OncologyDiagnosis-ca60dc11-62b6-432c-bcc9-71715b626957;
     sphn:hasIntent resource:CHE-229_707_417-sphn-Intent-f6c08013-6d4f-4a91-a360-ae91ec8bcebf;
     sphn:hasLastAdministrationDateTime "2024-08-02T15:13:01.070813+00:00"^^xsd:dateTime;
     sphn:hasRecordDateTime "2020-03-29T07:23:52.034086+00:00"^^xsd:dateTime;
@@ -12033,7 +12032,6 @@ resource:CHE-229_707_417-sphn-Isolate-324442bf-0faf-4b93-98f5-bc97bb3754ee a sph
                                                                            sphn:hasMaterialTypeCode resource:CHE-229_707_417-sphn-Isolate-324442bf-0faf-4b93-98f5-bc97bb3754ee-sphn-Code-SNOMED-CT-119342007;
                                                                            sphn:hasOrganism resource:CHE-229_707_417-sphn-Organism-d75517da-c6c8-49c4-87d4-973e695c058b;
                                                                            sphn:hasPrimaryContainer sphn-individual:PolyethyleneTubeSterile;
-                                                                           sphn:hasSharedIdentifier "molestias, molestias, veniam officiis reiciendis"^^xsd:anyURI;
                                                                            sphn:hasSourceSystem resource:CHE-229_707_417-sphn-SourceSystem-d01682a3-2fc4-486a-91f5-41ce9e713df3;
                                                                            sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-sphn-SubjectPseudoIdentifier-8b9dec66-7c4b-4794-908d-30facf2c9475 .
 
