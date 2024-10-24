@@ -327,7 +327,14 @@ public class ClassCollector {
                     Resource range = rangeStmt.getObject().asResource();
                     if (range.canAs(UnionClass.class))
                     {
-                        propertyType.dataType = "SAMPLE";
+                        var unionOperands = getUnionClassOperands(range.as(UnionClass.class));
+                        if (unionOperands.contains("http://www.w3.org/2001/XMLSchema#string")){
+                            propertyType.dataType = "VARCHAR";
+                        } else {
+                            propertyType.dataType = "SAMPLE";
+                        }
+
+
                         propertyType.metadata.put("UNION_TYPE", getUnionClassOperands(range.as(UnionClass.class)).toString());
                     } else if (range.isURIResource())
                     {
