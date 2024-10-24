@@ -14,8 +14,22 @@ import VocabularyTypeFormButtons from '@src/js/components/types/form/vocabularyt
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import LockLabel from '@src/js/components/common/form/LockLabel.jsx'
 
 const columns = [
+  {
+      name: 'Internal',
+      label: '',
+      getValue: ({ row }) => {
+          return row.internal.value;
+      },
+      renderValue: ({ value }) => {
+          if(value) {
+              return <LockLabel fontSize='small' color='disabled' />
+          }
+          return null;
+      }
+    },
   {
     name: 'code',
     label: messages.get(messages.CODE),

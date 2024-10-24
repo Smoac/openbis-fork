@@ -5,6 +5,7 @@ import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import LockLabel from '@src/js/components/common/form/LockLabel.jsx'
 
 class VocabularyTypesGrid extends React.PureComponent {
   render() {
@@ -20,6 +21,19 @@ class VocabularyTypesGrid extends React.PureComponent {
         controllerRef={controllerRef}
         header={messages.get(messages.VOCABULARY_TYPES)}
         columns={[
+          {
+            name: 'Internal',
+            label: '',
+            getValue: ({ row }) => {
+                return row.internal;
+            },
+            renderValue: ({ value }) => {
+                if(value) {
+                  return  <LockLabel fontSize='small' color='disabled' />
+                }
+              return null;
+            }
+          },
           {
             name: 'code',
             label: messages.get(messages.CODE),

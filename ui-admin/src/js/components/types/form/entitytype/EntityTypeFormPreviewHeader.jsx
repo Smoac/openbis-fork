@@ -7,6 +7,7 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import LockLabel from '@src/js/components/common/form/LockLabel.jsx'
 
 const styles = theme => ({
   field: {
@@ -58,7 +59,7 @@ class EntityTypeFormPreviewHeader extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           name='code'
-          label={messages.get(messages.CODE)}
+          label={<LockLabel label={messages.get(messages.CODE)}/>}
           value={value}
           disabled={disabled}
           mode={PageMode.EDIT}

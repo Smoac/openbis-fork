@@ -22,6 +22,11 @@ const styles = theme => ({
       color: theme.palette.hint.main
     }
   },
+  lock_dark: {
+    '& svg': {
+      color: theme.palette.hint.dark
+    }
+  },
   error: {
     '& svg': {
       color: theme.palette.error.main
@@ -68,7 +73,7 @@ class Message extends React.PureComponent {
       return <InfoIcon fontSize='small' />
     } else if (type === 'warning') {
       return <WarningIcon fontSize='small' />
-    } else if (type === 'lock') {
+    } else if (type === 'lock' || type === 'lock_dark') {
       return <LockIcon fontSize='small' />
     } else {
       return null

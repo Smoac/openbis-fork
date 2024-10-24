@@ -45,15 +45,7 @@ export default class VocabularyTypeFormControllerValidate extends PageController
   _validateVocabulary(validator, vocabulary) {
     validator.validateNotEmpty(vocabulary, 'code', messages.get(messages.CODE))
 
-    if (vocabulary.internal.value) {
-      validator.validateInternalCode(
-        vocabulary,
-        'code',
-        messages.get(messages.CODE)
-      )
-    } else {
-      validator.validateCode(vocabulary, 'code', messages.get(messages.CODE))
-    }
+    validator.validateCode(vocabulary, 'code', messages.get(messages.CODE))
 
     validator.validatePattern(vocabulary, 'urlTemplate', messages.get(messages.URL_TEMPLATE_PATTERN), URL_TEMPLATE_PATTERN)
 
@@ -69,10 +61,6 @@ export default class VocabularyTypeFormControllerValidate extends PageController
 
   _validateTerm(validator, term) {
     validator.validateNotEmpty(term, 'code', messages.get(messages.CODE))
-    if(term.internal.value) {
-        validator.validateInternalTermCode(term, 'code', messages.get(messages.CODE))
-    } else {
-        validator.validateTermCode(term, 'code', messages.get(messages.CODE))
-    }
+    validator.validateTermCode(term, 'code', messages.get(messages.CODE))
   }
 }

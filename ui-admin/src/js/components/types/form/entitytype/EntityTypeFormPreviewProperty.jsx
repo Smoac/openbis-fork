@@ -14,6 +14,7 @@ import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
+import LockLabel from '@src/js/components/common/form/LockLabel.jsx'
 
 const EMPTY = 'empty'
 
@@ -536,6 +537,20 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
     )
   }
 
+  renderInternalIcon(internal) {
+    if(internal) {
+        return <LockLabel fontSize='inherit'/>
+    }
+    return null;
+  }
+
+  renderInternalAssignmentIcon(internalAssignment) {
+    if(internalAssignment) {
+        return <LockLabel fontSize='inherit' color='black'/>
+    }
+    return null;
+  }
+
   getMetadata() {
     const styles = this.getStyles()
 
@@ -547,6 +562,8 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
           className={styles.code}
           onClick={this.handlePropertyClick}
         >
+         {this.renderInternalIcon(this.props.property.internal.value)}
+         {this.renderInternalAssignmentIcon(this.props.property.assignmentInternal.value)}
           {this.getCode()}
         </span>
         ][

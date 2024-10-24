@@ -172,11 +172,12 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
                 ? ' ' +
                   messages.get(messages.PROPERTY_PARAMETERS_CANNOT_BE_CHANGED)
                 : ''}
-              {property.assignmentInternal.value
-                ? ' ' +
-                  messages.get(messages.PROPERTY_ASSIGNMENT_CANNOT_BE_REMOVED)
-                : ''}
             </Message>
+            {property.assignmentInternal.value ?
+             <Message type='lock_dark'>
+              {messages.get(messages.PROPERTY_ASSIGNMENT_CANNOT_BE_REMOVED)}
+            </Message>
+             : ''}
           </div>
         )
       }
