@@ -197,8 +197,6 @@ public class RDFReader
                             .filter(Objects::nonNull)
                             .map(x -> getCodeFromSphnUri(x)).toList();
 
-
-                    ontClassExtensionMap.get("aa");
                     if (vocabularyTypeListGroupedByTypeMap.containsKey(samplePropertyType.code) || restrictionCodes.stream().anyMatch(
                             vocabularyTypeListGroupedByTypeMap::containsKey) || vocabularyTypeListGroupedByTypeMap.keySet().stream().anyMatch(key -> samplePropertyType.code.contains(key)))
                     {
