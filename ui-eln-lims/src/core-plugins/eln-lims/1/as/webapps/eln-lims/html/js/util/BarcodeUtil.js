@@ -12,7 +12,7 @@ var BarcodeUtil = new function() {
 
         if (_this.isValidBarcode(barcodeReader)) {
             var rules = {};
-            rules["UUIDv4-1"] = { type: "Property/Attribute", 	name: "PROP.$BARCODE", operator : "thatEqualsString", value: barcodeReader };
+            rules["UUIDv4-1"] = { type: "Property/Attribute", 	name: "PROP.BARCODE", operator : "thatEqualsString", value: barcodeReader };
             rules["UUIDv4-2"] = { type: "Property/Attribute", 	name: "ATTR.PERM_ID",  operator : "thatEqualsString", value: barcodeReader };
 
             var criteria = {};
@@ -597,8 +597,8 @@ var BarcodeUtil = new function() {
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
             var $barcodeReader = $('<input>', { 'type': 'text', 'placeholder': 'barcode', 'style' : 'min-width: 50%;' });
             $barcodeReaders.push($barcodeReader);
-            if (entities[eIdx].properties && entities[eIdx].properties["$BARCODE"]) {
-                $barcodeReader.val(entities[eIdx].properties["$BARCODE"]);
+            if (entities[eIdx].properties && entities[eIdx].properties["BARCODE"]) {
+                $barcodeReader.val(entities[eIdx].properties["BARCODE"]);
                 $barcodeReader.select();
             }
         }
@@ -631,7 +631,7 @@ var BarcodeUtil = new function() {
                         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
                             var sampleUpdate = new SampleUpdate();
                             sampleUpdate.setSampleId(new SamplePermId(entities[eIdx].permId));
-                            sampleUpdate.setProperty("$BARCODE", $barcodeReaders[eIdx].val());
+                            sampleUpdate.setProperty("BARCODE", $barcodeReaders[eIdx].val());
                             sampleUpdates.push(sampleUpdate);
                         }
 
@@ -660,7 +660,7 @@ var BarcodeUtil = new function() {
 			        entityKind : "SAMPLE",
 				    logicalOperator : "OR",
 				    rules : {
-				        "UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$BARCODE", operator : "thatEqualsString", value: $barcodeReader.val() }
+				        "UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.BARCODE", operator : "thatEqualsString", value: $barcodeReader.val() }
 				    }
 			    };
                 mainController.serverFacade.searchForSamplesAdvanced(criteria, {
@@ -745,8 +745,8 @@ var BarcodeUtil = new function() {
     this.showBarcode = function(entity) {
         var _this = this;
         var barcode = null;
-        if(entity.properties && entity.properties["$BARCODE"]) {
-            barcode = entity.properties["$BARCODE"];
+        if(entity.properties && entity.properties["BARCODE"]) {
+            barcode = entity.properties["BARCODE"];
         } else {
             barcode = entity.permId;
         }

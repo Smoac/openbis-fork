@@ -993,7 +993,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
                 label : 'Name',
                 property : '$NAME',
-                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("$NAME"),
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("NAME"),
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data) {
@@ -1209,7 +1209,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				//2. Get columns
 				var propertyColumnsToSort = [];
 				for(var propertyCode in foundPropertyCodes) {
-					var propertiesToSkip = ["$NAME", "$XMLCOMMENTS", "$ANNOTATIONS_STATE"];
+					var propertiesToSkip = ["NAME", "XMLCOMMENTS", "ANNOTATIONS_STATE"];
 					if($.inArray(propertyCode, propertiesToSkip) !== -1) {
 						continue;
 					}

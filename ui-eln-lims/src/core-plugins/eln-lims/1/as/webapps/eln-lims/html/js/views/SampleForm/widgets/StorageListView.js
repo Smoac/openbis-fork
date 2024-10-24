@@ -66,7 +66,7 @@ function StorageListView(storageListController, storageListModel) {
 		
 		var storagePropertyCodes = profile.getAllPropertiCodesForTypeCode("STORAGE_POSITION");
 		var storagePropertyCodesAsMap = {};
-		var propertiesToSkip = ["$XMLCOMMENTS", "$ANNOTATIONS_STATE"];
+		var propertiesToSkip = ["XMLCOMMENTS", "ANNOTATIONS_STATE"];
 		for(var pIdx = 0; pIdx < storagePropertyCodes.length; pIdx++) {
 			if($.inArray(storagePropertyCodes[pIdx], propertiesToSkip) !== -1) {
 				continue;

@@ -76,11 +76,11 @@ var FormUtil = new function() {
 	}
 	
 	this.getAnnotationsFromSampleV1 = function(sample, type) {
-		var field = sample.properties["$ANNOTATIONS_STATE"];
+		var field = sample.properties["ANNOTATIONS_STATE"];
 		var stateFieldValue = Util.getEmptyIfNull(field);
 		if(stateFieldValue === "") {
 			stateFieldValue = undefined;
-			sample.properties["$ANNOTATIONS_STATE"] = undefined;
+			sample.properties["ANNOTATIONS_STATE"] = undefined;
 		}
 		var allAnnotations = this.getAnnotationsFromField(stateFieldValue);
 		var typeAnnotations = {};
@@ -2940,7 +2940,7 @@ var FormUtil = new function() {
                                 var searchCriteria = new SampleSearchCriteria();
                                 searchCriteria.withOrOperator();
                                 for(var ssIdx=0; ssIdx < sampleStoragesCodesToDelete.length; ssIdx++) {
-                                    searchCriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesCodesToDelete[ssIdx]);
+                                    searchCriteria.withStringProperty("STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesCodesToDelete[ssIdx]);
                                 }
                                 var fetchOptions = new SampleFetchOptions();
                                 mainController.openbisV3.searchSamples(searchCriteria, fetchOptions).done(function(results) {

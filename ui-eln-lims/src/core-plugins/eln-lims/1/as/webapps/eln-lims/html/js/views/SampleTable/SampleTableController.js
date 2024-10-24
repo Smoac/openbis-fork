@@ -41,7 +41,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 		
 		var properyKeyValueList = null;
 		if (this._sampleTableModel.showInProjectOverview) {
-			properyKeyValueList = [{ "$SHOW_IN_PROJECT_OVERVIEW" : "\"true\"" }];
+			properyKeyValueList = [{ "SHOW_IN_PROJECT_OVERVIEW" : "\"true\"" }];
 		}
 		
 		//
@@ -62,7 +62,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 		}
 		
 		if(this._sampleTableModel.showInProjectOverview) {
-			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "$SHOW_IN_PROJECT_OVERVIEW", value : "true", operator : "thatEqualsString" };
+			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "SHOW_IN_PROJECT_OVERVIEW", value : "true", operator : "thatEqualsString" };
 		}
 		//
 		require(["as/dto/sample/id/SampleIdentifier"], function(SampleIdentifier) {
@@ -128,8 +128,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
                 extraOptions.push({ name : "Generate Barcodes", action : function(selected) {
 			        var selectedBarcodes = [];
 			        for(var sIdx = 0; sIdx < selected.length; sIdx++) {
-                        if(selected[sIdx].properties["$BARCODE"]) {
-                            selectedBarcodes.push(selected[sIdx].properties["$BARCODE"]);
+                        if(selected[sIdx].properties["BARCODE"]) {
+                            selectedBarcodes.push(selected[sIdx].properties["BARCODE"]);
                         } else {
                             selectedBarcodes.push(selected[sIdx].permId);
                         }

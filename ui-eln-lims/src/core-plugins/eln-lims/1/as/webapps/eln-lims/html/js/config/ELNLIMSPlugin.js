@@ -32,7 +32,7 @@ $.extend(ELNLIMSPlugin.prototype, {
 	 * - sampleTypeDefinitionsExtension
 	 * - dataSetTypeDefinitionsExtension
 	 */
-	forcedDisableRTF : ["$NAME"], /* Deprecated */
+	forcedDisableRTF : ["NAME"], /* Deprecated */
 	forceMonospaceFont : [],  /* Deprecated */
 	experimentTypeDefinitionsExtension : {
 

@@ -135,7 +135,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
         columns.push({
             label : 'Name',
             property : '$NAME',
-            isExportable: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("$NAME"),
+            isExportable: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("NAME"),
             sortable : true,
             filterable: true,
             showByDefault: true,
