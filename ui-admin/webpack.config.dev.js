@@ -2,6 +2,7 @@
 const Webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const path = require('path')
 
 module.exports = {
@@ -43,7 +44,14 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: ['babel-loader']
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              plugins: [require.resolve('react-refresh/babel')].filter(Boolean),
+            },
+          },
+        ],
       },
       {
         test: /\.(css)$/,
@@ -77,6 +85,7 @@ module.exports = {
   },
 
   plugins: [
+    new ReactRefreshWebpackPlugin(),
     new HtmlWebpackPlugin({
       inject: 'body',
       filename: './index.html',
