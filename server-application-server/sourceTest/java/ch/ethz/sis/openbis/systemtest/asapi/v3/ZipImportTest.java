@@ -104,7 +104,7 @@ public class ZipImportTest extends AbstractImportTest
                                            v3api.executeImport(sessionToken, importData, importOptions);
                                        }
                                    },
-                "Experiment type INTERNAL_EXPERIMENT_TYPE not found.");
+                "Vocabulary INTERNAL_VOCABULARY_TYPE does not exist.");
     }
 
     @Test
