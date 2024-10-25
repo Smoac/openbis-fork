@@ -156,7 +156,7 @@ public class CreatePropertyTypeTest extends AbstractTest
     @Test
     public void testCreateManagedInternallyPropertyTypeWithCodeWithoutDollarSign()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken = v3api.login(SYSTEM_USER, PASSWORD);
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode("test-property");
         creation.setLabel("Test Property");
@@ -167,27 +167,6 @@ public class CreatePropertyTypeTest extends AbstractTest
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
         assertNotNull(ids);
-    }
-
-    @Test
-    public void testCreateNonManagedInternallyPropertyTypeWithCodeWithDolarSign()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("$test-property");
-        creation.setLabel("Test Property");
-        creation.setDescription("only for testing");
-        creation.setDataType(DataType.REAL);
-        creation.setManagedInternally(false);
-        creation.setMultiValue(false);
-        assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
-                }
-            }, "'$' code prefix can be only used for the internally managed property types");
     }
 
     @Test

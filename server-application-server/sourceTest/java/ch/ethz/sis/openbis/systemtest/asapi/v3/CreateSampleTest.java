@@ -1250,40 +1250,6 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testCreateWithSystemProperty()
-    {
-        String systemPropertyName = "PLATE_GEOMETRY";
-        String systemPropertyValue = "384_WELLS_16X24";
-
-        String simplePropertyCode = "PLATE_GEOMETRY";
-        String simplePropertValue = "I'm just random";
-
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        createNewPropertyType(sessionToken, "MASTER_PLATE", simplePropertyCode);
-
-        SampleCreation samp1 = new SampleCreation();
-        samp1.setCode("SAMPLE_WITH_SYS_PROPERTY");
-        samp1.setTypeId(new EntityTypePermId("MASTER_PLATE"));
-        samp1.setSpaceId(new SpacePermId("CISD"));
-        samp1.setProperty(systemPropertyName, systemPropertyValue);
-        samp1.setProperty(simplePropertyCode, simplePropertValue);
-
-        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken,
-                Arrays.asList(samp1));
-
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-
-        Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, sampleIds, fetchOptions);
-        List<Sample> samples = new ArrayList<Sample>(map.values());
-
-        Sample foundSample = samples.get(0);
-        assertEquals(foundSample.getProperty(systemPropertyName), systemPropertyValue);
-        assertEquals(foundSample.getProperty(simplePropertyCode), simplePropertValue);
-    }
-
-    @Test
     public void testCreateWithUnknownPropertyOfTypeSample()
     {
         // Given

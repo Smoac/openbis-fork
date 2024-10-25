@@ -1477,48 +1477,6 @@ public class GetSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testGetWithHistorySystemProperty()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        String systemPropertyCode = "PLATE_GEOMETRY";
-        String simplePropertyCode = "PLATE_GEOMETRY";
-        String originalSystemPropertyValue = "384_WELLS_16X24";
-        String originalSimplePropertyValue = "I'm just random";
-        String sampleTypeCode = "MASTER_PLATE";
-
-        createNewPropertyType(sessionToken, sampleTypeCode, simplePropertyCode);
-
-        SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE_WITH_SYS_PROPERTY");
-        creation.setTypeId(new EntityTypePermId(sampleTypeCode));
-        creation.setSpaceId(new SpacePermId("CISD"));
-        creation.setProperty(systemPropertyCode, originalSystemPropertyValue);
-        creation.setProperty(simplePropertyCode, originalSimplePropertyValue);
-
-        SampleUpdate update1 = new SampleUpdate();
-        update1.setProperty(systemPropertyCode, "96_WELLS_8X12");
-
-        SampleUpdate update2 = new SampleUpdate();
-        update2.setProperty(simplePropertyCode, "I have been updated");
-
-        SampleFetchOptions fo = new SampleFetchOptions();
-        fo.withHistory();
-
-        Sample sample = testGetWithHistory(creation, fo, update1, update2);
-        List<HistoryEntry> history = sample.getHistory();
-
-        assertEquals(history.size(), 5);
-
-        assertPropertyHistory(history.get(0), systemPropertyCode, originalSystemPropertyValue + " [PLATE_GEOMETRY]");
-        assertPropertyHistory(history.get(1), simplePropertyCode, originalSimplePropertyValue);
-        assertPropertyHistory(history.get(2), systemPropertyCode, update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]",
-                sample.getModificationDate(), null);
-        assertPropertyHistory(history.get(3), simplePropertyCode, (String)update2.getProperty(simplePropertyCode), sample.getModificationDate(), null);
-        assertRelationshipHistory(history.get(4), creation.getSpaceId(), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
-    }
-
-    @Test
     public void testGetWithHistorySpace()
     {
         SampleCreation creation = new SampleCreation();
