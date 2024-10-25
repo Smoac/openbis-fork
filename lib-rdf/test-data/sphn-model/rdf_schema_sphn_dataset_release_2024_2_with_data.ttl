@@ -2629,11 +2629,7 @@ sphn:Chromosome a owl:Class ;
 sphn:DataRelease a owl:Class ;
     rdfs:label "Data Release" ;
     rdfs:subClassOf [ a owl:Class ;
-            owl:intersectionOf ( [ a owl:Restriction ;
-                        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onProperty dcterms:conformsTo ] [ a owl:Restriction ;
-                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onProperty dcterms:conformsTo ] ) ],
+                      owl:intersectionOf ( [ a dct:conformsTo  ;] ) ],
         [ a owl:Class ;
             owl:intersectionOf ( [ a owl:Restriction ;
                         owl:minCardinality "1"^^xsd:nonNegativeInteger ;
@@ -11718,7 +11714,7 @@ resource:CHE-229_707_417-sphn-BilledDiagnosis-52516f20-f022-4d94-ad36-1b8a474aaf
     sphn:hasAdministrativeCase resource:CHE-229_707_417-sphn-AdministrativeCase-d77a4813-f559-48be-a37a-28885d9683d3;
     sphn:hasCode resource:CHE-229_707_417-sphn-BilledDiagnosis-52516f20-f022-4d94-ad36-1b8a474aaffe-sphn-Code-ICD-10-GM-2016-A00.0;
     sphn:hasDataProvider resource:CHE-229_707_417-sphn-DataProvider-20b342da-ab00-4983-91be-d144fcf74f44;
-    sphn:hasRank sphn-individual:Secondary;
+    sphn:hasRank sphn-individual:Supplementary;
     sphn:hasRecordDateTime "1974-07-07T11:47:38.096366+00:00"^^xsd:dateTime;
     sphn:hasSourceSystem resource:CHE-229_707_417-sphn-SourceSystem-d01682a3-2fc4-486a-91f5-41ce9e713df3;
     sphn:hasSubjectAge resource:CHE-229_707_417-sphn-Age-a2433644-b0d1-42b1-aac1-563b01709f5c;
@@ -12436,7 +12432,6 @@ resource:CHE-229_707_417-sphn-Sample-59802a28-3abc-4fc4-a6eb-03b134bd7e30 a sphn
                                                                           sphn:hasMaterialTypeCode resource:CHE-229_707_417-sphn-Sample-59802a28-3abc-4fc4-a6eb-03b134bd7e30-sphn-Code-SNOMED-CT-258454002,
                                                                           resource:CHE-229_707_417-sphn-Sample-59802a28-3abc-4fc4-a6eb-03b134bd7e30-sphn-Code-SNOMED-CT-40511003;
                                                                           sphn:hasPrimaryContainer sphn-individual:ProteaseInhibitors;
-                                                                          sphn:hasSharedIdentifier "molestias, adipisicing esse amet modi quas libero"^^xsd:anyURI;
                                                                           sphn:hasSourceSystem resource:CHE-229_707_417-sphn-SourceSystem-d01682a3-2fc4-486a-91f5-41ce9e713df3;
                                                                           sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-sphn-SubjectPseudoIdentifier-8b9dec66-7c4b-4794-908d-30facf2c9475 .
 
@@ -12598,9 +12593,8 @@ resource:CHE-229_707_417-sphn-TumorSpecimen-3fac35ba-1d0f-4033-9d29-daf97510d56b
                                                                                  sphn:hasFixationType sphn-individual:PAXgeneTissue;
                                                                                  sphn:hasIdentifier "ID-93328711";
                                                                                  sphn:hasMaterialTypeCode resource:CHE-229_707_417-sphn-TumorSpecimen-3fac35ba-1d0f-4033-9d29-daf97510d56b-sphn-Code-SNOMED-CT-119316007,
-                                                                                                                 resource:CHE-229_707_417-sphn-TumorSpecimen-3fac35ba-1d0f-4033-9d29-daf97510d56b-sphn-Code-SNOMED-CT-168140004;
+                                                                                 resource:CHE-229_707_417-sphn-TumorSpecimen-3fac35ba-1d0f-4033-9d29-daf97510d56b-sphn-Code-SNOMED-CT-168140004;
                                                                                  sphn:hasPrimaryContainer sphn-individual:AldehydeBasedStabilizerForCTCs;
-                                                                                 sphn:hasSharedIdentifier "placeat accusantium amet consectetur modi amet"^^xsd:anyURI;
                                                                                  sphn:hasSourceSystem resource:CHE-229_707_417-sphn-SourceSystem-d01682a3-2fc4-486a-91f5-41ce9e713df3;
                                                                                  sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-sphn-SubjectPseudoIdentifier-8b9dec66-7c4b-4794-908d-30facf2c9475;
                                                                                  sphn:hasTumorPurity resource:CHE-229_707_417-sphn-Quantity-fa45f171-8f7b-4dce-90e7-f803026d1c4a .
