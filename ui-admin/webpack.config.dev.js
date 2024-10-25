@@ -15,15 +15,17 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     port: 9999,
-    https: false,
-    proxy: {
-      '/openbis': {
+    server: {
+        type: 'https'
+    },
+    proxy: [{
+        context: ['/openbis'],
         target: 'http://localhost:8888',
         pathRewrite: { '^/openbis/resources': '/openbis-test/resources' },
         changeOrigin: true,
         secure: false
       }
-    },
+    ],
     devMiddleware: {
       publicPath: '/admin/'
     },
