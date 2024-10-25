@@ -307,7 +307,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertEquals("DESCRIPTION", description.getEntityTypePropertyType().getPropertyType()
                 .getCode());
         assertEquals("test control layout", description.getValue());
-        assertEquals("$PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType()
+        assertEquals("PLATE_GEOMETRY", plateGeometry.getEntityTypePropertyType().getPropertyType()
                 .getCode());
         assertEquals("384_WELLS_16X24", plateGeometry.getVocabularyTerm().getCode());
     }

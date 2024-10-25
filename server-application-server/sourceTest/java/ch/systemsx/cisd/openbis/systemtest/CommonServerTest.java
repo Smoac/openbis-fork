@@ -175,18 +175,18 @@ public class CommonServerTest extends SystemTestCase
     private Object[][] providerTestRegisterPropertyTypeAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_POWER_USER_CISD, "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, "Internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" }
+                { "NEW_INTERNAL", true, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, TEST_USER, "Internal property types can be managed only by the system user" },
+                { "NEW_INTERNAL", true, TEST_POWER_USER_CISD, "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" }
         };
     }
 
     @Test(dataProvider = "providerTestRegisterPropertyTypeAuthorization")
-    public void testRegisterPropertyTypeAuthorization(String propertyTypeCode, String propertyTypeRegistrator, String expectedError)
+    public void testRegisterPropertyTypeAuthorization(String propertyTypeCode, boolean isInternal, String propertyTypeRegistrator, String expectedError)
     {
         SessionContextDTO session = propertyTypeRegistrator.equals(SYSTEM_USER) ? commonServer.tryToAuthenticateAsSystem()
                 : commonServer.tryAuthenticate(propertyTypeRegistrator, PASSWORD);
@@ -196,7 +196,7 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
         propertyType.setLabel("Test label");
         propertyType.setDescription("Test description");
-        propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyType.setManagedInternally(isInternal);
 
         assertExceptionMessage(new IDelegatedAction()
         {
@@ -215,25 +215,25 @@ public class CommonServerTest extends SystemTestCase
     private Object[][] providerTestUpdatePropertyTypeAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, "Internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_INTERNAL", true, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, "Internal property types can be managed only by the system user" },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdatePropertyTypeAuthorization")
-    public void testUpdatePropertyTypeAuthorization(String propertyTypeCode, String propertyTypeRegistrator, String propertyTypeUpdater,
+    public void testUpdatePropertyTypeAuthorization(String propertyTypeCode, boolean isInternal, String propertyTypeRegistrator, String propertyTypeUpdater,
             String expectedError)
     {
         SessionContextDTO registratorSession =
@@ -247,7 +247,7 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
         propertyType.setLabel("Test label");
         propertyType.setDescription("Test description");
-        propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyType.setManagedInternally(isInternal);
         commonServer.registerPropertyType(registratorSession.getSessionToken(), propertyType);
 
         PropertyTypePE propertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
@@ -280,25 +280,25 @@ public class CommonServerTest extends SystemTestCase
     private Object[][] providerTestDeletePropertyTypesAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, "Internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_INTERNAL", true, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, "Internal property types can be managed only by the system user" },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
         };
     }
 
     @Test(dataProvider = "providerTestDeletePropertyTypesAuthorization")
-    public void testDeletePropertyTypesAuthorization(String propertyTypeCode, String propertyTypeRegistrator, String propertyTypeDeleter,
+    public void testDeletePropertyTypesAuthorization(String propertyTypeCode, boolean isInternal, String propertyTypeRegistrator, String propertyTypeDeleter,
             String expectedError)
     {
         SessionContextDTO registratorSession =
@@ -312,7 +312,7 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
         propertyType.setLabel("Test label");
         propertyType.setDescription("Test description");
-        propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyType.setManagedInternally(isInternal);
         commonServer.registerPropertyType(registratorSession.getSessionToken(), propertyType);
 
         PropertyTypePE propertyTypePE = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyTypeCode);
@@ -335,20 +335,20 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerTestAssignPropertyTypeAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, null },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD,
+                { "NEW_INTERNAL", true, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, TEST_USER, null },
+                { "NEW_INTERNAL", true, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" }
         };
     }
 
     @Test(dataProvider = "providerTestAssignPropertyTypeAuthorization")
-    public void testAssignPropertyTypeAuthorization(String propertyTypeCode, String propertyAssignmentRegistrator, String expectedError)
+    public void testAssignPropertyTypeAuthorization(String propertyTypeCode, boolean isInternal, String propertyAssignmentRegistrator, String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
         SessionContextDTO registratorSession =
@@ -365,7 +365,7 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
         propertyType.setLabel("Test label");
         propertyType.setDescription("Test description");
-        propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyType.setManagedInternally(isInternal);
         commonServer.registerPropertyType(systemSession.getSessionToken(), propertyType);
 
         NewETPTAssignment assignment = new NewETPTAssignment();
@@ -391,51 +391,51 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerTestUpdatePropertyTypeAssignmentAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, SYSTEM_USER, true, null },
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, TEST_USER, true, null },
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, false, null },
-                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, false, null },
-                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, SYSTEM_USER, false, null },
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, TEST_USER, false, null },
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, true, null },
-                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, true, null },
-                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, SYSTEM_USER, true, null },
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, TEST_USER, true, null },
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, false,
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "NEW_INTERNAL", true, true, SYSTEM_USER, TEST_USER, false,
                         "Internal property assignments created by the system user for internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, SYSTEM_USER, true, null },
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, TEST_USER, true, null },
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, false, null },
-                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, false, null },
-                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, false,
+                { "NEW_INTERNAL", false, true, TEST_USER, SYSTEM_USER, false, null },
+                { "NEW_INTERNAL", false, true, TEST_USER, TEST_USER, false, null },
+                { "NEW_INTERNAL", false, true, TEST_USER, TEST_POWER_USER_CISD, false,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, true, null },
-                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, true, null },
-                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, true,
+                { "NEW_INTERNAL", false, true, TEST_USER, SYSTEM_USER, true, null },
+                { "NEW_INTERNAL", false, true, TEST_USER, TEST_USER, true, null },
+                { "NEW_INTERNAL", false, true, TEST_USER, TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdatePropertyTypeAssignmentAuthorization")
-    public void testUpdatePropertyTypeAssignmentAuthorization(String propertyTypeCode, boolean isInternal, String propertyAssignmentRegistrator,
+    public void testUpdatePropertyTypeAssignmentAuthorization(String propertyTypeCode, boolean isInternal, boolean isPropertyInternal, String propertyAssignmentRegistrator,
             String propertyAssignmentUpdater, boolean updateLayoutFieldsOnly, String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
@@ -457,7 +457,7 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
         propertyType.setLabel("Test label");
         propertyType.setDescription("Test description");
-        propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyType.setManagedInternally(isPropertyInternal);
         commonServer.registerPropertyType(systemSession.getSessionToken(), propertyType);
 
         NewETPTAssignment assignment = new NewETPTAssignment();
@@ -513,31 +513,31 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerUnassignPropertyTypeAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, false, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, false, TEST_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", true, SYSTEM_USER, TEST_USER,
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, true, SYSTEM_USER, TEST_USER,
                         "Internal property assignments created by the system user for internal property types can be managed only by the system user" },
-                { "$NEW_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD,
+                { "NEW_INTERNAL", false, true, SYSTEM_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
 
-                { "$NEW_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", false, TEST_USER, TEST_USER, null },
-                { "$NEW_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD,
+                { "NEW_INTERNAL", false, true, TEST_USER, SYSTEM_USER, null },
+                { "NEW_INTERNAL", false, true, TEST_USER, TEST_USER, null },
+                { "NEW_INTERNAL", false, true, TEST_USER, TEST_POWER_USER_CISD,
                         "None of method roles '[INSTANCE_ADMIN]' could be found in roles of user 'test_role'" },
         };
     }
 
     @Test(dataProvider = "providerUnassignPropertyTypeAuthorization")
-    public void testUnassignPropertyTypeAuthorization(String propertyTypeCode, boolean isInternal, String propertyAssignmentRegistrator,
+    public void testUnassignPropertyTypeAuthorization(String propertyTypeCode, boolean isInternal, boolean isPropertyInternal, String propertyAssignmentRegistrator,
             String propertyAssignmentDeleter, String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
@@ -559,7 +559,7 @@ public class CommonServerTest extends SystemTestCase
         propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));
         propertyType.setLabel("Test label");
         propertyType.setDescription("Test description");
-        propertyType.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyType.setManagedInternally(isPropertyInternal);
         commonServer.registerPropertyType(systemSession.getSessionToken(), propertyType);
 
         NewETPTAssignment assignment = new NewETPTAssignment();
@@ -587,19 +587,19 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerTestRegisterVocabularyAuthorization()
     {
         return new Object[][] {
-                { "NEW_NOT_INTERNAL", SYSTEM_USER, Arrays.asList(true, false), null },
-                { "NEW_NOT_INTERNAL", TEST_USER, Arrays.asList(true, false), null },
-                { "NEW_NOT_INTERNAL", TEST_GROUP_ADMIN, Arrays.asList(true, false),
+                { "NEW_NOT_INTERNAL", false, SYSTEM_USER, Arrays.asList(true, false), null },
+                { "NEW_NOT_INTERNAL", false, TEST_USER, Arrays.asList(true, false), null },
+                { "NEW_NOT_INTERNAL", false, TEST_GROUP_ADMIN, Arrays.asList(true, false),
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'admin'" },
-                { "$NEW_INTERNAL", SYSTEM_USER, Arrays.asList(true, false), null },
-                { "$NEW_INTERNAL", TEST_USER, Arrays.asList(true, false), "Internal vocabularies can be managed only by the system user" },
-                { "$NEW_INTERNAL", TEST_GROUP_ADMIN, Arrays.asList(true, false),
+                { "NEW_INTERNAL", true, SYSTEM_USER, Arrays.asList(true, false), null },
+                { "NEW_INTERNAL", true, TEST_USER, Arrays.asList(true, false), "Internal vocabularies can be managed only by the system user" },
+                { "NEW_INTERNAL", true, TEST_GROUP_ADMIN, Arrays.asList(true, false),
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'admin'" },
         };
     }
 
     @Test(dataProvider = "providerTestRegisterVocabularyAuthorization")
-    public void testRegisterVocabularyAuthorization(String vocabularyCode, String vocabularyRegistrator, List<Boolean> termsOfficial,
+    public void testRegisterVocabularyAuthorization(String vocabularyCode, boolean isVocabInternal, String vocabularyRegistrator, List<Boolean> termsOfficial,
             String expectedError)
     {
         SessionContextDTO session = vocabularyRegistrator.equals(SYSTEM_USER) ? commonServer.tryToAuthenticateAsSystem()
@@ -607,7 +607,7 @@ public class CommonServerTest extends SystemTestCase
 
         NewVocabulary newVocabulary = new NewVocabulary();
         newVocabulary.setCode(vocabularyCode);
-        newVocabulary.setManagedInternally(vocabularyCode.startsWith("$"));
+        newVocabulary.setManagedInternally(isVocabInternal);
 
         if (termsOfficial != null)
         {
@@ -637,19 +637,19 @@ public class CommonServerTest extends SystemTestCase
     public Object[][] providerTestUpdateAndDeleteVocabularyAuthorization()
     {
         return new Object[][] {
-                { "NEW_NOT_INTERNAL", SYSTEM_USER, null },
-                { "NEW_NOT_INTERNAL", TEST_USER, null },
-                { "NEW_NOT_INTERNAL", TEST_GROUP_ADMIN,
+                { "NEW_NOT_INTERNAL", false, SYSTEM_USER, null },
+                { "NEW_NOT_INTERNAL", false, TEST_USER, null },
+                { "NEW_NOT_INTERNAL", false, TEST_GROUP_ADMIN,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'admin'" },
-                { "$NEW_INTERNAL", SYSTEM_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, "Internal vocabularies can be managed only by the system user" },
-                { "$NEW_INTERNAL", TEST_GROUP_ADMIN,
+                { "NEW_INTERNAL", true, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, TEST_USER, "Internal vocabularies can be managed only by the system user" },
+                { "NEW_INTERNAL", true, TEST_GROUP_ADMIN,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'admin'" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAndDeleteVocabularyAuthorization")
-    public void testUpdateAndDeleteVocabularyAuthorization(String vocabularyCode, String vocabularyUpdater, String expectedError)
+    public void testUpdateAndDeleteVocabularyAuthorization(String vocabularyCode, boolean isInternal, String vocabularyUpdater, String expectedError)
     {
         SessionContextDTO systemSession = commonServer.tryToAuthenticateAsSystem();
 
@@ -658,7 +658,7 @@ public class CommonServerTest extends SystemTestCase
 
         NewVocabulary newVocabulary = new NewVocabulary();
         newVocabulary.setCode(vocabularyCode);
-        newVocabulary.setManagedInternally(vocabularyCode.startsWith("$"));
+        newVocabulary.setManagedInternally(isInternal);
         commonServer.registerVocabulary(systemSession.getSessionToken(), newVocabulary);
 
         VocabularyPE vocabulary = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
@@ -696,9 +696,9 @@ public class CommonServerTest extends SystemTestCase
                 { "ORGANISM", TEST_USER, null },
                 { "ORGANISM", TEST_GROUP_ADMIN,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'admin'" },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", TEST_USER, null },
-                { "$PLATE_GEOMETRY", TEST_GROUP_ADMIN,
+                { "PLATE_GEOMETRY", SYSTEM_USER, null },
+                { "PLATE_GEOMETRY", TEST_USER, null },
+                { "PLATE_GEOMETRY", TEST_GROUP_ADMIN,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'admin'" },
         };
     }
@@ -732,9 +732,9 @@ public class CommonServerTest extends SystemTestCase
                 { "ORGANISM", SYSTEM_USER, null },
                 { "ORGANISM", TEST_USER, null },
                 { "ORGANISM", TEST_GROUP_ADMIN, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", TEST_USER, null },
-                { "$PLATE_GEOMETRY", TEST_GROUP_ADMIN, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, null },
+                { "PLATE_GEOMETRY", TEST_USER, null },
+                { "PLATE_GEOMETRY", TEST_GROUP_ADMIN, null },
         };
     }
 
@@ -762,38 +762,38 @@ public class CommonServerTest extends SystemTestCase
     private Object[][] providerTestUpdateAndDeleteVocabularyTermAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, true, false, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, false, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, true, false, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, false, false, null },
 
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, true, false, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, false, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, true, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, false, false, null },
 
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
+                { "NEW_NON_INTERNAL", false, TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "NEW_NON_INTERNAL", false, TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, true, false, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, false, false, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, true, true,
+                { "NEW_INTERNAL", true, SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "NEW_INTERNAL", true, SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, true, true,
                         "Internal vocabulary terms can be managed only by the system user." },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, false, true,
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, false, true,
                         "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, true, false, null },
-                { "$NEW_INTERNAL", TEST_USER, TEST_USER, false, false, null },
+                { "NEW_INTERNAL", true, TEST_USER, TEST_USER, true, false, null },
+                { "NEW_INTERNAL", true, TEST_USER, TEST_USER, false, false, null },
 
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
+                { "NEW_INTERNAL", true, TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "NEW_INTERNAL", true, TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "NEW_INTERNAL", true, TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAndDeleteVocabularyTermAuthorization")
-    public void testUpdateAndDeleteVocabularyTermAuthorization(String vocabularyCode, String termRegistrator, String termUpdater,
+    public void testUpdateAndDeleteVocabularyTermAuthorization(String vocabularyCode, boolean isVocabInternal, String termRegistrator, String termUpdater,
             boolean termOfficial, boolean managedInternally,
             String expectedError)
     {
@@ -807,7 +807,7 @@ public class CommonServerTest extends SystemTestCase
 
         NewVocabulary newVocabulary = new NewVocabulary();
         newVocabulary.setCode(vocabularyCode);
-        newVocabulary.setManagedInternally(vocabularyCode.startsWith("$"));
+        newVocabulary.setManagedInternally(isVocabInternal);
         commonServer.registerVocabulary(systemSession.getSessionToken(), newVocabulary);
 
         VocabularyPE vocabulary = daoFactory.getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
@@ -824,8 +824,7 @@ public class CommonServerTest extends SystemTestCase
                     "New description", null, managedInternally);
         }
 
-        String prefix = managedInternally ? "$" : "";
-        VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(prefix + "NEW_TERM");
+        VocabularyTermPE term = vocabulary.tryGetVocabularyTerm("NEW_TERM");
 
         VocabularyTerm updateTerm = new VocabularyTerm();
         updateTerm.setId(term.getId());
@@ -876,11 +875,11 @@ public class CommonServerTest extends SystemTestCase
                 { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, null },
                 { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, null },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, null },
 
-                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, null },
+                { "PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, null },
         };
     }
 
@@ -946,12 +945,12 @@ public class CommonServerTest extends SystemTestCase
                 { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, false, null },
                 { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, false, null },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, true,
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, true,
                         "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, false, null },
         };
     }
 
@@ -976,8 +975,7 @@ public class CommonServerTest extends SystemTestCase
         commonServer.addVocabularyTerms(termRegistratorSession.getSessionToken(), new TechId(vocabularyPE.getId()), Arrays.asList(term),
                 null);
 
-        String prefix = managedInternally ? "$" : "";
-        VocabularyTermPE termPE = vocabularyPE.tryGetVocabularyTerm(prefix + term.getCode());
+        VocabularyTermPE termPE = vocabularyPE.tryGetVocabularyTerm(term.getCode());
 
         VocabularyTerm updateTerm = new VocabularyTerm();
         updateTerm.setId(termPE.getId());
@@ -1046,8 +1044,8 @@ public class CommonServerTest extends SystemTestCase
         assertEquals("/CISD/CL1", sample.getIdentifier());
         EntityType entityType = sample.getEntityType();
         assertEquals("CONTROL_LAYOUT", entityType.getCode());
-        assertAssignedPropertyTypes("[$PLATE_GEOMETRY*, DESCRIPTION]", entityType);
-        assertProperties("[$PLATE_GEOMETRY: 384_WELLS_16X24, DESCRIPTION: test control layout]",
+        assertAssignedPropertyTypes("[DESCRIPTION, PLATE_GEOMETRY*]", entityType);
+        assertProperties("[DESCRIPTION: test control layout, PLATE_GEOMETRY: 384_WELLS_16X24]",
                 sample);
     }
 

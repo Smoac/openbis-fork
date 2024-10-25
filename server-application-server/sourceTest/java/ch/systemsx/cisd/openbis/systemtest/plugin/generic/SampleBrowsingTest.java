@@ -189,16 +189,15 @@ public class SampleBrowsingTest extends GenericSystemTestCase
     private void checkProperty(List<IEntityProperty> properties, boolean managedInternally,
             String propertyCode, String propertyValue)
     {
-        String fullPropertyCode = managedInternally ? "$" + propertyCode : propertyCode;
         for (IEntityProperty property : properties)
         {
-            if (property.getPropertyType().getCode().equals(fullPropertyCode))
+            if (property.getPropertyType().getCode().equals(propertyCode))
             {
                 assertEquals(property.tryGetAsString(), propertyValue);
                 return;
             }
         }
-        fail("No property found with code " + fullPropertyCode);
+        fail("No property found with code " + propertyCode);
     }
 
     private static String createSampleIdentifier(String sampleCode)

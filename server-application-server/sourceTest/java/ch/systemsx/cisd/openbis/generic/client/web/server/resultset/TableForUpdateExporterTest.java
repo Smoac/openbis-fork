@@ -83,7 +83,7 @@ public class TableForUpdateExporterTest extends AssertJUnit
                 TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.EXPERIMENT, "\n",
                         commonServer, "");
 
-        assertEquals("identifier\tproject\tP1\t$P2\n" + "/S/P/E1\t\t\t\n" + "/S/P/E2\t\thello\t\n"
+        assertEquals("identifier\tproject\tP1\tP2\n" + "/S/P/E1\t\t\t\n" + "/S/P/E2\t\thello\t\n"
                 + "/S/P/E3\t\t\tALPHA (GENE)\n", fileContent);
     }
 

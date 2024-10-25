@@ -400,7 +400,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sample(
                         new SampleBuilder().identifier(sampleIdentifier).type("MASTER_PLATE")
-                                .property("$PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
+                                .property("PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getSamplesCreatedCount());
@@ -410,7 +410,7 @@ public class EntityOperationTest extends SystemTestCase
                         SampleIdentifierFactory.parse(sampleIdentifier));
         assertEquals(sampleIdentifier, sample.getIdentifier());
         assertEquals("MASTER_PLATE", sample.getSampleType().getCode());
-        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", sample.getProperties().toString());
+        assertEquals("[PLATE_GEOMETRY: 96_WELLS_8X12]", sample.getProperties().toString());
     }
 
     @Test
@@ -422,7 +422,7 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder()
                         .user(INSTANCE_ADMIN)
                         .sample(new SampleBuilder().identifier(sampleIdentifier)
-                                .type("MASTER_PLATE").property("$PLATE_GEOMETRY", "96_WELLS_8X12")
+                                .type("MASTER_PLATE").property("PLATE_GEOMETRY", "96_WELLS_8X12")
                                 .getSample()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
@@ -433,7 +433,7 @@ public class EntityOperationTest extends SystemTestCase
                         SampleIdentifierFactory.parse(sampleIdentifier));
         assertEquals(sampleIdentifier, sample.getIdentifier());
         assertEquals("MASTER_PLATE", sample.getSampleType().getCode());
-        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", sample.getProperties().toString());
+        assertEquals("[PLATE_GEOMETRY: 96_WELLS_8X12]", sample.getProperties().toString());
     }
 
     @Test
@@ -443,7 +443,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sample(
                         new SampleBuilder().identifier("/S1").type("MASTER_PLATE")
-                                .property("$PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
+                                .property("PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
 
         performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_A + "' does not have enough privileges "
@@ -524,8 +524,8 @@ public class EntityOperationTest extends SystemTestCase
         String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
         Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(646)).getParent();
         List<IEntityProperty> properties = sample.getProperties();
-        assertEquals("[$PLATE_GEOMETRY: 384_WELLS_16X24]", properties.toString());
-        sample.setProperties(new SampleBuilder().property("$PLATE_GEOMETRY", "96_WELLS_8X12")
+        assertEquals("[PLATE_GEOMETRY: 384_WELLS_16X24]", properties.toString());
+        sample.setProperties(new SampleBuilder().property("PLATE_GEOMETRY", "96_WELLS_8X12")
                 .getSample().getProperties());
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sampleUpdate(sample).create();
@@ -540,7 +540,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(Long.valueOf(646), updatedSample.getId());
         assertEquals("/MP", updatedSample.getIdentifier());
         assertEquals("MASTER_PLATE", updatedSample.getSampleType().getCode());
-        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
+        assertEquals("[PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
     }
 
     @Test
@@ -549,8 +549,8 @@ public class EntityOperationTest extends SystemTestCase
         String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
         Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(646)).getParent();
         List<IEntityProperty> properties = sample.getProperties();
-        assertEquals("[$PLATE_GEOMETRY: 384_WELLS_16X24]", properties.toString());
-        sample.setProperties(new SampleBuilder().property("$PLATE_GEOMETRY", "96_WELLS_8X12")
+        assertEquals("[PLATE_GEOMETRY: 384_WELLS_16X24]", properties.toString());
+        sample.setProperties(new SampleBuilder().property("PLATE_GEOMETRY", "96_WELLS_8X12")
                 .getSample().getProperties());
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().user(INSTANCE_ADMIN).sampleUpdate(sample).create();
@@ -565,7 +565,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(Long.valueOf(646), updatedSample.getId());
         assertEquals("/MP", updatedSample.getIdentifier());
         assertEquals("MASTER_PLATE", updatedSample.getSampleType().getCode());
-        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
+        assertEquals("[PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
     }
 
     @Test
