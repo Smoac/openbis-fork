@@ -40,7 +40,7 @@ class ExperimentTypeInternalExpectations extends Expectations
     {
         allowing(api).getExperimentTypes(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         Collections.singletonList(
-                                new EntityTypePermId("$INTERNAL_DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT)))),
+                                new EntityTypePermId("INTERNAL_DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT)))),
                 with(any(ExperimentTypeFetchOptions.class)));
 
         will(new CustomAction("getting experiment types")
@@ -59,11 +59,12 @@ class ExperimentTypeInternalExpectations extends Expectations
 
                 final ExperimentType experimentType = new ExperimentType();
                 experimentType.setFetchOptions(fetchOptions);
-                experimentType.setPermId(new EntityTypePermId("$INTERNAL_DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT));
-                experimentType.setCode("$INTERNAL_DEFAULT_EXPERIMENT");
+                experimentType.setPermId(new EntityTypePermId("INTERNAL_DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT));
+                experimentType.setCode("INTERNAL_DEFAULT_EXPERIMENT");
                 experimentType.setDescription("Internal Default experiment");
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
                 experimentType.setModificationDate(modificationDate);
+                experimentType.setManagedInternally(true);
 
                 final Plugin validationPlugin = new Plugin();
                 validationPlugin.setName("test");
@@ -72,7 +73,7 @@ class ExperimentTypeInternalExpectations extends Expectations
 
                 experimentType.setValidationPlugin(validationPlugin);
 
-                return Collections.singletonMap(new EntityTypePermId("$INTERNAL_DEFAULT_EXPERIMENT"), experimentType);
+                return Collections.singletonMap(new EntityTypePermId("INTERNAL_DEFAULT_EXPERIMENT"), experimentType);
             }
 
             private List<PropertyAssignment> getPropertyAssignments(final ExperimentTypeFetchOptions fetchOptions)
@@ -81,7 +82,7 @@ class ExperimentTypeInternalExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[0].getPropertyType().setCode("$NAME");
+                propertyAssignments[0].getPropertyType().setCode("NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setManagedInternally(true);
@@ -93,7 +94,7 @@ class ExperimentTypeInternalExpectations extends Expectations
 
                 propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[1].getPropertyType().setCode("$DEFAULT_OBJECT_TYPE");
+                propertyAssignments[1].getPropertyType().setCode("DEFAULT_OBJECT_TYPE");
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
                 propertyAssignments[1].setSection("General info");
@@ -117,7 +118,7 @@ class ExperimentTypeInternalExpectations extends Expectations
 
                 propertyAssignments[3] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[3].getPropertyType().setCode("$XMLCOMMENTS");
+                propertyAssignments[3].getPropertyType().setCode("XMLCOMMENTS");
                 propertyAssignments[3].setMandatory(false);
                 propertyAssignments[3].setShowInEditView(false);
                 propertyAssignments[3].getPropertyType().setManagedInternally(true);

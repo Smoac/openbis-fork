@@ -32,6 +32,8 @@ public enum Attribute
 
     CODE("Code", true, true, true),
 
+    INTERNAL("Internal", true, true, true),
+
     DESCRIPTION("Description", true, true, true),
 
     DISALLOW_DELETION("Disallow Deletion", false, false, true),

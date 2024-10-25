@@ -79,6 +79,7 @@ class SampleLargeCellExpectations extends Expectations
 
                 final SampleType sampleType = new SampleType();
                 sampleType.setCode("STORAGE");
+                sampleType.setManagedInternally(false);
                 sampleType.setPermId(new EntityTypePermId("STORAGE", EntityKind.SAMPLE));
                 sampleType.setFetchOptions(fetchOptions.withType());
                 sampleType.setPropertyAssignments(List.of(namePropertyAssignment, boxesCountPropertyAssignment));
@@ -123,8 +124,8 @@ class SampleLargeCellExpectations extends Expectations
                 samples[0].setSpace(space);
                 samples[0].setProject(project);
                 samples[0].setExperiment(experiment);
-                samples[0].setProperty("$NAME", getResourceFileContent("ch/ethz/sis/openbis/generic/server/xls/export/resources/lorem-ipsum.txt"));
-                samples[0].setProperty("$STORAGE.BOX_NUM", "9999");
+                samples[0].setProperty("NAME", getResourceFileContent("ch/ethz/sis/openbis/generic/server/xls/export/resources/lorem-ipsum.txt"));
+                samples[0].setProperty("STORAGE.BOX_NUM", "9999");
                 samples[0].setRegistrator(registrator);
                 samples[0].setModifier(modifier);
                 samples[0].setRegistrationDate(registrationDate);
@@ -137,7 +138,7 @@ class SampleLargeCellExpectations extends Expectations
             private PropertyAssignment getBoxesCountPropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$STORAGE.BOX_NUM");
+                propertyType.setCode("STORAGE.BOX_NUM");
                 propertyType.setLabel("Number of Boxes");
                 propertyType.setDescription("Number of Boxes");
                 propertyType.setDataType(DataType.INTEGER);
@@ -156,7 +157,7 @@ class SampleLargeCellExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);

@@ -193,7 +193,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     String.valueOf(propertyAssignment.isUnique() != null && propertyAssignment.isUnique()).toUpperCase(),
                     String.valueOf(propertyAssignment.getPattern() != null ? propertyAssignment.getPattern() : ""),
                     String.valueOf(propertyAssignment.getPatternType() != null ? propertyAssignment.getPatternType() : ""),
-                    String.valueOf(propertyAssignment.isManagedInternally()).toUpperCase()
+                    String.valueOf(propertyAssignment.isManagedInternally() != null && propertyAssignment.isManagedInternally()).toUpperCase()
             };
             addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
         }

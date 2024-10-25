@@ -69,6 +69,7 @@ class ExperimentTypeExpectations extends Expectations
                 experimentType.setDescription("Default experiment");
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
                 experimentType.setModificationDate(modificationDate);
+                experimentType.setManagedInternally(false);
 
                 final Plugin validationPlugin = new Plugin();
                 validationPlugin.setName("test");
@@ -86,7 +87,7 @@ class ExperimentTypeExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[0].getPropertyType().setCode("$NAME");
+                propertyAssignments[0].getPropertyType().setCode("NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
@@ -97,7 +98,7 @@ class ExperimentTypeExpectations extends Expectations
 
                 propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[1].getPropertyType().setCode("$DEFAULT_OBJECT_TYPE");
+                propertyAssignments[1].getPropertyType().setCode("DEFAULT_OBJECT_TYPE");
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
                 propertyAssignments[1].setSection("General info");
@@ -121,7 +122,7 @@ class ExperimentTypeExpectations extends Expectations
 
                 propertyAssignments[3] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[3].getPropertyType().setCode("$XMLCOMMENTS");
+                propertyAssignments[3].getPropertyType().setCode("XMLCOMMENTS");
                 propertyAssignments[3].setMandatory(false);
                 propertyAssignments[3].setShowInEditView(false);
                 propertyAssignments[3].getPropertyType().setManagedInternally(true);

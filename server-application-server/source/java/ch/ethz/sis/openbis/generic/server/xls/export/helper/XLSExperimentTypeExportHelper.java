@@ -15,11 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,6 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
+
 public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHelper<ExperimentType>
 {
 
@@ -48,7 +45,7 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
     @Override
     protected Attribute[] getAttributes(final ExperimentType entityType)
     {
-        return new Attribute[] { CODE, DESCRIPTION, VALIDATION_SCRIPT, MODIFICATION_DATE };
+        return new Attribute[] { CODE, INTERNAL, DESCRIPTION, VALIDATION_SCRIPT, MODIFICATION_DATE };
     }
 
     @Override
@@ -59,6 +56,10 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
             case CODE:
             {
                 return experimentType.getCode();
+            }
+            case INTERNAL:
+            {
+                return experimentType.isManagedInternally().toString().toUpperCase();
             }
             case DESCRIPTION:
             {

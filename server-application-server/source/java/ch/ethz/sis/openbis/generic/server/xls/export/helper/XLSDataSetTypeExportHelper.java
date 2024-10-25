@@ -15,14 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DISALLOW_DELETION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATH;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATTERN;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,6 +31,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
 
 public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelper<DataSetType>
 {
@@ -76,7 +70,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
     @Override
     protected Attribute[] getAttributes(final DataSetType entityType)
     {
-        return new Attribute[] { CODE, DESCRIPTION, VALIDATION_SCRIPT, MAIN_DATA_SET_PATTERN, MAIN_DATA_SET_PATH, DISALLOW_DELETION,
+        return new Attribute[] { CODE, INTERNAL, DESCRIPTION, VALIDATION_SCRIPT, MAIN_DATA_SET_PATTERN, MAIN_DATA_SET_PATH, DISALLOW_DELETION,
                 MODIFICATION_DATE };
     }
 
@@ -88,6 +82,10 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
             case CODE:
             {
                 return dataSetType.getCode();
+            }
+            case INTERNAL:
+            {
+                return dataSetType.isManagedInternally().toString().toUpperCase();
             }
             case DESCRIPTION:
             {

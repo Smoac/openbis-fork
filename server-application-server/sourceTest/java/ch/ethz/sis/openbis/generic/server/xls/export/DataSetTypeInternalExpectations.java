@@ -42,7 +42,7 @@ class DataSetTypeInternalExpectations extends Expectations
 
         allowing(api).getDataSetTypes(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         Collections.singletonList(
-                                new EntityTypePermId("$INTERNAL_ATTACHMENT", EntityKind.DATA_SET)))),
+                                new EntityTypePermId("INTERNAL_ATTACHMENT", EntityKind.DATA_SET)))),
                 with(any(DataSetTypeFetchOptions.class)));
 
         will(new CustomAction("getting data set types")
@@ -56,16 +56,17 @@ class DataSetTypeInternalExpectations extends Expectations
 
                 final DataSetType dataSetType = new DataSetType();
                 dataSetType.setFetchOptions(fetchOptions);
-                dataSetType.setPermId(new EntityTypePermId("$INTERNAL_ATTACHMENT", EntityKind.DATA_SET));
-                dataSetType.setCode("$INTERNAL_ATTACHMENT");
+                dataSetType.setPermId(new EntityTypePermId("INTERNAL_ATTACHMENT", EntityKind.DATA_SET));
+                dataSetType.setCode("INTERNAL_ATTACHMENT");
                 dataSetType.setDescription("Internal Attachment");
                 dataSetType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
                 dataSetType.setMainDataSetPattern(".*\\.jpg");
                 dataSetType.setMainDataSetPath("original/images/");
                 dataSetType.setDisallowDeletion(false);
+                dataSetType.setManagedInternally(true);
                 dataSetType.setModificationDate(modificationDate);
 
-                return Collections.singletonMap(new EntityTypePermId("$INTERNAL_ATTACHMENT"), dataSetType);
+                return Collections.singletonMap(new EntityTypePermId("INTERNAL_ATTACHMENT"), dataSetType);
             }
 
             private List<PropertyAssignment> getPropertyAssignments(final DataSetTypeFetchOptions fetchOptions)
@@ -77,7 +78,7 @@ class DataSetTypeInternalExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         propertyAssignmentFetchOptions);
-                propertyAssignments[0].getPropertyType().setCode("$NAME");
+                propertyAssignments[0].getPropertyType().setCode("NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setManagedInternally(true);
@@ -102,7 +103,7 @@ class DataSetTypeInternalExpectations extends Expectations
 
                 propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
                         propertyAssignmentFetchOptions);
-                propertyAssignments[2].getPropertyType().setCode("$XMLCOMMENTS");
+                propertyAssignments[2].getPropertyType().setCode("XMLCOMMENTS");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(false);
                 propertyAssignments[2].getPropertyType().setManagedInternally(true);

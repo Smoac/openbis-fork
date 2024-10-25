@@ -15,14 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODES;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.GENERATED_CODE_PREFIX;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.UNIQUE_SUBCODES;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -40,6 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
 
 public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper<SampleType>
 {
@@ -77,7 +71,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
     @Override
     protected Attribute[] getAttributes(final SampleType sampleType)
     {
-        return new Attribute[] { CODE, DESCRIPTION, AUTO_GENERATE_CODES, VALIDATION_SCRIPT,
+        return new Attribute[] { CODE, INTERNAL, DESCRIPTION, AUTO_GENERATE_CODES, VALIDATION_SCRIPT,
                 GENERATED_CODE_PREFIX, UNIQUE_SUBCODES, MODIFICATION_DATE };
     }
 
@@ -89,6 +83,10 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
             case CODE:
             {
                 return sampleType.getCode();
+            }
+            case INTERNAL:
+            {
+                return sampleType.isManagedInternally().toString().toUpperCase();
             }
             case DESCRIPTION:
             {

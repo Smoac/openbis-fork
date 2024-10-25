@@ -70,6 +70,7 @@ class VocabularyExpectations extends Expectations
                 vocabulary.setRegistrator(registrator);
                 vocabulary.setRegistrationDate(registrationDate);
                 vocabulary.setModificationDate(modificationDate);
+                vocabulary.setManagedInternally(false);
 
                 vocabulary.setTerms(getVocabularyTerms(fetchOptions));
 
