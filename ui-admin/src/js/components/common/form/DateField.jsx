@@ -6,9 +6,9 @@ import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import {
   DatePicker,
-  DateTimePicker
+  DateTimePicker,
 } from '@mui/x-date-pickers'
-import DateFnsUtils from '@date-io/date-fns'
+import format from 'date-fns/format';
 import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
 
@@ -78,7 +78,8 @@ class DateField extends React.PureComponent {
             const second = match[6] === '__' ? '00' : match[6]
 
             string = `${year}-${month}-${day} ${hour}:${minute}:${second}`
-            date = new DateFnsUtils().parse(string, 'yyyy-MM-dd HH:mm:ss')
+            //date = new DateFnsUtils().parse(string, 'yyyy-MM-dd HH:mm:ss')
+            date = format(new Date(), 'yyyy-MM-dd HH:mm:ss').toString()
           }
         } else {
           const match = event.target.value
@@ -91,7 +92,8 @@ class DateField extends React.PureComponent {
             const day = match[3] === '__' ? '01' : match[3]
 
             string = `${year}-${month}-${day}`
-            date = new DateFnsUtils().parse(string, 'yyyy-MM-dd')
+            //date = new DateFnsUtils().parse(string, 'yyyy-MM-dd')
+            date = format(new Date(), 'yyyy-MM-dd').toString()
           }
         }
       }
