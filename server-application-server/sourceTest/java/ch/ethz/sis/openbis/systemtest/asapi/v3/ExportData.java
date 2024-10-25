@@ -17,27 +17,6 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.AUTO_GENERATE_CODES;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CHILDREN;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DISALLOW_DELETION;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.EXPERIMENT;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.GENERATED_CODE_PREFIX;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFICATION_DATE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFIER;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PARENTS;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PERM_ID;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PRESENT_IN_ARCHIVE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PROJECT;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATION_DATE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SAMPLE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.STORAGE_CONFIRMATION;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.UNIQUE_SUBCODES;
-
 import java.util.EnumSet;
 import java.util.List;
 
@@ -48,6 +27,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.*;
 
 class ExportData
 {
@@ -295,7 +276,7 @@ class ExportData
                     "export-sample-type-filtered-attributes-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, "CELL_PLATE")),
-                    new SelectedFields(List.of(CODE, AUTO_GENERATE_CODES, DESCRIPTION, GENERATED_CODE_PREFIX, UNIQUE_SUBCODES), List.of()),
+                    new SelectedFields(List.of(CODE, INTERNAL, AUTO_GENERATE_CODES, DESCRIPTION, GENERATED_CODE_PREFIX, UNIQUE_SUBCODES), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false, // withImportCompatibility
@@ -306,7 +287,7 @@ class ExportData
                     "export-experiment-type-filtered-attributes-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, "SIRNA_HCS")),
-                    new SelectedFields(List.of(DESCRIPTION, CODE, MODIFICATION_DATE), List.of()),
+                    new SelectedFields(List.of(DESCRIPTION, CODE, INTERNAL, MODIFICATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false, // withImportCompatibility
@@ -317,7 +298,7 @@ class ExportData
                     "export-data-set-type-filtered-attributes-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, "HCS_IMAGE")),
-                    new SelectedFields(List.of(CODE, DISALLOW_DELETION, DESCRIPTION), List.of()),
+                    new SelectedFields(List.of(CODE, INTERNAL, DISALLOW_DELETION, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false, // withImportCompatibility

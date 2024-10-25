@@ -32,6 +32,8 @@ public enum Attribute
 
     CODE,
 
+    INTERNAL,
+
     DESCRIPTION,
 
     DISALLOW_DELETION,
