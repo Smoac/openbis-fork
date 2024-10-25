@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TableCell from '@material-ui/core/TableCell'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
+import withStyles from '@mui/styles/withStyles';
+import TableCell from '@mui/material/TableCell'
+import TableSortLabel from '@mui/material/TableSortLabel'
 import GridSortingOptions from '@src/js/components/common/grid/GridSortingOptions.js'
 import logger from '@src/js/common/logger.js'
 

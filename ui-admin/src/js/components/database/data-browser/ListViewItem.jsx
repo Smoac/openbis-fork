@@ -15,10 +15,10 @@
  */
 
 import React from 'react'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 
 const styles = (theme) => ({
   nameColumn: {

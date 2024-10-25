@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {InputAdornment, Input, Grid, Slider} from "@material-ui/core";
+import {InputAdornment, Input, Grid, Slider} from "@mui/material";
 import Player from "@src/js/components/common/imaging/components/common/Player.jsx";
 import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
 
@@ -42,8 +42,16 @@ const InputSlider = ({ label, range, initValue, playable, speeds, disabled = fal
     };
 
     return (
-        <OutlinedBox label={label}>
-            <Grid container spacing={2} alignItems="center" direction="row" sx={{ mb: 1, px: 1 }}>
+        (<OutlinedBox label={label}>
+            <Grid
+                container
+                spacing={2}
+                direction="row"
+                sx={{
+                    alignItems: "center",
+                    mb: 1,
+                    px: 1
+                }}>
                 <Grid item xs>
                     <Slider
                         value={initValue == null ? min : Number(initValue)}
@@ -78,7 +86,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, disabled = fal
                     </Grid>)
                 }
             </Grid>
-        </OutlinedBox>
+        </OutlinedBox>)
     );
 }
 

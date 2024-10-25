@@ -2,9 +2,9 @@ import React from 'react';
 import { Grid,
     Typography,
     IconButton,
-} from "@material-ui/core";
-import ViewListIcon from '@material-ui/icons/ViewList';
-import GridOnIcon from '@material-ui/icons/GridOn';
+} from "@mui/material";
+import ViewListIcon from '@mui/icons-material/ViewList';
+import GridOnIcon from '@mui/icons-material/GridOn';
 import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
 import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
@@ -169,11 +169,13 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
             value: pageSize
         }))
         return (
-            <PaperBox>
+            (<PaperBox>
                 <Typography variant='h6'>
                     Gallery View
                 </Typography>
-                <Grid container alignItems="center" direction="row" spacing={2}>
+                <Grid container direction="row" spacing={2} sx={{
+                    alignItems: "center"
+                }}>
                     <Grid item xs={8}>
                         <OutlinedBox label='Paging'>
                             <GalleryPaging id='gallery-paging'
@@ -214,12 +216,16 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
                     </Grid>
                     <Grid item xs>
                         <OutlinedBox style={{width: 'fit-content'}} label='View Mode'>
-                            <IconButton color={gridView ? 'primary' : 'default'}
-                                        onClick={() => handleViewChange(true)}>
+                            <IconButton
+                                color={gridView ? 'primary' : 'default'}
+                                onClick={() => handleViewChange(true)}
+                                size="large">
                                 <GridOnIcon fontSize="large"/>
                             </IconButton>
-                            <IconButton color={!gridView ? 'primary' : 'default'}
-                                        onClick={() => handleViewChange(false)}>
+                            <IconButton
+                                color={!gridView ? 'primary' : 'default'}
+                                onClick={() => handleViewChange(false)}
+                                size="large">
                                 <ViewListIcon fontSize="large"/>
                             </IconButton>
                         </OutlinedBox>
@@ -237,7 +243,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
                                     disabled={isExportDisable}/>}
                     </Grid>
                 </Grid>
-            </PaperBox>
+            </PaperBox>)
         );
     }
 
@@ -258,19 +264,19 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
 
     if (!isLoaded) return null;
     if (previewsInfo.previewContainerList.length === 0) {
-        return (
-            <>
-                <LoadingDialog loading={open}/>
-                <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
-                {renderControlsBar(true, {})}
-                <Grid container justifyContent={"space-evenly"}>
-                    <Typography key="no-dataset-comment" gutterBottom variant="h6">
-                        No Datasets to display
-                    </Typography>
-                    .
-                </Grid>
-            </>
-        );
+        return (<>
+            <LoadingDialog loading={open}/>
+            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
+            {renderControlsBar(true, {})}
+            <Grid container sx={{
+                justifyContent: "space-evenly"
+            }}>
+                <Typography key="no-dataset-comment" gutterBottom variant="h6">
+                    No Datasets to display
+                </Typography>
+                .
+            </Grid>
+        </>);
     }
     //console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
     const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);

@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Collapse from '@material-ui/core/Collapse'
-import Link from '@material-ui/core/Link'
+import withStyles from '@mui/styles/withStyles';
+import Collapse from '@mui/material/Collapse'
+import Link from '@mui/material/Link'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'

@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import InputAdornment from '@material-ui/core/InputAdornment'
+import withStyles from '@mui/styles/withStyles';
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
@@ -82,7 +82,7 @@ class TextFormField extends React.PureComponent {
     } = this.props
 
     return (
-      <FormFieldContainer
+      (<FormFieldContainer
         description={description}
         error={error}
         metadata={metadata}
@@ -101,28 +101,6 @@ class TextFormField extends React.PureComponent {
               onClick={onClick}
             />
           }
-          InputProps={{
-            startAdornment: startAdornment ? (
-              <InputAdornment
-                position='start'
-                classes={{ positionStart: classes.startAdornment }}
-              >
-                {startAdornment}
-              </InputAdornment>
-            ) : null,
-            endAdornment: endAdornment ? (
-              <InputAdornment
-                position='end'
-                classes={{ positionEnd: classes.endAdornment }}
-              >
-                {endAdornment}
-              </InputAdornment>
-            ) : null,
-            classes: {
-              input: classes.input,
-              disabled: classes.inputDisabled
-            }
-          }}
           name={name}
           value={value || ''}
           error={!!error}
@@ -139,9 +117,33 @@ class TextFormField extends React.PureComponent {
           classes={{
             root: classes.textField
           }}
+          slotProps={{
+            input: {
+              startAdornment: startAdornment ? (
+                <InputAdornment
+                  position='start'
+                  classes={{ positionStart: classes.startAdornment }}
+                >
+                  {startAdornment}
+                </InputAdornment>
+              ) : null,
+              endAdornment: endAdornment ? (
+                <InputAdornment
+                  position='end'
+                  classes={{ positionEnd: classes.endAdornment }}
+                >
+                  {endAdornment}
+                </InputAdornment>
+              ) : null,
+              classes: {
+                input: classes.input,
+                disabled: classes.inputDisabled
+              }
+            }
+          }}
         />
-      </FormFieldContainer>
-    )
+      </FormFieldContainer>)
+    );
   }
 }
 

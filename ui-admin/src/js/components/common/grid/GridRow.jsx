@@ -1,6 +1,6 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TableRow from '@material-ui/core/TableRow'
+import withStyles from '@mui/styles/withStyles';
+import TableRow from '@mui/material/TableRow'
 import GridCell from '@src/js/components/common/grid/GridCell.jsx'
 import GridMultiselectCell from '@src/js/components/common/grid/GridMultiselectCell.jsx'
 import logger from '@src/js/common/logger.js'

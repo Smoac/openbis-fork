@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
-import Popover from '@material-ui/core/Popover'
+import withStyles from '@mui/styles/withStyles';
+import Popover from '@mui/material/Popover'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
@@ -58,14 +58,13 @@ class GridFiltersConfig extends React.PureComponent {
     }
 
     return (
-      <div className={classes.container}>
+      (<div className={classes.container}>
         <Button
           id={id + '.filters-button-id'}
           label={messages.get(messages.FILTERS)}
           color='default'
           variant='outlined'
-          onClick={this.handleOpen}
-        />
+          onClick={this.handleOpen} />
         <Popover
           id={id + '.filters-popup-id'}
           open={Boolean(el)}
@@ -84,8 +83,8 @@ class GridFiltersConfig extends React.PureComponent {
             <Container square={true}>{this.renderFilters()}</Container>
           </Mask>
         </Popover>
-      </div>
-    )
+      </div>)
+    );
   }
 
   renderFilters() {

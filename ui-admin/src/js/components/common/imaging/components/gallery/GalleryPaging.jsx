@@ -1,10 +1,10 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import {Typography, FormControlLabel, IconButton, Grid} from '@material-ui/core';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import LastPageIcon from '@material-ui/icons/LastPage';
+import withStyles from '@mui/styles/withStyles';
+import {Typography, FormControlLabel, IconButton, Grid} from '@mui/material';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import SelectField from '@src/js/components/common/form/SelectField.jsx';
 import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js';
 import messages from '@src/js/common/messages.js';
@@ -83,7 +83,7 @@ class GalleryPaging extends React.PureComponent {
         const { id, classes, count, page, pageSize, pageColumns, onColumnChange, options, isGridView } = this.props
 
         return (
-            <Grid container spacing={2} className={classes.container}>
+            (<Grid container spacing={2} className={classes.container}>
                 <Grid item xs={3} sm className={classes.pagePrevButtons}>
                     <IconButton
                         id={id + '.first-page-id'}
@@ -91,7 +91,7 @@ class GalleryPaging extends React.PureComponent {
                         disabled={page === 0}
                         aria-label={messages.get(messages.FIRST_PAGE)}
                         data-part='firstPage'
-                    >
+                        size="large">
                         <FirstPageIcon fontSize='small'/>
                     </IconButton>
                     <IconButton
@@ -100,17 +100,15 @@ class GalleryPaging extends React.PureComponent {
                         disabled={page === 0}
                         aria-label={messages.get(messages.PREVIOUS_PAGE)}
                         data-part='prevPage'
-                    >
+                        size="large">
                         <KeyboardArrowLeft fontSize='small'/>
                     </IconButton>
                 </Grid>
-
                 <Grid item xs={4} sm id={id + '.page-range-id'} className={classes.pageRange}>
                     <Typography variant='body2' data-part='range'>
                         {this.renderRange()}
                     </Typography>
                 </Grid>
-
                 <Grid item xs={3} sm className={classes.pageNextButtons}>
                     <IconButton
                         id={id + '.next-page-id'}
@@ -118,7 +116,7 @@ class GalleryPaging extends React.PureComponent {
                         disabled={page >= Math.ceil(count / pageSize) - 1}
                         aria-label={messages.get(messages.NEXT_PAGE)}
                         data-part='nextPage'
-                    >
+                        size="large">
                         <KeyboardArrowRight fontSize='small'/>
                     </IconButton>
                     <IconButton
@@ -127,11 +125,10 @@ class GalleryPaging extends React.PureComponent {
                         disabled={page >= Math.ceil(count / pageSize) - 1}
                         aria-label={messages.get(messages.LAST_PAGE)}
                         data-part='lastPage'
-                    >
+                        size="large">
                         <LastPageIcon fontSize='small'/>
                     </IconButton>
                 </Grid>
-
                 <Grid item xs={6} sm id={id + '.page-size-id'} className={classes.pageSize}>
                     <FormControlLabel
                         control={
@@ -150,7 +147,6 @@ class GalleryPaging extends React.PureComponent {
                         labelPlacement='start'
                     />
                 </Grid>
-
                 <Grid item xs={6} sm id={id + '.grid-cols-id'} className={classes.pageSize}>
                     <FormControlLabel
                         control={
@@ -173,8 +169,8 @@ class GalleryPaging extends React.PureComponent {
                         disabled={!isGridView}
                     />
                 </Grid>
-            </Grid>
-        )
+            </Grid>)
+        );
     }
 
     renderRange() {

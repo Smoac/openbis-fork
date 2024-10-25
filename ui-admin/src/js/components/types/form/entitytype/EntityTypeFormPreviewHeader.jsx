@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'

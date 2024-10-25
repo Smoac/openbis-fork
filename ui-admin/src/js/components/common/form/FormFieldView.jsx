@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import InfoIcon from '@material-ui/icons/Info'
+import withStyles from '@mui/styles/withStyles';
+import Typography from '@mui/material/Typography'
+import InfoIcon from '@mui/icons-material/Info'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 
 const styles = theme => ({

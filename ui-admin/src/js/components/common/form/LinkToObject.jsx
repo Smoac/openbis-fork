@@ -1,8 +1,8 @@
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import AppController from '@src/js/components/AppController.js'
-import Link from '@material-ui/core/Link'
+import Link from '@mui/material/Link'
 
 const styles = () => ({
   link: {

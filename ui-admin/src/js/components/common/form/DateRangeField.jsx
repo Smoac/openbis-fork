@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
 import DateField from '@src/js/components/common/form/DateField.jsx'
 import logger from '@src/js/common/logger.js'

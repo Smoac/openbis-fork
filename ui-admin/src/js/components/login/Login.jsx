@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import flow from 'lodash/flow'
 
-import Card from '@material-ui/core/Card'
-import Typography from '@material-ui/core/Typography'
-import Collapse from '@material-ui/core/Collapse'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import Collapse from '@mui/material/Collapse'
 
 import FormValidator from '@src/js/components/common/form/FormValidator.js'
 import Container from '@src/js/components/common/form/Container.jsx'

@@ -1,7 +1,8 @@
 import * as React from 'react';
-import {makeStyles, styled} from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import { styled } from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import messages from "@src/js/common/messages.js";
 
 const VisuallyHiddenInput = styled('input')({
@@ -34,4 +35,4 @@ export default function InputFileUpload({onInputFile}) {
                                  accept=".png,.jpg,.jpeg"/>
         </Button>
     );
-};
+}

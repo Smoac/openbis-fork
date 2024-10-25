@@ -1,6 +1,6 @@
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Button from '@src/js/components/common/form/Button.jsx'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'

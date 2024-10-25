@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Mask from '@src/js/components/common/loading/Mask.jsx'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import CircularProgress from '@mui/material/CircularProgress'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({})

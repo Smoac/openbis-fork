@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
-import EditIcon from '@material-ui/icons/EditOutlined'
-import { withStyles } from '@material-ui/core/styles'
+import EditIcon from '@mui/icons-material/EditOutlined'
+import withStyles from '@mui/styles/withStyles';
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 

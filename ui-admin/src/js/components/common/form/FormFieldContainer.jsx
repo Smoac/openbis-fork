@@ -1,8 +1,8 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import FormControl from '@material-ui/core/FormControl'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import InfoIcon from '@material-ui/icons/Info'
+import withStyles from '@mui/styles/withStyles';
+import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
+import InfoIcon from '@mui/icons-material/Info'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import logger from '@src/js/common/logger.js'
 

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import AutocompleterField from '@src/js/components/common/form/AutocompleterField.jsx'
 import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'

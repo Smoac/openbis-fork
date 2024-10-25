@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import MenuItem from '@material-ui/core/MenuItem'
+import withStyles from '@mui/styles/withStyles';
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
@@ -118,7 +118,7 @@ class SelectFormField extends React.PureComponent {
     this.fixReference(reference)
 
     return (
-      <FormFieldContainer
+      (<FormFieldContainer
         description={description}
         error={error}
         metadata={metadata}
@@ -146,36 +146,38 @@ class SelectFormField extends React.PureComponent {
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           fullWidth={fullWidth}
-          InputLabelProps={{
-            shrink:
-              !util.empty(value) ||
-              (this.getOptionSelectable(emptyOption) &&
-                !!this.getOptionText(emptyOption))
-          }}
-          SelectProps={{
-            displayEmpty: this.getOptionSelectable(emptyOption),
-            MenuProps: {
-              getContentAnchorEl: null,
-              anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'left'
-              }
-            },
-            classes: {
-              root: classes.select,
-              disabled: classes.selectDisabled
-            }
-          }}
           variant={variant}
           margin='dense'
           classes={{
             root: classes.textField
           }}
-        >
+          slotProps={{
+            select: {
+              displayEmpty: this.getOptionSelectable(emptyOption),
+              MenuProps: {
+                getContentAnchorEl: null,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left'
+                }
+              },
+              classes: {
+                root: classes.select,
+                disabled: classes.selectDisabled
+              }
+            },
+
+            inputLabel: {
+              shrink:
+                !util.empty(value) ||
+                (this.getOptionSelectable(emptyOption) &&
+                  !!this.getOptionText(emptyOption))
+            }
+          }}>
           {this.getOptions().map(option => this.renderOption(option))}
         </TextField>
-      </FormFieldContainer>
-    )
+      </FormFieldContainer>)
+    );
   }
 
   renderOption(option) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 

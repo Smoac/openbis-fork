@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import autoBind from 'auto-bind'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Content from '@src/js/components/common/content/Content.jsx'
 import ContentTab from '@src/js/components/common/content/ContentTab.jsx'
 import TypeBrowser from '@src/js/components/types/browser/TypeBrowser.jsx'

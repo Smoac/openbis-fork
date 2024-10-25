@@ -1,12 +1,12 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
+import withStyles from '@mui/styles/withStyles';
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import IconButton from '@material-ui/core/IconButton'
-import FilterIcon from '@material-ui/icons/FilterList'
-import CloseIcon from '@material-ui/icons/Close'
+import CircularProgress from '@mui/material/CircularProgress'
+import IconButton from '@mui/material/IconButton'
+import FilterIcon from '@mui/icons-material/FilterList'
+import CloseIcon from '@mui/icons-material/Close'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -59,23 +59,25 @@ class FilterField extends React.Component {
     const classes = this.props.classes
 
     return (
-      <TextField
+      (<TextField
         className={classes.field}
         placeholder={messages.get(messages.FILTER)}
         value={this.props.filter}
         onChange={this.handleFilterChange}
-        InputProps={{
-          inputRef: this.filterRef,
-          startAdornment: this.renderFilterIcon(),
-          endAdornment: this.renderEndAdornment(),
-          classes: {
-            input: classes.input,
-            underline: classes.underline
+        margin='none'
+        slotProps={{
+          input: {
+            inputRef: this.filterRef,
+            startAdornment: this.renderFilterIcon(),
+            endAdornment: this.renderEndAdornment(),
+            classes: {
+              input: classes.input,
+              underline: classes.underline
+            }
           }
         }}
-        margin='none'
-      />
-    )
+      />)
+    );
   }
 
   renderFilterIcon() {
@@ -114,7 +116,7 @@ class FilterField extends React.Component {
 
     if (this.props.filter) {
       return (
-        <InputAdornment
+        (<InputAdornment
           position='end'
           classes={{
             root: classes.adornment
@@ -124,12 +126,12 @@ class FilterField extends React.Component {
             <IconButton
               onClick={this.handleFilterClear}
               classes={{ root: classes.adornmentButton }}
-            >
+              size="large">
               <CloseIcon fontSize='small' />
             </IconButton>
           </Tooltip>
-        </InputAdornment>
-      )
+        </InputAdornment>)
+      );
     } else {
       return (
         <React.Fragment>

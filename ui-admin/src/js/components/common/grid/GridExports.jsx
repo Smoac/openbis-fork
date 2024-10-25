@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Popover from '@material-ui/core/Popover'
+import withStyles from '@mui/styles/withStyles';
+import Popover from '@mui/material/Popover'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
@@ -186,15 +186,14 @@ class GridExports extends React.PureComponent {
       exportable.fileContent === GridExportOptions.FILE_CONTENT.TYPES
 
     return (
-      <div className={classes.container}>
+      (<div className={classes.container}>
         <Button
           id={id + '.exports-button-id'}
           label={messages.get(messages.EXPORTS)}
           color='default'
           disabled={disabled}
           variant='outlined'
-          onClick={this.handleOpen}
-        />
+          onClick={this.handleOpen} />
         <Popover
           id={id + '.exports-popup-id'}
           open={Boolean(el)}
@@ -351,8 +350,8 @@ class GridExports extends React.PureComponent {
             </div>
           </Container>
         </Popover>
-      </div>
-    )
+      </div>)
+    );
   }
 }
 

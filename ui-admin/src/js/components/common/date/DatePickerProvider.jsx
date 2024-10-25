@@ -1,13 +1,13 @@
 import React from 'react'
-import { MuiPickersUtilsProvider } from '@material-ui/pickers'
-import DateFnsUtils from '@date-io/date-fns'
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns'
+import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 
 class DatePickerProvider extends React.Component {
   render() {
     return (
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <LocalizationProvider utils={AdapterDateFns}>
         {this.props.children}
-      </MuiPickersUtilsProvider>
+      </LocalizationProvider>
     )
   }
 }

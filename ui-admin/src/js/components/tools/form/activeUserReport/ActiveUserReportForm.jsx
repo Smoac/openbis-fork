@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import autoBind from 'auto-bind'
-import Link from '@material-ui/core/Link'
+import Link from '@mui/material/Link'
 import logger from '@src/js/common/logger.js'
 import messages from '@src/js/common/messages.js'
 import Header from '@src/js/components/common/form/Header.jsx'

@@ -16,21 +16,21 @@
  */
 
 import React from 'react'
-import { ToggleButton } from '@material-ui/lab'
+import { ToggleButton } from '@mui/material';
 import messages from '@src/js/common/messages.js'
-import InfoIcon from '@material-ui/icons/InfoOutlined'
-import IconButton from '@material-ui/core/IconButton'
-import ViewComfyIcon from '@material-ui/icons/ViewComfy'
-import ViewListIcon from '@material-ui/icons/ViewList'
-import Button from '@material-ui/core/Button'
-import PublishIcon from '@material-ui/icons/Publish'
-import Popover from '@material-ui/core/Popover'
+import InfoIcon from '@mui/icons-material/InfoOutlined'
+import IconButton from '@mui/material/IconButton'
+import ViewComfyIcon from '@mui/icons-material/ViewComfy'
+import ViewListIcon from '@mui/icons-material/ViewList'
+import Button from '@mui/material/Button'
+import PublishIcon from '@mui/icons-material/Publish'
+import Popover from '@mui/material/Popover'
 import Container from '@src/js/components/common/form/Container.jsx'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import autoBind from 'auto-bind'
 import UploadButton from '@src/js/components/database/data-browser/UploadButton.jsx'
-import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
-import FolderIcon from '@material-ui/icons/FolderOpen'
+import FileIcon from '@mui/icons-material/InsertDriveFileOutlined'
+import FolderIcon from '@mui/icons-material/FolderOpen'
 import logger from '@src/js/common/logger.js'
 import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 import FileExistsDialog from '@src/js/components/common/dialog/FileExistsDialog.jsx'
@@ -66,7 +66,7 @@ const styles = theme => ({
     border: 'none',
     borderRadius: '50%',
     display: 'inline-flex',
-    padding: theme.spacing(1.5) + 'px',
+    padding: theme.spacing(1.5),
     '& *': {
       color: theme.palette[color].main
     }

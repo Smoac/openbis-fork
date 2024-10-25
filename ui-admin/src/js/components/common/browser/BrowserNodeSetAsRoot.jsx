@@ -1,9 +1,9 @@
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
-import IconButton from '@material-ui/core/IconButton'
-import AccountTreeIcon from '@material-ui/icons/AccountTreeOutlined'
+import IconButton from '@mui/material/IconButton'
+import AccountTreeIcon from '@mui/icons-material/AccountTreeOutlined'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 

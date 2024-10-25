@@ -1,13 +1,13 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import IconButton from '@material-ui/core/IconButton'
-import FirstPageIcon from '@material-ui/icons/FirstPage'
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import LastPageIcon from '@material-ui/icons/LastPage'
+import withStyles from '@mui/styles/withStyles';
+import Typography from '@mui/material/Typography'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import IconButton from '@mui/material/IconButton'
+import FirstPageIcon from '@mui/icons-material/FirstPage'
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
+import LastPageIcon from '@mui/icons-material/LastPage'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
 import messages from '@src/js/common/messages.js'
@@ -87,7 +87,7 @@ class GridPaging extends React.PureComponent {
     const doShowRowsPerPage = typeof showRowsPerPage === 'boolean' ? showRowsPerPage : true
 
     return (
-      <div className={classes.container}>
+      (<div className={classes.container}>
         <div className={classes.pagePrevButtons}>
           <IconButton
             id={id + '.first-page-id'}
@@ -95,7 +95,7 @@ class GridPaging extends React.PureComponent {
             disabled={page === 0}
             aria-label={messages.get(messages.FIRST_PAGE)}
             data-part='firstPage'
-          >
+            size="large">
             <FirstPageIcon fontSize='small' />
           </IconButton>
           <IconButton
@@ -104,7 +104,7 @@ class GridPaging extends React.PureComponent {
             disabled={page === 0}
             aria-label={messages.get(messages.PREVIOUS_PAGE)}
             data-part='prevPage'
-          >
+            size="large">
             <KeyboardArrowLeft fontSize='small' />
           </IconButton>
         </div>
@@ -120,7 +120,7 @@ class GridPaging extends React.PureComponent {
             disabled={page >= Math.ceil(count / pageSize) - 1}
             aria-label={messages.get(messages.NEXT_PAGE)}
             data-part='nextPage'
-          >
+            size="large">
             <KeyboardArrowRight fontSize='small' />
           </IconButton>
           <IconButton
@@ -129,7 +129,7 @@ class GridPaging extends React.PureComponent {
             disabled={page >= Math.ceil(count / pageSize) - 1}
             aria-label={messages.get(messages.LAST_PAGE)}
             data-part='lastPage'
-          >
+            size="large">
             <LastPageIcon fontSize='small' />
           </IconButton>
         </div>
@@ -159,9 +159,8 @@ class GridPaging extends React.PureComponent {
             <div key={id + '.separator'} className={classes.separator}></div>
           ]
         }
-
-      </div>
-    )
+      </div>)
+    );
   }
 
   renderRange() {

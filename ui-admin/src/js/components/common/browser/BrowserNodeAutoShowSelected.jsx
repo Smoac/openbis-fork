@@ -1,10 +1,10 @@
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
-import IconButton from '@material-ui/core/IconButton'
-import MyLocation from '@material-ui/icons/MyLocation'
-import LocationDisabled from '@material-ui/icons/LocationDisabled'
+import IconButton from '@mui/material/IconButton'
+import MyLocation from '@mui/icons-material/MyLocation'
+import LocationDisabled from '@mui/icons-material/LocationDisabled'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 

@@ -1,7 +1,7 @@
-import {IconButton, TextareaAutosize} from "@material-ui/core";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
+import {IconButton, TextareaAutosize} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
 import React from "react";
 import DefaultMetadaField
     from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";

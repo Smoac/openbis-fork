@@ -1,8 +1,8 @@
-import {Box, Modal, Typography} from "@material-ui/core";
+import {Box, Modal, Typography} from "@mui/material";
 import React from "react";
 import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
-import { makeStyles } from "@material-ui/core/styles";
-import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import makeStyles from '@mui/styles/makeStyles';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import messages from "@src/js/common/messages.js";
 import constants from "@src/js/components/common/imaging/constants.js";
 import Button from "@src/js/components/common/form/Button.jsx";
@@ -66,49 +66,47 @@ const Export = ({ config, handleExport, disabled = false }) => {
 
     if (isObjectEmpty(exportState)) return null;
 
-    return (
-        <>
-            <Button label={messages.get(messages.EXPORT)}
-                    type='final'
-                    color='default'
-                    variant='outlined'
-                    disabled={disabled}
-                    onClick={handleOpen}
-                    startIcon={<CloudDownloadIcon/>}/>
+    return (<>
+        <Button
+            label={messages.get(messages.EXPORT)}
+            type='final'
+            color='default'
+            variant='outlined'
+            disabled={disabled}
+            onClick={handleOpen}
+            startIcon={<CloudDownloadIcon/>} />
+        <Modal open={open}
+               onClose={handleClose}
+               aria-labelledby="modal-modal-title"
+               aria-describedby="modal-modal-description"
+        >
+            <Box sx={style}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    {messages.get(messages.EXPORT_SELECTION)}
+                </Typography>
+                {config.map((c, idx) => {
+                    switch (c.type) {
+                        case constants.DROPDOWN:
+                            return <Dropdown key={"export-" + c.type + "-" + idx}
+                                             label={c.label}
+                                             initValue={exportState[c.label]}
+                                             values={c.values}
+                                             isMulti={c.multiselect}
+                                             onSelectChange={handleExportChange}/>
+                        default:
+                            return (<Typography variant='body2'>
+                                {messages.get(messages.NO_PREVIEW)}: {c.type}
+                            </Typography>)
+                    }
+                })}
+                <div className={classes.mt} >
+                    <Button label={messages.get(messages.EXPORT)} type='secondary' onClick={sendExportRequest} />
+                    <Button label={messages.get(messages.CANCEL)} type='risky' onClick={handleClose} styles={{ root: classes.risky }} />
+                </div>
+            </Box>
 
-            <Modal open={open}
-                   onClose={handleClose}
-                   aria-labelledby="modal-modal-title"
-                   aria-describedby="modal-modal-description"
-            >
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        {messages.get(messages.EXPORT_SELECTION)}
-                    </Typography>
-                    {config.map((c, idx) => {
-                        switch (c.type) {
-                            case constants.DROPDOWN:
-                                return <Dropdown key={"export-" + c.type + "-" + idx}
-                                                 label={c.label}
-                                                 initValue={exportState[c.label]}
-                                                 values={c.values}
-                                                 isMulti={c.multiselect}
-                                                 onSelectChange={handleExportChange}/>
-                            default:
-                                return (<Typography variant='body2'>
-                                    {messages.get(messages.NO_PREVIEW)}: {c.type}
-                                </Typography>)
-                        }
-                    })}
-                    <div className={classes.mt} >
-                        <Button label={messages.get(messages.EXPORT)} type='secondary' onClick={sendExportRequest} />
-                        <Button label={messages.get(messages.CANCEL)} type='risky' onClick={handleClose} styles={{ root: classes.risky }} />
-                    </div>
-                </Box>
-
-            </Modal>
-        </>
-    );
+        </Modal>
+    </>);
 };
 
 export default Export;

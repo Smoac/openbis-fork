@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import CloseIcon from '@material-ui/icons/Close'
+import withStyles from '@mui/styles/withStyles';
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import CloseIcon from '@mui/icons-material/Close'
 import UnsavedChangesDialog from '@src/js/components/common/dialog/UnsavedChangesDialog.jsx'
 import logger from '@src/js/common/logger.js'
 
@@ -89,14 +89,14 @@ class ContentTabs extends React.PureComponent {
     const { unsavedChangesDialogOpen } = this.state
 
     return (
-      <React.Fragment>
+      (<React.Fragment>
         <Tabs
           value={value}
           variant='scrollable'
-          scrollButtons='on'
+          scrollButtons
           onChange={this.handleTabChange}
           classes={{ root: classes.tabsRoot }}
-        >
+          allowScrollButtonsMobile>
           {this.props.tabs.map(tab => (
             <Tab
               key={tab.id}
@@ -112,8 +112,8 @@ class ContentTabs extends React.PureComponent {
           onConfirm={this.handleTabCloseConfirm}
           onCancel={this.handleTabCloseCancel}
         />
-      </React.Fragment>
-    )
+      </React.Fragment>)
+    );
   }
 
   renderLabel(tab) {

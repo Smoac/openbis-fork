@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import { DragDropContext, Droppable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
-import Popover from '@material-ui/core/Popover'
+import Popover from '@mui/material/Popover'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
@@ -86,14 +86,13 @@ class GridColumnsConfig extends React.PureComponent {
     const { el } = this.state
 
     return (
-      <div className={classes.container}>
+      (<div className={classes.container}>
         <Button
           id={id + '.columns-button-id'}
           label={messages.get(messages.COLUMNS)}
           color='default'
           variant='outlined'
-          onClick={this.handleOpen}
-        />
+          onClick={this.handleOpen} />
         <Popover
           id={id + '.columns-popup-id'}
           open={Boolean(el)}
@@ -112,8 +111,8 @@ class GridColumnsConfig extends React.PureComponent {
             <Container square={true}>{this.renderColumns()}</Container>
           </Mask>
         </Popover>
-      </div>
-    )
+      </div>)
+    );
   }
 
   renderColumns() {

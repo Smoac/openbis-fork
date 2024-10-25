@@ -14,19 +14,18 @@ export default function AlertDialog({label, icon, title, content, disabled, onHa
         onHandleYes(true);
     };
 
-    return (
-        <>
-            <Button label={label}
-                    variant='outlined'
-                    color='default'
-                    onClick={handleClickOpen}
-                    startIcon={icon}
-                    disabled={disabled}/>
-            <ConfirmationDialog open={open}
-                                onConfirm={handleYes}
-                                onCancel={() => setOpen(false)}
-                                title={title}
-                                content={content}/>
-        </>
-    );
+    return (<>
+        <Button
+            label={label}
+            variant='outlined'
+            color='default'
+            onClick={handleClickOpen}
+            startIcon={icon}
+            disabled={disabled} />
+        <ConfirmationDialog open={open}
+                            onConfirm={handleYes}
+                            onCancel={() => setOpen(false)}
+                            title={title}
+                            content={content}/>
+    </>);
 }

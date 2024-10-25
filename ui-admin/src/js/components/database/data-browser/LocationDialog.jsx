@@ -1,10 +1,10 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Button from '@src/js/components/common/form/Button.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-import { DialogContentText } from '@material-ui/core'
+import { DialogContentText } from '@mui/material'
 import autoBind from 'auto-bind'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import Grid from '@src/js/components/common/grid/Grid.jsx'

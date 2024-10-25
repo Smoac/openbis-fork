@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Container from '@src/js/components/common/form/Container.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import AppController from '@src/js/components/AppController.js'

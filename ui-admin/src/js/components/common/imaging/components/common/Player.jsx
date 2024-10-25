@@ -1,16 +1,17 @@
 import * as React from 'react';
-import {createTheme, makeStyles, styled, useTheme} from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
-import Slider from '@material-ui/core/Slider';
-import IconButton from '@material-ui/core/IconButton';
-import PauseRounded from '@material-ui/icons/PauseRounded';
-import PlayArrowRounded from '@material-ui/icons/PlayArrowRounded';
-import FastForwardRounded from '@material-ui/icons/FastForwardRounded';
-import FastRewindRounded from '@material-ui/icons/FastRewindRounded';
-import MobileStepper from "@material-ui/core/MobileStepper";
-import {ThemeProvider} from "@material-ui/core";
+import { createTheme, styled, useTheme, adaptV4Theme } from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
+import IconButton from '@mui/material/IconButton';
+import PauseRounded from '@mui/icons-material/PauseRounded';
+import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
+import FastForwardRounded from '@mui/icons-material/FastForwardRounded';
+import FastRewindRounded from '@mui/icons-material/FastRewindRounded';
+import MobileStepper from "@mui/material/MobileStepper";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 
-const themeDisabled = createTheme({
+const themeDisabled = createTheme(adaptV4Theme({
     overrides: {
         // Style sheet name ⚛️
         MuiIconButton: {
@@ -21,9 +22,9 @@ const themeDisabled = createTheme({
             }
         },
     },
-});
+}));
 
-const themeSlider = createTheme({
+const themeSlider = createTheme(adaptV4Theme({
    overrides: {
        MuiSlider: {
            thumb: {
@@ -40,7 +41,7 @@ const themeSlider = createTheme({
            }
        }
    }
-});
+}));
 
 const Widget = styled('div')(() => ({
     padding: 10,
@@ -146,30 +147,32 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
     }
 
     return (
-        <Widget>
+        (<Widget>
             <Box className={classes.rootBox}>
-                <ThemeProvider theme={themeDisabled}>
-                    <IconButton aria-label="previous"
-                                onClick={handleBack}
-                                disabled={paused || activeStep <= 0}
-                                size="small"
-                    >
-                        <FastRewindRounded />
-                    </IconButton>
-                    <IconButton aria-label={paused ? 'play' : 'pause'}
-                                onClick={handlePlay}
-                                size="small"
-                    >
-                        {paused ? <PlayArrowRounded /> : <PauseRounded />}
-                    </IconButton>
-                    <IconButton aria-label="next"
-                                onClick={handleNext}
-                                disabled={paused || activeStep === steps.length-1}
-                                size="small"
-                    >
-                        <FastForwardRounded />
-                    </IconButton>
-                </ThemeProvider>
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={themeDisabled}>
+                        <IconButton aria-label="previous"
+                                    onClick={handleBack}
+                                    disabled={paused || activeStep <= 0}
+                                    size="small"
+                        >
+                            <FastRewindRounded />
+                        </IconButton>
+                        <IconButton aria-label={paused ? 'play' : 'pause'}
+                                    onClick={handlePlay}
+                                    size="small"
+                        >
+                            {paused ? <PlayArrowRounded /> : <PauseRounded />}
+                        </IconButton>
+                        <IconButton aria-label="next"
+                                    onClick={handleNext}
+                                    disabled={paused || activeStep === steps.length-1}
+                                    size="small"
+                        >
+                            <FastForwardRounded />
+                        </IconButton>
+                    </ThemeProvider>
+                </StyledEngineProvider>
             </Box>
             {!paused && <MobileStepper variant="text"
                                        steps={steps.length}
@@ -177,18 +180,20 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
                                        activeStep={activeStep}
                                        className={classes.root}
             />}
-            <ThemeProvider theme={themeSlider}>
-                {speedable && <Slider
-                    className={classes.thumb}
-                    value={speed}
-                    color="primary"
-                    onChange={handleSpeedChange}
-                    step={null}
-                    min={defaultSpeeds[0].value}
-                    max={defaultSpeeds[defaultSpeeds.length - 1].value}
-                    marks={defaultSpeeds}
-                />}
-            </ThemeProvider>
-        </Widget>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={themeSlider}>
+                    {speedable && <Slider
+                        className={classes.thumb}
+                        value={speed}
+                        color="primary"
+                        onChange={handleSpeedChange}
+                        step={null}
+                        min={defaultSpeeds[0].value}
+                        max={defaultSpeeds[defaultSpeeds.length - 1].value}
+                        marks={defaultSpeeds}
+                    />}
+                </ThemeProvider>
+            </StyledEngineProvider>
+        </Widget>)
     );
 }

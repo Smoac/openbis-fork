@@ -7,8 +7,8 @@ import {
     ImageListItem,
     Typography,
     Card, Divider
-} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import constants from "@src/js/components/common/imaging/constants.js";
 import {isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
 import CommentMetadataField from "@src/js/components/common/imaging/components/gallery/CommentMetadataField.jsx";
@@ -37,7 +37,7 @@ const GalleryListView = ({previewContainerList, onOpenPreview, onEditComment}) =
     const classes = useStyles();
 
     return (
-        <ImageList className={classes.imageList} cols={1} gap={5}>
+        (<ImageList className={classes.imageList} cols={1} gap={5}>
             {previewContainerList.map((previewContainer, idx) => (
                 <ImageListItem style={{height: 'unset'}} key={'image-list-item-' + idx}>
                     <Card className={classes.card} key={'card-list-item-' + idx}>
@@ -57,7 +57,9 @@ const GalleryListView = ({previewContainerList, onOpenPreview, onEditComment}) =
                                 Data Set Types
                             </Typography>
                             <Typography key={`dataset-types-${idx}`} variant="body2"
-                                        color="textSecondary" component={'span'}>
+                                        component={'span'} sx={{
+                                color: "textSecondary"
+                            }}>
                                 {isObjectEmpty(previewContainer.datasetProperties) ?
                                     <p>No Property to display</p>
                                     : Object.entries(previewContainer.datasetProperties).map(([key, value], pos) =>
@@ -71,7 +73,9 @@ const GalleryListView = ({previewContainerList, onOpenPreview, onEditComment}) =
                                 Preview Metadata
                             </Typography>
                             <Typography key={`preview-metadata-${idx}`} variant="body2"
-                                        color="textSecondary" component={'span'}>
+                                        component={'span'} sx={{
+                                color: "textSecondary"
+                            }}>
                                 {isObjectEmpty(previewContainer.preview.metadata) ?
                                     <p>No Preview metadata to display</p>
                                     : Object.entries(previewContainer.preview.metadata)
@@ -89,7 +93,7 @@ const GalleryListView = ({previewContainerList, onOpenPreview, onEditComment}) =
                     </Card>
                 </ImageListItem>
             ))}
-        </ImageList>
+        </ImageList>)
     );
 }
 

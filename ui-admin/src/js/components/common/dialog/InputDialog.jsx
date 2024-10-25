@@ -1,11 +1,11 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Button from '@src/js/components/common/form/Button.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-import { DialogContentText } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
+import { DialogContentText } from '@mui/material'
+import TextField from '@mui/material/TextField'
 import autoBind from 'auto-bind'
 
 const styles = theme => ({

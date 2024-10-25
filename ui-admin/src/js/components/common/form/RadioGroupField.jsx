@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Radio from '@material-ui/core/Radio'
-import Typography from '@material-ui/core/Typography'
+import withStyles from '@mui/styles/withStyles';
+import Radio from '@mui/material/Radio'
+import Typography from '@mui/material/Typography'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import logger from '@src/js/common/logger.js'
@@ -10,7 +10,7 @@ const styles = theme => ({
   container: {},
   radioContainer: {
     display: 'flex',
-    padding: `${theme.spacing(1) / 2}px 0px`,
+    padding: `calc(${theme.spacing(1)} / 2) 0px`,
     '&:first-child': {
       paddingTop: 0
     },

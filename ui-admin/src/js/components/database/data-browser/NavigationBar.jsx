@@ -16,13 +16,13 @@
  */
 
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import autoBind from 'auto-bind'
 import logger from "@src/js/common/logger.js";
 import Container from "@src/js/components/common/form/Container.jsx";
-import HomeIcon from "@material-ui/icons/Home";
-import IconButton from "@material-ui/core/IconButton";
-import Button from "@material-ui/core/Button";
+import HomeIcon from "@mui/icons-material/Home";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 
 const color = 'default'
 const buttonSize = 'small'

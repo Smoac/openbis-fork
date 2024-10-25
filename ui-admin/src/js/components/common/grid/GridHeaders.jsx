@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
+import withStyles from '@mui/styles/withStyles';
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import GridHeader from '@src/js/components/common/grid/GridHeader.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'

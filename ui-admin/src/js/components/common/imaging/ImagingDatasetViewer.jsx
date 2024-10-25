@@ -1,11 +1,11 @@
 import React from 'react'
-import {withStyles} from "@material-ui/core/styles";
+import withStyles from '@mui/styles/withStyles';
 import {
     Box,
     Divider,
     Grid,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 
 import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
 import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
@@ -26,10 +26,10 @@ import CustomSwitch from "@src/js/components/common/imaging/components/common/Cu
 import ImageListItemSection
     from "@src/js/components/common/imaging/components/common/ImageListItemSection.js";
 
-import AddToQueueIcon from "@material-ui/icons/AddToQueue";
-import SaveIcon from "@material-ui/icons/Save";
-import DeleteIcon from "@material-ui/icons/Delete";
-import RefreshIcon from "@material-ui/icons/Refresh";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
+import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import messages from '@src/js/common/messages.js'
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
@@ -47,7 +47,7 @@ const styles = theme => ({
     },
     gridDirection: {
         flexDirection: "row",
-        [theme.breakpoints.down('sm')]: {
+        [theme.breakpoints.down('md')]: {
             flexDirection: "column",
         },
     },
@@ -385,7 +385,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     renderImageSection(images, activeImageIdx, configExports) {
         return (
-            <PaperBox>
+            (<PaperBox>
                 <Grid container direction='row' spacing={1}>
                     <Grid item xs={9} sm={10}>
                         <ImageListItemSection title={messages.get(messages.IMAGES)}
@@ -396,20 +396,22 @@ class ImagingDataSetViewer extends React.PureComponent {
                                               onActiveItemChange={this.handleActiveImageChange}/>
                     </Grid>
                     <Grid item xs={3} sm={2} container direction='column'
-                          justifyContent="space-around">
+                          sx={{
+                              justifyContent: "space-around"
+                          }}>
                         {configExports.length > 0 ?
                             <Export handleExport={this.onExport}
                                     config={configExports}/> : <></>}
                     </Grid>
                 </Grid>
-            </PaperBox>
-        )
+            </PaperBox>)
+        );
     };
 
     renderPreviewsSection(previews, configExports, activeImageIdx, activePreviewIdx, isSaved) {
         const nPreviews = previews.length;
         return (
-            <PaperBox>
+            (<PaperBox>
                 <Grid container direction='row' spacing={1}>
                     <Grid item xs={9} sm={10}>
                         <ImageListItemSection title={messages.get(messages.PREVIEWS)}
@@ -422,7 +424,9 @@ class ImagingDataSetViewer extends React.PureComponent {
                                               onMove={this.onMove}/>
                     </Grid>
                     <Grid item xs={3} sm={2} container direction='column'
-                          justifyContent="space-around">
+                          sx={{
+                              justifyContent: "space-around"
+                          }}>
                         {!isSaved && (
                             <Message type='warning'>
                                 {messages.get(messages.UNSAVED_CHANGES)}
@@ -442,26 +446,32 @@ class ImagingDataSetViewer extends React.PureComponent {
                                      disabled={nPreviews === 1}
                                      onHandleYes={this.deletePreview}/>
 
-                        <Button name='btn-new-preview'
-                                label={messages.get(messages.NEW)}
-                                type='final'
-                                variant='outlined'
-                                color='default'
-                                startIcon={<AddToQueueIcon/>}
-                                onClick={this.createNewPreview}/>
+                        <Button
+                            name='btn-new-preview'
+                            label={messages.get(messages.NEW)}
+                            type='final'
+                            variant='outlined'
+                            startIcon={<AddToQueueIcon/>}
+                            onClick={this.createNewPreview} />
 
                         <InputFileUpload onInputFile={this.handleUpload}/>
                     </Grid>
                 </Grid>
-            </PaperBox>
-        )
+            </PaperBox>)
+        );
     };
 
     renderBigPreview(classes, activePreview, resolution) {
         return (
-            <Grid container item xs={12} sm={8}
-                  justifyContent="center"
-                  alignItems="center">
+            (<Grid
+                container
+                item
+                xs={12}
+                sm={8}
+                sx={{
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
                 <Box className={classes.imgContainer}>
                     {activePreview.bytes === null ?
                         <Typography variant='body2'>
@@ -474,7 +484,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             width={resolution[1]}
                         />}
                 </Box>
-            </Grid>
+            </Grid>)
         );
     };
 
@@ -484,10 +494,15 @@ class ImagingDataSetViewer extends React.PureComponent {
         const currentMetadata = activePreview.metadata;
         const isUploadedPreview = isObjectEmpty(currentMetadata) ? false : ("file" in currentMetadata);
         return (
-            <Grid item xs={12} sm={4}>
+            (<Grid item xs={12} sm={4}>
                 <PaperBox className={classes.noBorderNoShadow}>
                     <Grid item xs>
-                        <Grid container justifyContent="space-between" alignItems="center">
+                        <Grid
+                            container
+                            sx={{
+                                justifyContent: "space-between",
+                                alignItems: "center"
+                            }}>
                             <Button label={messages.get(messages.UPDATE)}
                                     variant='outlined'
                                     color='primary'
@@ -555,7 +570,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                         }
                     </Grid>
                 </PaperBox>
-            </Grid>
+            </Grid>)
         );
     };
 
@@ -572,12 +587,14 @@ class ImagingDataSetViewer extends React.PureComponent {
                 </PaperBox>
             );
         return (
-            <PaperBox>
+            (<PaperBox>
                 <Typography gutterBottom variant='h6'>
                     Preview Metadata Section
                 </Typography>
                 <Typography key={`preview-metadata-${activePreview.index}`} variant="body2"
-                            color="textSecondary" component={'span'}>
+                            component={'span'} sx={{
+                    color: "textSecondary"
+                }}>
                     {isObjectEmpty(currPreviewMetadata) ?
                         <p>No preview metadata to display</p>
                         : Object.entries(currPreviewMetadata).map(([key, value], pos) =>
@@ -591,7 +608,9 @@ class ImagingDataSetViewer extends React.PureComponent {
                     Image Metadata Section
                 </Typography>
                 <Typography key={`image-metadata-${activeImage.index}`} variant="body2"
-                            color="textSecondary" component={'span'}>
+                            component={'span'} sx={{
+                    color: "textSecondary"
+                }}>
                     {isObjectEmpty(activeImage.metadata) ?
                         <p>No image metadata to display</p>
                         : Object.entries(activeImage.metadata).map(([key, value], pos) =>
@@ -605,7 +624,9 @@ class ImagingDataSetViewer extends React.PureComponent {
                     Config Metadata section
                 </Typography>
                 <Typography key={`config-metadata`} variant="body2"
-                            color="textSecondary" component={'span'}>
+                            component={'span'} sx={{
+                    color: "textSecondary"
+                }}>
                     {isObjectEmpty(configMetadata) ?
                         <p>No config metadata to display</p>
                         : Object.entries(configMetadata).map(([key, value], pos) =>
@@ -614,8 +635,8 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                 pos={pos}/>)
                     }
                 </Typography>
-            </PaperBox>
-        )
+            </PaperBox>)
+        );
     };
 }
 

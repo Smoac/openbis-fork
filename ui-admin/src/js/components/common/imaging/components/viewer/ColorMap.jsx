@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormControl, MenuItem, Select} from "@material-ui/core";
+import {FormControl, MenuItem, Select} from "@mui/material";
 import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox";
 import constants from '@src/js/components/common/imaging/constants.js';
 

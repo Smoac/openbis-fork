@@ -1,23 +1,23 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import React from 'react'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import TextField from '@material-ui/core/TextField'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import SearchIcon from '@material-ui/icons/Search'
-import CloseIcon from '@material-ui/icons/Close'
-import LogoutIcon from '@material-ui/icons/PowerSettingsNew'
-import { alpha } from '@material-ui/core/styles/colorManipulator'
-import { withStyles } from '@material-ui/core/styles'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
+import SearchIcon from '@mui/icons-material/Search'
+import CloseIcon from '@mui/icons-material/Close'
+import LogoutIcon from '@mui/icons-material/PowerSettingsNew'
+import { alpha } from '@mui/material/styles';
+import withStyles from '@mui/styles/withStyles';
 import AppController from '@src/js/components/AppController.js'
 import Button from '@src/js/components/common/form/Button.jsx'
 import pages from '@src/js/common/consts/pages.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 
 const styles = theme => ({
   appBar: {
@@ -100,7 +100,7 @@ class Menu extends React.PureComponent {
 
     const { classes, searchText, userName } = this.props
     return (
-      <AppBar position='static' classes={{ root: classes.appBar }}>
+      (<AppBar position='static' classes={{ root: classes.appBar }}>
         <Toolbar variant='dense' classes={{ root: classes.toolBar }}>
           <Tabs
             value={this.props.currentPage}
@@ -120,13 +120,15 @@ class Menu extends React.PureComponent {
             value={searchText || ''}
             onChange={this.handleSearchChange}
             onKeyPress={this.handleSearchKeyPress}
-            InputProps={{
-              inputRef: this.searchRef,
-              disableUnderline: true,
-              startAdornment: this.renderSearchIcon(),
-              endAdornment: this.renderSearchClearIcon(),
-              classes: {
-                root: classes.search
+            slotProps={{
+              input: {
+                inputRef: this.searchRef,
+                disableUnderline: true,
+                startAdornment: this.renderSearchIcon(),
+                endAdornment: this.renderSearchClearIcon(),
+                classes: {
+                  root: classes.search
+                }
               }
             }}
           />
@@ -139,8 +141,8 @@ class Menu extends React.PureComponent {
             onClick={this.handleLogout}
           />
         </Toolbar>
-      </AppBar>
-    )
+      </AppBar>)
+    );
   }
 
   renderSearchIcon() {

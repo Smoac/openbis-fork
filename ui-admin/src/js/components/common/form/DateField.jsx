@@ -1,13 +1,13 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
+import withStyles from '@mui/styles/withStyles';
+import TextField from '@mui/material/TextField'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import {
-  KeyboardDatePicker,
-  KeyboardDateTimePicker
-} from '@material-ui/pickers'
+  DatePicker,
+  DateTimePicker
+} from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import date from '@src/js/common/date.js'
 import logger from '@src/js/common/logger.js'
@@ -154,7 +154,7 @@ class DateField extends React.PureComponent {
       return (
         <FormFieldContainer error={error}>
           <div className={classes.container}>
-            <KeyboardDateTimePicker
+            <DateTimePicker
               name={name}
               ampm={false}
               label={this.renderEditLabel()}
@@ -179,7 +179,7 @@ class DateField extends React.PureComponent {
       return (
         <FormFieldContainer error={error}>
           <div className={classes.container}>
-            <KeyboardDatePicker
+            <DatePicker
               name={name}
               label={this.renderEditLabel()}
               invalidDateMessage={null}
@@ -211,19 +211,21 @@ class DateField extends React.PureComponent {
     const { classes } = this.props
 
     return (
-      <div ref={this.inputContainerReference}>
+      (<div ref={this.inputContainerReference}>
         <TextField
           {...params}
-          InputProps={{
-            ...params.InputProps,
-            classes: {
-              ...params.InputProps.classes,
-              input: classes.input
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              classes: {
+                ...params.InputProps.classes,
+                input: classes.input
+              }
             }
           }}
         />
-      </div>
-    )
+      </div>)
+    );
   }
 
   fixReference() {

@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Slide from '@material-ui/core/Slide'
+import withStyles from '@mui/styles/withStyles';
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import Slide from '@mui/material/Slide'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -45,7 +45,7 @@ class DialogWindow extends React.Component {
     const { open, title, content, actions, onClose, classes } = this.props
 
     return (
-      <Dialog
+      (<Dialog
         open={open}
         onClose={onClose}
         scroll='paper'
@@ -54,7 +54,7 @@ class DialogWindow extends React.Component {
         classes={{ root: classes.dialog }}
         TransitionComponent={Transition}
       >
-        <DialogTitle disableTypography={true} classes={{ root: classes.title }}>
+        <DialogTitle classes={{ root: classes.title }}>
           {_.isFunction(title) ? title(this) : title}
         </DialogTitle>
         <DialogContent classes={{ root: classes.content }}>
@@ -63,8 +63,8 @@ class DialogWindow extends React.Component {
         <DialogActions classes={{ root: classes.actions }}>
           {_.isFunction(actions) ? actions(this) : actions}
         </DialogActions>
-      </Dialog>
-    )
+      </Dialog>)
+    );
   }
 }
 

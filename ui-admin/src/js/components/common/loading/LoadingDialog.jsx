@@ -1,10 +1,10 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import logger from '@src/js/common/logger.js'
-import Dialog from '@material-ui/core/Dialog'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Dialog from '@mui/material/Dialog'
+import CircularProgress from '@mui/material/CircularProgress'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 
 const styles = theme => ({
   dialogPaper: {
@@ -40,7 +40,7 @@ class LoadingDialog extends React.Component {
     const { loading, classes, variant, value, message } = this.props
 
     return (
-      <Dialog
+      (<Dialog
         open={loading}
         classes={{ paper: classes.dialogPaper }}
         keepMounted
@@ -54,12 +54,12 @@ class LoadingDialog extends React.Component {
           />
         </DialogContent>
         {message ? (
-          <DialogTitle disableTypography={true} className={classes.title}>
+          <DialogTitle className={classes.title}>
             {message}
           </DialogTitle>
         ) : null}
-      </Dialog>
-    )
+      </Dialog>)
+    );
   }
 }
 

@@ -1,10 +1,10 @@
 import React from 'react'
-import Typography from '@material-ui/core/Typography'
-import InfoIcon from '@material-ui/icons/Info'
-import WarningIcon from '@material-ui/icons/Warning'
-import LockIcon from '@material-ui/icons/Lock'
-import CheckCircleIcon from '@material-ui/icons/CheckCircle'
-import { withStyles } from '@material-ui/core/styles'
+import Typography from '@mui/material/Typography'
+import InfoIcon from '@mui/icons-material/Info'
+import WarningIcon from '@mui/icons-material/Warning'
+import LockIcon from '@mui/icons-material/Lock'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import withStyles from '@mui/styles/withStyles';
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 

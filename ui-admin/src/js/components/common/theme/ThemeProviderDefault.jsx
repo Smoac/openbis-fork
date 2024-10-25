@@ -1,7 +1,7 @@
 import React from 'react'
-import { MuiThemeProvider, createTheme } from '@material-ui/core/styles'
-import indigo from '@material-ui/core/colors/indigo'
-import lightBlue from '@material-ui/core/colors/lightBlue'
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import indigo from '@mui/material/colors/indigo'
+import lightBlue from '@mui/material/colors/lightBlue'
 
 const config = {
   typography: {
@@ -48,13 +48,13 @@ const config = {
 
 const theme = createTheme(config)
 
-class ThemeProvider extends React.Component {
+class ThemeProviderDefault extends React.Component {
   render() {
     return (
-      <MuiThemeProvider theme={theme}>{this.props.children}</MuiThemeProvider>
+      <ThemeProvider theme={theme}>{this.props.children}</ThemeProvider>
     )
   }
 }
 
-export default ThemeProvider
+export default ThemeProviderDefault
 export { config }

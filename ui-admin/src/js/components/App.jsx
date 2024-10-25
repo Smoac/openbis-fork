@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
 import pages from '@src/js/common/consts/pages.js'

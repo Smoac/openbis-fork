@@ -1,11 +1,11 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import ErrorObject from '@src/js/components/common/error/ErrorObject.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
-import Link from '@material-ui/core/Link'
-import Collapse from '@material-ui/core/Collapse'
+import Link from '@mui/material/Link'
+import Collapse from '@mui/material/Collapse'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 

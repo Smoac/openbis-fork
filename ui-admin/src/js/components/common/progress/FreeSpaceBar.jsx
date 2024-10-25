@@ -16,10 +16,10 @@
  */
 
 import React from 'react'
-import { withStyles } from "@material-ui/core/styles"
-import LinearProgress from '@material-ui/core/LinearProgress'
-import Typography from '@material-ui/core/Typography'
-import Box from '@material-ui/core/Box'
+import withStyles from '@mui/styles/withStyles';
+import LinearProgress from '@mui/material/LinearProgress'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 
 const styles = theme => ({
   root: {
@@ -76,17 +76,23 @@ class FreeSpaceBar extends React.Component {
     const used = total - free
     const value = Math.round(used * 100 / total);
     return (
-      <Box className={classes.root} alignItems='center'>
-        <Box className={classes.progressRoot} mr={1}>
+      (<Box className={classes.root} sx={{
+        alignItems: 'center'
+      }}>
+        <Box className={classes.progressRoot} sx={{
+          mr: 1
+        }}>
           <LinearProgress className={classes.bar} variant='determinate' value={value} />
         </Box>
-        <Box minWidth={35}>
+        <Box sx={{
+          minWidth: 35
+        }}>
           <Typography variant='body2' color='textSecondary'>
             {`${this.sizeToString(used)} / ${this.sizeToString(total)}`}
           </Typography>
         </Box>
-      </Box>
-    )
+      </Box>)
+    );
   }
 }
 

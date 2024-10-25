@@ -1,11 +1,11 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import TextField from '@material-ui/core/TextField'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp'
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import withStyles from '@mui/styles/withStyles';
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import CircularProgress from '@mui/material/CircularProgress'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
@@ -201,13 +201,13 @@ class AutocompleterFormField extends React.PureComponent {
     const { open, inputValue, focused } = this.state
 
     return (
-      <FormFieldContainer
-        description={description}
-        error={error}
-        metadata={metadata}
-        styles={styles}
-        onClick={this.handleClick}
-      >
+      (<FormFieldContainer
+          description={description}
+          error={error}
+          metadata={metadata}
+          styles={styles}
+          onClick={this.handleClick}
+        >
         <Autocomplete
           disableClearable
           freeSolo={true}
@@ -217,7 +217,7 @@ class AutocompleterFormField extends React.PureComponent {
           renderOption={renderOption}
           filterOptions={filterOptions}
           getOptionLabel={getOptionLabel}
-          getOptionSelected={getOptionSelected}
+          isOptionEqualToValue={getOptionSelected}
           getOptionDisabled={getOptionDisabled}
           value={value}
           inputValue={inputValue}
@@ -235,18 +235,6 @@ class AutocompleterFormField extends React.PureComponent {
             <TextField
               {...params}
               inputRef={this.getReference()}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: this.renderAdornment(),
-                classes: {
-                  ...params.InputProps.classes,
-                  input: classes.input,
-                  disabled: classes.disabled
-                }
-              }}
-              InputLabelProps={{
-                shrink: !!value || focused
-              }}
               label={this.renderLabel()}
               error={!!error}
               fullWidth={true}
@@ -256,11 +244,25 @@ class AutocompleterFormField extends React.PureComponent {
               classes={{
                 root: classes.textField
               }}
-            />
+              slotProps={{
+                input: {
+                  ...params.InputProps,
+                  endAdornment: this.renderAdornment(),
+                  classes: {
+                    ...params.InputProps.classes,
+                    input: classes.input,
+                    disabled: classes.disabled
+                  }
+                },
+
+                inputLabel: {
+                  shrink: !!value || focused
+                }
+              }} />
           )}
         />
-      </FormFieldContainer>
-    )
+      </FormFieldContainer>)
+    );
   }
 
   renderLabel() {

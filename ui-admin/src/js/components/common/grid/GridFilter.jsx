@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'

@@ -16,10 +16,10 @@
  */
 
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Card from '@material-ui/core/Card'
-import { CardContent, CardMedia } from '@material-ui/core'
+import withStyles from '@mui/styles/withStyles';
+import Grid from '@mui/material/Grid'
+import Card from '@mui/material/Card'
+import { CardContent, CardMedia } from '@mui/material'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import autoBind from 'auto-bind';
 

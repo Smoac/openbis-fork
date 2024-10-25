@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Container from '@src/js/components/common/form/Container.jsx'
 import ResizableWithOpenbis from '@src/js/components/common/resizable/ResizableWithOpenbis.jsx'
 import Loading from '@src/js/components/common/loading/Loading.jsx'

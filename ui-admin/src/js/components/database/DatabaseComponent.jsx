@@ -10,12 +10,12 @@ import constants from '@src/js/components/common/imaging/constants.js'
 import pages from '@src/js/common/consts/pages'
 import ImagingGalleryViewer from '@src/js/components/common/imaging/ImagingGalleryViewer.jsx'
 import ImagingDatasetViewer from '@src/js/components/common/imaging/ImagingDatasetViewer.jsx'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import Box from '@material-ui/core/Box'
-import { TabContext, TabPanel } from '@material-ui/lab'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Box from '@mui/material/Box'
+import { TabContext, TabPanel } from '@mui/lab'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import messages from '@src/js/common/messages.js'
 
 const styles = theme => ({

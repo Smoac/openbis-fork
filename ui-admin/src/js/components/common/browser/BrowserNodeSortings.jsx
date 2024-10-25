@@ -1,13 +1,13 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-import Sort from '@material-ui/icons/Sort'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import Sort from '@mui/icons-material/Sort'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
-import Popover from '@material-ui/core/Popover'
+import Popover from '@mui/material/Popover'
 import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
 import BrowserTreeController from '@src/js/components/common/browser/BrowserTreeController.js'
@@ -156,18 +156,18 @@ class BrowserNodeSortings extends React.PureComponent {
   renderCustomSorting() {
     const { classes } = this.props
     return (
-      <span className={classes.clear}>
+      (<span className={classes.clear}>
         <span>{messages.get(messages.CUSTOM_SORTING)}</span>
         <Tooltip title={messages.get(messages.CLEAR_SORTING)}>
           <IconButton
             onClick={this.handleClearCustom}
             classes={{ root: classes.button }}
-          >
+            size="large">
             <CloseIcon fontSize='small' />
           </IconButton>
         </Tooltip>
-      </span>
-    )
+      </span>)
+    );
   }
 }
 

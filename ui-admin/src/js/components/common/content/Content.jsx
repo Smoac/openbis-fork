@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import ErrorBoundary from '@src/js/components/common/error/ErrorBoundary.jsx'
 import ContentTabs from '@src/js/components/common/content/ContentTabs.jsx'
 import AppController from '@src/js/components/AppController.js'

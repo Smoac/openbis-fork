@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import autoBind from 'auto-bind'
 import Toolbar from '@src/js/components/database/data-browser/Toolbar.jsx'
 import GridView from '@src/js/components/database/data-browser/GridView.jsx'

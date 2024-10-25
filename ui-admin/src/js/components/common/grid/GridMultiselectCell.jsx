@@ -1,6 +1,6 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TableCell from '@material-ui/core/TableCell'
+import withStyles from '@mui/styles/withStyles';
+import TableCell from '@mui/material/TableCell'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 

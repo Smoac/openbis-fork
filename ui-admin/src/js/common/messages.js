@@ -713,7 +713,7 @@ export default {
       if (params && params.length > 0) {
         return message.replace(/\$\{(\d)\}/g, (match, index) => {
           return params[index]
-        })
+        });
       } else {
         return message
       }

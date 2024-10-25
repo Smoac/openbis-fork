@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import { Draggable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
-import DragHandleIcon from '@material-ui/icons/DragHandle'
+import DragHandleIcon from '@mui/icons-material/DragHandle'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import logger from '@src/js/common/logger.js'
 
@@ -9,7 +9,7 @@ const styles = theme => ({
   row: {
     display: 'flex',
     alignItems: 'center',
-    padding: `${theme.spacing(1) / 2}px 0px`,
+    padding: `calc(${theme.spacing(1)} / 2) 0px`,
     '&:first-child': {
       paddingTop: 0
     },

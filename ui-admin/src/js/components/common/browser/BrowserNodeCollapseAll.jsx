@@ -1,10 +1,10 @@
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
-import IconButton from '@material-ui/core/IconButton'
-import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
-import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore'
+import IconButton from '@mui/material/IconButton'
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess'
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 

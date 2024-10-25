@@ -19,7 +19,7 @@ import React from "react";
 import NavigationBar from "@src/js/components/database/data-browser/NavigationBar.jsx";
 import FreeSpaceBar from "@src/js/components/common/progress/FreeSpaceBar.jsx";
 import * as PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
+import withStyles from '@mui/styles/withStyles';
 
 const styles = theme => ({
   container: {

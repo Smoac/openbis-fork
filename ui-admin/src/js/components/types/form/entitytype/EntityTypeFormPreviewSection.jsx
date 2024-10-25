@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import { Draggable, Droppable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'
 import logger from '@src/js/common/logger.js'

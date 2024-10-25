@@ -1,6 +1,6 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import MaterialTooltip from '@material-ui/core/Tooltip'
+import withStyles from '@mui/styles/withStyles';
+import MaterialTooltip from '@mui/material/Tooltip'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({

@@ -9,8 +9,8 @@ import {
     Card,
     Checkbox,
     FormControlLabel
-} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import constants from "@src/js/components/common/imaging/constants.js";
 import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
 
@@ -43,7 +43,7 @@ const GalleryGridView = ({
     const classes = useStyles();
 
     return (
-        <ImageList className={classes.imageList} cols={cols} gap={5}>
+        (<ImageList className={classes.imageList} cols={cols} gap={5}>
             {previewContainerList.map((previewContainer, idx) => (
                 <ImageListItem style={{height: 'unset'}} key={`image-grid-item-${idx}`}>
                     <Card className={classes.card}>
@@ -55,8 +55,12 @@ const GalleryGridView = ({
                             />
                         </CardActionArea>
                         {selectAll && <CardActions className={classes.content}>
-                            <Grid container alignItems={"center"}
-                                  justifyContent={"space-evenly"}>
+                            <Grid
+                                container
+                                sx={{
+                                    alignItems: "center",
+                                    justifyContent: "space-evenly"
+                                }}>
                                 <Grid item>
                                     <CustomSwitch
                                         size="small"
@@ -81,7 +85,7 @@ const GalleryGridView = ({
                     </Card>
                 </ImageListItem>
             ))}
-        </ImageList>
+        </ImageList>)
     );
 }
 

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import { Draggable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'

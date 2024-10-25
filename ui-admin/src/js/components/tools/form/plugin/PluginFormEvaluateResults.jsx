@@ -1,8 +1,8 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'

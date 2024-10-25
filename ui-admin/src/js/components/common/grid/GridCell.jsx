@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TableCell from '@material-ui/core/TableCell'
-import Link from '@material-ui/core/Link'
+import withStyles from '@mui/styles/withStyles';
+import TableCell from '@mui/material/TableCell'
+import Link from '@mui/material/Link'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 

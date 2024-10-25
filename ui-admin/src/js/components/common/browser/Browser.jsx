@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import { DragDropContext } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'

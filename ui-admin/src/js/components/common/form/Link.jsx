@@ -1,6 +1,6 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Link from '@material-ui/core/Link'
+import withStyles from '@mui/styles/withStyles';
+import Link from '@mui/material/Link'
 
 const styles = theme => ({
   link: {

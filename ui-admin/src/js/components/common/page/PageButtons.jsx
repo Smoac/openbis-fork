@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import autoBind from 'auto-bind'
 import PageMode from '@src/js/components/common/page/PageMode.js'
 import Container from '@src/js/components/common/form/Container.jsx'

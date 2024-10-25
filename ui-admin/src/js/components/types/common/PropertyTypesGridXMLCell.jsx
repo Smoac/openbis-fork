@@ -1,6 +1,6 @@
 import React from 'react'
-import Collapse from '@material-ui/core/Collapse'
-import Link from '@material-ui/core/Link'
+import Collapse from '@mui/material/Collapse'
+import Link from '@mui/material/Link'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 

@@ -19,13 +19,13 @@ import React from 'react'
 
 import autoBind from 'auto-bind'
 import Container from '@src/js/components/common/form/Container.jsx'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableRow from '@material-ui/core/TableRow'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import Header from '@src/js/components/common/form/Header.jsx'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import messages from '@src/js/common/messages.js'
 
 const styles = () => ({

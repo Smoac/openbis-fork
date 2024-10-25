@@ -1,11 +1,11 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 import GridGlobalFilter from '@src/js/components/common/grid/GridGlobalFilter.jsx'
 import GridFilter from '@src/js/components/common/grid/GridFilter.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({

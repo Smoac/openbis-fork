@@ -1,6 +1,6 @@
 import React from 'react'
-import Link from '@material-ui/core/Link'
-import Collapse from '@material-ui/core/Collapse'
+import Link from '@mui/material/Link'
+import Collapse from '@mui/material/Collapse'
 import messages from '@src/js/common/messages.js'
 
 export default class HistoryGridContentCell extends React.PureComponent {

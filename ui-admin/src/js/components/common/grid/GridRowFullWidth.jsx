@@ -1,7 +1,7 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
+import withStyles from '@mui/styles/withStyles';
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({

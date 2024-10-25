@@ -1,7 +1,7 @@
 import React from "react";
-import {ImageList, ImageListItem, Typography} from "@material-ui/core";
+import {ImageList, ImageListItem, Typography} from "@mui/material";
 import BlankImage from "@src/js/components/common/imaging/components/common/BlankImage.js";
-import {makeStyles} from "@material-ui/core/styles";
+import makeStyles from '@mui/styles/makeStyles';
 import ImageListItemBarAction
     from "@src/js/components/common/imaging/components/common/ImageListItemBarAction.js";
 import constants from "@src/js/components/common/imaging/constants.js";

@@ -1,12 +1,12 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import withStyles from '@mui/styles/withStyles';
 
 const styles = theme => ({
   containerDefault: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
+    padding: `${theme.spacing(1)} ${theme.spacing(2)}`
   },
   containerSquare: {
-    padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`
+    padding: `${theme.spacing(2)} ${theme.spacing(2)}`
   }
 })
 
