@@ -1296,6 +1296,7 @@ ImagingDataSetControl
 ImagingDataSetExport
 ImagingDataSetImage
 ImagingDataSetPreview
+IManagedInternallyHolder
 IMaterialId
 IMetaDataUpdateHolder
 IModificationDateHolder
