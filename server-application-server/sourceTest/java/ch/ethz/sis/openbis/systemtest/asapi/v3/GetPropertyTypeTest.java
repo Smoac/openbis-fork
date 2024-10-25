@@ -60,7 +60,7 @@ public class GetPropertyTypeTest extends AbstractTest
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PropertyTypePermId permId = new PropertyTypePermId("$PLATE_GEOMETRY");
+        PropertyTypePermId permId = new PropertyTypePermId("PLATE_GEOMETRY");
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
         fetchOptions.withMaterialType();
         fetchOptions.withVocabulary().withTerms().sortBy().code().desc();
@@ -70,7 +70,7 @@ public class GetPropertyTypeTest extends AbstractTest
         PropertyType propertyType = v3api.getPropertyTypes(sessionToken, Arrays.asList(permId), fetchOptions).get(permId);
 
         // Then
-        assertEquals(propertyType.getCode(), "$PLATE_GEOMETRY");
+        assertEquals(propertyType.getCode(), "PLATE_GEOMETRY");
         assertEquals(propertyType.getPermId(), permId);
         assertEquals(propertyType.getDescription(), "Plate Geometry");
         assertEquals(propertyType.getDataType().toString(), DataType.CONTROLLEDVOCABULARY.toString());
@@ -120,10 +120,10 @@ public class GetPropertyTypeTest extends AbstractTest
         fo.withMaterialType();
         fo.withVocabulary();
 
-        v3api.getPropertyTypes(sessionToken, Arrays.asList(new PropertyTypePermId("DESCRIPTION"), new PropertyTypePermId("$PLATE_GEOMETRY")), fo);
+        v3api.getPropertyTypes(sessionToken, Arrays.asList(new PropertyTypePermId("DESCRIPTION"), new PropertyTypePermId("PLATE_GEOMETRY")), fo);
 
         assertAccessLog(
-                "get-property-types  PROPERTY_TYPE_IDS('[DESCRIPTION, $PLATE_GEOMETRY]') FETCH_OPTIONS('PropertyType\n    with Vocabulary\n    with MaterialType\n')");
+                "get-property-types  PROPERTY_TYPE_IDS('[DESCRIPTION, PLATE_GEOMETRY]') FETCH_OPTIONS('PropertyType\n    with Vocabulary\n    with MaterialType\n')");
     }
 
 }

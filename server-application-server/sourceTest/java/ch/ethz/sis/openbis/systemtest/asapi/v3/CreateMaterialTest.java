@@ -88,14 +88,14 @@ public class CreateMaterialTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         NewETPTAssignment assignment = new NewETPTAssignment();
-        assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
+        assignment.setPropertyTypeCode("PLATE_GEOMETRY");
         assignment.setEntityTypeCode("GENE");
         assignment.setEntityKind(EntityKind.MATERIAL);
         assignment.setOrdinal(1000L);
         commonServer.assignPropertyType(sessionToken, assignment);
 
         MaterialCreation m1 = geneCreation("1982");
-        m1.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        m1.setProperty("PLATE_GEOMETRY", "384_WELLS_16X24");
 
         List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1));
 
@@ -108,7 +108,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         assertEquals(material.getCode(), "1982");
         assertEquals(material.getPermId().getTypeCode(), "GENE");
 
-        assertEquals(material.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
+        assertEquals(material.getProperty("PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
     @Test

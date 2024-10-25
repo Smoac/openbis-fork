@@ -104,7 +104,7 @@ public class CreateVocabulariesTest extends AbstractVocabularyTest
 
         Vocabulary vocabulary = v3api.getVocabularies(sessionToken, Arrays.asList(vocabularyId), fetchOptions).get(vocabularyId);
 
-        assertEquals(vocabulary.getCode(), "$" + vocabularyCreation.getCode());
+        assertEquals(vocabulary.getCode(), vocabularyCreation.getCode());
         assertEquals(vocabulary.isManagedInternally(), vocabularyCreation.isManagedInternally());
 
         List<VocabularyTerm> terms = vocabulary.getTerms();
@@ -188,7 +188,7 @@ public class CreateVocabulariesTest extends AbstractVocabularyTest
                     vocabularyCreation.setManagedInternally(true);
                     v3api.createVocabularies(sessionToken, Arrays.asList(vocabularyCreation));
                 }
-            }, new VocabularyPermId("$AUTHORIZATION_TEST_VOCABULARY"));
+            }, new VocabularyPermId("AUTHORIZATION_TEST_VOCABULARY"));
     }
 
     @Test

@@ -207,7 +207,7 @@ public class GetSampleTest extends AbstractSampleTest
         SampleCreation sharedContainer = new SampleCreation();
         sharedContainer.setCode("MP2");
         sharedContainer.setTypeId(new EntityTypePermId("MASTER_PLATE"));
-        sharedContainer.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        sharedContainer.setProperty("PLATE_GEOMETRY", "384_WELLS_16X24");
 
         // creating shared sample /MP2:A03 (/MP:A03 already exists)
         SampleCreation sharedComponent = new SampleCreation();
@@ -1178,7 +1178,7 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(type.getCode(), "MASTER_PLATE");
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
-        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "$PLATE_GEOMETRY");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "PLATE_GEOMETRY");
         assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Plate Geometry");
         assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "Plate Geometry");
         assertEquals(propertyAssignments.get(0).getPropertyType().isManagedInternally(), Boolean.TRUE);
@@ -1212,7 +1212,7 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(sample.getPermId().getPermId(), "200811050919915-8");
 
         Map<String, Serializable> properties = sample.getProperties();
-        assertEquals(properties.get("$PLATE_GEOMETRY"), "384_WELLS_16X24");
+        assertEquals(properties.get("PLATE_GEOMETRY"), "384_WELLS_16X24");
         v3api.logout(sessionToken);
     }
 
@@ -1481,7 +1481,7 @@ public class GetSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        String systemPropertyCode = "$PLATE_GEOMETRY";
+        String systemPropertyCode = "PLATE_GEOMETRY";
         String simplePropertyCode = "PLATE_GEOMETRY";
         String originalSystemPropertyValue = "384_WELLS_16X24";
         String originalSimplePropertyValue = "I'm just random";

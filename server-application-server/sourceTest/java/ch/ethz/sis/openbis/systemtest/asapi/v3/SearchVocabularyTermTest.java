@@ -146,8 +146,8 @@ public class SearchVocabularyTermTest extends AbstractVocabularyTest
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
         criteria.withVocabulary().withCode().thatContains("MA");
-        testSearch(criteria, new VocabularyTermPermId("BDS_DIRECTORY", "$STORAGE_FORMAT"), new VocabularyTermPermId("CHILD", "HUMAN"),
-                new VocabularyTermPermId("MAN", "HUMAN"), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"),
+        testSearch(criteria, new VocabularyTermPermId("BDS_DIRECTORY", "STORAGE_FORMAT"), new VocabularyTermPermId("CHILD", "HUMAN"),
+                new VocabularyTermPermId("MAN", "HUMAN"), new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT"),
                 new VocabularyTermPermId("WOMAN", "HUMAN"));
     }
 
@@ -164,8 +164,8 @@ public class SearchVocabularyTermTest extends AbstractVocabularyTest
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
         criteria.withVocabulary().withCode().thatEndsWith("T");
-        testSearch(criteria, new VocabularyTermPermId("BDS_DIRECTORY", "$STORAGE_FORMAT"),
-                new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        testSearch(criteria, new VocabularyTermPermId("BDS_DIRECTORY", "STORAGE_FORMAT"),
+                new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT"));
     }
 
     @Test
@@ -223,7 +223,7 @@ public class SearchVocabularyTermTest extends AbstractVocabularyTest
         criteria.withAndOperator();
         criteria.withCode().thatContains("384");
         criteria.withCode().thatContains("WELLS");
-        testSearch(criteria, new VocabularyTermPermId("384_WELLS_16X24", "$PLATE_GEOMETRY"));
+        testSearch(criteria, new VocabularyTermPermId("384_WELLS_16X24", "PLATE_GEOMETRY"));
     }
 
     @Test
@@ -231,10 +231,10 @@ public class SearchVocabularyTermTest extends AbstractVocabularyTest
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
         criteria.withOrOperator();
-        criteria.withPermId().thatEquals("96_WELLS_8X12 ($PLATE_GEOMETRY)");
-        criteria.withPermId().thatEquals("384_WELLS_16X24 ($PLATE_GEOMETRY)");
-        testSearch(criteria, new VocabularyTermPermId("96_WELLS_8X12", "$PLATE_GEOMETRY"),
-                new VocabularyTermPermId("384_WELLS_16X24", "$PLATE_GEOMETRY"));
+        criteria.withPermId().thatEquals("96_WELLS_8X12 (PLATE_GEOMETRY)");
+        criteria.withPermId().thatEquals("384_WELLS_16X24 (PLATE_GEOMETRY)");
+        testSearch(criteria, new VocabularyTermPermId("96_WELLS_8X12", "PLATE_GEOMETRY"),
+                new VocabularyTermPermId("384_WELLS_16X24", "PLATE_GEOMETRY"));
     }
 
     @Test

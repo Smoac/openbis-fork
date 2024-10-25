@@ -43,22 +43,22 @@ public class DeletePropertyTypesTest extends AbstractTest
     private Object[][] providerTestDeleteAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, "Access denied to object with PropertyTypePermId = [$NEW_INTERNAL]" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [$NEW_INTERNAL]" },
+                { "NEW_INTERNAL", true, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, "Access denied to object with PropertyTypePermId = [NEW_INTERNAL]" },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_INTERNAL]" },
         };
     }
 
     @Test(dataProvider = "providerTestDeleteAuthorization")
-    public void testDeleteAuthorization(String propertyTypeCode, String propertyTypeRegistrator, String propertyTypeDeleter, String expectedError)
+    public void testDeleteAuthorization(String propertyTypeCode, boolean isInternal, String propertyTypeRegistrator, String propertyTypeDeleter, String expectedError)
     {
         String registratorSessionToken =
                 propertyTypeRegistrator.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(propertyTypeRegistrator, PASSWORD);
@@ -69,7 +69,7 @@ public class DeletePropertyTypesTest extends AbstractTest
         creation.setDataType(DataType.VARCHAR);
         creation.setLabel("Test label");
         creation.setDescription("Test description");
-        creation.setManagedInternally(propertyTypeCode.startsWith("$"));
+        creation.setManagedInternally(isInternal);
         creation.setMultiValue(false);
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(registratorSessionToken, Arrays.asList(creation));
         assertEquals(ids.size(), 1);

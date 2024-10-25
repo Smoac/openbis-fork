@@ -68,7 +68,7 @@ public class SearchVocabularyTest extends AbstractTest
         // Then
         List<String> codes = vocabularies.stream().map(Vocabulary::getCode).collect(Collectors.toList());
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[$PLATE_GEOMETRY, HUMAN, TEST_VOCABULARY]");
+        assertEquals(codes.toString(), "[PLATE_GEOMETRY, HUMAN, TEST_VOCABULARY]");
     }
 
     @Test

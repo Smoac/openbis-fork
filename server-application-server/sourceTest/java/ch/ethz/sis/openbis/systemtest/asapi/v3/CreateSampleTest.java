@@ -72,7 +72,7 @@ import junit.framework.Assert;
  */
 public class CreateSampleTest extends AbstractSampleTest
 {
-    private static final PropertyTypePermId PLATE_GEOMETRY = new PropertyTypePermId("$PLATE_GEOMETRY");
+    private static final PropertyTypePermId PLATE_GEOMETRY = new PropertyTypePermId("PLATE_GEOMETRY");
 
     @Test
     public void testCreateSampleUsingCreationIdAsSpaceId()
@@ -343,7 +343,7 @@ public class CreateSampleTest extends AbstractSampleTest
                                        {
                                            v3api.createSamples(sessionToken, Arrays.asList(creation));
                                        }
-                                   }, "Value of mandatory property '$PLATE_GEOMETRY' not specified",
+                                   }, "Value of mandatory property 'PLATE_GEOMETRY' not specified",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_EMPTY_MANDATORY_PROPERTY'")));
     }
 
@@ -1220,7 +1220,7 @@ public class CreateSampleTest extends AbstractSampleTest
     @Test
     public void testCreateWithImmutableData()
     {
-        String systemPropertyName = "$PLATE_GEOMETRY";
+        String systemPropertyName = "PLATE_GEOMETRY";
         String systemPropertyValue = "384_WELLS_16X24";
 
 
@@ -1252,7 +1252,7 @@ public class CreateSampleTest extends AbstractSampleTest
     @Test
     public void testCreateWithSystemProperty()
     {
-        String systemPropertyName = "$PLATE_GEOMETRY";
+        String systemPropertyName = "PLATE_GEOMETRY";
         String systemPropertyValue = "384_WELLS_16X24";
 
         String simplePropertyCode = "PLATE_GEOMETRY";
@@ -1292,7 +1292,7 @@ public class CreateSampleTest extends AbstractSampleTest
         sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY");
         sample.setTypeId(new EntityTypePermId("MASTER_PLATE"));
         sample.setSpaceId(new SpacePermId("CISD"));
-        sample.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        sample.setProperty("PLATE_GEOMETRY", "384_WELLS_16X24");
         sample.setProperty("PLATE", "/CISD/CL1");
 
         // When
@@ -1409,7 +1409,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
         // Then
         assertEquals(sample.getSampleProperties().toString(), "{}");
-        assertEquals(sample.getProperties().toString(), "{$PLATE_GEOMETRY=384_WELLS_16X24}");
+        assertEquals(sample.getProperties().toString(), "{PLATE_GEOMETRY=384_WELLS_16X24}");
     }
 
     @Test

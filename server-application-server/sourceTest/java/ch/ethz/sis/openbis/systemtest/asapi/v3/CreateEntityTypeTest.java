@@ -15,9 +15,6 @@
  */
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +33,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+
+import static org.testng.Assert.*;
 
 /**
  * @author pkupczyk
@@ -244,7 +243,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         String entityTypeCode = "NEW_ENTITY_TYPE";
-        String propertyTypeCodeWithDolar = "$PLATE_GEOMETRY";
+        String propertyTypeCodeWithDolar = "PLATE_GEOMETRY";
 
         final CREATION typeCreation = newTypeCreation();
         typeCreation.setCode(entityTypeCode);
@@ -592,9 +591,10 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         typeCreation.setManagedInternally(true);
 
         createTypes(sessionToken, Arrays.asList(typeCreation));
-        TYPE type = getType(sessionToken, "$" + typeCreation.getCode());
+        TYPE type = getType(sessionToken, typeCreation.getCode());
 
         assertNotNull(type);
+        assertTrue(type.isManagedInternally());
     }
 
     @Test
@@ -602,7 +602,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         String sessionToken = v3api.loginAsSystem();
 
         PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
-        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setCode("INTERNAL_TYPE");
         propertyTypeCreation.setManagedInternally(true);
         propertyTypeCreation.setDataType(DataType.VARCHAR);
         propertyTypeCreation.setLabel("internal property type");
@@ -615,7 +615,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         typeCreation.setManagedInternally(true);
 
         PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
-        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("INTERNAL_TYPE"));
         assignmentCreationInternal.setManagedInternally(true);
 
         PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
@@ -624,10 +624,11 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreationInternal, assignmentCreation));
 
         createTypes(sessionToken, Arrays.asList(typeCreation));
-        TYPE type = getType(sessionToken, "$" + typeCreation.getCode());
+        TYPE type = getType(sessionToken, typeCreation.getCode());
 
         assertNotNull(type);
         assertNotNull(type.getPropertyAssignments());
+        assertTrue(type.isManagedInternally());
         assertEquals(type.getPropertyAssignments().size(), 2);
     }
 
@@ -636,7 +637,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         String sessionToken = v3api.loginAsSystem();
 
         PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
-        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setCode("INTERNAL_TYPE");
         propertyTypeCreation.setManagedInternally(true);
         propertyTypeCreation.setDataType(DataType.VARCHAR);
         propertyTypeCreation.setLabel("internal property type");
@@ -649,7 +650,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         typeCreation.setManagedInternally(false);
 
         PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
-        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("INTERNAL_TYPE"));
         assignmentCreationInternal.setManagedInternally(true);
 
         PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();

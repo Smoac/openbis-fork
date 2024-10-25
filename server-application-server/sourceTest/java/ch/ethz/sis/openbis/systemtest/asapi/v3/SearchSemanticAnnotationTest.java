@@ -199,7 +199,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyAssignment().withId()
                 .thatEquals(new PropertyAssignmentPermId(new EntityTypePermId("CONTROL_LAYOUT", EntityKind.SAMPLE),
-                        new PropertyTypePermId("$PLATE_GEOMETRY")));
+                        new PropertyTypePermId("PLATE_GEOMETRY")));
         testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
@@ -215,7 +215,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     public void testSearchWithPropertyAssignmentWithPropertyTypeWithIdThatEquals()
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
-        criteria.withPropertyAssignment().withPropertyType().withId().thatEquals(new PropertyTypePermId("$PLATE_GEOMETRY"));
+        criteria.withPropertyAssignment().withPropertyType().withId().thatEquals(new PropertyTypePermId("PLATE_GEOMETRY"));
         testSearch(TEST_USER, criteria, "ST_MASTER_PLATE_PT_PLATE_GEOMETRY", "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 
@@ -224,7 +224,7 @@ public class SearchSemanticAnnotationTest extends AbstractTest
     {
         SemanticAnnotationSearchCriteria criteria = new SemanticAnnotationSearchCriteria();
         criteria.withPropertyAssignment().withEntityType().withId().thatEquals(new EntityTypePermId("CONTROL_LAYOUT", EntityKind.SAMPLE));
-        criteria.withPropertyAssignment().withPropertyType().withId().thatEquals(new PropertyTypePermId("$PLATE_GEOMETRY"));
+        criteria.withPropertyAssignment().withPropertyType().withId().thatEquals(new PropertyTypePermId("PLATE_GEOMETRY"));
         testSearch(TEST_USER, criteria, "ST_CONTROL_LAYOUT_PT_PLATE_GEOMETRY");
     }
 

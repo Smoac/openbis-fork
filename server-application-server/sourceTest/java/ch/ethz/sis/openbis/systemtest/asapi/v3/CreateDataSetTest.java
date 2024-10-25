@@ -95,7 +95,7 @@ import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUse
  */
 public class CreateDataSetTest extends AbstractDataSetTest
 {
-    private static final PropertyTypePermId PLATE_GEOMETRY = new PropertyTypePermId("$PLATE_GEOMETRY");
+    private static final PropertyTypePermId PLATE_GEOMETRY = new PropertyTypePermId("PLATE_GEOMETRY");
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -561,7 +561,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         NewETPTAssignment assignment = new NewETPTAssignment();
-        assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
+        assignment.setPropertyTypeCode("PLATE_GEOMETRY");
         assignment.setEntityTypeCode("UNKNOWN");
         assignment.setEntityKind(EntityKind.DATA_SET);
         assignment.setOrdinal(1000L);
@@ -569,14 +569,14 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
-        creation.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        creation.setProperty("PLATE_GEOMETRY", "384_WELLS_16X24");
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withProperties();
 
         DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
-        assertEquals(dataSet.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
+        assertEquals(dataSet.getProperty("PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
     @Test
@@ -2033,7 +2033,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         // Then
         assertEquals(dataSet.getSampleProperties().toString(), "{}");
-        assertEquals(dataSet.getProperties().toString(), "{$PLATE_GEOMETRY=384_WELLS_16X24}");
+        assertEquals(dataSet.getProperties().toString(), "{PLATE_GEOMETRY=384_WELLS_16X24}");
     }
 
     @Test

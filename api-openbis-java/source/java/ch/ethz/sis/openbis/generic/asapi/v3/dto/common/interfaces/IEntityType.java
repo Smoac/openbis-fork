@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.common.interfaces.IEntityType")
-public interface IEntityType extends ICodeHolder, IDescriptionHolder, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder, IValidationPluginHolder
+public interface IEntityType extends ICodeHolder, IDescriptionHolder, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder, IValidationPluginHolder, IManagedInternallyHolder
 {
 
 }

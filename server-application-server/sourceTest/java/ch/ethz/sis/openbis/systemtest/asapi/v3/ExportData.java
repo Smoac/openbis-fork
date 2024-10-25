@@ -151,7 +151,7 @@ class ExportData
                     // Sample Type: CELL_PLATE
                     "export-internal-sample-type-with-import-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, "$INTERNAL_TEST")),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, "INTERNAL_TEST")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes

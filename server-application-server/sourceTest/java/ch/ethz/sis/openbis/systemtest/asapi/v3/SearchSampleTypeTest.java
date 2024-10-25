@@ -71,11 +71,11 @@ public class SearchSampleTypeTest extends AbstractTest
         Collections.sort(vocabularyCodes);
         assertEquals(
                 vocabularyCodes.toString(),
-                "[$PLATE_GEOMETRY, $PLATE_GEOMETRY, ORGANISM, ORGANISM, ORGANISM, TEST_VOCABULARY]");
+                "[PLATE_GEOMETRY, PLATE_GEOMETRY, ORGANISM, ORGANISM, ORGANISM, TEST_VOCABULARY]");
         Collections.sort(codes);
         assertEquals(
                 codes.toString(),
-                "[$INTERNAL_TEST, CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, VALIDATE_CHILDREN, WELL]");
+                "[INTERNAL_TEST, CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, VALIDATE_CHILDREN, WELL]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
     }
@@ -297,7 +297,7 @@ public class SearchSampleTypeTest extends AbstractTest
     {
         final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
         criteria1.withCode().withWildcards().thatEndsWith("_???T");
-        testSearch(criteria1, "$INTERNAL_TEST", "DELETION_TEST");
+        testSearch(criteria1, "INTERNAL_TEST", "DELETION_TEST");
 
         final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
         criteria2.withCode().withoutWildcards().thatEndsWith("_???T");
@@ -395,7 +395,7 @@ public class SearchSampleTypeTest extends AbstractTest
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[$INTERNAL_TEST, CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
+        assertEquals(codes.toString(), "[INTERNAL_TEST, CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
                 + "DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, "
                 + "VALIDATE_CHILDREN]");
         v3api.logout(sessionToken);
@@ -430,7 +430,7 @@ public class SearchSampleTypeTest extends AbstractTest
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[$INTERNAL_TEST, CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
+        assertEquals(codes.toString(), "[INTERNAL_TEST, CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
                 + "DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, "
                 + "VALIDATE_CHILDREN, WELL]");
         v3api.logout(sessionToken);
@@ -611,7 +611,7 @@ public class SearchSampleTypeTest extends AbstractTest
         SampleType type = searchResult.getObjects().get(0);
         assertEquals(type.getCode(), "MASTER_PLATE");
         assertEquals(type.getPropertyAssignments().size(), 2);
-        assertEquals(type.getPropertyAssignments().get(0).getPropertyType().getCode(), "$PLATE_GEOMETRY");
+        assertEquals(type.getPropertyAssignments().get(0).getPropertyType().getCode(), "PLATE_GEOMETRY");
         assertEquals(type.getPropertyAssignments().get(1).getPropertyType().getCode(), "DESCRIPTION");
     }
 
@@ -809,7 +809,7 @@ public class SearchSampleTypeTest extends AbstractTest
     @Test
     public void testSearchWithSemanticAnnotationsFetchedForSamplePropertyAssignmentsAndSemanticAnnotationsDefinedAtBothSamplePropertyAssignmentAndPropertyTypeLevels()
     {
-        testSearchWithSemanticAnnotationsFetchedForSamplePropertyAssignments("MASTER_PLATE", "$PLATE_GEOMETRY", 3);
+        testSearchWithSemanticAnnotationsFetchedForSamplePropertyAssignments("MASTER_PLATE", "PLATE_GEOMETRY", 3);
     }
 
     @Test

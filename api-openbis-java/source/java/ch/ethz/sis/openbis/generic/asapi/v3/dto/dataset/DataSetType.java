@@ -237,6 +237,7 @@ public class DataSetType implements Serializable, ICodeHolder, IDescriptionHolde
     }
 
     @JsonIgnore
+    @Override
     public Boolean isManagedInternally()
     {
         return managedInternally;

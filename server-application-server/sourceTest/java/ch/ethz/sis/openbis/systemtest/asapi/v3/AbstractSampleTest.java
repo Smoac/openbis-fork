@@ -45,7 +45,7 @@ public class AbstractSampleTest extends AbstractTest
         creation.setCode(code);
         creation.setTypeId(new EntityTypePermId("MASTER_PLATE"));
         creation.setSpaceId(new SpacePermId(spaceCode));
-        creation.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        creation.setProperty("PLATE_GEOMETRY", "384_WELLS_16X24");
         return creation;
     }
 

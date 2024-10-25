@@ -38,7 +38,7 @@ public class GetVocabulariesTest extends AbstractTest
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         VocabularyPermId id1 = new VocabularyPermId("ORGANISM");
-        VocabularyPermId id2 = new VocabularyPermId("$STORAGE_FORMAT");
+        VocabularyPermId id2 = new VocabularyPermId("STORAGE_FORMAT");
         VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
         fetchOptions.withTerms();
 
@@ -78,10 +78,10 @@ public class GetVocabulariesTest extends AbstractTest
         fo.withRegistrator();
         fo.withTerms();
 
-        v3api.getVocabularies(sessionToken, Arrays.asList(new VocabularyPermId("ORGANISM"), new VocabularyPermId("$STORAGE_FORMAT")), fo);
+        v3api.getVocabularies(sessionToken, Arrays.asList(new VocabularyPermId("ORGANISM"), new VocabularyPermId("STORAGE_FORMAT")), fo);
 
         assertAccessLog(
-                "get-vocabularies  VOCABULARY_IDS('[ORGANISM, $STORAGE_FORMAT]') FETCH_OPTIONS('Vocabulary\n    with Registrator\n    with Terms\n')");
+                "get-vocabularies  VOCABULARY_IDS('[ORGANISM, STORAGE_FORMAT]') FETCH_OPTIONS('Vocabulary\n    with Registrator\n    with Terms\n')");
     }
 
 }

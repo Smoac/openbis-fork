@@ -70,20 +70,20 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
                 { "ORGANISM", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "Access denied to object with VocabularyTermPermId = [TEST-CODE (ORGANISM)]" },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
                         "Only system user can delete internal vocabulary terms!" },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
                         "Only system user can delete internal vocabulary terms!" },
 
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },
 
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
-                        "Access denied to object with VocabularyTermPermId = [TEST-CODE ($PLATE_GEOMETRY)]" },
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
+                        "Access denied to object with VocabularyTermPermId = [TEST-CODE (PLATE_GEOMETRY)]" },
         };
     }
 
@@ -534,7 +534,7 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
     @Test
     public void testDeleteInternalTermWithNonSystemUser_fail()
     {
-        String vocabularyCode = "$PLATE_GEOMETRY";
+        String vocabularyCode = "PLATE_GEOMETRY";
 
         VocabularyTermCreation creation = new VocabularyTermCreation();
         creation.setCode("MY_INTERNAL_CODE");
@@ -569,19 +569,19 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
     public void testReplaceTermWhichAlsoAccursInAnotherVocabulary()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        assertSampleProperty(sessionToken, "200811050919915-8", "$PLATE_GEOMETRY", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200811050919915-8", "PLATE_GEOMETRY", "384_WELLS_16X24");
         assertSampleProperty(sessionToken, "200902091250077-1026", "ORGANISM", "GORILLA");
         assertTerms(sessionToken, "[VocabularyTerm DOG, "
                 + "VocabularyTerm FLY, VocabularyTerm GORILLA, VocabularyTerm HUMAN, VocabularyTerm RAT]");
 
-        // Create new vocabulary term 384_WELLS_16X24 in ORGANISM which also appears in $PLATE_GEOMETRY
+        // Create new vocabulary term 384_WELLS_16X24 in ORGANISM which also appears in PLATE_GEOMETRY
         createTerm(sessionToken, "384_WELLS_16X24");
         assertTerms(sessionToken, "[VocabularyTerm 384_WELLS_16X24, VocabularyTerm DOG, "
                 + "VocabularyTerm FLY, VocabularyTerm GORILLA, VocabularyTerm HUMAN, VocabularyTerm RAT]");
 
         // Delete term GORILLA and replace it by the new term 384_WELLS_16X24
         deleteAndReplaceTerm(sessionToken, "GORILLA", "384_WELLS_16X24");
-        assertSampleProperty(sessionToken, "200811050919915-8", "$PLATE_GEOMETRY", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200811050919915-8", "PLATE_GEOMETRY", "384_WELLS_16X24");
         assertSampleProperty(sessionToken, "200902091250077-1026", "ORGANISM", "384_WELLS_16X24");
         assertTerms(sessionToken, "[VocabularyTerm 384_WELLS_16X24, VocabularyTerm DOG, "
                 + "VocabularyTerm FLY, VocabularyTerm HUMAN, VocabularyTerm RAT]");
@@ -593,7 +593,7 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
 
         // Delete term 384_WELLS_16X24 in ORGANISM and replace it by GORILLA
         deleteAndReplaceTerm(sessionToken, "384_WELLS_16X24", "GORILLA");
-        assertSampleProperty(sessionToken, "200811050919915-8", "$PLATE_GEOMETRY", "384_WELLS_16X24");
+        assertSampleProperty(sessionToken, "200811050919915-8", "PLATE_GEOMETRY", "384_WELLS_16X24");
         assertSampleProperty(sessionToken, "200902091250077-1026", "ORGANISM", "GORILLA");
     }
 

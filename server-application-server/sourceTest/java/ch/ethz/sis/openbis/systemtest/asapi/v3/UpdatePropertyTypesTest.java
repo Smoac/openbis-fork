@@ -66,22 +66,22 @@ public class UpdatePropertyTypesTest extends AbstractTest
     private Object[][] providerTestUpdateAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
 
-                { "NEW_NON_INTERNAL", TEST_USER, SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
+                { "NEW_NON_INTERNAL", false, TEST_USER, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, SYSTEM_USER, null },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_USER, "Access denied to object with PropertyTypePermId = [$NEW_INTERNAL]" },
-                { "$NEW_INTERNAL", SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [$NEW_INTERNAL]" },
+                { "NEW_INTERNAL", true, SYSTEM_USER, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_USER, "Access denied to object with PropertyTypePermId = [NEW_INTERNAL]" },
+                { "NEW_INTERNAL", true, SYSTEM_USER, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_INTERNAL]" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAuthorization")
-    public void testUpdateAuthorization(String propertyTypeCode, String propertyTypeRegistrator, String propertyTypeUpdater, String expectedError)
+    public void testUpdateAuthorization(String propertyTypeCode, boolean isInternal, String propertyTypeRegistrator, String propertyTypeUpdater, String expectedError)
     {
         String registratorSessionToken =
                 propertyTypeRegistrator.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(propertyTypeRegistrator, PASSWORD);
@@ -92,7 +92,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
         creation.setDataType(DataType.VARCHAR);
         creation.setLabel("Test label");
         creation.setDescription("Test description");
-        creation.setManagedInternally(propertyTypeCode.startsWith("$"));
+        creation.setManagedInternally(isInternal);
         creation.setMultiValue(false);
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(registratorSessionToken, Arrays.asList(creation));
         assertEquals(ids.size(), 1);
@@ -116,7 +116,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
     {
         // Given
         String sessionToken = v3api.loginAsSystem();
-        PropertyTypePermId id = new PropertyTypePermId("$PLATE_GEOMETRY");
+        PropertyTypePermId id = new PropertyTypePermId("PLATE_GEOMETRY");
         PropertyTypeUpdate update = new PropertyTypeUpdate();
         update.setTypeId(id);
         update.setDescription("Test description");
