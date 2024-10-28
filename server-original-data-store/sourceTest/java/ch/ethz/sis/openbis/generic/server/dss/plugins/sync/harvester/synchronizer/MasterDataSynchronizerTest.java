@@ -129,7 +129,7 @@ public class MasterDataSynchronizerTest
         MasterData masterData = builder.prepare();
 
         // When & Then
-        assertFailure(masterData, "There is no internal vocabulary $A.");
+        assertFailure(masterData, "There is no internal vocabulary A.");
         context.assertIsSatisfied();
     }
 
@@ -169,7 +169,7 @@ public class MasterDataSynchronizerTest
         MasterData masterData = builder.prepare();
 
         // Expected actions
-        prepareAddVocabularyTerms("$A", existing.get().getId(), term2.get());
+        prepareAddVocabularyTerms("A", existing.get().getId(), term2.get());
 
         // When
         synchronizer.synchronizeMasterData(masterData, monitor);
@@ -269,7 +269,7 @@ public class MasterDataSynchronizerTest
         MasterData masterData = builder.prepare();
 
         // When & Then
-        assertFailure(masterData, "There is no internal property type $A.");
+        assertFailure(masterData, "There is no internal property type A.");
         context.assertIsSatisfied();
     }
 
@@ -306,7 +306,7 @@ public class MasterDataSynchronizerTest
         MasterData masterData = builder.prepare();
 
         // When & Then
-        assertFailure(masterData, "The internal property type $A is not of data type VARCHAR but CONTROLLEDVOCABULARY.");
+        assertFailure(masterData, "The internal property type A is not of data type VARCHAR but CONTROLLEDVOCABULARY.");
         context.assertIsSatisfied();
     }
 
@@ -412,10 +412,10 @@ public class MasterDataSynchronizerTest
         private List<ExternalDms> incomingExternalDmss = Collections.emptyList();
 
         private Function<? super NewVocabulary, ? extends String> vocabularyKeyMapper =
-                v -> CodeConverter.tryToBusinessLayer(v.getCode(), v.isManagedInternally());
+                v -> v.getCode();
 
         private Function<? super PropertyType, ? extends String> propertyTypeKeyMapper =
-                p -> CodeConverter.tryToBusinessLayer(p.getCode(), p.isManagedInternally());
+                p -> p.getCode();
 
         TestFixtureBuilder(INameTranslator nameTranslator)
         {

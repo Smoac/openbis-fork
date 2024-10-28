@@ -5,6 +5,6 @@ public class OpenBISUtils
 
     public static final String AFS_DATA_STORE_CODE = "AFS";
 
-    public static final String AFS_DATA_SET_TYPE_CODE = "$AFS_DATA";
+    public static final String AFS_DATA_SET_TYPE_CODE = "AFS_DATA";
 
 }

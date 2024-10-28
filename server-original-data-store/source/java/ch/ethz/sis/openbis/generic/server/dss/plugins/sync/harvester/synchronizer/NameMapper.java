@@ -36,7 +36,7 @@ class NameMapper
     String registerName(String originalDataSourceName, Boolean managedInternally, String registrator)
     {
         boolean internalNamespace = Boolean.TRUE.equals(managedInternally);
-        String dataSourceName = CodeConverter.tryToBusinessLayer(originalDataSourceName, internalNamespace);
+        String dataSourceName = originalDataSourceName;
         String harvesterName = internalNamespace && "system".equals(registrator)
                 ? dataSourceName
                 : nameTranslator.translate(originalDataSourceName);

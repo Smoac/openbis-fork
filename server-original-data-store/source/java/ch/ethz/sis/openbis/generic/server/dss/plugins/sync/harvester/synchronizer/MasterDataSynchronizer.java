@@ -310,7 +310,7 @@ public class MasterDataSynchronizer
         {
             originalCode = nameTranslator.translateBack(originalCode);
         }
-        return CodeConverter.tryToBusinessLayer(originalCode, internal);
+        return originalCode;
     }
 
     private boolean isInternallyManagedBySystem(Vocabulary vocabulary)
@@ -714,7 +714,7 @@ public class MasterDataSynchronizer
         {
             originalCode = nameTranslator.translateBack(originalCode);
         }
-        return CodeConverter.tryToBusinessLayer(originalCode, internal);
+        return originalCode;
     }
 
     private boolean isInternallyManagedBySystem(PropertyType propertyType)

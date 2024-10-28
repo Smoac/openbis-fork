@@ -329,7 +329,7 @@ public class MasterDataParser
             newVocabulary.setRegistrator(registrator);
             newVocabulary.setModificationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(vocabElement, "modification-timestamp")));
 
-            vocabularies.put(CodeConverter.tryToBusinessLayer(newVocabulary.getCode(), newVocabulary.isManagedInternally()), newVocabulary);
+            vocabularies.put(newVocabulary.getCode(), newVocabulary);
             parseVocabularyTerms(vocabElement, newVocabulary);
         }
         return nameMapper;
@@ -557,7 +557,7 @@ public class MasterDataParser
             newPropertyType.setRegistrator(registrator);
             newPropertyType.setModificationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(propertyTypeElement, "registration-timestamp")));
 
-            propertyTypes.put(CodeConverter.tryToBusinessLayer(newPropertyType.getCode(), managedInternally), newPropertyType);
+            propertyTypes.put(newPropertyType.getCode(), newPropertyType);
             if (dataTypeCode.equals(DataTypeCode.CONTROLLEDVOCABULARY))
             {
                 String vocabularyCode = vocabularyNameMapper.getHarvesterName(getAttribute(propertyTypeElement, "vocabulary"));
