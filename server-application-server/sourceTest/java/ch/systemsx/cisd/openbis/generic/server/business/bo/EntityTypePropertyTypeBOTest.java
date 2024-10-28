@@ -161,6 +161,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final PropertyTypePE propertyType = createPropertyType();
         final ExperimentTypePropertyTypePE etpt = new ExperimentTypePropertyTypePE();
         etpt.setPropertyType(propertyType);
+        etpt.setEntityType(experimentType);
         final ScriptPE script1 = new ScriptPE();
         script1.setName("name1");
         script1.setScriptType(ScriptType.DYNAMIC_PROPERTY);
