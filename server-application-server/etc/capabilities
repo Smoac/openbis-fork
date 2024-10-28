@@ -1,0 +1,3 @@
+# Test overriding annotation
+MY_CAP: SPACE_OBSERVER; ARG1 = SPACE_USER
+my_cap2: arg1 = space_user
