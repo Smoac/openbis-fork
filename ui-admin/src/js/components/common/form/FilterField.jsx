@@ -63,6 +63,7 @@ class FilterField extends React.Component {
         className={classes.field}
         placeholder={messages.get(messages.FILTER)}
         value={this.props.filter}
+        variant='standard'
         onChange={this.handleFilterChange}
         margin='none'
         slotProps={{

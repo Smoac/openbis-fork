@@ -90,7 +90,6 @@ class GridColumnsConfig extends React.PureComponent {
         <Button
           id={id + '.columns-button-id'}
           label={messages.get(messages.COLUMNS)}
-          color='default'
           variant='outlined'
           onClick={this.handleOpen} />
         <Popover

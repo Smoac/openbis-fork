@@ -190,7 +190,6 @@ class GridExports extends React.PureComponent {
         <Button
           id={id + '.exports-button-id'}
           label={messages.get(messages.EXPORTS)}
-          color='default'
           disabled={disabled}
           variant='outlined'
           onClick={this.handleOpen} />

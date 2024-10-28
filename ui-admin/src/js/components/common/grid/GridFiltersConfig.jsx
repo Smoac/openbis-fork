@@ -62,7 +62,6 @@ class GridFiltersConfig extends React.PureComponent {
         <Button
           id={id + '.filters-button-id'}
           label={messages.get(messages.FILTERS)}
-          color='default'
           variant='outlined'
           onClick={this.handleOpen} />
         <Popover

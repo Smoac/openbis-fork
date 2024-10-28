@@ -6,7 +6,8 @@ import Link from '@mui/material/Link'
 
 const styles = () => ({
   link: {
-    fontSize: 'inherit'
+    fontSize: 'inherit',
+    textDecoration: 'none'
   }
 })
 

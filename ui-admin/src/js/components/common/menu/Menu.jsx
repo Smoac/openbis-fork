@@ -29,7 +29,8 @@ const styles = theme => ({
     paddingRight: theme.spacing(2)
   },
   tabs: {
-    flexGrow: 1
+    flexGrow: 1,
+    textColor: theme.palette.background.secondary
   },
   search: {
     color: theme.palette.background.paper,
@@ -106,6 +107,8 @@ class Menu extends React.PureComponent {
             value={this.props.currentPage}
             onChange={this.handlePageChange}
             classes={{ root: classes.tabs }}
+            textColor='white'
+            indicatorColor='secondary'
           >
             <Tab
               value={pages.DATABASE}
@@ -120,6 +123,7 @@ class Menu extends React.PureComponent {
             value={searchText || ''}
             onChange={this.handleSearchChange}
             onKeyPress={this.handleSearchKeyPress}
+            variant='standard'
             slotProps={{
               input: {
                 inputRef: this.searchRef,
