@@ -166,7 +166,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
                         offset.toString(), "limit", limit.toString()));
     }
 
-    static int i  = 0;
+
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, @NonNull final byte[] data,
