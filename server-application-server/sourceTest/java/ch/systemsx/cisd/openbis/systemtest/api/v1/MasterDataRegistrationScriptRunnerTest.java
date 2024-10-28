@@ -48,29 +48,29 @@ public class MasterDataRegistrationScriptRunnerTest extends SystemTestCase
         commonServer.logout(sessionToken);
     }
 
-//    @Test
-//    public void testGetOrCreateExistingSystemVocabulary()
-//    {
-//        scriptRunner
-//                .executeScript("import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType\n"
-//                        + "tr = service.transaction()\n"
-//                        + "vocabulary = tr.getOrCreateNewVocabulary('PLATE_GEOMETRY')\n"
-//                        + "vocabulary.setDescription('The geometry or dimensions of a plate')\n"
-//                        + "vocabulary.setUrlTemplate(None)\n"
-//                        + "vocabulary.setManagedInternally(True)\n"
-//                        + "vocabulary.setManagedInternally(True)", null);
-//    }
-//
-//    @Test
-//    public void testGetOrCreateExistingSystemProperty()
-//    {
-//        scriptRunner
-//                .executeScript("import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType\n"
-//                        + "tr = service.transaction()\n"
-//                        + "prop_type = tr.getOrCreateNewPropertyType('PLATE_GEOMETRY', DataType.VARCHAR)\n"
-//                        + "prop_type.setLabel('Plate Geometry')\n"
-//                        + "prop_type.setManagedInternally(True)\n"
-//                        + "prop_type.setManagedInternally(True)", null);
-//    }
+    @Test
+    public void testGetOrCreateExistingSystemVocabulary()
+    {
+        scriptRunner
+                .executeScript("import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType\n"
+                        + "tr = service.transaction()\n"
+                        + "vocabulary = tr.getOrCreateNewVocabulary('PLATE_GEOMETRY')\n"
+                        + "vocabulary.setDescription('The geometry or dimensions of a plate')\n"
+                        + "vocabulary.setUrlTemplate(None)\n"
+                        + "vocabulary.setManagedInternally(True)\n"
+                        + "vocabulary.setManagedInternally(True)", null);
+    }
+
+    @Test
+    public void testGetOrCreateExistingSystemProperty()
+    {
+        scriptRunner
+                .executeScript("import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType\n"
+                        + "tr = service.transaction()\n"
+                        + "prop_type = tr.getOrCreateNewPropertyType('PLATE_GEOMETRY', DataType.VARCHAR)\n"
+                        + "prop_type.setLabel('Plate Geometry')\n"
+                        + "prop_type.setManagedInternally(True)\n"
+                        + "prop_type.setManagedInternally(True)", null);
+    }
 
 }
