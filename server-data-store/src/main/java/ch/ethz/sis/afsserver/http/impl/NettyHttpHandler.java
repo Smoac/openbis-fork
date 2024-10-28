@@ -22,6 +22,8 @@ import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -31,15 +33,14 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.stream.ChunkedStream;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,19 +115,11 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
                     ByteBuf content = request.content();
                     try
                     {
-                        byte[] array = new byte[content.readableBytes()];
-                        content.readBytes(array);
-
                         Map<String, List<String>> parameters =
                                 queryStringDecoderForPath.parameters();
 
-                        byte[] requestBody = array;
-                        if(!GET.equals(request.method()) && !isWriteMethod(request.method(), parameters)) {
-                            QueryStringDecoder queryStringDecoderForParameters =
-                                    new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
-                            parameters = queryStringDecoderForParameters.parameters();
-                            requestBody = null;
-                        }
+                        byte[] requestBody = new byte[content.readableBytes()];
+                        content.readBytes(requestBody);
 
                         HttpResponse apiResponse = httpServerHandler.process(request.method(),
                                 parameters, requestBody);
@@ -189,12 +182,6 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
         ctx.flush();
     }
 
-    private boolean isWriteMethod(HttpMethod requestMethod, Map<String, List<String>> parameters) {
-        return POST.equals(requestMethod) &&  parameters != null && parameters.get("method") != null &&
-                !parameters.get("method").isEmpty() && "write".equals(parameters.get("method").get(0));
-    }
-
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
@@ -232,5 +219,11 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
         response.headers().set(HttpHeaderNames.CONNECTION, "close");
         return response;
+    }
+
+    public static Map<String, List<String>> getBodyParameters(byte[] array) {
+        QueryStringDecoder queryStringDecoderForParameters =
+                new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
+        return  queryStringDecoderForParameters.parameters();
     }
 }
