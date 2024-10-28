@@ -10,6 +10,7 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType.SAMPLE;
 import static ch.ethz.sis.rdf.main.Constants.COLON;
@@ -328,11 +329,13 @@ public class ClassCollector {
                     if (range.canAs(UnionClass.class))
                     {
                         var unionOperands = getUnionClassOperands(range.as(UnionClass.class));
-                        if (unionOperands.contains("http://www.w3.org/2001/XMLSchema#string")){
+                        if (isUnionWithPrimitiveTypes(unionOperands)){
                             propertyType.dataType = "VARCHAR";
                         } else {
                             propertyType.dataType = "SAMPLE";
                         }
+                        propertyType.metadata.put("TYPE", "The type was a union of " + unionOperands.stream().collect(
+                                Collectors.joining(", ")));
 
 
                         propertyType.metadata.put("UNION_TYPE", getUnionClassOperands(range.as(UnionClass.class)).toString());
@@ -352,6 +355,20 @@ public class ClassCollector {
         return propertyTypeList;
     }
 
+    static boolean isUnionWithPrimitiveTypes(Collection<String> unionOperands){
+        Set<String> primitiveTypes = Set.of(
+                "http://www.w3.org/2001/XMLSchema#string",
+                "http://www.w3.org/2001/XMLSchema#double",
+                "http://www.w3.org/2001/XMLSchema#int",
+                "http://www.w3.org/2001/XMLSchema#boolean"
+
+        );
+        return unionOperands.stream().anyMatch(primitiveTypes::contains);
+
+
+
+    }
+
     public static List<SampleType> getSampleTypeList(final OntModel ontModel)
     {
         List<SampleType> sampleTypeList = new ArrayList<>();
@@ -363,6 +380,7 @@ public class ClassCollector {
                     SampleType sampleType = new SampleType(ontClass);
                     sampleType.properties = getPropertyTypeList(ontModel, ontClass);
                     sampleTypeList.add(sampleType);
+
 
                 });
         return sampleTypeList;
