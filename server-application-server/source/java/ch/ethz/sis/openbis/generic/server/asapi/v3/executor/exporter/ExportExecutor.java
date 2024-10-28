@@ -193,7 +193,7 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String METADATA_JSON_FILE_NAME = "metadata" + JSON_EXTENSION;
 
-    static final String NAME_PROPERTY_NAME = "$NAME";
+    static final String NAME_PROPERTY_NAME = "NAME";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 

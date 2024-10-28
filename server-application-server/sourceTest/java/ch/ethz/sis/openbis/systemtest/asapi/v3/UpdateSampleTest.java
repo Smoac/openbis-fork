@@ -1046,47 +1046,6 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateWithSystemProperty()
-    {
-        String systemPropertyName = "PLATE_GEOMETRY";
-        String systemPropertyValue = "384_WELLS_16X24";
-
-        String simplePropertyCode = "PLATE_GEOMETRY";
-        String simplePropertValue = "I'm just random";
-
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        createNewPropertyType(sessionToken, "MASTER_PLATE", simplePropertyCode);
-
-        SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE_WITH_SYS_PROPERTY");
-        creation.setTypeId(new EntityTypePermId("MASTER_PLATE"));
-        creation.setSpaceId(new SpacePermId("CISD"));
-        creation.setProperty(systemPropertyName, "96_WELLS_8X12");
-        creation.setProperty(simplePropertyCode, "initial value");
-
-        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken,
-                Arrays.asList(creation));
-        ISampleId sampleId = sampleIds.get(0);
-
-        SampleUpdate update = new SampleUpdate();
-        update.setSampleId(sampleId);
-        update.setProperty(systemPropertyName, systemPropertyValue);
-        update.setProperty(simplePropertyCode, simplePropertValue);
-
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
-
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-
-        Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, sampleIds, fetchOptions);
-
-        Sample foundSample = map.get(sampleId);
-        assertEquals(foundSample.getProperty(systemPropertyName), systemPropertyValue);
-        assertEquals(foundSample.getProperty(simplePropertyCode), simplePropertValue);
-    }
-
-    @Test
     public void testUpdateWithContainer()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

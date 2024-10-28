@@ -86,6 +86,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
         result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
+        result.setManagedInternally(baseRecord.managedInternally);
 
         if (fetchOptions.hasPropertyAssignments())
         {

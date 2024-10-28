@@ -44,7 +44,7 @@ public interface MaterialQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet materialIds);
 
-    @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate from material_types mt where mt.id = any(?{1})", parameterBindings = {
+    @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate, mt.is_managed_internally as managedInternally  from material_types mt where mt.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialTypeBaseRecord> getTypes(LongSet materialTypeIds);
 

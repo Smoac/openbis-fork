@@ -154,22 +154,6 @@ public class CreatePropertyTypeTest extends AbstractTest
     }
 
     @Test
-    public void testCreateManagedInternallyPropertyTypeWithCodeWithoutDollarSign()
-    {
-        String sessionToken = v3api.login(SYSTEM_USER, PASSWORD);
-        PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("test-property");
-        creation.setLabel("Test Property");
-        creation.setDescription("only for testing");
-        creation.setDataType(DataType.REAL);
-        creation.setManagedInternally(true);
-        creation.setMultiValue(false);
-        List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
-
-        assertNotNull(ids);
-    }
-
-    @Test
     public void testCreateNonManagedInternallyPropertyTypeWithCodeWithoutDolarSign()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

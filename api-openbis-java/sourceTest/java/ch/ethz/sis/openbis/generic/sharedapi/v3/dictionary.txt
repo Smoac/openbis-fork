@@ -1313,6 +1313,7 @@ indent
 indexOf
 INSTANCE
 INTEGER
+INTERNAL
 INTERNAL_SERVICE_NAME
 IObjectCreation
 IObjectId

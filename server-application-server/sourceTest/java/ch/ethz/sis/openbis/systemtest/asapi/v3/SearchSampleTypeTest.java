@@ -71,7 +71,7 @@ public class SearchSampleTypeTest extends AbstractTest
         Collections.sort(vocabularyCodes);
         assertEquals(
                 vocabularyCodes.toString(),
-                "[PLATE_GEOMETRY, ORGANISM, ORGANISM, ORGANISM, PLATE_GEOMETRY, TEST_VOCABULARY]");
+                "[ORGANISM, ORGANISM, ORGANISM, PLATE_GEOMETRY, PLATE_GEOMETRY, TEST_VOCABULARY]");
         Collections.sort(codes);
         assertEquals(
                 codes.toString(),

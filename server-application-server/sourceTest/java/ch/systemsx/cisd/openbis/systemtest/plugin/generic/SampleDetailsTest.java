@@ -310,12 +310,13 @@ public class SampleDetailsTest extends GenericSystemTestCase
     private void checkProperty(List<IEntityProperty> properties, boolean managedInternally,
             String propertyCode, String propertyValue)
     {
-        String fullPropertyCode = managedInternally ? "$" + propertyCode : propertyCode;
+        String fullPropertyCode = propertyCode;
         for (IEntityProperty property : properties)
         {
             if (property.getPropertyType().getCode().equals(fullPropertyCode))
             {
                 assertEquals(property.tryGetAsString(), propertyValue);
+                assertEquals(managedInternally, property.getPropertyType().isManagedInternally());
                 return;
             }
         }

@@ -99,7 +99,7 @@ public class ELNFixes {
         operationLog.info("ELNFixes storageValidationLevelFix: " + storageUpdates.size());
     }
 
-    private static final String NAME_PROPERTY_CODE = "$NAME";
+    private static final String NAME_PROPERTY_CODE = "NAME";
 
     private static void nameNoRTFFix(String sessionToken, IApplicationServerInternalApi api) {
         SampleSearchCriteria criteria = new SampleSearchCriteria();

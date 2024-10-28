@@ -51,6 +51,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final PropertyTypePE propertyType = createPropertyType();
         final ExperimentTypePropertyTypePE etpt = new ExperimentTypePropertyTypePE();
         etpt.setPropertyType(propertyType);
+        etpt.setEntityType(experimentType);
         prepareExperimentTypeAndPropertyType(entityKind, experimentType, propertyType);
         context.checking(new Expectations()
             {
@@ -222,6 +223,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
     {
         final ExperimentTypePE experimentType = new ExperimentTypePE();
         experimentType.setCode("ARCHERY");
+        experimentType.setManagedInternally(false);
         return experimentType;
     }
 
@@ -229,6 +231,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
     {
         final PropertyTypePE propertyType = new PropertyTypePE();
         propertyType.setCode("USER.DISTANCE");
+        propertyType.setManagedInternally(false);
         return propertyType;
     }
 
