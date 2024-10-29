@@ -31,6 +31,7 @@ public class OntClassExtension
     public Map<String, List<Restriction>> restrictions;
     public Map<UnionClass, List<String>> unions;
     public List<PropertyTupleRDF> propertyTuples;
+    public Map<String, AdditionalProperty> hackyProperties;
 
     public OntClassExtension(OntClass ontClass) {
         this.ontClass = ontClass;
@@ -39,6 +40,7 @@ public class OntClassExtension
         this.propertyTuples = new ArrayList<>();
         // Parsing standard annotations
         this.label = getAnnotation(ontClass, RDFS.label);
+        this.hackyProperties = new HashMap<>();
     }
 
     public void addRestriction(String property, Restriction restriction) {
@@ -107,5 +109,10 @@ public class OntClassExtension
             return annotation.getObject().asLiteral().getString();
         }
         return null;
+    }
+
+    public Map<String, AdditionalProperty> getHackyProperties()
+    {
+        return hackyProperties;
     }
 }
