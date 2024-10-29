@@ -32,8 +32,6 @@ public enum Attribute
 
     CODE,
 
-    INTERNAL,
-
     DESCRIPTION,
 
     DISALLOW_DELETION,
@@ -45,6 +43,8 @@ public enum Attribute
     GENERATED_CODE_PREFIX,
 
     IDENTIFIER,
+
+    INTERNAL,
 
     LABEL,
 
