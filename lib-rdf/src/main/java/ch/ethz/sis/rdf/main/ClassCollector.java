@@ -1,12 +1,14 @@
 package ch.ethz.sis.rdf.main;
 
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
+import ch.ethz.sis.rdf.main.model.rdf.AdditionalProperty;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
@@ -49,9 +51,53 @@ public class ClassCollector {
             }
         } catch (ConversionException e) {
             System.err.println("ConversionException: " + e.getMessage());
+            if (e.getMessage().contains("Cannot convert node http://purl.org/dc/terms/conformsTo to OntProperty")){
+                handleAdditionalProperty(ontClassObject, restriction, "conformsTo", "VARCHAR", DCTerms.conformsTo.getURI());
+            }
+
+
         } catch (Exception e) {
             System.err.println("Exception: " + e.getMessage());
         }
+    }
+
+    private static void handleAdditionalProperty(OntClassExtension ontClassObject, Restriction restriction, String name, String dataType, String uri
+    ){
+        String code = name.toUpperCase(Locale.ROOT);
+
+        AdditionalProperty additionalProperty = Optional.ofNullable(ontClassObject.hackyProperties.get(code
+    )).orElse(new AdditionalProperty(code
+    ));
+        additionalProperty.setDataType(dataType);
+        additionalProperty.setProperty(name);
+
+
+        if (restriction.isMaxCardinalityRestriction()){
+            additionalProperty.setMax(restriction.asMaxCardinalityRestriction().getMaxCardinality());
+        }
+        if (restriction.isMinCardinalityRestriction()){
+            additionalProperty.setMin(restriction.asMinCardinalityRestriction().getMinCardinality());
+        }
+        if (additionalProperty.getMin() == 1 && additionalProperty.getMax() == 1){
+            additionalProperty.setMandatory(1);
+            additionalProperty.setMultiValued(0);
+        } else {
+            additionalProperty.setMandatory(0);
+            additionalProperty.setMultiValued(1);
+        }
+
+        additionalProperty.setUri(uri);
+        additionalProperty.setDescription(name);
+
+
+
+
+        ontClassObject.hackyProperties.put(name
+    , additionalProperty);
+
+
+
+
     }
 
     private static void addRestrictionSafely(OntClassExtension ontClassObject, Property onProperty, Restriction restriction)
@@ -369,7 +415,7 @@ public class ClassCollector {
 
     }
 
-    public static List<SampleType> getSampleTypeList(final OntModel ontModel)
+    public static List<SampleType> getSampleTypeList(final OntModel ontModel, Map<String, OntClassExtension> ontClassExtensionMap)
     {
         List<SampleType> sampleTypeList = new ArrayList<>();
 
@@ -379,10 +425,31 @@ public class ClassCollector {
 
                     SampleType sampleType = new SampleType(ontClass);
                     sampleType.properties = getPropertyTypeList(ontModel, ontClass);
+                    OntClassExtension extension = ontClassExtensionMap.get(sampleType.ontologyAnnotationId);
+                    if (extension != null)
+                    {
+                        extension.getHackyProperties().values().forEach(x -> {
+                                    SamplePropertyType hackySampleType =
+                                            new SamplePropertyType(x.getProperty(), x.getUri());
+                                    hackySampleType.ontologyAnnotationId = x.getOntologyAnnotationId();
+                                    hackySampleType.code = x.getCode();
+                                    hackySampleType.isMandatory = x.getMandatory();
+                                    hackySampleType.dataType = x.getDataType();
+                                    hackySampleType.description = x.getDescription();
+                                    hackySampleType.isMandatory = x.getMultiValued();
+                                    sampleType.properties.add(hackySampleType);
+
+                                }
+                        );
+                    }
+
+
                     sampleTypeList.add(sampleType);
 
 
                 });
+
+
         return sampleTypeList;
     }
 }
