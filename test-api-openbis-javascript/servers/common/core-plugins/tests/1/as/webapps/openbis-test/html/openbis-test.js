@@ -1954,7 +1954,7 @@ test("openbisWebAppContext()", function() {
 
 test("SearchCriteriaMatchClause.createPropertyMatch()", function() {
 	createFacadeAndLogin(function(facade) {
-		var clause = SearchCriteriaMatchClause.createPropertyMatch("PLATE_GEOMETRY", "96_WELLS_8X12");
+		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY", "96_WELLS_8X12");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
 
@@ -1968,7 +1968,7 @@ test("SearchCriteriaMatchClause.createPropertyMatch()", function() {
 
 test("SearchCriteriaMatchClause.createPropertyMatch()", function() {
 	createFacadeAndLogin(function(facade) {
-		var clause = SearchCriteriaMatchClause.createPropertyMatch("PLATE_GEOMETRY", "96_WELLS_8X12");
+		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY", "96_WELLS_8X12");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
 
