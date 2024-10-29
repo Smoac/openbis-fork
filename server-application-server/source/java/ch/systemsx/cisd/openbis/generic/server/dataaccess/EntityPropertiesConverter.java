@@ -206,9 +206,16 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return entityType;
     }
 
+    private String getPropertyCode(String propertyCode) {
+        if(propertyCode.startsWith("$")) {
+            return propertyCode.substring(1).toUpperCase();
+        }
+        return propertyCode.toUpperCase();
+    }
+
     private final PropertyTypePE getPropertyType(final String propertyCode)
     {
-        PropertyTypePE propertyType = propertyTypesByCode.tryGet(propertyCode.toUpperCase());
+        PropertyTypePE propertyType = propertyTypesByCode.tryGet(getPropertyCode(propertyCode));
         if (propertyType == null)
         {
             propertyType = daoFactory.getPropertyTypeDAO().tryFindPropertyTypeByCode(propertyCode);

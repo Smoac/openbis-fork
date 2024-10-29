@@ -192,7 +192,6 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     public void setCode(final String fullCode)
     {
-//        setManagedInternally(CodeConverter.isInternalNamespace(fullCode));
         setSimpleCode(CodeConverter.tryToDatabase(fullCode));
     }
 
