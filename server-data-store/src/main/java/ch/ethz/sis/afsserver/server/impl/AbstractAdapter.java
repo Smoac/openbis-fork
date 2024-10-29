@@ -94,7 +94,7 @@ public abstract class AbstractAdapter<CONNECTION, API> implements HttpServerHand
             String transactionManagerKey = null;
             Map<String, Object> parsedParameters = new HashMap<>();
 
-            if(!GET.equals(httpMethod) && !isWriteMethod(httpMethod, parameters)) {
+            if(requestBody != null  && !GET.equals(httpMethod) && !isWriteMethod(httpMethod, parameters)) {
                 parameters = NettyHttpHandler.getBodyParameters(requestBody);
                 requestBody = null;
             }
