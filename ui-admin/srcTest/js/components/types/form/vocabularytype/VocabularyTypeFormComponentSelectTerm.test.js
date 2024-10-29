@@ -16,9 +16,6 @@ describe(VocabularyTypeFormComponentTest.SUITE, () => {
 async function testSelectTerm() {
   const form = await common.mountExisting(fixture.TEST_VOCABULARY_DTO)
 
-  form.getGrid().getColumns()[1].getLabel().click()
-  await form.update()
-
   form.getGrid().getRows()[1].click()
   await form.update()
 
@@ -106,7 +103,7 @@ async function testFollowSelectedTerm() {
   form.getGrid().getPaging().getPageSize().change(5)
   await form.update()
 
-  form.getGrid().getColumns()[1].getLabel().click()
+  form.getGrid().getColumns()[2].getLabel().click()
   await form.update()
 
   form.expectJSON({

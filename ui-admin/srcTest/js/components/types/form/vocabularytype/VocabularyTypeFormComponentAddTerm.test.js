@@ -18,6 +18,7 @@ async function testAddTerm() {
   form.expectJSON({
     grid: {
       columns: [
+        { name: 'Internal', sort: null },
         { name: 'code', sort: 'asc' },
         { name: 'label', sort: null },
         { name: 'description', sort: null },
@@ -50,7 +51,7 @@ async function testAddTerm() {
   form.getButtons().getEdit().click()
   await form.update()
 
-  form.getGrid().getColumns()[0].getLabel().click()
+  form.getGrid().getColumns()[1].getLabel().click()
   await form.update()
 
   form.getGrid().getPaging().getPageSize().change(5)
@@ -62,6 +63,7 @@ async function testAddTerm() {
   form.expectJSON({
     grid: {
       columns: [
+        { name: 'Internal', sort: null },
         { name: 'code', sort: 'desc' },
         { name: 'label', sort: null },
         { name: 'description', sort: null },

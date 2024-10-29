@@ -32,12 +32,13 @@ async function testSort() {
     await form.update()
   }
 
-  form.getGrid().getColumns()[1].getLabel().click()
+  form.getGrid().getColumns()[2].getLabel().click()
   await form.update()
 
   form.expectJSON({
     grid: {
       columns: [
+        { name: 'Internal', sort: null },
         { name: 'code', sort: null },
         { name: 'label', sort: 'asc' },
         { name: 'description', sort: null },
@@ -58,12 +59,13 @@ async function testSort() {
     }
   })
 
-  form.getGrid().getColumns()[1].getLabel().click()
+  form.getGrid().getColumns()[2].getLabel().click()
   await form.update()
 
   form.expectJSON({
     grid: {
       columns: [
+        { name: 'Internal', sort: null },
         { name: 'code', sort: null },
         { name: 'label', sort: 'desc' },
         { name: 'description', sort: null },
