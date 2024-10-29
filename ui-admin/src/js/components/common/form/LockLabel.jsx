@@ -21,9 +21,9 @@ class LockLabel extends React.PureComponent {
       }
 
       if(label) {
-        return <span><span style={{'vertical-align': 'text-top'}}>{icon}</span>{label}</span>
+        return <span><span style={{'verticalAlign': 'text-top'}}>{icon}</span>{label}</span>
       } else {
-        return <span style={{'vertical-align': 'text-top'}}>{icon}</span>
+        return <span style={{'verticalAlign': 'text-top'}}>{icon}</span>
       }
     }
 
