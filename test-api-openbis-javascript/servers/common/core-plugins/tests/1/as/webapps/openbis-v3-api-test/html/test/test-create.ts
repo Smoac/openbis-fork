@@ -349,7 +349,7 @@ exports.default = new Promise((resolve) => {
                     propertyTypeCreation1.setDataType(dtos.DataType.CONTROLLEDVOCABULARY)
                     propertyTypeCreation1.setLabel("Test Property Type")
                     propertyTypeCreation1.setMultiValue(true)
-                    propertyTypeCreation1.setVocabularyId(new dtos.VocabularyPermId("$SUPPLIER.LANGUAGE"))
+                    propertyTypeCreation1.setVocabularyId(new dtos.VocabularyPermId("SUPPLIER.LANGUAGE"))
                     return facade.createPropertyTypes([propertyTypeCreation1]).then(function (results) {
                         var assignmentCreation1 = new dtos.PropertyAssignmentCreation()
                         assignmentCreation1.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeVocab))
@@ -677,7 +677,7 @@ exports.default = new Promise((resolve) => {
                     propertyTypeCreation.setDataType(dtos.DataType.CONTROLLEDVOCABULARY)
                     propertyTypeCreation.setLabel("Test Property Type")
                     propertyTypeCreation.setMultiValue(true)
-                    propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("$SUPPLIER.LANGUAGE"))
+                    propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("SUPPLIER.LANGUAGE"))
                     return facade.createPropertyTypes([propertyTypeCreation]).then(function (results) {
                         var assignmentCreation = new dtos.PropertyAssignmentCreation()
                         assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode))
@@ -1025,7 +1025,7 @@ exports.default = new Promise((resolve) => {
                     propertyTypeCreation.setDataType(dtos.DataType.CONTROLLEDVOCABULARY)
                     propertyTypeCreation.setLabel("Test Property Type")
                     propertyTypeCreation.setMultiValue(true)
-                    propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("$SUPPLIER.LANGUAGE"))
+                    propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("SUPPLIER.LANGUAGE"))
                     return facade.createPropertyTypes([propertyTypeCreation]).then(function (results) {
                         var assignmentCreation = new dtos.PropertyAssignmentCreation()
                         assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode))
