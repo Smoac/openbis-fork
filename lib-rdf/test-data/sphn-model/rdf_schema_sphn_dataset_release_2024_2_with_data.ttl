@@ -2625,25 +2625,28 @@ sphn:Chromosome a owl:Class ;
     owl:equivalentClass snomed:91272006,
         loinc:48000-4 ;
     skos:definition "thread-like structure composed of tightly coiled DNA and histones or circular DNA (mitochondrial DNA). These structures act as carriers of genetic information" .
-
 sphn:DataRelease a owl:Class ;
-    rdfs:label "Data Release" ;
-    rdfs:subClassOf [ a owl:Class ;
-                      owl:intersectionOf ( [ a dct:conformsTo  ;] ) ],
-        [ a owl:Class ;
-            owl:intersectionOf ( [ a owl:Restriction ;
-                        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onProperty sphn:hasExtractionDateTime ] [ a owl:Restriction ;
-                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onProperty sphn:hasExtractionDateTime ] ) ],
-        [ a owl:Class ;
-            owl:intersectionOf ( [ a owl:Restriction ;
-                        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onProperty sphn:hasDataProvider ] [ a owl:Restriction ;
-                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onProperty sphn:hasDataProvider ] ) ],
-        sphn:SPHNConcept ;
-    skos:definition "Metadata about the release of the data" .
+                 rdfs:label "Data Release" ;
+                 rdfs:subClassOf [ a owl:Class ;
+                                   owl:intersectionOf ( [ a owl:Restriction ;
+                                                          owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                                          owl:onProperty dcterms:conformsTo ] [ a owl:Restriction ;
+                                                                                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                                owl:onProperty dcterms:conformsTo ] ) ],
+                 [ a owl:Class ;
+                   owl:intersectionOf ( [ a owl:Restriction ;
+                                          owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                          owl:onProperty sphn:hasExtractionDateTime ] [ a owl:Restriction ;
+                                                                                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                        owl:onProperty sphn:hasExtractionDateTime ] ) ],
+                 [ a owl:Class ;
+                   owl:intersectionOf ( [ a owl:Restriction ;
+                                          owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                          owl:onProperty sphn:hasDataProvider ] [ a owl:Restriction ;
+                                                                                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                                                                                  owl:onProperty sphn:hasDataProvider ] ) ],
+                 sphn:SPHNConcept ;
+                 skos:definition "Metadata about the release of the data" .
 
 sphn:Department a owl:Class ;
     rdfs:label "Department" ;
