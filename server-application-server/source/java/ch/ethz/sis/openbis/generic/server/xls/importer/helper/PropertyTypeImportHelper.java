@@ -273,6 +273,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             {
                 operationLog.warn(
                         "PROPERTY TYPE [" + code + "] : Vocabulary types can't be updated. Ignoring the update.");
+                operationLog.warn(
+                        "PROPERTY TYPE [" + code + "] : Current: [" + propertyType.getVocabulary().getCode() + "] New: [" + vocabularyCode + "]");
                 throw new UserFailureException("Vocabulary types can't be updated.");
             } else if (propertyType.getVocabulary() == null) {
                 operationLog.warn(
