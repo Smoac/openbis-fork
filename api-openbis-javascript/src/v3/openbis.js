@@ -550,7 +550,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		this.write = function(owner, source, offset, data){
 		    if(asFacade._private.transactionId){
 
-                var dataString = ""
+                var dataString = data
                 if(data && data instanceof Uint8Array) {
                     dataString = unit8ArrayToString(data)
                 }
@@ -2899,16 +2899,361 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
        UTILS
     *********/
 
-    /**
-     * [js-md5]{@link https://github.com/emn178/js-md5}
-     *
-     * @namespace md5
-     * @version 0.8.3
-     * @author Chen, Yi-Cyuan [emn178@gmail.com]
-     * @copyright Chen, Yi-Cyuan 2014-2023
-     * @license MIT
-     */
-      !function(){"use strict";var $="input is invalid type",t="object"==typeof window,_=t?window:{};_.JS_MD5_NO_WINDOW&&(t=!1);var e=!t&&"object"==typeof self,i=!_.JS_MD5_NO_NODE_JS&&"object"==typeof process&&process.versions&&process.versions.node;i?_=global:e&&(_=self),_.JS_MD5_NO_COMMON_JS||"object"!=typeof module||module.exports,"function"==typeof define&&define.amd;var r,h=!_.JS_MD5_NO_ARRAY_BUFFER&&"undefined"!=typeof ArrayBuffer,s="0123456789abcdef".split(""),f=[128,32768,8388608,-2147483648],n=[0,8,16,24],o=["hex","array","digest","buffer","arrayBuffer","base64"],x="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split(""),a=[];if(h){var u=new ArrayBuffer(68);r=new Uint8Array(u),a=new Uint32Array(u)}var c=Array.isArray;(_.JS_MD5_NO_NODE_JS||!c)&&(c=function($){return"[object Array]"===Object.prototype.toString.call($)});var F=ArrayBuffer.isView;h&&(_.JS_MD5_NO_ARRAY_BUFFER_IS_VIEW||!F)&&(F=function($){return"object"==typeof $&&$.buffer&&$.buffer.constructor===ArrayBuffer});var p=function(t){var _=typeof t;if("string"===_)return[t,!0];if("object"!==_||null===t)throw Error($);if(h&&t.constructor===ArrayBuffer)return[new Uint8Array(t),!1];if(!c(t)&&!F(t))throw Error($);return[t,!1]},y=function($){return function(t){return new v(!0).update(t)[$]()}},d=function(t){var e,i=require("crypto"),r=require("buffer").Buffer;return e=r.from&&!_.JS_MD5_NO_BUFFER_FROM?r.from:function($){return new r($)},function(_){if("string"==typeof _)return i.createHash("md5").update(_,"utf8").digest("hex");if(null==_)throw Error($);return _.constructor===ArrayBuffer&&(_=new Uint8Array(_)),c(_)||F(_)||_.constructor===r?i.createHash("md5").update(e(_)).digest("hex"):t(_)}},l=function($){return function(t,_){return new b(t,!0).update(_)[$]()}};function v($){if($)a[0]=a[16]=a[1]=a[2]=a[3]=a[4]=a[5]=a[6]=a[7]=a[8]=a[9]=a[10]=a[11]=a[12]=a[13]=a[14]=a[15]=0,this.blocks=a,this.buffer8=r;else if(h){var t=new ArrayBuffer(68);this.buffer8=new Uint8Array(t),this.blocks=new Uint32Array(t)}else this.blocks=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];this.h0=this.h1=this.h2=this.h3=this.start=this.bytes=this.hBytes=0,this.finalized=this.hashed=!1,this.first=!0}function b($,t){var _,e=p($);if($=e[0],e[1]){var i,r=[],h=$.length,s=0;for(_=0;_<h;++_)(i=$.charCodeAt(_))<128?r[s++]=i:i<2048?(r[s++]=192|i>>>6,r[s++]=128|63&i):i<55296||i>=57344?(r[s++]=224|i>>>12,r[s++]=128|i>>>6&63,r[s++]=128|63&i):(i=65536+((1023&i)<<10|1023&$.charCodeAt(++_)),r[s++]=240|i>>>18,r[s++]=128|i>>>12&63,r[s++]=128|i>>>6&63,r[s++]=128|63&i);$=r}$.length>64&&($=new v(!0).update($).array());var f=[],n=[];for(_=0;_<64;++_){var o=$[_]||0;f[_]=92^o,n[_]=54^o}v.call(this,t),this.update(n),this.oKeyPad=f,this.inner=!0,this.sharedMemory=t}v.prototype.update=function($){if(this.finalized)throw Error("finalize already called");var t=p($);$=t[0];for(var _,e,i=t[1],r=0,s=$.length,f=this.blocks,o=this.buffer8;r<s;){if(this.hashed&&(this.hashed=!1,f[0]=f[16],f[16]=f[1]=f[2]=f[3]=f[4]=f[5]=f[6]=f[7]=f[8]=f[9]=f[10]=f[11]=f[12]=f[13]=f[14]=f[15]=0),i){if(h)for(e=this.start;r<s&&e<64;++r)(_=$.charCodeAt(r))<128?o[e++]=_:_<2048?(o[e++]=192|_>>>6,o[e++]=128|63&_):_<55296||_>=57344?(o[e++]=224|_>>>12,o[e++]=128|_>>>6&63,o[e++]=128|63&_):(_=65536+((1023&_)<<10|1023&$.charCodeAt(++r)),o[e++]=240|_>>>18,o[e++]=128|_>>>12&63,o[e++]=128|_>>>6&63,o[e++]=128|63&_);else for(e=this.start;r<s&&e<64;++r)(_=$.charCodeAt(r))<128?f[e>>>2]|=_<<n[3&e++]:_<2048?(f[e>>>2]|=(192|_>>>6)<<n[3&e++],f[e>>>2]|=(128|63&_)<<n[3&e++]):_<55296||_>=57344?(f[e>>>2]|=(224|_>>>12)<<n[3&e++],f[e>>>2]|=(128|_>>>6&63)<<n[3&e++],f[e>>>2]|=(128|63&_)<<n[3&e++]):(_=65536+((1023&_)<<10|1023&$.charCodeAt(++r)),f[e>>>2]|=(240|_>>>18)<<n[3&e++],f[e>>>2]|=(128|_>>>12&63)<<n[3&e++],f[e>>>2]|=(128|_>>>6&63)<<n[3&e++],f[e>>>2]|=(128|63&_)<<n[3&e++])}else if(h)for(e=this.start;r<s&&e<64;++r)o[e++]=$[r];else for(e=this.start;r<s&&e<64;++r)f[e>>>2]|=$[r]<<n[3&e++];this.lastByteIndex=e,this.bytes+=e-this.start,e>=64?(this.start=e-64,this.hash(),this.hashed=!0):this.start=e}return this.bytes>4294967295&&(this.hBytes+=this.bytes/4294967296<<0,this.bytes=this.bytes%4294967296),this},v.prototype.finalize=function(){if(!this.finalized){this.finalized=!0;var $=this.blocks,t=this.lastByteIndex;$[t>>>2]|=f[3&t],t>=56&&(this.hashed||this.hash(),$[0]=$[16],$[16]=$[1]=$[2]=$[3]=$[4]=$[5]=$[6]=$[7]=$[8]=$[9]=$[10]=$[11]=$[12]=$[13]=$[14]=$[15]=0),$[14]=this.bytes<<3,$[15]=this.hBytes<<3|this.bytes>>>29,this.hash()}},v.prototype.hash=function(){var $,t,_,e,i,r,h=this.blocks;this.first?(_=((_=(-271733879^(e=((e=(-1732584194^2004318071&($=(($=h[0]-680876937)<<7|$>>>25)-271733879<<0))+h[1]-117830708)<<12|e>>>20)+$<<0)&(-271733879^$))+h[2]-1126478375)<<17|_>>>15)+e<<0,t=((t=($^_&(e^$))+h[3]-1316259209)<<22|t>>>10)+_<<0):($=this.h0,t=this.h1,_=this.h2,$+=((e=this.h3)^t&(_^e))+h[0]-680876936,e+=(_^($=($<<7|$>>>25)+t<<0)&(t^_))+h[1]-389564586,_+=(t^(e=(e<<12|e>>>20)+$<<0)&($^t))+h[2]+606105819,t+=($^(_=(_<<17|_>>>15)+e<<0)&(e^$))+h[3]-1044525330,t=(t<<22|t>>>10)+_<<0),$+=(e^t&(_^e))+h[4]-176418897,e+=(_^($=($<<7|$>>>25)+t<<0)&(t^_))+h[5]+1200080426,_+=(t^(e=(e<<12|e>>>20)+$<<0)&($^t))+h[6]-1473231341,t+=($^(_=(_<<17|_>>>15)+e<<0)&(e^$))+h[7]-45705983,$+=(e^(t=(t<<22|t>>>10)+_<<0)&(_^e))+h[8]+1770035416,e+=(_^($=($<<7|$>>>25)+t<<0)&(t^_))+h[9]-1958414417,_+=(t^(e=(e<<12|e>>>20)+$<<0)&($^t))+h[10]-42063,t+=($^(_=(_<<17|_>>>15)+e<<0)&(e^$))+h[11]-1990404162,$+=(e^(t=(t<<22|t>>>10)+_<<0)&(_^e))+h[12]+1804603682,e+=(_^($=($<<7|$>>>25)+t<<0)&(t^_))+h[13]-40341101,_+=(t^(e=(e<<12|e>>>20)+$<<0)&($^t))+h[14]-1502002290,t+=($^(_=(_<<17|_>>>15)+e<<0)&(e^$))+h[15]+1236535329,t=(t<<22|t>>>10)+_<<0,$+=(_^e&(t^_))+h[1]-165796510,$=($<<5|$>>>27)+t<<0,e+=(t^_&($^t))+h[6]-1069501632,e=(e<<9|e>>>23)+$<<0,_+=($^t&(e^$))+h[11]+643717713,_=(_<<14|_>>>18)+e<<0,t+=(e^$&(_^e))+h[0]-373897302,t=(t<<20|t>>>12)+_<<0,$+=(_^e&(t^_))+h[5]-701558691,$=($<<5|$>>>27)+t<<0,e+=(t^_&($^t))+h[10]+38016083,e=(e<<9|e>>>23)+$<<0,_+=($^t&(e^$))+h[15]-660478335,_=(_<<14|_>>>18)+e<<0,t+=(e^$&(_^e))+h[4]-405537848,t=(t<<20|t>>>12)+_<<0,$+=(_^e&(t^_))+h[9]+568446438,$=($<<5|$>>>27)+t<<0,e+=(t^_&($^t))+h[14]-1019803690,e=(e<<9|e>>>23)+$<<0,_+=($^t&(e^$))+h[3]-187363961,_=(_<<14|_>>>18)+e<<0,t+=(e^$&(_^e))+h[8]+1163531501,t=(t<<20|t>>>12)+_<<0,$+=(_^e&(t^_))+h[13]-1444681467,$=($<<5|$>>>27)+t<<0,e+=(t^_&($^t))+h[2]-51403784,e=(e<<9|e>>>23)+$<<0,_+=($^t&(e^$))+h[7]+1735328473,_=(_<<14|_>>>18)+e<<0,t+=(e^$&(_^e))+h[12]-1926607734,$+=((i=(t=(t<<20|t>>>12)+_<<0)^_)^e)+h[5]-378558,e+=(i^($=($<<4|$>>>28)+t<<0))+h[8]-2022574463,_+=((r=(e=(e<<11|e>>>21)+$<<0)^$)^t)+h[11]+1839030562,t+=(r^(_=(_<<16|_>>>16)+e<<0))+h[14]-35309556,$+=((i=(t=(t<<23|t>>>9)+_<<0)^_)^e)+h[1]-1530992060,e+=(i^($=($<<4|$>>>28)+t<<0))+h[4]+1272893353,_+=((r=(e=(e<<11|e>>>21)+$<<0)^$)^t)+h[7]-155497632,t+=(r^(_=(_<<16|_>>>16)+e<<0))+h[10]-1094730640,$+=((i=(t=(t<<23|t>>>9)+_<<0)^_)^e)+h[13]+681279174,e+=(i^($=($<<4|$>>>28)+t<<0))+h[0]-358537222,_+=((r=(e=(e<<11|e>>>21)+$<<0)^$)^t)+h[3]-722521979,t+=(r^(_=(_<<16|_>>>16)+e<<0))+h[6]+76029189,$+=((i=(t=(t<<23|t>>>9)+_<<0)^_)^e)+h[9]-640364487,e+=(i^($=($<<4|$>>>28)+t<<0))+h[12]-421815835,_+=((r=(e=(e<<11|e>>>21)+$<<0)^$)^t)+h[15]+530742520,t+=(r^(_=(_<<16|_>>>16)+e<<0))+h[2]-995338651,t=(t<<23|t>>>9)+_<<0,$+=(_^(t|~e))+h[0]-198630844,$=($<<6|$>>>26)+t<<0,e+=(t^($|~_))+h[7]+1126891415,e=(e<<10|e>>>22)+$<<0,_+=($^(e|~t))+h[14]-1416354905,_=(_<<15|_>>>17)+e<<0,t+=(e^(_|~$))+h[5]-57434055,t=(t<<21|t>>>11)+_<<0,$+=(_^(t|~e))+h[12]+1700485571,$=($<<6|$>>>26)+t<<0,e+=(t^($|~_))+h[3]-1894986606,e=(e<<10|e>>>22)+$<<0,_+=($^(e|~t))+h[10]-1051523,_=(_<<15|_>>>17)+e<<0,t+=(e^(_|~$))+h[1]-2054922799,t=(t<<21|t>>>11)+_<<0,$+=(_^(t|~e))+h[8]+1873313359,$=($<<6|$>>>26)+t<<0,e+=(t^($|~_))+h[15]-30611744,e=(e<<10|e>>>22)+$<<0,_+=($^(e|~t))+h[6]-1560198380,_=(_<<15|_>>>17)+e<<0,t+=(e^(_|~$))+h[13]+1309151649,t=(t<<21|t>>>11)+_<<0,$+=(_^(t|~e))+h[4]-145523070,$=($<<6|$>>>26)+t<<0,e+=(t^($|~_))+h[11]-1120210379,e=(e<<10|e>>>22)+$<<0,_+=($^(e|~t))+h[2]+718787259,_=(_<<15|_>>>17)+e<<0,t+=(e^(_|~$))+h[9]-343485551,t=(t<<21|t>>>11)+_<<0,this.first?(this.h0=$+1732584193<<0,this.h1=t-271733879<<0,this.h2=_-1732584194<<0,this.h3=e+271733878<<0,this.first=!1):(this.h0=this.h0+$<<0,this.h1=this.h1+t<<0,this.h2=this.h2+_<<0,this.h3=this.h3+e<<0)},v.prototype.hex=function(){this.finalize();var $=this.h0,t=this.h1,_=this.h2,e=this.h3;return s[$>>>4&15]+s[15&$]+s[$>>>12&15]+s[$>>>8&15]+s[$>>>20&15]+s[$>>>16&15]+s[$>>>28&15]+s[$>>>24&15]+s[t>>>4&15]+s[15&t]+s[t>>>12&15]+s[t>>>8&15]+s[t>>>20&15]+s[t>>>16&15]+s[t>>>28&15]+s[t>>>24&15]+s[_>>>4&15]+s[15&_]+s[_>>>12&15]+s[_>>>8&15]+s[_>>>20&15]+s[_>>>16&15]+s[_>>>28&15]+s[_>>>24&15]+s[e>>>4&15]+s[15&e]+s[e>>>12&15]+s[e>>>8&15]+s[e>>>20&15]+s[e>>>16&15]+s[e>>>28&15]+s[e>>>24&15]},v.prototype.toString=v.prototype.hex,v.prototype.digest=function(){this.finalize();var $=this.h0,t=this.h1,_=this.h2,e=this.h3;return[255&$,$>>>8&255,$>>>16&255,$>>>24&255,255&t,t>>>8&255,t>>>16&255,t>>>24&255,255&_,_>>>8&255,_>>>16&255,_>>>24&255,255&e,e>>>8&255,e>>>16&255,e>>>24&255]},v.prototype.array=v.prototype.digest,v.prototype.arrayBuffer=function(){this.finalize();var $=new ArrayBuffer(16),t=new Uint32Array($);return t[0]=this.h0,t[1]=this.h1,t[2]=this.h2,t[3]=this.h3,$},v.prototype.buffer=v.prototype.arrayBuffer,v.prototype.base64=function(){for(var $,t,_,e="",i=this.array(),r=0;r<15;)$=i[r++],t=i[r++],_=i[r++],e+=x[$>>>2]+x[($<<4|t>>>4)&63]+x[(t<<2|_>>>6)&63]+x[63&_];return e+(x[($=i[r])>>>2]+x[$<<4&63]+"==")},b.prototype=new v,b.prototype.finalize=function(){if(v.prototype.finalize.call(this),this.inner){this.inner=!1;var $=this.array();v.call(this,this.sharedMemory),this.update(this.oKeyPad),this.update($),v.prototype.finalize.call(this)}};var w=function(){var $=y("hex");i&&($=d($)),$.create=function(){return new v},$.update=function(t){return $.create().update(t)};for(var t=0;t<o.length;++t){var _=o[t];$[_]=y(_)}return $}();w.md5=w,w.md5.hmac=function(){var $=l("hex");$.create=function($){return new b($)},$.update=function(t,_){return $.create(t).update(_)};for(var t=0;t<o.length;++t){var _=o[t];$[_]=l(_)}return $}(),window.md5=w}();
+   var { md5, md5_array } = (function(){
+
+   /* this function is much faster,
+         so if possible we use it. Some IEs
+         are the only ones I know of that
+         need the idiotic second function,
+         generated by an if clause.  */
+       var add32 = function (a, b) {
+           return (a + b) & 0xFFFFFFFF;
+       },
+           hex_chr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+
+       function cmn(q, a, b, x, s, t) {
+           a = add32(add32(a, q), add32(x, t));
+           return add32((a << s) | (a >>> (32 - s)), b);
+       }
+
+       function md5cycle(x, k) {
+           var a = x[0],
+               b = x[1],
+               c = x[2],
+               d = x[3];
+
+           a += (b & c | ~b & d) + k[0] - 680876936 | 0;
+           a  = (a << 7 | a >>> 25) + b | 0;
+           d += (a & b | ~a & c) + k[1] - 389564586 | 0;
+           d  = (d << 12 | d >>> 20) + a | 0;
+           c += (d & a | ~d & b) + k[2] + 606105819 | 0;
+           c  = (c << 17 | c >>> 15) + d | 0;
+           b += (c & d | ~c & a) + k[3] - 1044525330 | 0;
+           b  = (b << 22 | b >>> 10) + c | 0;
+           a += (b & c | ~b & d) + k[4] - 176418897 | 0;
+           a  = (a << 7 | a >>> 25) + b | 0;
+           d += (a & b | ~a & c) + k[5] + 1200080426 | 0;
+           d  = (d << 12 | d >>> 20) + a | 0;
+           c += (d & a | ~d & b) + k[6] - 1473231341 | 0;
+           c  = (c << 17 | c >>> 15) + d | 0;
+           b += (c & d | ~c & a) + k[7] - 45705983 | 0;
+           b  = (b << 22 | b >>> 10) + c | 0;
+           a += (b & c | ~b & d) + k[8] + 1770035416 | 0;
+           a  = (a << 7 | a >>> 25) + b | 0;
+           d += (a & b | ~a & c) + k[9] - 1958414417 | 0;
+           d  = (d << 12 | d >>> 20) + a | 0;
+           c += (d & a | ~d & b) + k[10] - 42063 | 0;
+           c  = (c << 17 | c >>> 15) + d | 0;
+           b += (c & d | ~c & a) + k[11] - 1990404162 | 0;
+           b  = (b << 22 | b >>> 10) + c | 0;
+           a += (b & c | ~b & d) + k[12] + 1804603682 | 0;
+           a  = (a << 7 | a >>> 25) + b | 0;
+           d += (a & b | ~a & c) + k[13] - 40341101 | 0;
+           d  = (d << 12 | d >>> 20) + a | 0;
+           c += (d & a | ~d & b) + k[14] - 1502002290 | 0;
+           c  = (c << 17 | c >>> 15) + d | 0;
+           b += (c & d | ~c & a) + k[15] + 1236535329 | 0;
+           b  = (b << 22 | b >>> 10) + c | 0;
+
+           a += (b & d | c & ~d) + k[1] - 165796510 | 0;
+           a  = (a << 5 | a >>> 27) + b | 0;
+           d += (a & c | b & ~c) + k[6] - 1069501632 | 0;
+           d  = (d << 9 | d >>> 23) + a | 0;
+           c += (d & b | a & ~b) + k[11] + 643717713 | 0;
+           c  = (c << 14 | c >>> 18) + d | 0;
+           b += (c & a | d & ~a) + k[0] - 373897302 | 0;
+           b  = (b << 20 | b >>> 12) + c | 0;
+           a += (b & d | c & ~d) + k[5] - 701558691 | 0;
+           a  = (a << 5 | a >>> 27) + b | 0;
+           d += (a & c | b & ~c) + k[10] + 38016083 | 0;
+           d  = (d << 9 | d >>> 23) + a | 0;
+           c += (d & b | a & ~b) + k[15] - 660478335 | 0;
+           c  = (c << 14 | c >>> 18) + d | 0;
+           b += (c & a | d & ~a) + k[4] - 405537848 | 0;
+           b  = (b << 20 | b >>> 12) + c | 0;
+           a += (b & d | c & ~d) + k[9] + 568446438 | 0;
+           a  = (a << 5 | a >>> 27) + b | 0;
+           d += (a & c | b & ~c) + k[14] - 1019803690 | 0;
+           d  = (d << 9 | d >>> 23) + a | 0;
+           c += (d & b | a & ~b) + k[3] - 187363961 | 0;
+           c  = (c << 14 | c >>> 18) + d | 0;
+           b += (c & a | d & ~a) + k[8] + 1163531501 | 0;
+           b  = (b << 20 | b >>> 12) + c | 0;
+           a += (b & d | c & ~d) + k[13] - 1444681467 | 0;
+           a  = (a << 5 | a >>> 27) + b | 0;
+           d += (a & c | b & ~c) + k[2] - 51403784 | 0;
+           d  = (d << 9 | d >>> 23) + a | 0;
+           c += (d & b | a & ~b) + k[7] + 1735328473 | 0;
+           c  = (c << 14 | c >>> 18) + d | 0;
+           b += (c & a | d & ~a) + k[12] - 1926607734 | 0;
+           b  = (b << 20 | b >>> 12) + c | 0;
+
+           a += (b ^ c ^ d) + k[5] - 378558 | 0;
+           a  = (a << 4 | a >>> 28) + b | 0;
+           d += (a ^ b ^ c) + k[8] - 2022574463 | 0;
+           d  = (d << 11 | d >>> 21) + a | 0;
+           c += (d ^ a ^ b) + k[11] + 1839030562 | 0;
+           c  = (c << 16 | c >>> 16) + d | 0;
+           b += (c ^ d ^ a) + k[14] - 35309556 | 0;
+           b  = (b << 23 | b >>> 9) + c | 0;
+           a += (b ^ c ^ d) + k[1] - 1530992060 | 0;
+           a  = (a << 4 | a >>> 28) + b | 0;
+           d += (a ^ b ^ c) + k[4] + 1272893353 | 0;
+           d  = (d << 11 | d >>> 21) + a | 0;
+           c += (d ^ a ^ b) + k[7] - 155497632 | 0;
+           c  = (c << 16 | c >>> 16) + d | 0;
+           b += (c ^ d ^ a) + k[10] - 1094730640 | 0;
+           b  = (b << 23 | b >>> 9) + c | 0;
+           a += (b ^ c ^ d) + k[13] + 681279174 | 0;
+           a  = (a << 4 | a >>> 28) + b | 0;
+           d += (a ^ b ^ c) + k[0] - 358537222 | 0;
+           d  = (d << 11 | d >>> 21) + a | 0;
+           c += (d ^ a ^ b) + k[3] - 722521979 | 0;
+           c  = (c << 16 | c >>> 16) + d | 0;
+           b += (c ^ d ^ a) + k[6] + 76029189 | 0;
+           b  = (b << 23 | b >>> 9) + c | 0;
+           a += (b ^ c ^ d) + k[9] - 640364487 | 0;
+           a  = (a << 4 | a >>> 28) + b | 0;
+           d += (a ^ b ^ c) + k[12] - 421815835 | 0;
+           d  = (d << 11 | d >>> 21) + a | 0;
+           c += (d ^ a ^ b) + k[15] + 530742520 | 0;
+           c  = (c << 16 | c >>> 16) + d | 0;
+           b += (c ^ d ^ a) + k[2] - 995338651 | 0;
+           b  = (b << 23 | b >>> 9) + c | 0;
+
+           a += (c ^ (b | ~d)) + k[0] - 198630844 | 0;
+           a  = (a << 6 | a >>> 26) + b | 0;
+           d += (b ^ (a | ~c)) + k[7] + 1126891415 | 0;
+           d  = (d << 10 | d >>> 22) + a | 0;
+           c += (a ^ (d | ~b)) + k[14] - 1416354905 | 0;
+           c  = (c << 15 | c >>> 17) + d | 0;
+           b += (d ^ (c | ~a)) + k[5] - 57434055 | 0;
+           b  = (b << 21 |b >>> 11) + c | 0;
+           a += (c ^ (b | ~d)) + k[12] + 1700485571 | 0;
+           a  = (a << 6 | a >>> 26) + b | 0;
+           d += (b ^ (a | ~c)) + k[3] - 1894986606 | 0;
+           d  = (d << 10 | d >>> 22) + a | 0;
+           c += (a ^ (d | ~b)) + k[10] - 1051523 | 0;
+           c  = (c << 15 | c >>> 17) + d | 0;
+           b += (d ^ (c | ~a)) + k[1] - 2054922799 | 0;
+           b  = (b << 21 |b >>> 11) + c | 0;
+           a += (c ^ (b | ~d)) + k[8] + 1873313359 | 0;
+           a  = (a << 6 | a >>> 26) + b | 0;
+           d += (b ^ (a | ~c)) + k[15] - 30611744 | 0;
+           d  = (d << 10 | d >>> 22) + a | 0;
+           c += (a ^ (d | ~b)) + k[6] - 1560198380 | 0;
+           c  = (c << 15 | c >>> 17) + d | 0;
+           b += (d ^ (c | ~a)) + k[13] + 1309151649 | 0;
+           b  = (b << 21 |b >>> 11) + c | 0;
+           a += (c ^ (b | ~d)) + k[4] - 145523070 | 0;
+           a  = (a << 6 | a >>> 26) + b | 0;
+           d += (b ^ (a | ~c)) + k[11] - 1120210379 | 0;
+           d  = (d << 10 | d >>> 22) + a | 0;
+           c += (a ^ (d | ~b)) + k[2] + 718787259 | 0;
+           c  = (c << 15 | c >>> 17) + d | 0;
+           b += (d ^ (c | ~a)) + k[9] - 343485551 | 0;
+           b  = (b << 21 | b >>> 11) + c | 0;
+
+           x[0] = a + x[0] | 0;
+           x[1] = b + x[1] | 0;
+           x[2] = c + x[2] | 0;
+           x[3] = d + x[3] | 0;
+       }
+
+       function md5blk(s) {
+           var md5blks = [],
+               i; /* Andy King said do it this way. */
+
+           for (i = 0; i < 64; i += 4) {
+               md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24);
+           }
+           return md5blks;
+       }
+
+       function md5blk_array(a) {
+           var md5blks = [],
+               i; /* Andy King said do it this way. */
+
+           for (i = 0; i < 64; i += 4) {
+               md5blks[i >> 2] = a[i] + (a[i + 1] << 8) + (a[i + 2] << 16) + (a[i + 3] << 24);
+           }
+           return md5blks;
+       }
+
+       function md51(s) {
+           var n = s.length,
+               state = [1732584193, -271733879, -1732584194, 271733878],
+               i,
+               length,
+               tail,
+               tmp,
+               lo,
+               hi;
+
+           for (i = 64; i <= n; i += 64) {
+               md5cycle(state, md5blk(s.substring(i - 64, i)));
+           }
+           s = s.substring(i - 64);
+           length = s.length;
+           tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+           for (i = 0; i < length; i += 1) {
+               tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
+           }
+           tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+           if (i > 55) {
+               md5cycle(state, tail);
+               for (i = 0; i < 16; i += 1) {
+                   tail[i] = 0;
+               }
+           }
+
+           // Beware that the final length might not fit in 32 bits so we take care of that
+           tmp = n * 8;
+           tmp = tmp.toString(16).match(/(.*?)(.{0,8})$/);
+           lo = parseInt(tmp[2], 16);
+           hi = parseInt(tmp[1], 16) || 0;
+
+           tail[14] = lo;
+           tail[15] = hi;
+
+           md5cycle(state, tail);
+           return state;
+       }
+
+       function md51_array(a) {
+           var n = a.length,
+               state = [1732584193, -271733879, -1732584194, 271733878],
+               i,
+               length,
+               tail,
+               tmp,
+               lo,
+               hi;
+
+           for (i = 64; i <= n; i += 64) {
+               md5cycle(state, md5blk_array(a.subarray(i - 64, i)));
+           }
+
+           // Not sure if it is a bug, however IE10 will always produce a sub array of length 1
+           // containing the last element of the parent array if the sub array specified starts
+           // beyond the length of the parent array - weird.
+           // https://connect.microsoft.com/IE/feedback/details/771452/typed-array-subarray-issue
+           a = (i - 64) < n ? a.subarray(i - 64) : new Uint8Array(0);
+
+           length = a.length;
+           tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+           for (i = 0; i < length; i += 1) {
+               tail[i >> 2] |= a[i] << ((i % 4) << 3);
+           }
+
+           tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+           if (i > 55) {
+               md5cycle(state, tail);
+               for (i = 0; i < 16; i += 1) {
+                   tail[i] = 0;
+               }
+           }
+
+           // Beware that the final length might not fit in 32 bits so we take care of that
+           tmp = n * 8;
+           tmp = tmp.toString(16).match(/(.*?)(.{0,8})$/);
+           lo = parseInt(tmp[2], 16);
+           hi = parseInt(tmp[1], 16) || 0;
+
+           tail[14] = lo;
+           tail[15] = hi;
+
+           md5cycle(state, tail);
+
+           return state;
+       }
+
+       function rhex(n) {
+           var s = '',
+               j;
+           for (j = 0; j < 4; j += 1) {
+               s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F];
+           }
+           return s;
+       }
+
+       function hex(x) {
+           var i;
+           for (i = 0; i < x.length; i += 1) {
+               x[i] = rhex(x[i]);
+           }
+           return x.join('');
+       }
+
+       // In some cases the fast add32 function cannot be used..
+       if (hex(md51('hello')) !== '5d41402abc4b2a76b9719d911017c592') {
+           add32 = function (x, y) {
+               var lsw = (x & 0xFFFF) + (y & 0xFFFF),
+                   msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+               return (msw << 16) | (lsw & 0xFFFF);
+           };
+       }
+
+       function md5(s) {
+           return hex(md51(s))
+       }
+
+       function md5_array(a) {
+           return hex(md51_array(a))
+       }
+
+       // ---------------------------------------------------
+
+       /**
+        * ArrayBuffer slice polyfill.
+        *
+        * @see https://github.com/ttaubert/node-arraybuffer-slice
+        */
+
+       if (typeof ArrayBuffer !== 'undefined' && !ArrayBuffer.prototype.slice) {
+           (function () {
+               function clamp(val, length) {
+                   val = (val | 0) || 0;
+
+                   if (val < 0) {
+                       return Math.max(val + length, 0);
+                   }
+
+                   return Math.min(val, length);
+               }
+
+               ArrayBuffer.prototype.slice = function (from, to) {
+                   var length = this.byteLength,
+                       begin = clamp(from, length),
+                       end = length,
+                       num,
+                       target,
+                       targetArray,
+                       sourceArray;
+
+                   if (to !== undefined) {
+                       end = clamp(to, length);
+                   }
+
+                   if (begin > end) {
+                       return new ArrayBuffer(0);
+                   }
+
+                   num = end - begin;
+                   target = new ArrayBuffer(num);
+                   targetArray = new Uint8Array(target);
+
+                   sourceArray = new Uint8Array(this, begin, num);
+                   targetArray.set(sourceArray);
+
+                   return target;
+               };
+           })();
+       }
+
+       return { md5, md5_array };
+   })();
 
     // parseUri 1.2.2 (c) Steven Levithan <stevenlevithan.com> MIT License (see http://blog.stevenlevithan.com/archives/parseuri)
 
