@@ -16,6 +16,9 @@ describe(VocabularyTypeFormComponentTest.SUITE, () => {
 async function testSelectTerm() {
   const form = await common.mountExisting(fixture.TEST_VOCABULARY_DTO)
 
+  form.getGrid().getColumns()[1].getLabel().click()
+  await form.update()
+
   form.getGrid().getRows()[1].click()
   await form.update()
 
