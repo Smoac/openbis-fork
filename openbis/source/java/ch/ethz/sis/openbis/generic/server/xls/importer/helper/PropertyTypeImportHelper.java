@@ -274,11 +274,15 @@ public class PropertyTypeImportHelper extends BasicImportHelper
                 delayedExecutor.getPropertyType(propertyTypePermId, propertyTypeFetchOptions);
         if (vocabularyCode != null && !vocabularyCode.isEmpty())
         {
-            if (vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
+            if (propertyType.getVocabulary() != null  && vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
             {
                 operationLog.warn(
                         "PROPERTY TYPE [" + code + "] : Vocabulary types can't be updated. Ignoring the update.");
-                //   throw new UserFailureException("Vocabulary types can't be updated.");
+                throw new UserFailureException("Vocabulary types can't be updated.");
+            } else if (propertyType.getVocabulary() == null) {
+                operationLog.warn(
+                        "PROPERTY TYPE [" + code + "] : Types that are not vocabulary cannot become one. Ignoring the update.");
+                throw new UserFailureException("Types that are not of type Vocabulary can't be updated to Vocabulary.");
             }
         }
         if (dataType != null && !dataType.isEmpty())
