@@ -107,7 +107,7 @@ class Menu extends React.PureComponent {
             value={this.props.currentPage}
             onChange={this.handlePageChange}
             classes={{ root: classes.tabs }}
-            textColor='white'
+            textColor='inherit'
             indicatorColor='secondary'
           >
             <Tab
