@@ -19,6 +19,8 @@ async function testChangeType() {
 
   const form = await common.mountExisting(fixture.TEST_SAMPLE_TYPE_DTO)
 
+  await common.controller.load()
+
   form.expectJSON({
     preview: {
       header: {
