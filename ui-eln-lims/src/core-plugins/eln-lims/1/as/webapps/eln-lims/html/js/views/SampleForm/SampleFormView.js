@@ -1163,6 +1163,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		var childrenAnyTypeDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"];
 		var annotations = this._sampleFormController.getAnnotationsState('CHILDREN');
+		var spaceCode = null;
+		if(this._sampleFormModel.sample.spaceCode) {
+		    spaceCode = this._sampleFormModel.sample.spaceCode;
+		} else if(this._sampleFormModel.sample.identifier) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier);
+		} else if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull);
+		}
 		this._sampleFormModel.sampleLinksChildren = new LinksController(childrenTitle,
 															requiredChildren,
 															isDisabled,
@@ -1171,7 +1179,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
 															annotations,
-															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull),
+															spaceCode,
 															function() {
                                                                 _this._sampleFormModel.isFormDirty = true;
                                                             });
@@ -1533,7 +1541,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
 
-		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
+		var spaceCode = null;
+		if(this._sampleFormModel.sample.spaceCode) {
+		    spaceCode = this._sampleFormModel.sample.spaceCode;
+		} else if(this._sampleFormModel.sample.identifier) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier);
+		} else if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull);
+		}
+
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, spaceCode);
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
 
