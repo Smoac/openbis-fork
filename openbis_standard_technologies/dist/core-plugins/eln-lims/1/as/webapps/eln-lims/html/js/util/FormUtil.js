@@ -102,7 +102,7 @@ var FormUtil = new function() {
         }
         return typeAnnotations;
 	}
-	
+
 	this.getAnnotationsFromField = function(field) {
 		var stateObj = {};
 		var stateFieldValue = Util.getEmptyIfNull(field);
@@ -158,27 +158,27 @@ var FormUtil = new function() {
 	//
 	// Standard Form Fields
 	//
-	
+
 	this.getDropDownToogleWithSelectedFeedback = function(prefixElement, labelWithEvents, isSelectedFeedback, clickCallback) {
 		var $dropDownToogle = $('<span>', { class : 'dropdown' });
 		if(prefixElement) {
 			$dropDownToogle.append(prefixElement);
 		}
 		$dropDownToogle.append($('<button>', { 'href' : '#', 'data-toggle' : 'dropdown', 'class' : 'dropdown-toggle btn btn-default'}).append($('<b>', { 'class' : 'caret' })));
-		
+
 		var $dropDownToogleOptions = $('<ul>', { class : 'dropdown-menu', 'role' : 'menu' });
 		$dropDownToogle.append($dropDownToogleOptions);
-		
+
 		for(var i = 0; i < labelWithEvents.length; i++) {
-			
+
 			var selectedFeedback = $('<span>', { 'id' : 'dropdown-' + labelWithEvents[i].id });
-			
+
 			if(isSelectedFeedback && i === 0) {
 				selectedFeedback.append("<span class='glyphicon glyphicon-ok'></span>");
 			}
-			
+
 			var $a = $('<a>', { class : '', 'title' : labelWithEvents[i].title }).append(selectedFeedback).append('&nbsp;').append(labelWithEvents[i].title);
-			
+
 			var clickFunction = function(labelWithEvents, selectedIndex, isSelectedFeedback) {
 				return function() {
 					if(isSelectedFeedback) {
@@ -189,21 +189,21 @@ var FormUtil = new function() {
 							}
 						}
 					}
-					
+
 					labelWithEvents[selectedIndex].href();
-					
+
 					if(clickCallback) {
 						clickCallback();
 					}
 				};
 			}
-			
+
 			$a.click(clickFunction(labelWithEvents, i, isSelectedFeedback));
 			$dropDownToogleOptions.append($('<li>', { 'role' : 'presentation' }).append($a));
-		}	
+		}
 		return $dropDownToogle;
 	}
-	
+
 	this.getDefaultBenchDropDown = function(id, isRequired, callbackFunction) {
 		this.getDefaultStoragesDropDown(id, isRequired, function($storageDropDown) {
 			if(!$storageDropDown) {
@@ -218,9 +218,9 @@ var FormUtil = new function() {
 			}
 			callbackFunction($storageDropDown);
 		});
-		
+
 	}
-	
+
 	this.getDefaultStorageBoxSizesDropDown = function(id, isRequired) {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
@@ -236,7 +236,7 @@ var FormUtil = new function() {
 		}
 		return $storageBoxesDropDown;
 	}
-	
+
 	this.getDefaultStoragesDropDown = function(spaceCode, id, isRequired, callbackFunction) {
 	    var spaceGroupPrefix = null;
 	    if(spaceCode !== null) {
@@ -246,13 +246,13 @@ var FormUtil = new function() {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;
 		}
-		
+
 		profile.getStoragesConfiguation(function(storageConfigurations) {
 			var $component = $("<select>", {"id" : id, class : 'form-control'});
 			if (isRequired) {
 				$component.attr('required', '');
 			}
-			
+
 			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select a Storage"));
 			for(var idx = 0; idx < storageConfigurations.length; idx++) {
 			    var storageConfiguration = storageConfigurations[idx];
@@ -276,11 +276,11 @@ var FormUtil = new function() {
 			Select2Manager.add($component);
 		});
 	}
-	
+
 	this.getBoxPositionsDropdown = function(id, isRequired, code) {
 		var numRows = null;
 		var numCols = null;
-		
+
 		if(code) {
 			var rowsAndCols = code.split("X");
 			numRows = parseInt(rowsAndCols[0]);
@@ -289,20 +289,20 @@ var FormUtil = new function() {
 			numRows = 0;
 			numCols = 0;
 		}
-		
+
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
-		
+
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
-		
+
 		for(var i = 1; i <= numRows; i++) {
 			var rowLetter = Util.getLetterForNumber(i);
 			for(var j = 1; j <= numCols; j++) {
 				$component.append($("<option>").attr('value',rowLetter+j).text(rowLetter+j));
 			}
-			
+
 		}
 		Select2Manager.add($component);
 		return $component;
@@ -372,12 +372,12 @@ var FormUtil = new function() {
 	        visibleObjectTypeCodesForSpace = SettingsManagerUtils.getVisibleObjectTypesForSpace(spaceCode, SettingsManagerUtils.ShowInSpaceSetting.showOnDropdowns);
 	    }
 		var sampleTypes = this.profile.getAllSampleTypes();
-		
+
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
-		
+
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
 		if (withEmptyOption) {
 		    $component.append($("<option>").attr('value', '').text('(empty)'));
@@ -385,30 +385,30 @@ var FormUtil = new function() {
 
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
-			
+
 			if(showOnly && ($.inArray(sampleType.code, showOnly) !== -1)) {
-				//Show 
+				//Show
 			} else if(showOnly) {
 				continue;
 			}
-			
+
 			if(showEvenIfHidden && ($.inArray(sampleType.code, showEvenIfHidden) !== -1)) {
 				// Show even if hidden
 			} else if (visibleObjectTypeCodesForSpace && !($.inArray(sampleType.code, visibleObjectTypeCodesForSpace) !== -1)) {
 				continue;
 			}
-			
+
 			var label = Util.getDisplayLabelFromCodeAndDescription(sampleType);
-			
+
 			$component.append($("<option>").attr('value',sampleType.code).text(label));
 		}
 		Select2Manager.add($component);
 		return $component;
 	}
-	
+
 	this.getExperimentTypeDropdown = function(id, isRequired, defaultValue) {
 		var experimentTypes = this.profile.allExperimentTypes;
-		
+
 		var $component = $("<select>", {"id" : id, class : "form-control"});
 		if (isRequired) {
 			$component.attr("required", "");
@@ -425,7 +425,7 @@ var FormUtil = new function() {
 			if(profile.isExperimentTypeHidden(experimentType.code)) {
 				continue;
 			}
-			
+
 			var label = Util.getDisplayNameFromCode(experimentType.code);
 			var description = Util.getEmptyIfNull(experimentType.description);
 			if(description !== "") {
@@ -447,15 +447,15 @@ var FormUtil = new function() {
 		$wrapper.append(this.getExperimentTypeDropdown(id, isRequired, defaultValue));
 		return $wrapper;
 	};
-	
+
 	this.getSpaceDropdown = function(id, isRequired) {
 		var spaces = this.profile.allSpaces;
-		
+
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
-		
+
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < spaces.length; i++) {
 			$component.append($("<option>").attr('value', spaces[i]).text(Util.getDisplayNameFromCode(spaces[i])));
@@ -463,7 +463,7 @@ var FormUtil = new function() {
 		Select2Manager.add($component);
 		return $component;
 	}
-	
+
 	this.getDropdown = function(mapVals, placeHolder) {
 		$dropdown = this.getPlainDropdown(mapVals, placeHolder);
 		Select2Manager.add($dropdown);
@@ -494,15 +494,15 @@ var FormUtil = new function() {
 		this.setValuesToComponent($component, mapVals);
 		return $component;
 	};
-	
+
 	this.getDataSetsDropDown = function(code, dataSetTypes) {
 		var $component = $("<select>", { class : 'form-control ' });
 		$component.attr('id', code);
-		
+
 		$component.attr('required', '');
-		
+
 		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select a dataset type'));
-		
+
 		for (var i = 0; i < dataSetTypes.length; i++) {
 			var datasetType = dataSetTypes[i];
 			var label = Util.getDisplayNameFromCode(datasetType.code);
@@ -510,13 +510,13 @@ var FormUtil = new function() {
 			if (description !== "") {
 				label += " (" + description + ")";
 			}
-			
+
 			$component.append($("<option>").attr('value',datasetType.code).text(label));
 		}
 		Select2Manager.add($component);
 		return $component;
 	}
-	
+
 	this.getOptionsRadioButtons = function(name, isFirstSelected, values, changeAction) {
 		var $component = $("<div>");
 		for(var vIdx = 0; vIdx < values.length; vIdx++) {
@@ -524,7 +524,7 @@ var FormUtil = new function() {
 				$component.append(" ");
 			}
 			var $radio = $("<input>", { type: "radio", name: name, value: values[vIdx]});
-			
+
 			if(isFirstSelected && (vIdx === 0)) {
 				$radio.attr("checked", "");
 			}
@@ -534,7 +534,7 @@ var FormUtil = new function() {
 		}
 		return $component;
 	}
-	
+
 	this.getProjectAndExperimentsDropdown = function(withProjects, withExperiments, isRequired, callbackForComponent) {
 		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
 			var spaces = dataWithSpacesAndProjects.result;
@@ -548,13 +548,13 @@ var FormUtil = new function() {
                     projectsToUse.push(project);
                 }
             }
-            
+
             mainController.serverFacade.listExperiments(projectsToUse, function(experiments) {
             	if(experiments.result) {
-            		
+
             		for (var k = 0; k < experiments.result.length; k++) {
                 		var experiment = experiments.result[k];
-                		
+
                 		for(var pIdx = 0; pIdx < projectsToUse.length; pIdx++) {
                     		var project = projectsToUse[pIdx];
                     		var projectIdentifier = IdentifierUtil.getProjectIdentifier(project.spaceCode, project.code);
@@ -611,7 +611,7 @@ var FormUtil = new function() {
             });
 		});
 	}
-	
+
 	this.getDeleteButton = function(deleteFunction, includeReason, warningText) {
 		var $deleteBtn = $("<a>", { 'class' : 'btn btn-default ' });
 		$deleteBtn.append($("<span>", { 'class' : 'glyphicon glyphicon-trash', 'style' : 'width:16px; height:16px;'}));
@@ -621,7 +621,7 @@ var FormUtil = new function() {
 		});
 		return $deleteBtn;
 	}
-	
+
 	this.getButtonWithImage = function(src, clickEvent, text, tooltip) {
 		var $btn = $("<a>", { 'class' : 'btn btn-default' });
 		$btn.append($("<img>", { 'src' : src, 'style' : 'width:16px; height:16px;'}));
@@ -635,7 +635,7 @@ var FormUtil = new function() {
 		}
 		return $btn;
 	}
-	
+
 	this.getButtonWithText = function(text, clickEvent, btnClass, id) {
 		var auxBtnClass = "btn-default";
 		if(btnClass) {
@@ -649,17 +649,21 @@ var FormUtil = new function() {
 		$pinBtn.click(clickEvent);
 		return $pinBtn;
 	}
-	
+
 	this.getFormAwesomeIcon = function(iconClass) {
 		return $("<i>", { 'class' : 'fa ' + iconClass });
 	}
-	
-    this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id) {
+
+    this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id, customClass) {
         var $btn = null;
+        var buttonClass = 'btn btn-default';
+        if(customClass) {
+            buttonClass = customClass;
+        }
         if(iconClass) {
-            $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+            $btn = $("<a>", { 'class' : buttonClass }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
         } else {
-            $btn = $("<a>", { 'class' : 'btn btn-default' });
+            $btn = $("<a>", { 'class' : buttonClass });
         }
         if(text && iconClass) {
             $btn.append("&nbsp;");
@@ -703,7 +707,7 @@ var FormUtil = new function() {
 			$elementToHide.slideToggle();
 
 			var $thisButton = $($(this).children()[0]);
-			
+
 			if($thisButton.hasClass("glyphicon-chevron-right")) {
 				$thisButton.removeClass("glyphicon-chevron-right");
 				$thisButton.addClass("glyphicon-chevron-down");
@@ -713,9 +717,9 @@ var FormUtil = new function() {
 				$thisButton.addClass("glyphicon-chevron-right");
 				mainController.serverFacade.setSetting(key,"false");
 			}
-			
-		}, null, "Show/Hide section", key);
-		
+
+		}, null, "Show/Hide section", key, 'btn');
+
 		if (dontRestoreState) {
 			$elementToHide.hide();
 		} else {
@@ -731,13 +735,13 @@ var FormUtil = new function() {
 				}
 			});
 		}
-		
+
 		$showHideButton.addClass("btn-showhide");
 		$showHideButton.css({ "border" : "none", "margin-bottom" : "4px", "margin-left" : "-11px" });
 
 		return $showHideButton;
 	}
-	
+
 	this.getHierarchyButton = function(permId) {
 		var $hierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
 									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))
@@ -747,47 +751,47 @@ var FormUtil = new function() {
 		});
 		return $hierarchyButton;
 	}
-	
+
 	//
 	// Get Field with container to obtain a correct layout
 	//
 	this.getFieldForComponentWithLabel = function($component, label, postComponent, isInline, $info) {
 		var $fieldset = $('<div>');
-		
+
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		var requiredText = '';
 		if($component.attr('required')) {
 			requiredText = " (*)"
 		}
-		
+
 		var labelText = "";
 		if(label) {
             labelText = label + requiredText;
         }
         var $controlLabel = this.createLabel(labelText, $info);
-		
+
 		var controlColumnClass = ""
 		if(!isInline) {
 			controlColumnClass = this.controlColumnClass;
 		}
 		var $controls = $('<div>', { class : 'controls' });
-		
+
 		if(label) {
 			$controlGroup.append($controlLabel);
 		}
-		
+
 		if(isInline) {
 			$controlGroup.append($component);
 		} else {
 			$controls.append($component);
 			$controlGroup.append($controls);
 		}
-		
+
 		if(postComponent) {
 			$controlGroup.append(postComponent);
 		}
 		$fieldset.append($controlGroup);
-		
+
 		if(isInline) {
 			return $controlGroup;
 		} else {
@@ -797,7 +801,7 @@ var FormUtil = new function() {
 
     this.createLabel = function(label, $info) {
         var $controlLabel = $('<label>', {class : 'control-label' });
-        
+
         if(label) {
             if ($info) {
                 var $line = $("<div>");
@@ -823,11 +827,27 @@ var FormUtil = new function() {
 	    var isLink = propertyType.dataType === "HYPERLINK";
 	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
-			if(propertyType.vocabulary.urlTemplate) {
-			    hyperlinkLabel = propertyValue;
-			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
-			    isLink = true;
+		    if(propertyValue && propertyValue.includes(',')) {
+		        //multivalue vocabulary property case
+		        var values = propertyValue.split(',');
+		        var result = [];
+		        for(let value of values) {
+		            var singleValue = this.getVocabularyLabelForTermCode(propertyType, value.trim());
+                    if(propertyType.vocabulary.urlTemplate) {
+                        hyperlinkLabel = singleValue;
+                        singleValue = propertyType.vocabulary.urlTemplate.replace('${term}', singleValue);
+                        isLink = true;
+                    }
+                    result.push(singleValue);
+		        }
+		        propertyValue = result.join(', ');
+		    } else {
+                propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
+                if(propertyType.vocabulary.urlTemplate) {
+                    hyperlinkLabel = propertyValue;
+                    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
+                    isLink = true;
+                }
 			}
 		} else if (propertyType.dataType === "INTEGER" || propertyType.dataType === "REAL") {
 		    var numberFormat = new Intl.NumberFormat('en-US', { notation : "standard",
@@ -839,32 +859,32 @@ var FormUtil = new function() {
 		}
         return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel, $info);
 	}
-	
+
 	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
 		return this._createField(false, label, text, id, postComponent, cssForText);
 	}
-	
+
     this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel, $info) {
 		var $fieldset = $('<div>');
-		
+
 		var $controlGroup = $('<div>', {class : 'form-group'});
-		
+
         var $controlLabel = this.createLabel(label, $info);
-		
+
 		var $controls = $('<div>', {class : 'controls' });
-		
+
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
 		if(postComponent) {
 			$controlGroup.append(postComponent);
 		}
 		$fieldset.append($controlGroup);
-		
+
 		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word;'}); //white-space: pre-wrap;
 		if(cssForText) {
 			$component.css(cssForText);
 		}
-		
+
 		if(text) {
 		    if(typeof(text) != 'string') { // Array case
                 text = text.join(", ");
@@ -888,15 +908,15 @@ var FormUtil = new function() {
 		        $component.text(text);
 		    }
 		}
-		
+
 		if(id) {
 			$component.attr('id', this.prepareId(id));
 		}
 		$controls.append($component);
-		
+
 		return $fieldset;
 	}
-	
+
 	this.asHyperlink = function(text, label) {
 		return $("<a>", { "href" : text, "target" : "_blank"}).append((label ? label : text));
 	}
@@ -934,7 +954,7 @@ var FormUtil = new function() {
 	this.getFieldForPropertyType = function(propertyType, timestampValue) {
 	    return this.getFieldForPropertyType(propertyType, timestampValue, false);
 	}
-	
+
 	this.getFieldForPropertyType = function(propertyType, timestampValue, isMultiValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
@@ -975,10 +995,10 @@ var FormUtil = new function() {
 		    }
 		    $component = new SampleField(propertyType.mandatory, "Select " + ELNDictionary.Sample + sampleTypePlaceholder, sampleTypeCode, undefined, undefined, isMultiValue);
 		}
-		
+
 		return $component;
 	}
-	
+
 	//
 	// Read/Write Fields
 	//
@@ -1020,7 +1040,7 @@ var FormUtil = new function() {
 		}
 		return propertyTypeValue;
 	}
-	
+
 	//
 	// Form Fields
 	//
@@ -1053,7 +1073,7 @@ var FormUtil = new function() {
 
         return $container;
 	}
-	
+
 	this.getDropDownForTerms = function(id, terms, alt, isRequired) {
 		return this._getDropDownFieldForVocabulary(id, terms, alt, isRequired);
 	}
@@ -1061,14 +1081,14 @@ var FormUtil = new function() {
 	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
 	    return this._getDropDownFieldForVocabulary(code, terms, alt, isRequired, false);
 	}
-	
+
 	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired, isMultiValue) {
 	    var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
 	    if(isMultiValue) {
 	        $component.attr('multiple', 'multiple');
 	    }
 		$component.attr('id', this.prepareId(code));
-		
+
 		if (isRequired) {
 			$component.attr('required', '');
 		}
@@ -1088,19 +1108,19 @@ var FormUtil = new function() {
 		Select2Manager.add($component);
 		return $component;
 	}
-	
+
 	this.getTextInputField = function(id, alt, isRequired) {
 		return this._getInputField('text', id, alt, null, isRequired);
 	}
-	
+
 	this.getRealInputField = function(id, alt, isRequired) {
 		return this._getInputField('text', id, alt, 0.01, isRequired);
 	}
-	
+
 	this.getIntegerInputField = function(id, alt, isRequired) {
 		return this._getInputField('text', id, alt, 1, isRequired);
 	}
-	
+
 	this._getNumberInputField = function(id, alt, step, isRequired)
 	{
 		var $component = this._getInputField("number", id, alt, step, isRequired);
@@ -1117,7 +1137,7 @@ var FormUtil = new function() {
 		$component.blur(validator);
 		return $component;
 	}
-	
+
 	this._getInputField = function(type, id, alt, step, isRequired) {
 		var $component = $('<input>', {'type' : type, 'id' : this.prepareId(id), 'alt' : alt, 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
@@ -1128,7 +1148,7 @@ var FormUtil = new function() {
 		}
 		return $component;
 	}
-	
+
     this._getTextBox = function(id, alt, isRequired) {
 		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;', 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
@@ -1436,7 +1456,7 @@ var FormUtil = new function() {
 		}
 		return $component;
 	}
-	
+
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
 	    if(entity) {
             var originalValue = entity.properties[propertyType.code];
@@ -1445,7 +1465,7 @@ var FormUtil = new function() {
             }
 		}
 	}
-	
+
 	this.sanitizeRichHTMLText = function(originalValue) {
 		if (typeof originalValue === "string") {
 			//Take envelope out if pressent
@@ -1472,20 +1492,20 @@ var FormUtil = new function() {
 				otherTypes.push(type);
 			}
 		}
-		
+
 		var dropdownModel = [];
 		this._populateDropdownModel(dropdownModel, priorityTypes, actionFactory);
 		if (priorityTypes.length > 0 && otherTypes.length > 0) {
 			dropdownModel.push({ separator : true });
 		}
 		this._populateDropdownModel(dropdownModel, otherTypes, actionFactory);
-		
+
 		var newWithIcon = $('<span>')
 			.append($('<span>', {'class' : 'glyphicon glyphicon-plus' }))
 			.append('&nbsp;New&nbsp;');
 		FormUtil.addOptionsToToolbar(toolbarModel, dropdownModel, [], null, newWithIcon);
 	}
-	
+
 	this._populateDropdownModel = function(dropdownModel, types, actionFactory) {
 		types.forEach(function (type) {
 			dropdownModel.push({
@@ -1579,10 +1599,10 @@ var FormUtil = new function() {
 			}
 		});
 	}
-	
+
 	this.getToolbar = function(toolbarModel) {
 		var $toolbarContainer = $("<span>", { class : 'toolBox' });
-		
+
 		for(var tbIdx = 0; tbIdx < toolbarModel.length; tbIdx++) {
 			var $toolbarComponent = toolbarModel[tbIdx].component;
 			var toolbarComponentTooltip = toolbarModel[tbIdx].tooltip;
@@ -1598,17 +1618,17 @@ var FormUtil = new function() {
 			$toolbarContainer.append($toolbarComponent);
 			$toolbarContainer.append("&nbsp;");
 		}
-		
+
 		return $toolbarContainer;
 	}
-	
+
 	this.getOperationsMenu = function(items) {
 		var $dropDownMenu = $("<span>", { class : 'dropdown' });
 		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("More ... ").append($("<b>", { class : 'caret' }));
 		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
-		
+
 		for(var iIdx = 0; iIdx < items.length; iIdx++) {
 			var item = items[iIdx];
 			var $item = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : item.label}).append(item.label));
@@ -1617,7 +1637,7 @@ var FormUtil = new function() {
 		}
 		return $dropDownMenu;
 	}
-	
+
 	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier, paginationInfo, id) {
 		if(permIdOrIdentifier === null || permIdOrIdentifier === undefined || permIdOrIdentifier.trim().length === 0){
             return;
@@ -1644,7 +1664,7 @@ var FormUtil = new function() {
 				view = "showViewDataSetPageFromPermId";
 				break;
 		}
-		
+
 		var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), view, permIdOrIdentifier);
 		var click = function() {
 			var arg = null;
@@ -1665,7 +1685,7 @@ var FormUtil = new function() {
 		link.click(click);
 		return link;
 	}
-	
+
 	this.getFormPath = function(spaceCode, projectCode, experimentCode, containerSampleCode, containerSampleIdentifierOrPermId, sampleCode, sampleIdentifierOrPermId, datasetCodeAndPermId) {
 		var entityPath = $("<span>");
 		if(spaceCode) {
@@ -1691,15 +1711,15 @@ var FormUtil = new function() {
 		}
 		return entityPath;
 	}
-	
+
 	this.getBox = function() {
 		var $box = $("<div>", { style : "background-color:#f8f8f8; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
 		return $box;
 	}
-	
+
 	this.getInfoBox = function(title, lines) {
 		var $infoBox = this.getBox();
-		
+
 		$infoBox.append($("<span>", { class : 'glyphicon glyphicon-info-sign' })).append(" " + title);
 		for(var lIdx = 0; lIdx < lines.length; lIdx++) {
 			$infoBox.append($("<br>"));
@@ -1707,12 +1727,12 @@ var FormUtil = new function() {
 		}
 		return $infoBox;
 	}
-	
+
 	this.isInteger = function(str) {
     	var n = ~~Number(str);
     	return String(n) === str;
 	}
-	
+
 	this.isNumber = function(str) {
     	return !isNaN(str);
 	}
@@ -1762,7 +1782,7 @@ var FormUtil = new function() {
 								.append("The eln-lims dropbox requires a root folder with a specific name. This name contains information on where the data should be uploaded.").append("<br>")
 								.append("1. Generate the name of the root folder with this helper tool using the form below.").append("<br>")
 								.append("2. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
-								
+
 
 			// dataset type dropdown
 			var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetTypes);
@@ -1786,7 +1806,7 @@ var FormUtil = new function() {
 				ownerHint += ELNDictionary.ExperimentELN;
 			}
 			ownerHint += " " + nameElements[nameElements.length-1];
-			
+
 			// dropbox folder name ouput
 			var $dropboxFolderName = $("<input>", {
 				class : "form-control",
@@ -1835,7 +1855,7 @@ var FormUtil = new function() {
 					$nameInput.attr("disabled", "true");
 				} else {
 					var name = $nameInput.val();
-					$nameInput.removeAttr("disabled");					
+					$nameInput.removeAttr("disabled");
 				}
 				var folderName = this._getDropboxFolderName(nameElements, dataSetTypeCode, name);
 				$dropboxFolderName.val(folderName);
@@ -1871,7 +1891,7 @@ var FormUtil = new function() {
 
 		for (var optionalPart of [dataSetTypeCode, name]) {
 			if (optionalPart) {
-				folderName += "+" + optionalPart;				
+				folderName += "+" + optionalPart;
 			}
 		}
 		return folderName;
@@ -1954,7 +1974,7 @@ var FormUtil = new function() {
                 });
             });
         });
-        $("#dataSetTypeDropdownCancel").on("click", function(event) { 
+        $("#dataSetTypeDropdownCancel").on("click", function(event) {
             Util.unblockUI();
         });
     }
@@ -1968,7 +1988,7 @@ var FormUtil = new function() {
 
     this.getCurrentDate = function() {
         var date = new Date();
-        return date.getFullYear() + "-" + this.renderWithleadingZeros(date.getMonth() + 1, 2) + "-" 
+        return date.getFullYear() + "-" + this.renderWithleadingZeros(date.getMonth() + 1, 2) + "-"
                 + this.renderWithleadingZeros(date.getDate(), 2);
     }
 
@@ -2085,7 +2105,7 @@ var FormUtil = new function() {
 			}
 		});
 	}
-	
+
 	this.getPermId = function(entity) {
 		var permId = null;
 		if(entity["@type"].startsWith("as.dto")) { //v3
@@ -2095,7 +2115,7 @@ var FormUtil = new function() {
 		}
 		return permId;
 	}
-	
+
 	this.getType = function(entity) {
 		var type = null;
 		if(entity["@type"].startsWith("as.dto")) { //v3
@@ -2272,15 +2292,15 @@ var FormUtil = new function() {
     }
 
 	this.getExportButton = function(exportConfig, metadataOnly, includeRoot) {
-			return FormUtil.getButtonWithIcon("glyphicon-export", 
+			return FormUtil.getButtonWithIcon("glyphicon-export",
 					this.getExportAction(exportConfig, metadataOnly, includeRoot),
 					metadataOnly ? "Export Metadata only" : "Export Metadata & Data");
 	};
-	
+
 	this.getFreezeButton = function(entityType, permId, isEntityFrozen) {
 		var _this = this;
 		var $freezeButton = FormUtil.getButtonWithIcon("glyphicon-lock");
-		
+
 		if(isEntityFrozen) {
 			$freezeButton.attr("disabled", "disabled");
 			$freezeButton.append("Frozen");
@@ -2289,7 +2309,7 @@ var FormUtil = new function() {
 				_this.showFreezeForm(entityType, permId);
 			});
 		}
-		
+
 		return $freezeButton;
 	}
 
@@ -2318,7 +2338,29 @@ var FormUtil = new function() {
 	    repeatUntilSet();
     }
 
-	this.createNewSample = function(experimentIdentifier) {
+    this.createNewCollection = function(projectIdentifier) {
+        var _this = this;
+        var $dropdown = FormUtil.getInlineExperimentTypeDropdown("collectionTypeDropdown", true, null);
+        Util.showDropdownAndBlockUI("collectionTypeDropdown", $dropdown);
+
+        $("#collectionTypeDropdown").on("change", function(event) {
+            var experimentTypeCode = $("#collectionTypeDropdown")[0].value;
+            Util.blockUI();
+            setTimeout(function() {
+                var argsMap = {
+                    "experimentTypeCode" : experimentTypeCode,
+                    "projectIdentifier" : projectIdentifier
+                };
+                mainController.changeView("showCreateExperimentPage", JSON.stringify(argsMap));
+            }, 100);
+        });
+
+        $("#collectionTypeDropdownCancel").on("click", function(event) {
+            Util.unblockUI();
+        });
+    }
+
+	this.createNewSample = function(experimentIdentifier, optionalParentSample) {
     		var _this = this;
     		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
     		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
@@ -2332,6 +2374,23 @@ var FormUtil = new function() {
                         "experimentIdentifier" : experimentIdentifier
                     };
                     mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+
+                    if(optionalParentSample) {
+                        var setParent = function() {
+                            mainController.currentView._sampleFormModel.sampleLinksParents.addSample(optionalParentSample);
+                            Util.unblockUI();
+                        }
+
+                        var repeatUntilSet = function() {
+                           if(mainController.currentView.isLoaded()) {
+                               setParent();
+                           } else {
+                               setTimeout(repeatUntilSet, 100);
+                           }
+                        }
+                       repeatUntilSet();
+                    }
+
                 }, 100);
     		});
 
@@ -2342,33 +2401,33 @@ var FormUtil = new function() {
 
 	this.showFreezeForm = function(entityType, permId) {
 		var _this = this;
-		
+
 		Util.blockUI();
-		
+
 		var parameters = {
 				"method" : "freezelist",
 				"sessionToken" : mainController.serverFacade.openbisServer.getSession(),
 				"entityType" : entityType,
 				"permId" : permId
 		}
-		
+
 		mainController.serverFacade.customASService(parameters, function(result) {
 			if(result.status === "OK") {
 				Util.unblockUI();
-				
+
 				var $window = $('<form>', {
 					'action' : 'javascript:void(0);'
 				});
-				
+
 				$window.append($('<legend>').append("Freeze Entity"));
-				
+
 				//
 				// List
 				//
 				$window.append($("<p>")
 						.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 						.append(" Choose the entities to freeze (all by default):"));
-				
+
 				var $table = $("<table>", { class : "popup-table" } )
 								.append($("<tr>")
 										.append($("<th>").append("Selected"))
@@ -2376,10 +2435,10 @@ var FormUtil = new function() {
 										.append($("<th>").append("PermId"))
 										.append($("<th>").append("Name"))
 								);
-					
+
 				entityTypeOrder = ["Space", "Project", "Experiment", "Sample", "DataSet"];
 				entityMap = result.result;
-				
+
 				var getTypeDisplayName = function(type) {
 					if(type === "Sample") {
 						return ELNDictionary.Sample;
@@ -2389,7 +2448,7 @@ var FormUtil = new function() {
 						return type;
 					}
 				}
-				
+
 				for(var typeOrder = 0 ; typeOrder < entityTypeOrder.length ; typeOrder++) {
 					for (key in entityMap) {
 						entity = entityMap[key];
@@ -2403,9 +2462,9 @@ var FormUtil = new function() {
 						}
 					}
 				}
-				
+
 				$window.append($table);
-				
+
 				//
 				// Warning
 				//
@@ -2416,14 +2475,14 @@ var FormUtil = new function() {
 				$window.append($("<p>")
 						.append($("<span>", { class: "glyphicon glyphicon-warning-sign" }))
 						.append($("<span>", { style : "color:red; font-size: large;" }).append(" This operation is irreversible!")));
-				
+
 				//
 				// Password
 				//
 				var $passField = FormUtil._getInputField('password', null, 'Password', null, true);
 				var $passwordGroup = FormUtil.getFieldForComponentWithLabel($passField, "Password", null);
 				$window.append($passwordGroup);
-				
+
 				//
 				// Buttons
 				//
@@ -2433,31 +2492,31 @@ var FormUtil = new function() {
 				$btnCancel.click(function() {
 					Util.unblockUI();
 				});
-				
+
 				$window.append($('<br>'));
-				
+
 				$window.append($btnAccept).append('&nbsp;').append($btnCancel);
-				
+
 				$window.submit(function() {
 					if (_this._atLeastOnyEntitySelectedHasBeenSelectedForFreezing(entityMap)) {
 						var username = mainController.serverFacade.getUserId();
-						var password = $passField.val();					
+						var password = $passField.val();
 						new openbis().login(
-								username, 
-								password, 
-								function(data) { 
+								username,
+								password,
+								function(data) {
 									if(data.result == null) {
 										Util.showUserError('The given password is not correct.');
 									} else {
 										var sessionToken = data.result;
-										
-										
+
+
 										for (key in entityMap) {
 											if(!$('#' + _this._createFormFieldId(key))[0].checked) {
 												delete entityMap[key];
 											}
 										}
-										
+
 										var parameters = {
 												"method" : "freeze",
 												"sessionToken" : sessionToken,
@@ -2500,7 +2559,7 @@ var FormUtil = new function() {
 						});
 					}
 				});
-					
+
 				var css = {
 						'text-align' : 'left',
 						'top' : '15%',
@@ -2510,7 +2569,7 @@ var FormUtil = new function() {
 						'right' : '20%',
 						'overflow' : 'auto'
 				};
-				
+
 				Util.blockUI($window, css);
 			} else {
 				Util.showUserError('List of entities for freezing failed to .', function() {
@@ -2519,7 +2578,7 @@ var FormUtil = new function() {
 			}
 		}, "freeze-api", _this.showFreezingError);
 	}
-	
+
 	this._atLeastOnyEntitySelectedHasBeenSelectedForFreezing = function(entityMap) {
 		for (key in entityMap) {
 			if ($('#' + this._createFormFieldId(key))[0].checked) {
@@ -2528,11 +2587,11 @@ var FormUtil = new function() {
 		}
 		return false;
 	}
-	
+
 	this._createFormFieldId = function(key) {
 		return 'freezing-form-' + key.replace("+", "-").replace(/\./g, "-");
 	}
-	
+
 	this.showFreezingError = function(error) {
 		Util.showError(error.message);
 	}
@@ -2768,7 +2827,7 @@ var FormUtil = new function() {
         entities.forEach(function(entity){
             var entityKind = entity.entityKind.toUpperCase()
             var entityType = entity.entityType.toUpperCase()
-            
+
             var entityTypePropertiesKey = entityKind + "-" + entityType
             var entityTypeProperties = entityTypePropertiesMap[entityTypePropertiesKey]
 

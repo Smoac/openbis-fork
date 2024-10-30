@@ -58,15 +58,11 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode === FormMode.VIEW) {
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
-				var experimentTypes = mainController.profile.getExperimentTypes();
-				FormUtil.addCreationDropdown(toolbarModel, experimentTypes, ["DEFAULT_EXPERIMENT", "COLLECTION"], function(typeCode) {
-					return function() {
-						Util.blockUI();
-						setTimeout(function() {
-							_this._projectFormController.createNewExperiment(typeCode);
-						}, 100);
-					}
-				});
+                var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function () {
+                    Util.blockUI();
+                    FormUtil.createNewCollection(IdentifierUtil.getProjectIdentifier(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code));
+                }, "New", null, "new-btn");
+                toolbarModel.push({ component : $createBtn });
 			}
 			if (_this._allowedToMove()) {
                 //Move

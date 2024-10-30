@@ -131,7 +131,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             }
         })
         searchElement.css({ display: "inline" })
-        searchElement.css({ "padding-top": "2px" })
         searchElement.css({ "margin-left": "2px" })
         searchElement.css({ "margin-right": "2px" })
 

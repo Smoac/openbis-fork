@@ -246,7 +246,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			_this._advancedSearchController.search();
 		}, null, null, "search-btn");
 
-		$submitButton.css("margin-top", "22px");
+		$submitButton.css("margin-bottom", "-24px");
 		var $submitButtonGroup = FormUtil.getFieldForComponentWithLabel($submitButton, "", null, true);
 
 		$submitButtonGroup.css("margin-left", "0px");
