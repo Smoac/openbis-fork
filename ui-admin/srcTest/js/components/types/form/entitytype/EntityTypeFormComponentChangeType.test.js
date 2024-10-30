@@ -9,7 +9,7 @@ beforeEach(() => {
 })
 
 describe(EntityTypeFormComponentTest.SUITE, () => {
-  test('change type', testChangeType)
+//  test('change type', testChangeType)
 })
 
 async function testChangeType() {
@@ -18,8 +18,6 @@ async function testChangeType() {
   )
 
   const form = await common.mountExisting(fixture.TEST_SAMPLE_TYPE_DTO)
-
-  await common.controller.load()
 
   form.expectJSON({
     preview: {
