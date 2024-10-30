@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2019 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
 
 public class SQLLexemes
@@ -139,6 +138,8 @@ public class SQLLexemes
 
     public static final String NULL = "NULL";
 
+    public static final String NULLIF = "NULLIF";
+
     public static final String NULLS_LAST = "NULLS LAST";
 
     public static final String TRUE = Boolean.TRUE.toString();
@@ -176,6 +177,8 @@ public class SQLLexemes
     public static final String DOUBLE_COLON = "::";
 
     public static final String EQ = "=";
+
+    public static final String NE = "!=";
 
     public static final String GT = ">";
 
@@ -218,6 +221,7 @@ public class SQLLexemes
     public static final String PLUS = "+";
 
     public static final String MINUS = "-";
+
     public static final String SELECT_UNNEST = LP + SELECT + SP + UNNEST + LP + QU + RP + RP;
 
     private SQLLexemes()
