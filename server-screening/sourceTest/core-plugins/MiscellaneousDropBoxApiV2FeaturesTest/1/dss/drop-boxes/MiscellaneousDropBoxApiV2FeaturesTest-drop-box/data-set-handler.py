@@ -12,7 +12,7 @@ EXPERIMENT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(EXPERIMENT_CODE)s" % vars()
 
 PLATE_CODE = "PLATE137"
 PLATE_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(PLATE_CODE)s" % vars()
-PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
+PLATE_GEOMETRY_PROPERTY_CODE = "PLATE_GEOMETRY"
 
 def create_space_if_needed(transaction):
     space = transaction.getSpace(SPACE_CODE)

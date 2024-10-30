@@ -1,6 +1,6 @@
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v2 import SimpleFeatureVectorDataConfig 
 
-PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
+PLATE_GEOMETRY_PROPERTY_CODE = "PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
 def create_experiment(tr):
