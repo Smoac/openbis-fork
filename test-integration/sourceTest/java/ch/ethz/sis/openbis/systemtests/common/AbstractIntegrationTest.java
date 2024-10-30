@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -401,19 +402,17 @@ public abstract class AbstractIntegrationTest
 
                     Map<String, String> parameters = new HashMap<>();
 
-                    if (HttpMethod.GET.is(proxyRequest.getMethod()))
+                    Iterator<String> parametersInQueryStringIterator = proxyRequest.getParameterNames().asIterator();
+                    while (parametersInQueryStringIterator.hasNext())
                     {
-                        Iterator<String> iterator = proxyRequest.getParameterNames().asIterator();
-                        while (iterator.hasNext())
-                        {
-                            String name = iterator.next();
-                            parameters.put(name, proxyRequest.getParameter(name));
-                        }
-                    } else if (HttpMethod.POST.is(proxyRequest.getMethod()))
-                    {
-                        String parametersString = IOUtils.toString(proxyRequest.getInputStream());
-                        parameters = parseUrlQuery(parametersString);
+                        String name = parametersInQueryStringIterator.next();
+                        parameters.put(name, proxyRequest.getParameter(name));
                     }
+
+                    String parametersInBodyString = IOUtils.toString(proxyRequest.getInputStream());
+                    Map<String, String> parametersInBody = parseUrlQuery(parametersInBodyString);
+
+                    parameters.putAll(parametersInBody);
 
                     System.out.println(
                             "[AFS PROXY] url: " + proxyRequest.getRequestURL() + ", method: " + parameters.get("method") + ", parameters: "
@@ -725,16 +724,22 @@ public abstract class AbstractIntegrationTest
 
     private static Map<String, String> parseUrlQuery(String url) throws Exception
     {
-        Map<String, String> parameters = new HashMap<>();
-        String[] namesAndValues = url.split("&");
-        for (String nameAndValue : namesAndValues)
+        try
         {
-            int index = nameAndValue.indexOf("=");
-            String name = nameAndValue.substring(0, index);
-            String value = nameAndValue.substring(index + 1);
-            parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
+            Map<String, String> parameters = new HashMap<>();
+            String[] namesAndValues = url.split("&");
+            for (String nameAndValue : namesAndValues)
+            {
+                int index = nameAndValue.indexOf("=");
+                String name = nameAndValue.substring(0, index);
+                String value = nameAndValue.substring(index + 1);
+                parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
+            }
+            return parameters;
+        } catch (Exception e)
+        {
+            return Collections.emptyMap();
         }
-        return parameters;
     }
 
 }
