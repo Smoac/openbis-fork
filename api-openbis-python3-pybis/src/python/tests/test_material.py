@@ -68,7 +68,7 @@ def test_material_array_properties_disabled(openbis_instance):
     )
     material_type.save()
 
-    material_type.assign_property('$NAME')
+    material_type.assign_property('NAME')
 
     try:
         material_type.assign_property('MATERIAL_ARRAY_INTEGER')
