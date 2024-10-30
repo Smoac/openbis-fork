@@ -258,9 +258,10 @@ exports.default = new Promise((resolve) => {
                     // write in chunks
                     var index = 0
                     while (index < binaryFileAsBuffer.byteLength) {
-                        var chunkString = arrayBufferToString(binaryFileAsBuffer, index, Math.min(index + chunkSize, binaryFileAsBuffer.byteLength))
-                        await facade.getAfsServerFacade().write(ownerPermId, testFile, index, chunkString)
-                        index += chunkSize
+                       var chunk = binaryFileAsBuffer.slice(index, Math.min(index + chunkSize, binaryFileAsBuffer.byteLength));
+                       let uint8Chunk = new Uint8Array(chunk)
+                       await facade.getAfsServerFacade().write(ownerPermId, testFile, index, uint8Chunk)
+                       index += chunkSize;
                     }
 
                     if (useTransaction) {
@@ -271,11 +272,13 @@ exports.default = new Promise((resolve) => {
                     var index = 0
                     var readFileBuffers = []
                     while (index < binaryFileAsBuffer.byteLength) {
-                        var chunkBlob = await facade
-                            .getAfsServerFacade()
-                            .read(ownerPermId, testFile, index, Math.min(chunkSize, binaryFileAsBuffer.byteLength - index))
-                        readFileBuffers.push(await chunkBlob.arrayBuffer())
-                        index += chunkSize
+                       var chunkBlob = await facade
+                               .getAfsServerFacade()
+                               .read(ownerPermId, testFile, index, Math.min(chunkSize, binaryFileAsBuffer.byteLength - index));
+
+                       let chunkBuffer = await chunkBlob.arrayBuffer();
+                       readFileBuffers.push(new Uint8Array(chunkBuffer));  // Store the binary data directly
+                       index += chunkSize;
                     }
 
                     var readFileAsBuffer = await new Blob(readFileBuffers).arrayBuffer()

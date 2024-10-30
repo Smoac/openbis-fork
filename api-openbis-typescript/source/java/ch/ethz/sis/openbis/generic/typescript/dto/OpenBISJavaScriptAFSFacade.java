@@ -27,7 +27,7 @@ public class OpenBISJavaScriptAFSFacade
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean write(final String owner, final String source, final long offset, final String data)
+    public boolean write(final String owner, final String source, final long offset, final Object data)
     {
         return false;
     }
