@@ -122,7 +122,7 @@ $ docker run --detach \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
   -e OPENBIS_FQDN="openbis.domain" \
-  openbis/openbis-app:20.10.7;
+  openbis/openbis-app:latest;
 ```
 
 The state of the running application container can be inspected by fetching the container logs:
