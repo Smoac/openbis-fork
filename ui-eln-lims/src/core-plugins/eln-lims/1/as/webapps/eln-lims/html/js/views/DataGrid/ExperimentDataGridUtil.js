@@ -23,7 +23,7 @@ var ExperimentDataGridUtil = new function() {
 		});
         columns.push({
             label : 'Name',
-            property : '$NAME',
+            property : 'NAME',
             exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("NAME"),
             sortable : true,
             render : function(data) {

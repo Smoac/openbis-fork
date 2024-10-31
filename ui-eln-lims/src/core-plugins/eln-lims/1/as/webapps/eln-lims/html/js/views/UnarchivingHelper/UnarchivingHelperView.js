@@ -84,7 +84,7 @@ function UnarchivingHelperView(unarchivingHelperController, unarchivingHelperMod
 		searchView.resultsTitle = null;
 		searchView.configKeyPrefix += "UNARCHIVING_HELPER_";
 		searchView.suppressedColumns = ['entityKind', 'identifier'];
-		searchView.hideByDefaultColumns = ['$NAME', 'bundle', 'registrator', 'modificationDate', 'modifier'];
+		searchView.hideByDefaultColumns = ['NAME', 'bundle', 'registrator', 'modificationDate', 'modifier'];
 		searchView.firstColumns = [{
 			label : "Should be unarchived",
 			property : "unarchive",

@@ -50,7 +50,7 @@ var SampleDataGridUtil = new function() {
 
 		columnsFirst.push({
 			label : 'Name',
-			property : '$NAME',
+			property : 'NAME',
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("NAME"),
 			filterable: true,
 			sortable : true,

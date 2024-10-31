@@ -47,7 +47,7 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
         searchView.resultsTitle = null;
         searchView.configKeyPrefix += "ARCHIVING_HELPER_";
 //        searchView.suppressedColumns = ['entityKind', 'identifier'];
-        searchView.hideByDefaultColumns = ['$NAME', 'registrator', 'modificationDate', 'modifier'];
+        searchView.hideByDefaultColumns = ['NAME', 'registrator', 'modificationDate', 'modifier'];
         searchView.firstColumns = [{
             label : "Should be archived",
             property : "archive",

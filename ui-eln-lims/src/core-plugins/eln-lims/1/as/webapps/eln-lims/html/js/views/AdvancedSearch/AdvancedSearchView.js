@@ -992,7 +992,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				}
 			}, {
                 label : 'Name',
-                property : '$NAME',
+                property : 'NAME',
                 exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("NAME"),
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
