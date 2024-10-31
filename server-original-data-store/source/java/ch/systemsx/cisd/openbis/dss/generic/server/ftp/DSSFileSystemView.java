@@ -15,7 +15,6 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
-import java.lang.ref.Cleaner;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.Key;
 
 /**
  * A central class that manages the movement of a user up and down the exposed hierarchical structure.
- * 
+ *
  * @author Kaloyan Enimanev
  */
 public class DSSFileSystemView implements FileSystemView
@@ -116,15 +115,6 @@ public class DSSFileSystemView implements FileSystemView
     {
         this.sessionToken = sessionToken;
         this.cache = new Cache();
-        Cleaner cleaner = Cleaner.create();
-        cleaner.register(cache, new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    operationLog.info("Finish cache for session " + sessionToken + ": " + cache);
-                }
-            });
         this.service =
                 (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { IServiceForDataStoreServer.class },
                         new ServiceInvocationHandler(service));
@@ -155,7 +145,7 @@ public class DSSFileSystemView implements FileSystemView
     public FtpFile getFile(String path) throws FtpException
     {
         String normalizedPath = normalizePath(path);
-        operationLog.debug("path:>" + path + "<, normalized path:>"+normalizedPath+"<");
+        operationLog.debug("path:>" + path + "<, normalized path:>" + normalizedPath + "<");
 
         // this check speeds directory listings in the LFTP console client
         if (workingDirectory != null && workingDirectory.getAbsolutePath().equals(normalizedPath))
