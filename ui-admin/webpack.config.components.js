@@ -7,12 +7,17 @@ module.exports = {
   output: {
     path: __dirname + '/build/components/js',
     filename: 'Components.js',
-    libraryTarget: 'var',
-    library: 'NgComponents'
+    library: 'NgComponents',
+    libraryTarget: 'umd', // More flexible for different environments
+    globalObject: 'this',
   },
 
   mode: 'production',
   devtool: 'source-map',
+
+  optimization: {
+    sideEffects: true
+  },
 
   module: {
     rules: [

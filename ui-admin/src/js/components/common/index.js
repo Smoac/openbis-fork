@@ -1,4 +1,4 @@
-import ThemeProviderDefault from '@src/js/components/common/theme/ThemeProviderDefault.jsx'
+import ThemeProvider from '@src/js/components/common/theme/ThemeProviderDefault.jsx'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Resizable from '@src/js/components/common/resizable/Resizable.jsx'
 import Browser from '@src/js/components/common/browser/Browser.jsx'
@@ -14,7 +14,7 @@ import ImagingGalleryViewer from "@src/js/components/common/imaging/ImagingGalle
 
 
 export default {
-  ThemeProviderDefault,
+  ThemeProvider,
   Loading,
   Resizable,
   Browser,
