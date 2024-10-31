@@ -2,6 +2,8 @@
 
 ## Environment Variables
 
+The following environment variables are defined within the environment proposed in the [openbis-app.env and docker-compose templates provided by us](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/tree/master/hub/openbis-app/compose).
+
 | Variable | Default value | Description |
 | -------- | ------------- | ----------- |
 |`OPENBIS_ADMIN_PASS`|`123456789`|Administrator password to openBIS instance.|
@@ -16,7 +18,19 @@
 |`OPENBIS_LOG`|`/var/log/openbis`|Directory for openBIS log files.|
 |`OPENBIS_FQDN`|`openbis.domain`|Full qualified domain name of openBIS service.|
 
-## Configuration Files
+## Configuration through OS environment
+
+Starting from openBIS 20.10.10, it is now possible to pass all [Java properties](../configuration/configuration-properties-by-module.md) (documented [here](../configuration/index.rst)) as OS environment variables. To do so, either pass those as a list below the `environment:` service element, or within one or several file(s) enlisted below the `env_file:` service element in the docker-compose file. For more information, refer to the official docs on [docs.docker.com](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/).
+
+Since openBIS 20.10.10, hard-coded Java properties of core plugins shipped with the installation can also be modified. The naming of the variables follows the schema `<core-plugin>.<server-type>.<plugin-type>.<plugin-name>.<plugin-property-name>`.
+
+## Configuration through adjusting service.properties files
+
+This is the taditional procedure. It requires that the configuration directories containing the properties file(s) to be changed (created) are mounted as a docker volume on the host. Following our docker-compose templates provided [here](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/tree/master/hub/openbis-app/compose), the volume to be mounted is the one named `openbis-app-etc`.
+
+To adjust a property specified in, e.g., the AS service.properties, modify the file in-place (assuming docker's data-root path matches the default, `/var/lib/docker`): `edit /var/lib/docker/volumes/openbis-app-config/_data/as/service.properties`.
+
+### Custom configuration files
 
 openBIS offers the ability to pass in configuration files like, e.g., capabilities files. Those can be deployed in any directory mounted as a volume in the openBIS docker container. It needs to be ensured that the associated AS and DSS properties are pointing to the correct file paths.
 
@@ -24,9 +38,9 @@ openBIS offers the ability to pass in configuration files like, e.g., capabiliti
 It is necessary to store any data files that needs to be preserved inside the `openbis-app-data` volume, or inside some other docker volume. Likewise, any configuration files should be stored within the `openbis-app-etc` volume. Failure to do so yields undesired behavior in the sense that changes made to the files within the container are being lost when the container goes down.
 ```
 
-### Examples
+#### Examples
 
-#### Suppy a json file for storing personal access tokens
+##### Suppy a json file for storing personal access tokens
 
 1. Enable the feature
 
@@ -44,13 +58,13 @@ personal-access-tokens-file-path = /data/openbis/personal-access-tokens.json
 
 3. Create a PAT and monitor the contents of the json file
 
-[personal-access-tokens.html#typical-application-workflow](../../software-developer-documentation/apis/personal-access-tokens.md#typical-application-workflow)
+Described [here](../../software-developer-documentation/apis/personal-access-tokens.md#typical-application-workflow).
 
-#### Modify the AS capabilities file
+##### Suppy a custom capabilities file
 
-For this, it is not needed to 
+To create or modify the capability role map, create a file named `capabilities` within the `as/` sub-directory of the docker volume `openbis-app-etc`.
 
-## Core Plugins 
+### Core Plugins
 
 It is possible to make adjustments to core-plugins shipped with the openBIS installer. To do so, just start up openBIS at least once. This will copy the contents of the core-plugins directory to a sub-directory `core-plugins` which is stored within the docker volume `openbis-app-etc`. Any customizations made here will persist restarts of the application, as well as upgrades of the openbis-docker image.
 
@@ -62,9 +76,9 @@ If the application fails to start after changes to the core-plugins have been ma
 
 Besides adjustments to existing plugins, it is also possible to [create new plugins from scratch](../../software-developer-documentation/server-side-extensions/core-plugins.md).
 
-### Examples
+#### Examples
 
-#### Customize the InstanceProfile.js
+##### Customize the InstanceProfile.js
 
 This file is part of the `eln-lims` core-plugin. It is located here:
 `<openbis-app-etc>/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc/InstanceProfile.js`
