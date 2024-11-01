@@ -67,7 +67,7 @@ public class RDFReaderTest {
 
     @Test
     public void testSampleTypeProcessing() {
-        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, Map.of());
         sampleTypeList.forEach(System.out::println);
         assertNotNull(sampleTypeList);
         assertEquals(6, sampleTypeList.size());
