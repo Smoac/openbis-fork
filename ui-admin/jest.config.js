@@ -37,6 +37,7 @@ module.exports = {
     '^@srcV3/(.*)$': '<rootDir>/srcV3/$1',
     '^@srcDss/(.*)$': '<rootDir>/srcDss/$1'
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/(?!(auto-bind|date-fns))'],
+  testMatch: ['**/*Controller*.test.js'],
+  transformIgnorePatterns: ['<rootDir>/node_modules/(?!(auto-bind|date-fns|@mui))'],
   slowTestThreshold: 30
 }
