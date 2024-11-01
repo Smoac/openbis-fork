@@ -16,7 +16,7 @@
     "@mui/lab": "^6.0.0-beta.14",
     "@mui/material": "^6.1.6",
     "@mui/styles": "^6.1.6",
-    "@mui/x-date-pickers": "^7.22.0",
+    "@mui/x-date-pickers": "^7.22.1",
     "buffer": "^6.0.3",
     "csv": "^6.3.10",
     "date-fns": "^4.1.0",
@@ -50,7 +50,7 @@
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.13.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
-    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "auto-bind": "^5.0.1",
     "babel-jest": "^29.7.0",
@@ -79,7 +79,7 @@
     "react-refresh": "^0.14.2",
     "style-loader": "^4.0.0",
     "url-loader": "^4.1.1",
-    "webpack": "^5.95.0",
+    "webpack": "^5.96.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"
   },
@@ -93,5 +93,5 @@
     "test": "jest",
     "test:debug": "node --inspect=9229 ./node_modules/.bin/jest --runInBand",
     "test:watch": "npm test -- --watch"
-  }
+  } 
 }
