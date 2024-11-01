@@ -1,7 +1,7 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
 import IconWrapper from '@srcTest/js/components/common/form/wrapper/IconWrapper.js'
-import TextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
+import TextField from '@mui/material/TextField'
+import IconButton from '@mui/material/IconButton'
 
 export default class FilterFieldWrapper extends BaseWrapper {
   getValue() {

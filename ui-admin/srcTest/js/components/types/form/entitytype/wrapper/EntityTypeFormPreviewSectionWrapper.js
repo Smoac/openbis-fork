@@ -1,5 +1,5 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import EntityTypeFormPreviewProperty from '@src/js/components/types/form/entitytype/EntityTypeFormPreviewProperty.jsx'
 import EntityTypeFormPreviewPropertyWrapper from './EntityTypeFormPreviewPropertyWrapper.js'
 

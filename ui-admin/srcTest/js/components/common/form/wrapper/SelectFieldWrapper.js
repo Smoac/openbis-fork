@@ -1,4 +1,4 @@
-import Select from '@material-ui/core/Select'
+import Select from '@mui/material/Select'
 import FieldWrapper from './FieldWrapper.js'
 
 export default class SelectFieldWrapper extends FieldWrapper {

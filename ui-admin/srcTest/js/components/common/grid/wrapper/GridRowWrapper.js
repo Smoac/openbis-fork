@@ -1,5 +1,5 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
-import TableCell from '@material-ui/core/TableCell'
+import TableCell from '@mui/material/TableCell'
 
 export default class GridRowWrapper extends BaseWrapper {
   getValues() {

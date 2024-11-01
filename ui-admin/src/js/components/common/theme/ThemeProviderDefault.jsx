@@ -1,5 +1,5 @@
 import React from 'react'
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import indigo from '@mui/material/colors/indigo'
 import lightBlue from '@mui/material/colors/lightBlue'
 

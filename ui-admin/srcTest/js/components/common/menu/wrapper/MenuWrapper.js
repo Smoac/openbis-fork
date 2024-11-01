@@ -1,4 +1,4 @@
-import Tab from '@material-ui/core/Tab'
+import Tab from '@mui/material/Tab';
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
 import TabWrapper from '@srcTest/js/components/common/menu/wrapper/TabWrapper.js'
 

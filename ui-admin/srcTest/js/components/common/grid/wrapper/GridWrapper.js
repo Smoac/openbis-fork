@@ -1,5 +1,5 @@
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
+import TableSortLabel from '@mui/material/TableSortLabel'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridPagingWrapper from '@srcTest/js/components/common/grid/wrapper/GridPagingWrapper.js'
 import GridHeader from '@src/js/components/common/grid/GridHeader.jsx'

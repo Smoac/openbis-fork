@@ -1,4 +1,4 @@
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import PageParametersPanelWrapper from '@srcTest/js/components/common/page/wrapper/PageParametersPanelWrapper.js'
 
 export default class QueryFormExecuteResultsWrapper extends PageParametersPanelWrapper {
