@@ -27,12 +27,12 @@ import sys
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
-sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "imaging-test-data-model.xls")
+sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "imaging-nanonis-data-model.xls")
 importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
 
-print("======================== imaging-test-data-master-data xls ingestion result ========================")
+print("======================== imaging-nanonis-data-model xls ingestion result ========================")
 print(importResult.getObjectIds())
 
 from java.util import ArrayList
@@ -45,7 +45,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIde
 
 def create_sample(api, space, project, experiment, code):
     creation = SampleCreation()
-    creation.setTypeId(EntityTypePermId("UNKNOWN"))
+    creation.setTypeId(EntityTypePermId("$IMAGING_SAMPLE"))
     creation.setSpaceId(SpacePermId(space))
     creation.setProjectId(ProjectIdentifier(project))
     creation.setExperimentId(ExperimentIdentifier(experiment))
@@ -59,13 +59,10 @@ def create_sample(api, space, project, experiment, code):
     return result
 
 
-create_sample(api, "IMAGING", "/IMAGING/IMAGING_TEMPLATES", "/IMAGING/IMAGING_TEMPLATES/TEMPLATE_COLLECTION", "TEMPLATE-SAMPLE")
-create_sample(api, "IMAGING", "/IMAGING/NANONIS", "/IMAGING/NANONIS/SXM_COLLECTION", "TEMPLATE-SXM")
-create_sample(api, "IMAGING", "/IMAGING/NANONIS", "/IMAGING/NANONIS/DAT_COLLECTION", "TEMPLATE-DAT")
-create_sample(api, "IMAGING", "/IMAGING/NANONIS", "/IMAGING/NANONIS/MIXED_COLLECTION", "TEMPLATE-MIXED")
+# create_sample(api, "IMAGING", "/IMAGING/NANONIS", "/IMAGING/NANONIS/MIXED_COLLECTION", "TEMPLATE-MIXED")
 
 
 api.logout(sessionToken)
-print("======================== imaging-test-data xls ingestion result ========================")
+print("======================== imaging-nanonis-data-model xls ingestion result ========================")
 
 
