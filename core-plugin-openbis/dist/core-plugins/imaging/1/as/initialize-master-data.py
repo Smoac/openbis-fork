@@ -28,7 +28,8 @@ api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi
 sessionToken = api.loginAsSystem()
 sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "imaging-data-model.xls")
 # sessionWorkspaceFiles1 = helper.uploadToAsSessionWorkspace(sessionToken, "import-test-internal-types.xlsx")
-importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0], sessionWorkspaceFiles1[0]])
+# importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0], sessionWorkspaceFiles1[0]])
+importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
 
