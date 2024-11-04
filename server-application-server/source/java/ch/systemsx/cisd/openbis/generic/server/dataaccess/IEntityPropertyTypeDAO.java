@@ -140,5 +140,5 @@ public interface IEntityPropertyTypeDAO
      * @param propertyTypeCode Code of property type
      * @return List of non-empty property values of type:propertyTypeCode assigned to entities of type:entityTypeCode
      */
-    public ResultSet listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
+    public List<String> listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
 }

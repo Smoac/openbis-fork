@@ -15,8 +15,6 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -207,18 +205,12 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         final String entityTypeCode = entityType.getSimpleCode();
         final String propertyTypeCode = propertyType.getSimpleCode();
         IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
-        ResultSet propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode);
-        try {
-            if(propertyValues.isBeforeFirst()) {
-                while(propertyValues.next()) {
-                    String value = propertyValues.getString(1);
-                    if(!newPattern.matcher(value).matches()) {
-                        throw new UserFailureException(String.format(errorMsgTemplate, value));
-                    }
+
+        List<String> propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode);
+        for(String value : propertyValues) {
+                if(!newPattern.matcher(value).matches()) {
+                    throw new UserFailureException(String.format(errorMsgTemplate, value));
                 }
-            }
-        } catch(SQLException e) {
-            throw new RuntimeException(e);
         }
 
     }
