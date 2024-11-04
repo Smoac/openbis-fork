@@ -63,7 +63,7 @@ import junit.framework.Assert;
  */
 public class CreateExperimentTest extends AbstractExperimentTest
 {
-    private static final PropertyTypePermId PLATE_GEOMETRY = new PropertyTypePermId("$PLATE_GEOMETRY");
+    private static final PropertyTypePermId PLATE_GEOMETRY = new PropertyTypePermId("PLATE_GEOMETRY");
 
     @Test
     public void testCreateWithIndexCheck()
@@ -336,7 +336,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         NewETPTAssignment assignment = new NewETPTAssignment();
-        assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
+        assignment.setPropertyTypeCode("PLATE_GEOMETRY");
         assignment.setEntityTypeCode("SIRNA_HCS");
         assignment.setEntityKind(EntityKind.EXPERIMENT);
         assignment.setOrdinal(1000L);
@@ -347,7 +347,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
         creation.setProperty("DESCRIPTION", "a description");
-        creation.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        creation.setProperty("PLATE_GEOMETRY", "384_WELLS_16X24");
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withProperties();
@@ -363,7 +363,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getIdentifier().getIdentifier(), "/TESTGROUP/TESTPROJ/TEST_EXPERIMENT1");
         assertEquals(experiment.getProperties().size(), 2);
 
-        assertEquals(experiment.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
+        assertEquals(experiment.getProperty("PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
     @Test
@@ -799,7 +799,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
 
         // Then
         assertEquals(experiment.getSampleProperties().toString(), "{}");
-        assertEquals(experiment.getProperties().toString(), "{$PLATE_GEOMETRY=384_WELLS_16X24}");
+        assertEquals(experiment.getProperties().toString(), "{PLATE_GEOMETRY=384_WELLS_16X24}");
     }
 
     @Test

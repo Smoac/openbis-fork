@@ -1234,7 +1234,7 @@ function MainController(profile) {
 		if (experimentIdentifier) {
 			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function (data) {
 				var experiment = data.result[0];
-				var defaultCollectionView = experiment.properties["$DEFAULT_COLLECTION_VIEW"];
+				var defaultCollectionView = experiment.properties["DEFAULT_COLLECTION_VIEW"];
 				var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
 
 				switch (collectionView) {

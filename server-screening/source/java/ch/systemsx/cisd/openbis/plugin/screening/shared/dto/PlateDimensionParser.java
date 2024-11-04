@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
  */
 public class PlateDimensionParser
 {
-    public static final String PLATE_GEOMETRY_PROPERTY_NAME = "$PLATE_GEOMETRY";
+    public static final String PLATE_GEOMETRY_PROPERTY_NAME = "PLATE_GEOMETRY";
 
     /**
      * Returns the plate geometry from the specified properties.

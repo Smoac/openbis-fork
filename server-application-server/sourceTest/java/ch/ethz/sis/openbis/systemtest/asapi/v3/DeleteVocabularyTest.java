@@ -137,7 +137,7 @@ public class DeleteVocabularyTest extends AbstractVocabularyTest
     @Test(dataProvider = PROVIDE_USERS_NOT_ALLOWED_TO_MANAGE_INTERNAL_VOCABULARIES)
     public void testDeleteInternalWithUserCausingAuthorizationFailure(final String user)
     {
-        VocabularyPermId vocabularyPermId = new VocabularyPermId("$PLATE_GEOMETRY");
+        VocabularyPermId vocabularyPermId = new VocabularyPermId("PLATE_GEOMETRY");
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override

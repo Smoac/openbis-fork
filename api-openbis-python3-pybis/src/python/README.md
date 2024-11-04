@@ -698,7 +698,7 @@ experiment.p                              # in Jupyter: show all properties in a
 experiment.p()                            # get all properties as a dict
 experiment.props.all()                    # get all properties as a dict
 experiment.p('prop1','prop2')             # get some properties as a dict
-experiment.p.get('$name')                 # get the value of a property
+experiment.p.get('name')                 # get the value of a property
 experiment.p['property']                  # get the value of a property
 ```
 

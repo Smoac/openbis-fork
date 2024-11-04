@@ -41,7 +41,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         VocabularyTermPermId permId1 = new VocabularyTermPermId("DOG", "ORGANISM");
-        VocabularyTermPermId permId2 = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
+        VocabularyTermPermId permId2 = new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
                 v3api.getVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2),
@@ -65,7 +65,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         VocabularyTermPermId permId1 = new VocabularyTermPermId("Dog", "OrGaNiSm");
-        VocabularyTermPermId permId2 = new VocabularyTermPermId("proPRIETARY", "$storage_FORMAT");
+        VocabularyTermPermId permId2 = new VocabularyTermPermId("proPRIETARY", "storage_FORMAT");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
                 v3api.getVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2),
@@ -83,9 +83,9 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
         assertEquals(map.get(new VocabularyTermPermId("DOG", "ORGANISM")).getPermId().getVocabularyCode(), "ORGANISM");
 
         assertEquals(map.get(permId2).getPermId().getCode(), "PROPRIETARY");
-        assertEquals(map.get(permId2).getPermId().getVocabularyCode(), "$STORAGE_FORMAT");
-        assertEquals(map.get(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT")).getPermId().getCode(), "PROPRIETARY");
-        assertEquals(map.get(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT")).getPermId().getVocabularyCode(), "$STORAGE_FORMAT");
+        assertEquals(map.get(permId2).getPermId().getVocabularyCode(), "STORAGE_FORMAT");
+        assertEquals(map.get(new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT")).getPermId().getCode(), "PROPRIETARY");
+        assertEquals(map.get(new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT")).getPermId().getVocabularyCode(), "STORAGE_FORMAT");
 
         v3api.logout(sessionToken);
     }
@@ -97,7 +97,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
 
         VocabularyTermPermId permId1 = new VocabularyTermPermId("DOG", "ORGANISM");
         VocabularyTermPermId permId2 = new VocabularyTermPermId("IDONTEXIST", "MENEITHER");
-        VocabularyTermPermId permId3 = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
+        VocabularyTermPermId permId3 = new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
                 v3api.getVocabularyTerms(sessionToken,
@@ -140,14 +140,14 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        VocabularyTermPermId id = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
+        VocabularyTermPermId id = new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT");
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
 
         Map<IVocabularyTermId, VocabularyTerm> terms =
                 v3api.getVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
 
         VocabularyTerm term = terms.get(id);
-        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT"));
         assertEquals(term.getCode(), "PROPRIETARY");
         assertEquals(term.getDescription(), "proprietary description");
         assertEquals(term.getLabel(), "proprietary label");
@@ -164,7 +164,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        VocabularyTermPermId id = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
+        VocabularyTermPermId id = new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT");
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.withVocabulary().withRegistrator();
 
@@ -172,7 +172,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
                 v3api.getVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
 
         VocabularyTerm term = terms.get(id);
-        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT"));
         assertEquals(term.getCode(), "PROPRIETARY");
         assertEquals(term.getDescription(), "proprietary description");
         assertEquals(term.getLabel(), "proprietary label");
@@ -182,7 +182,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
         assertEqualsDate(term.getRegistrationDate(), "2008-11-05 09:18:00");
         assertRegistratorNotFetched(term);
 
-        assertEquals(term.getVocabulary().getCode(), "$STORAGE_FORMAT");
+        assertEquals(term.getVocabulary().getCode(), "STORAGE_FORMAT");
         assertEquals(term.getVocabulary().getDescription(), "The on-disk storage format of a data set");
         assertEqualsDate(term.getVocabulary().getRegistrationDate(), "2008-11-05 09:18:00");
         assertEqualsDate(term.getVocabulary().getModificationDate(), "2009-03-23 15:34:44");
@@ -194,7 +194,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        VocabularyTermPermId id = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
+        VocabularyTermPermId id = new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT");
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.withRegistrator();
 
@@ -202,7 +202,7 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
                 v3api.getVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
 
         VocabularyTerm term = terms.get(id);
-        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT"));
         assertEquals(term.getCode(), "PROPRIETARY");
         assertEquals(term.getDescription(), "proprietary description");
         assertEquals(term.getLabel(), "proprietary label");
@@ -224,10 +224,10 @@ public class GetVocabularyTermTest extends AbstractVocabularyTest
         fo.withVocabulary();
 
         v3api.getVocabularyTerms(sessionToken,
-                Arrays.asList(new VocabularyTermPermId("DOG", "ORGANISM"), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT")), fo);
+                Arrays.asList(new VocabularyTermPermId("DOG", "ORGANISM"), new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT")), fo);
 
         assertAccessLog(
-                "get-vocabulary-terms  VOCABULARY_TERM_IDS('[DOG (ORGANISM), PROPRIETARY ($STORAGE_FORMAT)]') FETCH_OPTIONS('VocabularyTerm\n    with Vocabulary\n    with Registrator\n')");
+                "get-vocabulary-terms  VOCABULARY_TERM_IDS('[DOG (ORGANISM), PROPRIETARY (STORAGE_FORMAT)]') FETCH_OPTIONS('VocabularyTerm\n    with Vocabulary\n    with Registrator\n')");
     }
 
 }

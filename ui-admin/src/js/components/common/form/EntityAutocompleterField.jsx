@@ -10,7 +10,7 @@ import logger from '@src/js/common/logger.js'
 
 const styles = () => ({})
 
-const ENTITY_NAME_PROPERTY = '$NAME'
+const ENTITY_NAME_PROPERTY = 'NAME'
 const LOADED_OPTIONS_COUNT = 100
 
 class EntityAutocompleterField extends React.PureComponent {

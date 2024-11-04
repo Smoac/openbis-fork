@@ -74,7 +74,7 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
 
         Sample sample = samples.get(0);
         assertEquals("/TEST/TEST-PROJECT/PLATE137", sample.getIdentifier());
-        assertEquals("[$PLATE_GEOMETRY: 24_WELLS_4X6]", sample.getProperties().toString());
+        assertEquals("[PLATE_GEOMETRY: 24_WELLS_4X6]", sample.getProperties().toString());
         assertEquals(1, samples.size());
     }
 

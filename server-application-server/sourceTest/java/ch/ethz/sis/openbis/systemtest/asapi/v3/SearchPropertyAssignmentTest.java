@@ -117,8 +117,8 @@ public class SearchPropertyAssignmentTest extends AbstractTest
     public void testSearchWithPropertyTypeWithInternalNamespace()
     {
         PropertyAssignmentSearchCriteria criteria = new PropertyAssignmentSearchCriteria();
-        criteria.withPropertyType().withId().thatEquals(new PropertyTypePermId("$PLATE_GEOMETRY"));
-        testSearch(TEST_USER, criteria, "MASTER_PLATE.$PLATE_GEOMETRY", "CONTROL_LAYOUT.$PLATE_GEOMETRY");
+        criteria.withPropertyType().withId().thatEquals(new PropertyTypePermId("PLATE_GEOMETRY"));
+        testSearch(TEST_USER, criteria, "MASTER_PLATE.PLATE_GEOMETRY", "CONTROL_LAYOUT.PLATE_GEOMETRY");
     }
 
     @Test
@@ -151,7 +151,7 @@ public class SearchPropertyAssignmentTest extends AbstractTest
             }
         }
 
-        assertPropertyAssignments(withOwnSemanticAnnotations, null, "MASTER_PLATE.$PLATE_GEOMETRY", "CONTROL_LAYOUT.$PLATE_GEOMETRY",
+        assertPropertyAssignments(withOwnSemanticAnnotations, null, "MASTER_PLATE.PLATE_GEOMETRY", "CONTROL_LAYOUT.PLATE_GEOMETRY",
                 "CELL_PLATE.ORGANISM");
         assertPropertyAssignments(withInheritedSemanticAnnotations, null, "MASTER_PLATE.DESCRIPTION", "CONTROL_LAYOUT.DESCRIPTION", "NORMAL.ORGANISM",
                 "DELETION_TEST.ORGANISM", "DELETION_TEST.DESCRIPTION");

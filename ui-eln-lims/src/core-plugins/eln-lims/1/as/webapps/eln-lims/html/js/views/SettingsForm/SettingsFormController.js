@@ -24,8 +24,8 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	    var _this = this;
 	    mainController.serverFacade.getCustomWidgetSettings(function(customWidgetSettings) {
 	        var profileToEdit = null;
-            if(settingsSample.properties["$ELN_SETTINGS"]) {
-                profileToEdit = JSON.parse(settingsSample.properties["$ELN_SETTINGS"]);
+            if(settingsSample.properties["ELN_SETTINGS"]) {
+                profileToEdit = JSON.parse(settingsSample.properties["ELN_SETTINGS"]);
             }
             var initialGroupSettings = profileToEdit && Object.keys(profileToEdit).length == 2 && profileToEdit["inventorySpaces"] && profileToEdit["inventorySpacesReadOnly"];
             if(initialGroupSettings) { // Special initialisation for group settings
@@ -33,7 +33,7 @@ function SettingsFormController(mainController, settingsSample, mode) {
                 newProfile["inventorySpaces"] = profileToEdit["inventorySpaces"];
                 newProfile["inventorySpacesReadOnly"] = profileToEdit["inventorySpacesReadOnly"];
                 profileToEdit = newProfile;
-            } else if(!settingsSample.properties["$ELN_SETTINGS"]) { // Special initialisation for general settings
+            } else if(!settingsSample.properties["ELN_SETTINGS"]) { // Special initialisation for general settings
                 var newProfile = jQuery.extend(true, {}, profile);
                 newProfile["inventorySpaces"] = profile.inventorySpacesPostFixes;
                 newProfile["inventorySpacesReadOnly"] = profile.inventorySpacesReadOnlyPostFixes;

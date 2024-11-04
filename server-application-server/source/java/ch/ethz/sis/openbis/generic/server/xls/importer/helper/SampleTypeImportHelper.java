@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -47,7 +44,8 @@ public class SampleTypeImportHelper extends BasicImportHelper
         GeneratedCodePrefix("Generated code prefix", true),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        OntologyAnnotationId("Ontology Annotation Id", false),
+        Internal("Internal", false);
 
         private final String headerName;
 
@@ -90,7 +88,7 @@ public class SampleTypeImportHelper extends BasicImportHelper
         return isNewVersionWithInternalNamespace(header, values, versions,
                 delayedExecutor.isSystem(),
                 getTypeName().getType(),
-                Attribute.Version, Attribute.Code);
+                Attribute.Version, Attribute.Code, Attribute.Internal);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
@@ -128,6 +126,7 @@ public class SampleTypeImportHelper extends BasicImportHelper
         String validationScript = getValueByColumnName(header, values, Attribute.ValidationScript);
         String autoGenerateCodes = getValueByColumnName(header, values, Attribute.AutoGenerateCodes);
         String generatedCodePrefix = getValueByColumnName(header, values, Attribute.GeneratedCodePrefix);
+        String internal = getValueByColumnName(header, values, Attribute.Internal);
 
         SampleTypeCreation creation = new SampleTypeCreation();
 
@@ -139,7 +138,7 @@ public class SampleTypeImportHelper extends BasicImportHelper
         {
             creation.setGeneratedCodePrefix(generatedCodePrefix);
         }
-        creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
+        creation.setManagedInternally(ImportUtils.isTrue(internal));
 
         delayedExecutor.createSampleType(creation, page, line);
     }

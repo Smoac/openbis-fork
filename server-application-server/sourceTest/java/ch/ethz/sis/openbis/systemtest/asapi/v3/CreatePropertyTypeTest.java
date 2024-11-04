@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,18 +86,18 @@ public class CreatePropertyTypeTest extends AbstractTest
     private Object[][] providerTestCreateAuthorization()
     {
         return new Object[][] {
-                { "NEW_NON_INTERNAL", SYSTEM_USER, null },
-                { "NEW_NON_INTERNAL", TEST_USER, null },
-                { "NEW_NON_INTERNAL", TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
+                { "NEW_NON_INTERNAL", false, SYSTEM_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_USER, null },
+                { "NEW_NON_INTERNAL", false, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_NON_INTERNAL]" },
 
-                { "$NEW_INTERNAL", SYSTEM_USER, null },
-                { "$NEW_INTERNAL", TEST_USER, "Access denied to object with PropertyTypePermId = [$NEW_INTERNAL]" },
-                { "$NEW_INTERNAL", TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [$NEW_INTERNAL]" }
+                { "NEW_INTERNAL", true, SYSTEM_USER, null },
+                { "NEW_INTERNAL", true, TEST_USER, "Access denied to object with PropertyTypePermId = [NEW_INTERNAL]" },
+                { "NEW_INTERNAL", true, TEST_POWER_USER_CISD, "Access denied to object with PropertyTypePermId = [NEW_INTERNAL]" }
         };
     }
 
     @Test(dataProvider = "providerTestCreateAuthorization")
-    public void testCreateAuthorization(String propertyTypeCode, String propertyTypeRegistrator, String expectedError)
+    public void testCreateAuthorization(String propertyTypeCode, boolean isInternal, String propertyTypeRegistrator, String expectedError)
     {
         String sessionToken = propertyTypeRegistrator.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(propertyTypeRegistrator, PASSWORD);
 
@@ -105,7 +106,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDataType(DataType.VARCHAR);
         creation.setLabel("Test label");
         creation.setDescription("Test description");
-        creation.setManagedInternally(propertyTypeCode.startsWith("$"));
+        creation.setManagedInternally(isInternal);
         creation.setMultiValue(false);
         assertExceptionMessage(new IDelegatedAction()
             {
@@ -124,7 +125,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         // Given
         String sessionToken = v3api.loginAsSystem();
         PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("$test-property");
+        creation.setCode("test-property");
         creation.setDataType(DataType.REAL);
         creation.setDescription("only for testing");
         creation.setLabel("Test Property");
@@ -134,7 +135,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
         // Then
-        assertEquals(ids.toString(), "[$TEST-PROPERTY]");
+        assertEquals(ids.toString(), "[TEST-PROPERTY]");
         PropertyTypeSearchCriteria searchCriteria = new PropertyTypeSearchCriteria();
         searchCriteria.withCode().thatEquals(creation.getCode().toUpperCase());
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
@@ -150,48 +151,6 @@ public class CreatePropertyTypeTest extends AbstractTest
         assertEquals(types.size(), 1);
 
         v3api.logout(sessionToken);
-    }
-
-    @Test
-    public void testCreateManagedInternallyPropertyTypeWithCodeWithoutDollarSign()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("test-property");
-        creation.setLabel("Test Property");
-        creation.setDescription("only for testing");
-        creation.setDataType(DataType.REAL);
-        creation.setManagedInternally(true);
-        creation.setMultiValue(false);
-        assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
-                }
-            }, "Code of an internally managed property type has to start with '$' prefix");
-    }
-
-    @Test
-    public void testCreateNonManagedInternallyPropertyTypeWithCodeWithDolarSign()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("$test-property");
-        creation.setLabel("Test Property");
-        creation.setDescription("only for testing");
-        creation.setDataType(DataType.REAL);
-        creation.setManagedInternally(false);
-        creation.setMultiValue(false);
-        assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
-                }
-            }, "'$' code prefix can be only used for the internally managed property types");
     }
 
     @Test

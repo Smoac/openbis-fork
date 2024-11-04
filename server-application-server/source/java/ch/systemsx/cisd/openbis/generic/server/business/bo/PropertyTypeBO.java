@@ -95,9 +95,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
             {
                 if (false == StringUtils.isBlank(vocabulary.getCode()))
                 {
-                    String vocabularyCode =
-                            CodeConverter.tryToBusinessLayer(vocabulary.getCode(),
-                                    vocabulary.isManagedInternally());
+                    String vocabularyCode = vocabulary.getCode();
                     tryLoad(vocabularyCode);
                 }
             } else

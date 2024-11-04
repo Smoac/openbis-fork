@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.proxy.ProxyServlet;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -436,14 +436,20 @@ public abstract class AbstractIntegrationTest
                 try
                 {
                     ProxyRequest proxyRequest = new ProxyRequest(request);
+
                     Map<String, String> parameters = new HashMap<>();
 
-                    Iterator<String> iterator = proxyRequest.getParameterNames().asIterator();
-                    while (iterator.hasNext())
+                    Iterator<String> parametersInQueryStringIterator = proxyRequest.getParameterNames().asIterator();
+                    while (parametersInQueryStringIterator.hasNext())
                     {
-                        String name = iterator.next();
+                        String name = parametersInQueryStringIterator.next();
                         parameters.put(name, proxyRequest.getParameter(name));
                     }
+
+                    String parametersInBodyString = IOUtils.toString(proxyRequest.getInputStream());
+                    Map<String, String> parametersInBody = parseUrlQuery(parametersInBodyString);
+
+                    parameters.putAll(parametersInBody);
 
                     System.out.println(
                             "[AFS PROXY] url: " + proxyRequest.getRequestURL() + ", method: " + parameters.get("method") + ", parameters: "
@@ -768,6 +774,26 @@ public abstract class AbstractIntegrationTest
     public static void log(String message)
     {
         System.out.println("[TEST] " + message);
+    }
+
+    private static Map<String, String> parseUrlQuery(String url) throws Exception
+    {
+        try
+        {
+            Map<String, String> parameters = new HashMap<>();
+            String[] namesAndValues = url.split("&");
+            for (String nameAndValue : namesAndValues)
+            {
+                int index = nameAndValue.indexOf("=");
+                String name = nameAndValue.substring(0, index);
+                String value = nameAndValue.substring(index + 1);
+                parameters.put(URLDecoder.decode(name, StandardCharsets.UTF_8), URLDecoder.decode(value, StandardCharsets.UTF_8));
+            }
+            return parameters;
+        } catch (Exception e)
+        {
+            return Collections.emptyMap();
+        }
     }
 
     public void assertExperimentExistsAtAS(String experimentPermId, boolean exists) throws Exception

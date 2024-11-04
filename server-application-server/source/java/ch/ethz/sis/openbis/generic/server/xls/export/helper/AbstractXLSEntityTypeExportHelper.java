@@ -178,7 +178,8 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             final Vocabulary vocabulary = propertyType.getVocabulary();
 
             final String[] values = {
-                    getPropertyAssignmentCode(propertyType, propertyAssignment.isManagedInternally()),
+                    propertyType.getCode(),
+                    String.valueOf(propertyType.isManagedInternally()).toUpperCase(),
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
                     propertyAssignment.getSection(),
@@ -191,20 +192,15 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase(),
                     String.valueOf(propertyAssignment.isUnique() != null && propertyAssignment.isUnique()).toUpperCase(),
                     String.valueOf(propertyAssignment.getPattern() != null ? propertyAssignment.getPattern() : ""),
-                    String.valueOf(propertyAssignment.getPatternType() != null ? propertyAssignment.getPatternType() : "")
+                    String.valueOf(propertyAssignment.getPatternType() != null ? propertyAssignment.getPatternType() : ""),
+                    String.valueOf(propertyAssignment.isManagedInternally() != null && propertyAssignment.isManagedInternally()).toUpperCase()
             };
             addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
         }
         return new AdditionResult(rowNumber, warnings, valueFiles, Map.of());
     }
 
-    private String getPropertyAssignmentCode(PropertyType propertyType, boolean isManagedInternally)
-    {
-        if(propertyType.isManagedInternally() && isManagedInternally) {
-            return "$" + propertyType.getCode();
-        }
-        return propertyType.getCode();
-    }
+
 
     private String getFullDataTypeString(final PropertyType propertyType)
     {

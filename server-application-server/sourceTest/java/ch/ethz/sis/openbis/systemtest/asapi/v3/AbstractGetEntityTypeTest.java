@@ -259,7 +259,7 @@ public abstract class AbstractGetEntityTypeTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         String entityTypeCode = "ENTITY_TEST_TYPE";
-        String propertyTypeCodeWithDolar = "$PLATE_GEOMETRY";
+        String propertyTypeCodeWithDolar = "PLATE_GEOMETRY";
 
         PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
         assignmentCreation.setPropertyTypeId(new PropertyTypePermId(propertyTypeCodeWithDolar));

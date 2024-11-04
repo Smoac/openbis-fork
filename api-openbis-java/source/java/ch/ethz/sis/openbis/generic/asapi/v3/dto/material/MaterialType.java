@@ -173,6 +173,7 @@ public class MaterialType implements Serializable, ICodeHolder, IDescriptionHold
     }
 
     @JsonIgnore
+    @Override
     public Boolean isManagedInternally()
     {
         return managedInternally;

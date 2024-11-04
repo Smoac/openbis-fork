@@ -76,11 +76,11 @@ var FormUtil = new function() {
 	}
 	
 	this.getAnnotationsFromSampleV1 = function(sample, type) {
-		var field = sample.properties["$ANNOTATIONS_STATE"];
+		var field = sample.properties["ANNOTATIONS_STATE"];
 		var stateFieldValue = Util.getEmptyIfNull(field);
 		if(stateFieldValue === "") {
 			stateFieldValue = undefined;
-			sample.properties["$ANNOTATIONS_STATE"] = undefined;
+			sample.properties["ANNOTATIONS_STATE"] = undefined;
 		}
 		var allAnnotations = this.getAnnotationsFromField(stateFieldValue);
 		var typeAnnotations = {};
@@ -1403,7 +1403,7 @@ var FormUtil = new function() {
                                     identifiers = identifiers.filter(x => x != sample.identifier.identifier);
                                 }
                                 var link = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
-                                var name = sample.properties['$NAME'] ?? null;
+                                var name = sample.properties['NAME'] ?? null;
                                 name = sample.identifier.identifier + (name ? ' (' + name + ')' : '');
                                 links[sample.identifier.identifier] = {link: link, name: name, identifier: sample.identifier.identifier};
                                 links[sample.permId.permId] = {link: link, name: name, identifier: sample.identifier.identifier};
@@ -1424,7 +1424,7 @@ var FormUtil = new function() {
                                     var experiments = Util.mapValuesToList(experimentResults);
                                     for ( let experiment of experiments) {
                                         var link = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
-                                        var name = experiment.properties['$NAME'] ?? null;
+                                        var name = experiment.properties['NAME'] ?? null;
                                         name = experiment.identifier.identifier + (name ? ' (' + name + ')' : '');
                                         links[experiment.identifier.identifier] = {link: link, name: name, identifier: experiment.identifier.identifier};
                                         links[experiment.permId.permId] = {link: link, name: name, identifier: experiment.identifier.identifier };
@@ -2940,7 +2940,7 @@ var FormUtil = new function() {
                                 var searchCriteria = new SampleSearchCriteria();
                                 searchCriteria.withOrOperator();
                                 for(var ssIdx=0; ssIdx < sampleStoragesCodesToDelete.length; ssIdx++) {
-                                    searchCriteria.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesCodesToDelete[ssIdx]);
+                                    searchCriteria.withStringProperty("STORAGE_POSITION.STORAGE_CODE").thatEquals(sampleStoragesCodesToDelete[ssIdx]);
                                 }
                                 var fetchOptions = new SampleFetchOptions();
                                 mainController.openbisV3.searchSamples(searchCriteria, fetchOptions).done(function(results) {

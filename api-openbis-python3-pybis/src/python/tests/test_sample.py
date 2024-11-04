@@ -433,7 +433,7 @@ def test_create_sample_type_assign_property(space):
 
     st.assign_property(ptc1)
     st.assign_property(ptc2)
-    st.assign_property("$NAME")
+    st.assign_property("NAME")
     st.save()
 
 

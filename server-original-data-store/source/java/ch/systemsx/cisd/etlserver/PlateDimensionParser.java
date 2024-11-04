@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 @Deprecated
 public class PlateDimensionParser
 {
-    public static final String PLATE_GEOMETRY_PROPERTY_NAME = "$PLATE_GEOMETRY";
+    public static final String PLATE_GEOMETRY_PROPERTY_NAME = "PLATE_GEOMETRY";
 
     /**
      * Returns the plate geometry from the specified properties.

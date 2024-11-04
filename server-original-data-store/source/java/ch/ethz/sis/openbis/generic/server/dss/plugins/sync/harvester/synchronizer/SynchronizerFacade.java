@@ -229,7 +229,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerVocabulary(NewVocabulary vocab)
     {
-        String vocabCode = CodeConverter.tryToBusinessLayer(vocab.getCode(), vocab.isManagedInternally());
+        String vocabCode = vocab.getCode();
         vocabulariesToAdd.add(vocabCode);
         if (dryRun == false)
         {
@@ -240,7 +240,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateVocabulary(Vocabulary vocab, String diff)
     {
-        String vocabCode = CodeConverter.tryToBusinessLayer(vocab.getCode(), vocab.isManagedInternally());
+        String vocabCode = vocab.getCode();
         getVocabularySummary(vocabCode).update(diff);
         if (dryRun == false)
         {

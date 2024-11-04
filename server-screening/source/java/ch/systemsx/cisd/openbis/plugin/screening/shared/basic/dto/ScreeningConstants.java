@@ -185,14 +185,14 @@ public class ScreeningConstants
     // ----
 
     /** Code of plate geometry vocabulary. */
-    public static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";
+    public static final String PLATE_GEOMETRY = "PLATE_GEOMETRY";
 
     /** Used to import Qiagen siRNA libraries. */
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
 
-    public static final String ANALYSIS_PROCEDURE = "$ANALYSIS_PROCEDURE";
+    public static final String ANALYSIS_PROCEDURE = "ANALYSIS_PROCEDURE";
 
-    public static final String RESOLUTION = "$RESOLUTION";
+    public static final String RESOLUTION = "RESOLUTION";
 
     public static final String ANALYSIS_PROCEDURE_PROPERTY = "ANALYSIS_PROCEDURE";
 

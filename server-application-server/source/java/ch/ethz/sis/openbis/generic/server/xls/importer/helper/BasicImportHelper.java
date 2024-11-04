@@ -52,7 +52,7 @@ public abstract class BasicImportHelper extends AbstractImportHelper
         return true;
     }
 
-    protected static boolean isNewVersionWithInternalNamespace(Map<String, Integer> header, List<String> values, Map<String, Integer> versions, boolean isSystem, String type, IAttribute versionAttribute, IAttribute codeAttribute)
+    protected static boolean isNewVersionWithInternalNamespace(Map<String, Integer> header, List<String> values, Map<String, Integer> versions, boolean isSystem, String type, IAttribute versionAttribute, IAttribute codeAttribute, IAttribute internalAttribute)
     {
         String version = getValueByColumnName(header, values, versionAttribute);
         String code = getValueByColumnName(header, values, codeAttribute);
@@ -62,7 +62,8 @@ public abstract class BasicImportHelper extends AbstractImportHelper
             throw new UserFailureException("Mandatory field is missing or empty: " + codeAttribute);
         }
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        String internal = getValueByColumnName(header, values, internalAttribute);
+        boolean isInternalNamespace = ImportUtils.isTrue(internal);
         boolean canUpdate = (isInternalNamespace == false) || isSystem;
 
         if (canUpdate == false) {

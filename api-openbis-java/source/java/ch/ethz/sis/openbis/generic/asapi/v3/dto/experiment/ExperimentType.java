@@ -190,6 +190,7 @@ public class ExperimentType implements Serializable, ICodeHolder, IDescriptionHo
     }
 
     @JsonIgnore
+    @Override
     public Boolean isManagedInternally()
     {
         return managedInternally;

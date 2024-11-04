@@ -29,6 +29,7 @@ define(["stjs", "as/dto/common/Enum"], function (stjs, Enum) {
       "GENERATE_CODES",
       "GENERATED_CODE_PREFIX",
       "IDENTIFIER",
+      "INTERNAL",
       "LABEL",
       "MAIN_DATA_SET_PATH",
       "MAIN_DATA_SET_PATTERN",

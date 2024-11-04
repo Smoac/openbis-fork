@@ -187,7 +187,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                                         }
                     });
 
-                    if(profile.isPropertyPressent(sampleType, "$BARCODE")) {
+                    if(profile.isPropertyPressent(sampleType, "BARCODE")) {
                         dropdownOptionsModel.push({
                             label : "Custom Barcode/QR Code Update",
                             action : function() {
@@ -466,25 +466,25 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		if(sampleTypeCode === "ENTRY") {
 		    var isReadOnly = this._sampleFormModel.mode === FormMode.VIEW;
-		    var documentPropertyType = profile.getPropertyType("$DOCUMENT");
-		    var documentPropertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, "$DOCUMENT");
+		    var documentPropertyType = profile.getPropertyType("DOCUMENT");
+		    var documentPropertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, "DOCUMENT");
 		    FormUtil.fixStringPropertiesForForm(documentPropertyTypeV3, this._sampleFormModel.sample);
             var documentChangeEvent = function(jsEvent, newValue) {
                 var newCleanValue = Util.getEmptyIfNull(newValue);
                 _this._sampleFormModel.isFormDirty = true;
-                _this._sampleFormModel.sample.properties["$DOCUMENT"] = Util.getEmptyIfNull(newValue);
+                _this._sampleFormModel.sample.properties["DOCUMENT"] = Util.getEmptyIfNull(newValue);
 			    var titleStart = newCleanValue.indexOf("<h2>");
 			    var titleEnd = newCleanValue.indexOf("</h2>");
 			    if(titleStart !== -1 && titleEnd !== -1) {
 			        var futureName = newCleanValue.substring(titleStart+4, titleEnd);
 			        if(futureName.indexOf("<") !== -1 && futureName.indexOf(">") !== -1) {
 			            Util.showError("Entry names can't contain rich text. The current title will not be saved as Entry name.");
-			            _this._sampleFormModel.sample.properties["$NAME"] = null;
+			            _this._sampleFormModel.sample.properties["NAME"] = null;
 			        } else {
-			            _this._sampleFormModel.sample.properties["$NAME"] = newCleanValue.substring(titleStart+4, titleEnd);
+			            _this._sampleFormModel.sample.properties["NAME"] = newCleanValue.substring(titleStart+4, titleEnd);
 			        }
 			    } else {
-			        _this._sampleFormModel.sample.properties["$NAME"] = null;
+			        _this._sampleFormModel.sample.properties["NAME"] = null;
 			    }
 			}
             // https://ckeditor.com/docs/ckeditor5/latest/framework/guides/deep-dive/ui/document-editor.html
@@ -497,7 +497,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
             var documentEditorEditableContainer = $("<div>", { class : "document-editor__editable-container", style : "min-height: " + height + "px; overflow: hidden;" });
 
-            var documentEditorEditable = $("<div>", { class : "document-editor__editable", id : "$DOCUMENT" });
+            var documentEditorEditable = $("<div>", { class : "document-editor__editable", id : "DOCUMENT" });
 
 		    var value = Util.getEmptyIfNull(this._sampleFormModel.sample.properties[documentPropertyType.code]);
 		    if(this._sampleFormModel.mode === FormMode.CREATE && !value) {
@@ -506,7 +506,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             var documentEditorEditableFinal = FormUtil.activateRichTextProperties(documentEditorEditable, documentChangeEvent, documentPropertyType, value, isReadOnly, documentEditorEditableToolbar);
 
             documentEditorEditableFinal.addClass("document-editor__editable");
-            documentEditorEditableFinal.attr("id", "$DOCUMENT");
+            documentEditorEditableFinal.attr("id", "DOCUMENT");
             //  documentEditorEditableFinal.css("height", "100%");
             //  Bugfix for Webkit Chrome/Safari
             documentEditorEditableFinal.css("min-height", height + "px");
@@ -690,17 +690,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
             var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(propertyType.code);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
-			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
+			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
 				continue;
 			}
 
-            if(sampleTypeCode === "ENTRY" && (propertyType.code === "$NAME" || propertyType.code === "$DOCUMENT" || propertyType.code === "$ANNOTATIONS_STATE")) {
+            if(sampleTypeCode === "ENTRY" && (propertyType.code === "NAME" || propertyType.code === "DOCUMENT" || propertyType.code === "ANNOTATIONS_STATE")) {
                 continue;
-            } else if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
+            } else if(propertyType.code === "ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "ORDER.ORDER_STATE" || propertyType.code === "BARCODE" ) {
 				continue;
-			} else if(propertyType.code === "$XMLCOMMENTS") {
+			} else if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
 				var isAvailable = this._sampleFormController._addCommentsWidget($commentsContainer);
@@ -708,7 +708,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					continue;
 				}
 			} else {
-				if(propertyType.code === "$SHOW_IN_PROJECT_OVERVIEW") {
+				if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
 					if(!(profile.inventorySpaces.length > 0 && $.inArray(this._sampleFormModel.sample.spaceCode, profile.inventorySpaces) === -1)) {
 						continue;
 					}
@@ -876,7 +876,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$fieldset.append($controlGroup);
 			}
 
-			if(propertyType.code !== "$ANNOTATIONS_STATE") {
+			if(propertyType.code !== "ANNOTATIONS_STATE") {
 				propertyGroupPropertiesOnForm++;
 			}
 		}
@@ -998,7 +998,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		    var $defaultBarcodeField = FormUtil.getFieldForLabelWithText("Default Barcode", this._sampleFormModel.sample.permId);
 		    $fieldset.append($defaultBarcodeField);
 
-		    var $customBarcodeProperty = this._sampleFormModel.sample.properties["$BARCODE"];
+		    var $customBarcodeProperty = this._sampleFormModel.sample.properties["BARCODE"];
 		    if($customBarcodeProperty) {
 		        var $customBarcodePropertyField = FormUtil.getFieldForLabelWithText("Custom Barcode/QR Code", $customBarcodeProperty);
 		        $fieldset.append($customBarcodePropertyField);

@@ -83,13 +83,11 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
         assert vocabularyCode != null : "Unspecified vocabulary code.";
 
         final String mangledVocabularyCode = CodeConverter.tryToDatabase(vocabularyCode);
-        final boolean internalNamespace = CodeConverter.isInternalNamespace(vocabularyCode);
         final List<VocabularyPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("select v from %s v where v.simpleCode = ? "
-                                + "and v.managedInternally = ?",
+                        String.format("select v from %s v where v.simpleCode = ? ",
                                 TABLE_NAME),
-                        toArray(mangledVocabularyCode, internalNamespace)));
+                        toArray(mangledVocabularyCode)));
         final VocabularyPE entity = tryFindEntity(list, "vocabulary", vocabularyCode);
         if (operationLog.isDebugEnabled())
         {

@@ -270,7 +270,7 @@ $.extend(DefaultProfile.prototype, {
 		    return groupCodes;
 		}
 
-		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE", "$IMAGING_DATA_CONFIG"];
+		this.systemProperties = ["ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE", "IMAGING_DATA_CONFIG"];
 		this.forcedDisableRTF = [];
 		this.forceMonospaceFont = [];
 		this.imageViewerDataSetCodes = [];
@@ -622,7 +622,7 @@ $.extend(DefaultProfile.prototype, {
 			this._deleteSampleConnectionsByTypeIfNotVisited(sample, visited);
 		}
 
-		this.propertyReplacingCode = "$NAME";
+		this.propertyReplacingCode = "NAME";
 
 		this.experimentTypeDefinitionsExtension = {
 
@@ -698,13 +698,13 @@ $.extend(DefaultProfile.prototype, {
 
 			propertyGroup = {};
 			propertyGroup.groupDisplayName = "Physical Storage";
-			propertyGroup.nameProperty = "$STORAGE_POSITION.STORAGE_CODE";
-			propertyGroup.rowProperty = "$STORAGE_POSITION.STORAGE_RACK_ROW";
-			propertyGroup.columnProperty = "$STORAGE_POSITION.STORAGE_RACK_COLUMN";
-			propertyGroup.boxProperty = "$STORAGE_POSITION.STORAGE_BOX_NAME";
-			propertyGroup.boxSizeProperty = "$STORAGE_POSITION.STORAGE_BOX_SIZE";
-			propertyGroup.positionProperty = "$STORAGE_POSITION.STORAGE_BOX_POSITION";
-			propertyGroup.userProperty = "$STORAGE_POSITION.STORAGE_USER";
+			propertyGroup.nameProperty = "STORAGE_POSITION.STORAGE_CODE";
+			propertyGroup.rowProperty = "STORAGE_POSITION.STORAGE_RACK_ROW";
+			propertyGroup.columnProperty = "STORAGE_POSITION.STORAGE_RACK_COLUMN";
+			propertyGroup.boxProperty = "STORAGE_POSITION.STORAGE_BOX_NAME";
+			propertyGroup.boxSizeProperty = "STORAGE_POSITION.STORAGE_BOX_SIZE";
+			propertyGroup.positionProperty = "STORAGE_POSITION.STORAGE_BOX_POSITION";
+			propertyGroup.userProperty = "STORAGE_POSITION.STORAGE_USER";
 			return propertyGroup;
 		}
 

@@ -103,7 +103,7 @@ async function testFollowSelectedTerm() {
   form.getGrid().getPaging().getPageSize().change(5)
   await form.update()
 
-  form.getGrid().getColumns()[1].getLabel().click()
+  form.getGrid().getColumns()[2].getLabel().click()
   await form.update()
 
   form.expectJSON({

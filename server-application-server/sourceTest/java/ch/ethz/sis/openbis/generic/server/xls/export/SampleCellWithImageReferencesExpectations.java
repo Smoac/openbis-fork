@@ -78,6 +78,7 @@ class SampleCellWithImageReferencesExpectations extends Expectations
 
                 final SampleType sampleType = new SampleType();
                 sampleType.setCode("STORAGE");
+                sampleType.setManagedInternally(false);
                 sampleType.setPermId(new EntityTypePermId("STORAGE", EntityKind.SAMPLE));
                 sampleType.setFetchOptions(fetchOptions.withType());
                 sampleType.setPropertyAssignments(List.of(namePropertyAssignment, experimentalDescriptionPropertyAssignment,
@@ -123,7 +124,7 @@ class SampleCellWithImageReferencesExpectations extends Expectations
                 samples[0].setSpace(space);
                 samples[0].setProject(project);
                 samples[0].setExperiment(experiment);
-                samples[0].setProperty("$NAME", "<p>This is some text.</p>"
+                samples[0].setProperty("NAME", "<p>This is some text.</p>"
                         + "<figure class=\"image\">"
                         + "<img src=\"/openbis/openbis/file-service/eln-lims/7b/77/90/7b77903f-e685-4700-974a-5a5d7e109638/"
                         + "7b77903f-e685-4700-974a-5a5d7e109638.jpg\">"
@@ -206,7 +207,7 @@ class SampleCellWithImageReferencesExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);

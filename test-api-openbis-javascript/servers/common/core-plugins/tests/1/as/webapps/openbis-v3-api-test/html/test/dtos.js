@@ -527,6 +527,7 @@ var fullTypes = [
 "as/dto/common/interfaces/IAttachmentsHolder",
 "as/dto/common/interfaces/IIdentifierHolder",
 "as/dto/common/interfaces/IValidationPluginHolder",
+"as/dto/common/interfaces/IManagedInternallyHolder",
 "as/dto/common/interfaces/IOwnerHolder",
 "as/dto/common/interfaces/IDataSetsHolder",
 "as/dto/common/interfaces/ISemanticAnnotationsHolder",

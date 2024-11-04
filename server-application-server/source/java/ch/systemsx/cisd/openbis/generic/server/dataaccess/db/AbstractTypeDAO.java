@@ -86,7 +86,7 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
         List<String> dbCodes = new ArrayList<String>(codes.size());
         for (String code : codes)
         {
-            dbCodes.add(CodeConverter.tryToDatabase(code));
+            dbCodes.add(code);
         }
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());

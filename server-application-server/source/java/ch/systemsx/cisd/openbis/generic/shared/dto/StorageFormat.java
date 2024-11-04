@@ -36,7 +36,7 @@ public enum StorageFormat
 
     private static final Map<String, StorageFormat> codeMap = new HashMap<String, StorageFormat>();
 
-    public static final String VOCABULARY_CODE = "$STORAGE_FORMAT";
+    public static final String VOCABULARY_CODE = "STORAGE_FORMAT";
 
     static
     {

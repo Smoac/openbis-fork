@@ -181,7 +181,7 @@ function AdvancedEntitySearchDropdown(isMultiple,
 						entityKind : "EXPERIMENT", 
 						logicalOperator : "OR", 
 						rules : {
-							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
                             "UUIDv4-2": { type: "Property/Attribute",   name: "ATTR.IDENTIFIER", operator : "thatContains", value: storedParams.data.q }
 						}
 					};
@@ -198,7 +198,7 @@ function AdvancedEntitySearchDropdown(isMultiple,
 						entityKind : "SAMPLE",
 						logicalOperator : "OR",
 						rules : {
-							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
 							"UUIDv4-2": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: storedParams.data.q }
 						}
 					};
@@ -217,11 +217,11 @@ function AdvancedEntitySearchDropdown(isMultiple,
 						entityKind : "DATASET", 
 						logicalOperator : "OR", 
 						rules : {
-							"UUIDv4-1": { type: "Sample", 				name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-1": { type: "Sample", 				name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
 							"UUIDv4-2": { type: "Sample", 				name: "ATTR.CODE", operator : "thatContains",		value: storedParams.data.q },
-							"UUIDv4-3": { type: "Experiment", 			name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-3": { type: "Experiment", 			name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
 							"UUIDv4-4": { type: "Experiment", 			name: "ATTR.CODE", operator : "thatContains", 		value: storedParams.data.q },
-							"UUIDv4-5": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: storedParams.data.q },
+							"UUIDv4-5": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: storedParams.data.q },
 							"UUIDv4-6": { type: "Property/Attribute", 	name: "ATTR.CODE", operator : "thatContains", 		value: storedParams.data.q }
 						}
 					};

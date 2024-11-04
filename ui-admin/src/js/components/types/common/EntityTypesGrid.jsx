@@ -7,6 +7,7 @@ import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import LockLabel from '@src/js/components/common/form/LockLabel.jsx'
 
 class EntityTypesGrid extends React.PureComponent {
   render() {
@@ -55,6 +56,20 @@ class EntityTypesGrid extends React.PureComponent {
   getColumns() {
     const { kind } = this.props
     const columns = []
+
+    columns.push({
+      name: 'Internal',
+      label: '',
+      getValue: ({ row }) => {
+        return row.internal;
+      },
+      renderValue: ({ value }) => {
+        if(value) {
+            return <LockLabel fontSize='small' color='disabled' />
+        }
+        return null;
+      }
+    })
 
     columns.push({
       name: 'code',

@@ -1353,7 +1353,7 @@ exports.default = new Promise((resolve) => {
                     },
                     fo,
                     "property",
-                    "$RESOLUTION"
+                    "RESOLUTION"
                 )
             })
 
@@ -2236,14 +2236,14 @@ exports.default = new Promise((resolve) => {
 
                 var fSearch = function (facade: openbis.openbis) {
                     var criteria = new dtos.VocabularySearchCriteria()
-                    criteria.withCode().thatEquals("$STORAGE_FORMAT")
+                    criteria.withCode().thatEquals("STORAGE_FORMAT")
                     return facade.searchVocabularies(criteria, c.createVocabularyFetchOptions())
                 }
 
                 var fCheck = function (facade: openbis.openbis, vocabularies: openbis.Vocabulary[]) {
                     c.assertEqual(vocabularies.length, 1)
                     var vocabulary = vocabularies[0]
-                    c.assertEqual(vocabulary.getCode(), "$STORAGE_FORMAT", "Code")
+                    c.assertEqual(vocabulary.getCode(), "STORAGE_FORMAT", "Code")
                     c.assertEqual(vocabulary.getDescription(), "The on-disk storage format of a data set", "Description")
                     c.assertEqual(vocabulary.isManagedInternally(), true, "Managed internally")
                     c.assertEqual(vocabulary.getTerms().length, 2, "# of terms")
@@ -2314,7 +2314,7 @@ exports.default = new Promise((resolve) => {
                     }
                     codes.sort()
                     var actual = codes.toString()
-                    var expected = "$DEFAULT_COLLECTION_VIEWS,$STORAGE.STORAGE_VALIDATION_LEVEL,AGILENT_KIT,KIT,SAMPLE_TYPE"
+                    var expected = "AGILENT_KIT,DEFAULT_COLLECTION_VIEWS,KIT,SAMPLE_TYPE,STORAGE.STORAGE_VALIDATION_LEVEL"
                     c.assertEqual(actual, expected, "Vocabularies Expected: [" + expected + "] - Actual: [" + actual + "]")
                 }
 
@@ -2334,7 +2334,7 @@ exports.default = new Promise((resolve) => {
                     c.assertEqual(terms.length, 1)
                     var term = terms[0]
                     c.assertEqual(term.getCode(), "BDS_DIRECTORY", "Code")
-                    c.assertEqual(term.getVocabulary().getCode(), "$STORAGE_FORMAT", "Vocabulary code")
+                    c.assertEqual(term.getVocabulary().getCode(), "STORAGE_FORMAT", "Vocabulary code")
                     c.assertEqual(term.getOrdinal(), 2, "Ordinal")
                     c.assertEqual(term.isOfficial(), true, "Official")
                 }
@@ -2355,7 +2355,7 @@ exports.default = new Promise((resolve) => {
                     c.assertEqual(terms.length, 1)
                     var term = terms[0]
                     c.assertEqual(term.getCode(), "BDS_DIRECTORY", "Code")
-                    c.assertEqual(term.getVocabulary().getCode(), "$STORAGE_FORMAT", "Vocabulary code")
+                    c.assertEqual(term.getVocabulary().getCode(), "STORAGE_FORMAT", "Vocabulary code")
                     c.assertEqual(term.getOrdinal(), 2, "Ordinal")
                     c.assertEqual(term.isOfficial(), true, "Official")
                 }

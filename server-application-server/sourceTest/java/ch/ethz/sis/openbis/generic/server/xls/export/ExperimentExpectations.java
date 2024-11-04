@@ -100,8 +100,8 @@ class ExperimentExpectations extends Expectations
                 experiments[0].setCode("STORAGES_COLLECTION");
                 experiments[0].setProject(projects[0]);
                 experiments[0].setType(experimentTypes[0]);
-                experiments[0].setProperty("$NAME", "a".repeat(Short.MAX_VALUE + 1));
-                experiments[0].setProperty("$DEFAULT_OBJECT_TYPE", "EXPERIMENTAL_STEP");
+                experiments[0].setProperty("NAME", "a".repeat(Short.MAX_VALUE + 1));
+                experiments[0].setProperty("DEFAULT_OBJECT_TYPE", "EXPERIMENTAL_STEP");
                 experiments[0].setRegistrator(registrator);
                 experiments[0].setModifier(modifier);
                 experiments[0].setRegistrationDate(registrationDate);
@@ -114,7 +114,7 @@ class ExperimentExpectations extends Expectations
                 experiments[1].setCode("DEFAULT");
                 experiments[1].setProject(projects[1]);
                 experiments[1].setType(experimentTypes[1]);
-                experiments[1].setProperty("$NAME", "Default");
+                experiments[1].setProperty("NAME", "Default");
                 experiments[1].setProperty("FINISHED_FLAG", "FALSE");
                 experiments[1].setRegistrator(registrator);
                 experiments[1].setModifier(modifier);
@@ -128,8 +128,8 @@ class ExperimentExpectations extends Expectations
                 experiments[2].setCode("TEST");
                 experiments[2].setProject(projects[2]);
                 experiments[2].setType(experimentTypes[0]);
-                experiments[2].setProperty("$NAME", "b".repeat(Short.MAX_VALUE + 1));
-                experiments[2].setProperty("$DEFAULT_OBJECT_TYPE", "DEFAULT_SAMPLE");
+                experiments[2].setProperty("NAME", "b".repeat(Short.MAX_VALUE + 1));
+                experiments[2].setProperty("DEFAULT_OBJECT_TYPE", "DEFAULT_SAMPLE");
                 experiments[2].setRegistrator(registrator);
                 experiments[2].setModifier(modifier);
                 experiments[2].setRegistrationDate(registrationDate);
@@ -194,12 +194,14 @@ class ExperimentExpectations extends Expectations
                 experimentTypes[0] = new ExperimentType();
                 experimentTypes[0].setFetchOptions(typeFetchOptions);
                 experimentTypes[0].setPermId(new EntityTypePermId("COLLECTION"));
+                experimentTypes[0].setManagedInternally(false);
                 experimentTypes[0].setPropertyAssignments(
                         List.of(namePropertyAssignment, defaultObjectTypePropertyAssignment)
                 );
 
                 experimentTypes[1] = new ExperimentType();
                 experimentTypes[1].setFetchOptions(typeFetchOptions);
+                experimentTypes[1].setManagedInternally(false);
                 experimentTypes[1].setPermId(new EntityTypePermId("DEFAULT_EXPERIMENT"));
                 experimentTypes[1].setPropertyAssignments(List.of(namePropertyAssignment, finishedPropertyAssignment));
                 return experimentTypes;
@@ -208,7 +210,7 @@ class ExperimentExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);
@@ -227,7 +229,7 @@ class ExperimentExpectations extends Expectations
             private PropertyAssignment getDefaultObjectTypePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$DEFAULT_OBJECT_TYPE");
+                propertyType.setCode("DEFAULT_OBJECT_TYPE");
                 propertyType.setLabel("Default object type");
                 propertyType.setDescription("Enter the code of the object type for which the collection is used");
                 propertyType.setDataType(DataType.VARCHAR);

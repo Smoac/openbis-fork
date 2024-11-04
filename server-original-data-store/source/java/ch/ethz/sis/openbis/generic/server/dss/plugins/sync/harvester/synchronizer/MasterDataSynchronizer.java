@@ -310,7 +310,7 @@ public class MasterDataSynchronizer
         {
             originalCode = nameTranslator.translateBack(originalCode);
         }
-        return CodeConverter.tryToBusinessLayer(originalCode, internal);
+        return originalCode;
     }
 
     private boolean isInternallyManagedBySystem(Vocabulary vocabulary)
@@ -714,7 +714,7 @@ public class MasterDataSynchronizer
         {
             originalCode = nameTranslator.translateBack(originalCode);
         }
-        return CodeConverter.tryToBusinessLayer(originalCode, internal);
+        return originalCode;
     }
 
     private boolean isInternallyManagedBySystem(PropertyType propertyType)
@@ -751,10 +751,6 @@ public class MasterDataSynchronizer
             return null;
         }
         String code = vocabulary.getCode();
-        if (vocabulary.isManagedInternally() && code.startsWith("$") == false)
-        {
-            code = "$" + code;
-        }
         return code;
     }
 

@@ -52,7 +52,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             server: [
                 {
                     type: "Property",
-                    name: "$NAME",
+                    name: "NAME",
                     direction: "asc",
                 },
                 {
@@ -69,7 +69,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             server: [
                 {
                     type: "Property",
-                    name: "$NAME",
+                    name: "NAME",
                     direction: "desc",
                 },
                 {
@@ -893,7 +893,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                     rules: {
                         [Util.guid()]: {
                             type: "Property",
-                            name: "$NAME",
+                            name: "NAME",
                             value: filter,
                             operator: "thatStartsWithString",
                         },
@@ -959,7 +959,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                     rules: {
                         [Util.guid()]: {
                             type: "Property",
-                            name: "$NAME",
+                            name: "NAME",
                             value: filter,
                             operator: "thatStartsWithString",
                         },
@@ -1048,7 +1048,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                     rules: {
                         [Util.guid()]: {
                             type: "Property",
-                            name: "$NAME",
+                            name: "NAME",
                             value: filter,
                             operator: "thatStartsWithString",
                         },

@@ -84,10 +84,8 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
         TranslationResults relations = (TranslationResults) objectRelations;
         ExperimentTypeBaseRecord baseRecord = relations.get(IExperimentTypeBaseTranslator.class, typeId);
 
-        String businessCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.managedInternally);
-
-        result.setPermId(new EntityTypePermId(businessCode, EntityKind.EXPERIMENT));
-        result.setCode(businessCode);
+        result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.EXPERIMENT));
+        result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
         result.setMetaData(CommonUtils.asMap(baseRecord.metaData));

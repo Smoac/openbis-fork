@@ -15,14 +15,13 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
+import org.hibernate.ScrollableResults;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
@@ -109,7 +108,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             return;
         }
 
-        new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(session, assignment.getPropertyType(), assignment);
+        new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(session, assignment.getEntityType(), assignment.getPropertyType(), assignment);
 
         getEntityPropertyTypeDAO(entityKind).delete(assignment);
         assignment = null;
@@ -207,20 +206,15 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         final String entityTypeCode = entityType.getSimpleCode();
         final String propertyTypeCode = propertyType.getSimpleCode();
         IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
-        ResultSet propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode);
-        try {
-            if(propertyValues.isBeforeFirst()) {
-                while(propertyValues.next()) {
-                    String value = propertyValues.getString(1);
-                    if(!newPattern.matcher(value).matches()) {
-                        throw new UserFailureException(String.format(errorMsgTemplate, value));
-                    }
+
+        try (ScrollableResults propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode)) {
+            while (propertyValues.next()) {
+                String value = (String) propertyValues.get()[0];
+                if (!newPattern.matcher(value).matches()) {
+                    throw new UserFailureException(String.format(errorMsgTemplate, value));
                 }
             }
-        } catch(SQLException e) {
-            throw new RuntimeException(e);
         }
-
     }
 
     private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
@@ -355,7 +349,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
         if (snapshotBefore.equals(snapshotAfter) == false)
         {
-            new InternalPropertyTypeAuthorization().canUpdatePropertyAssignment(session, assignment.getPropertyType(), assignment);
+            new InternalPropertyTypeAuthorization().canUpdatePropertyAssignment(session, assignment.getEntityType(), assignment.getPropertyType(), assignment);
         }
 
         validateAndSave();
@@ -412,7 +406,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setPattern(pattern);
         etpt.setPatternRegex(patternRegex);
 
-        new InternalPropertyTypeAuthorization().canCreatePropertyAssignment(session, etpt.getPropertyType(), etpt);
+        new InternalPropertyTypeAuthorization().canCreatePropertyAssignment(session, entityType, etpt.getPropertyType(), etpt);
 
         try
         {

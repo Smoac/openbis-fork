@@ -104,7 +104,7 @@ public class ZipImportTest extends AbstractImportTest
                                            v3api.executeImport(sessionToken, importData, importOptions);
                                        }
                                    },
-                "Experiment type $INTERNAL_EXPERIMENT_TYPE not found.");
+                "Vocabulary INTERNAL_VOCABULARY_TYPE does not exist.");
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ZipImportTest extends AbstractImportTest
         v3api.executeImport(systemSessionToken, importData, importOptions);
 
         final DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
-        dataSetTypeSearchCriteria.withCode().thatEquals("$INTERNAL_DATASET_TYPE");
+        dataSetTypeSearchCriteria.withCode().thatEquals("INTERNAL_DATASET_TYPE");
 
         final DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
 
@@ -131,7 +131,7 @@ public class ZipImportTest extends AbstractImportTest
         assertEquals(dataSetTypeSearchResult.getObjects().get(0).getDescription(), "Internal Dataset Type");
 
         final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
-        sampleTypeSearchCriteria.withPermId().thatEquals("$INTERNAL_SAMPLE_TYPE");
+        sampleTypeSearchCriteria.withPermId().thatEquals("INTERNAL_SAMPLE_TYPE");
 
         final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
 
@@ -142,7 +142,7 @@ public class ZipImportTest extends AbstractImportTest
         assertEquals(sampleTypeSearchResult.getObjects().get(0).getDescription(), "Internal Sample Type");
 
         final ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
-        experimentTypeSearchCriteria.withCode().thatEquals("$INTERNAL_EXPERIMENT_TYPE");
+        experimentTypeSearchCriteria.withCode().thatEquals("INTERNAL_EXPERIMENT_TYPE");
 
         final ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
         experimentTypeFetchOptions.withPropertyAssignments().withPropertyType();
@@ -156,12 +156,12 @@ public class ZipImportTest extends AbstractImportTest
 
         List<PropertyAssignment> propertyAssignments = experimentType.getPropertyAssignments();
         assertEquals(propertyAssignments.size(), 2);
-        Optional<PropertyAssignment> assignmentOptional = propertyAssignments.stream().filter(x -> "$FOR_WHAT_INTERNAL".equals(x.getPropertyType().getCode())).findFirst();
+        Optional<PropertyAssignment> assignmentOptional = propertyAssignments.stream().filter(x -> "FOR_WHAT_INTERNAL".equals(x.getPropertyType().getCode())).findFirst();
         assertTrue(assignmentOptional.isPresent());
         assertTrue(assignmentOptional.get().isManagedInternally());
 
         final VocabularySearchCriteria vocabularySearchCriteria = new VocabularySearchCriteria();
-        vocabularySearchCriteria.withCode().thatEquals("$INTERNAL_VOCABULARY_TYPE");
+        vocabularySearchCriteria.withCode().thatEquals("INTERNAL_VOCABULARY_TYPE");
 
         final VocabularyFetchOptions vocabularyFetchOptions = new VocabularyFetchOptions();
         vocabularyFetchOptions.withTerms();
@@ -174,7 +174,7 @@ public class ZipImportTest extends AbstractImportTest
 
         for(VocabularyTerm term : vocabulary.getTerms())
         {
-            if(term.getCode().equals("$INTERNAL_TERM"))
+            if(term.getCode().equals("INTERNAL_TERM"))
             {
                 assertTrue(term.isManagedInternally());
             } else if (term.getCode().equals("REGULAR_TERM")) {

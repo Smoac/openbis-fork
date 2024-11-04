@@ -51,7 +51,7 @@ public class ELNAnnotationsMigration {
         operationLog.info("ELNAnnotationsMigration beforeUpgrade START");
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withProperty("$ANNOTATIONS_STATE");
+        criteria.withProperty("ANNOTATIONS_STATE");
         SampleFetchOptions options = new SampleFetchOptions();
         options.withProperties();
         options.withParents();
@@ -79,7 +79,7 @@ public class ELNAnnotationsMigration {
             operationLog.info("ELNAnnotationsMigration from: " + from + " count: " + count + " total: " + total);
             for (Sample sample:api.searchSamples(sessionToken, criteria, options).getObjects()) {
                 SampleUpdate sampleUpdate = null;
-                String annotations = (String) sample.getProperty("$ANNOTATIONS_STATE");
+                String annotations = (String) sample.getProperty("ANNOTATIONS_STATE");
                 // XML Properties can potentially contain garbage values, ignore those
                 if (!annotations.isEmpty() && !annotations.startsWith("�")) {
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

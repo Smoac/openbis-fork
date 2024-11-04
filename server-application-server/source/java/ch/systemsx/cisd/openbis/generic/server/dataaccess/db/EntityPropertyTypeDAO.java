@@ -27,11 +27,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.apache.commons.dbcp.DelegatingConnection;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.hibernate.StatelessSession;
+import org.hibernate.*;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -307,58 +303,27 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     @Override
-    public ResultSet listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
+    public ScrollableResults listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
     {
-        String query = "";
-        switch (entityKind) {
-            case EXPERIMENT:
-                query = String.format("SELECT ep.value FROM experiment_types et " +
-                        " join experiment_type_property_types etpt on et.id = etpt.exty_id " +
-                        " join property_types pt on etpt.prty_id = pt.id " +
-                        " join experiment_properties ep on ep.etpt_id = etpt.id " +
-                        " where et.code = ?" +
-                        " and pt.code = ?");
-                break;
-            case SAMPLE:
-                query = String.format("SELECT sp.value FROM sample_types st " +
-                        " join sample_type_property_types stpt on st.id = stpt.saty_id " +
-                        " join property_types pt on stpt.prty_id = pt.id " +
-                        " join sample_properties sp on sp.stpt_id = stpt.id " +
-                        " where st.code = ?" +
-                        " and pt.code = ?");
-                break;
-            case DATA_SET:
-                query = String.format("SELECT dp.value FROM data_set_types dt " +
-                        " join data_set_type_property_types dtpt on dt.id = dtpt.dsty_id " +
-                        " join property_types pt on dtpt.prty_id = pt.id " +
-                        " join data_set_properties dp on dp.dstpt_id = dtpt.id " +
-                        " where dt.code = ?" +
-                        " and pt.code = ?");
-                break;
-            case MATERIAL:
-                query = String.format("SELECT mp.value FROM material_types mt " +
-                        " join material_type_property_types mtpt on mt.id = mtpt.maty_id " +
-                        " join property_types pt on mtpt.prty_id = pt.id " +
-                        " join material_properties mp on mp.mtpt_id = mtpt.id " +
-                        " where mt.code = ?" +
-                        " and pt.code = ?");
-                break;
-            default:
-                throw new IllegalArgumentException("Entity type '" + entityKind + "' is not supported!");
-        }
+        final String queryString = String.format("SELECT pv.value FROM %s pa join %s pv "
+                        + " ON pa.id = pv.entityTypePropertyType.id "
+                        + " WHERE pa.propertyTypeInternal.simpleCode = :propertyTypeCode "
+                        + " AND pa.entityTypeInternal.simpleCode = :entityTypeCode ",
+                entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
+                entityKind.getEntityPropertyClass().getSimpleName()
+        );
 
-        SessionImpl currentSession = (SessionImpl) currentSession();
-        DelegatingConnection delegatingConnection = (DelegatingConnection) currentSession.connection();
-        Connection connection = delegatingConnection.getInnermostDelegate();
-        try {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, entityTypeCode);
-            statement.setString(2, propertyTypeCode);
-            connection.setAutoCommit(false);
-            return statement.executeQuery();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        Query query = currentSession().createQuery(queryString)
+                .setReadOnly(true)
+                .setCacheable(false)
+                .setFetchSize(1000);
+
+        query.setParameter("propertyTypeCode", propertyTypeCode);
+        query.setParameter("entityTypeCode", entityTypeCode);
+
+        ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
+        return results;
     }
 
     @Override

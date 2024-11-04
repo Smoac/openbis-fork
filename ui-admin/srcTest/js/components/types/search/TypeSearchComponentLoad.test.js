@@ -65,6 +65,10 @@ async function testLoadWithSearchText(resultsFound) {
       objectTypes: {
         columns: [
           {
+            name: 'Internal',
+            label: ''
+          },
+          {
             name: 'code',
             label: 'Code'
           },
@@ -109,6 +113,10 @@ async function testLoadWithSearchText(resultsFound) {
       collectionTypes: {
         columns: [
           {
+            name: 'Internal',
+            label: ''
+          },
+          {
             name: 'code',
             label: 'Code'
           },
@@ -137,6 +145,10 @@ async function testLoadWithSearchText(resultsFound) {
       },
       dataSetTypes: {
         columns: [
+          {
+            name: 'Internal',
+            label: ''
+          },
           {
             name: 'code',
             label: 'Code'
@@ -182,6 +194,10 @@ async function testLoadWithSearchText(resultsFound) {
       materialTypes: {
         columns: [
           {
+            name: 'Internal',
+            label: ''
+          },
+          {
             name: 'code',
             label: 'Code'
           },
@@ -210,6 +226,10 @@ async function testLoadWithSearchText(resultsFound) {
       },
       vocabularyTypes: {
         columns: [
+          {
+            name: 'Internal',
+            label: ''
+          },
           {
             name: 'code',
             label: 'Code'
@@ -247,6 +267,10 @@ async function testLoadWithSearchText(resultsFound) {
       },
       propertyTypes: {
         columns: [
+          {
+            name: 'Internal',
+            label: ''
+          },
           {
             name: 'code',
             label: 'Code'
@@ -340,6 +364,10 @@ async function testLoadWithObjectType(resultsFound) {
     messages: [],
     objectTypes: {
       columns: [
+        {
+          name: 'Internal',
+          label: ''
+        },
         {
           name: 'code',
           label: 'Code'

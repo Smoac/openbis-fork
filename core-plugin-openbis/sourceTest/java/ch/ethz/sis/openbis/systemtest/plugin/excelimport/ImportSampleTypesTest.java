@@ -164,7 +164,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
         // THEN
         boolean namePropertyExists =
-                antibody.getPropertyAssignments().stream().anyMatch(propAssignment -> propAssignment.getPropertyType().getCode().equals("$NAME"));
+                antibody.getPropertyAssignments().stream().anyMatch(propAssignment -> propAssignment.getPropertyType().getCode().equals("NAME"));
         boolean forWhatPropertyExists =
                 antibody.getPropertyAssignments().stream().anyMatch(propAssignment -> propAssignment.getPropertyType().getCode().equals("FOR_WHAT"));
         boolean epitopePropertyExists =

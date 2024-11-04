@@ -105,7 +105,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -126,7 +126,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT2");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Other Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Other Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "Random string");
     }
 
@@ -158,7 +158,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -189,7 +189,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -247,7 +247,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -279,7 +279,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -308,7 +308,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), null);
+        assertEquals(experiment.getProperties().get("NAME"), null);
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -344,7 +344,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -369,7 +369,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -398,7 +398,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -428,7 +428,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -450,7 +450,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -476,7 +476,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         // THEN
         assertEquals(experiment.getCode(), "TEST_EXPERIMENT");
         assertEquals(experiment.getProject().getCode(), "TEST_PROJECT");
-        assertEquals(experiment.getProperties().get("$NAME"), "Value");
+        assertEquals(experiment.getProperties().get("NAME"), "Value");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "OBJECT_TYPE");
     }
 
@@ -498,7 +498,7 @@ public class ImportExperimentsTest extends AbstractImportTest
         Experiment experiment = TestUtils.getExperiment(v3api, sessionToken, "TEST_EXPERIMENT", "TEST_PROJECT", "TEST_SPACE");
 
         // THEN
-        assertEquals(experiment.getProperties().get("$NAME"), "NameUpdate");
+        assertEquals(experiment.getProperties().get("NAME"), "NameUpdate");
         assertEquals(experiment.getProperties().get("DEFAULT_OBJECT_TYPE"), "DefaultObjectTypeUpdate");
     }
 

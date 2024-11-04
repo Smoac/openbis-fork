@@ -30,14 +30,14 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class VocabularyImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
         Version("Version", false),
         Code("Code", true),
-        Description("Description", true);
+        Description("Description", true),
+        Internal("Internal", false);
 
         private final String headerName;
 
@@ -80,7 +80,7 @@ public class VocabularyImportHelper extends BasicImportHelper
         return isNewVersionWithInternalNamespace(header, values, versions,
                 delayedExecutor.isSystem(),
                 getTypeName().getType(),
-                Attribute.Version, Attribute.Code);
+                Attribute.Version, Attribute.Code, Attribute.Internal);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
@@ -110,11 +110,12 @@ public class VocabularyImportHelper extends BasicImportHelper
     @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
+        String internal = getValueByColumnName(header, values, Attribute.Internal);
         String description = getValueByColumnName(header, values, Attribute.Description);
 
         VocabularyCreation create = new VocabularyCreation();
         create.setCode(code);
-        create.setManagedInternally(ImportUtils.isInternalNamespace(code));
+        create.setManagedInternally(ImportUtils.isTrue(internal));
         create.setDescription(description);
         delayedExecutor.createVocabulary(create);
     }

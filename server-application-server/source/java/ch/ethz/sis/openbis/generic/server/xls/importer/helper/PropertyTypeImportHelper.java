@@ -72,7 +72,10 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         MultiValued("Multivalued", false),
         Unique("Unique", false),
         Pattern("Pattern", false),
-        PatternType("Pattern Type", false);
+        PatternType("Pattern Type", false),
+        Internal("Internal", false),
+        InternalAssignment("Internal Assignment", false);
+
 
         private final String headerName;
 
@@ -117,7 +120,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void validateLine(Map<String, Integer> headers, List<String> values)
     {
         // Validate Unambiguous
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(headers, values, Attribute.Code));
+        String code = getValueByColumnName(headers, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(headers, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(headers, values, Attribute.Description);
         String dataType = getValueByColumnName(headers, values, Attribute.DataType);
@@ -147,14 +150,14 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         return isNewVersionWithInternalNamespace(header, values, versions,
                 delayedExecutor.isSystem(),
                 getTypeName().getType(),
-                Attribute.Version, Attribute.Code);
+                Attribute.Version, Attribute.Code, Attribute.Internal);
     }
 
     @Override
     protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
+        String code = getValueByColumnName(header, values, Attribute.Code);
 
         if (version == null || version.isEmpty()) {
             Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code);
@@ -168,7 +171,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     @Override
     protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
+        String code = getValueByColumnName(header, values, Attribute.Code);
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
         fetchOptions.withVocabulary().withTerms().withVocabulary();
 
@@ -180,13 +183,14 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void createObject(Map<String, Integer> header, List<String> values, int page,
             int line)
     {
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
+        String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
         String multiValued = getValueByColumnName(header, values, Attribute.MultiValued);
+        String internal = getValueByColumnName(header, values, Attribute.Internal);
 
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -206,22 +210,16 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             creation.setDataType(DataType.valueOf(dataType));
         }
 
-        creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
+        creation.setManagedInternally(ImportUtils.isTrue(internal));
+        creation.setMultiValue(ImportUtils.isTrue(multiValued));
+
         if (vocabularyCode != null && !vocabularyCode.isEmpty())
         {
             creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
         }
-        if (metadata != null && !metadata.isEmpty())
+        if (metadata != null && !metadata.trim().isEmpty())
         {
             creation.setMetaData(JSONHandler.parseMetaData(metadata));
-        }
-
-        if (multiValued != null && !multiValued.isEmpty())
-        {
-            creation.setMultiValue(Boolean.parseBoolean(multiValued));
-        } else
-        {
-            creation.setMultiValue(false);
         }
 
 
@@ -232,7 +230,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     protected void updateObject(Map<String, Integer> header, List<String> values, int page,
             int line)
     {
-        String code = ImportUtils.getPropertyCode(getValueByColumnName(header, values, Attribute.Code));
+        String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
@@ -275,6 +273,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             {
                 operationLog.warn(
                         "PROPERTY TYPE [" + code + "] : Vocabulary types can't be updated. Ignoring the update.");
+                operationLog.warn(
+                        "PROPERTY TYPE [" + code + "] : Current: [" + propertyType.getVocabulary().getCode() + "] New: [" + vocabularyCode + "]");
                 throw new UserFailureException("Vocabulary types can't be updated.");
             } else if (propertyType.getVocabulary() == null) {
                 operationLog.warn(

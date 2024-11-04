@@ -54,15 +54,15 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'test_role'" },
                 { "ORGANISM", TEST_POWER_USER_CISD, false, null },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, true, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, true, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, false, null },
 
-                { "$PLATE_GEOMETRY", TEST_USER, true, null },
-                { "$PLATE_GEOMETRY", TEST_USER, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, true, null },
+                { "PLATE_GEOMETRY", TEST_USER, false, null },
 
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, true,
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, true,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user 'test_role'" },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, false, null },
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, false, null },
         };
     }
 
@@ -131,11 +131,11 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
                 { "ORGANISM", TEST_USER, SYSTEM_USER, "Vocabulary term EXISTING-TERM-CODE (ORGANISM) already exists" },
                 { "ORGANISM", TEST_USER, TEST_USER, "Vocabulary term EXISTING-TERM-CODE (ORGANISM) already exists" },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, "Vocabulary term EXISTING-TERM-CODE ($PLATE_GEOMETRY) already exists" },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, "Vocabulary term EXISTING-TERM-CODE ($PLATE_GEOMETRY) already exists" },
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, "Vocabulary term EXISTING-TERM-CODE (PLATE_GEOMETRY) already exists" },
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, "Vocabulary term EXISTING-TERM-CODE (PLATE_GEOMETRY) already exists" },
 
-                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, "Vocabulary term EXISTING-TERM-CODE ($PLATE_GEOMETRY) already exists" },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, "Vocabulary term EXISTING-TERM-CODE ($PLATE_GEOMETRY) already exists" },
+                { "PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, "Vocabulary term EXISTING-TERM-CODE (PLATE_GEOMETRY) already exists" },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, "Vocabulary term EXISTING-TERM-CODE (PLATE_GEOMETRY) already exists" },
         };
     }
 
@@ -222,7 +222,7 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
     public void testCreateInternalTerms_asSystemUser()
     {
         VocabularyTermCreation creation = termCreation();
-        creation.setVocabularyId(new VocabularyPermId("$PLATE_GEOMETRY"));
+        creation.setVocabularyId(new VocabularyPermId("PLATE_GEOMETRY"));
         creation.setCode("MY_CODE");
         creation.setOfficial(true);
         creation.setManagedInternally(true);
@@ -233,7 +233,7 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
                 v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
 
         List<VocabularyTerm> termsAfter = listTerms(creation.getVocabularyId());
-        assertTerms(termsAfter, "96_WELLS_8X12", "384_WELLS_16X24", "1536_WELLS_32X48", "$MY_CODE");
+        assertTerms(termsAfter, "96_WELLS_8X12", "384_WELLS_16X24", "1536_WELLS_32X48", "MY_CODE");
     }
 
     @Test
@@ -335,13 +335,13 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTest
         creation.setCode("LOG_TEST_1");
 
         VocabularyTermCreation creation2 = new VocabularyTermCreation();
-        creation2.setVocabularyId(new VocabularyPermId("$PLATE_GEOMETRY"));
+        creation2.setVocabularyId(new VocabularyPermId("PLATE_GEOMETRY"));
         creation2.setCode("LOG_TEST_2");
 
         v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation, creation2));
 
         assertAccessLog(
-                "create-vocabulary-terms  NEW_VOCABULARY_TERMS('[VocabularyTermCreation[vocabularyId=ORGANISM,code=LOG_TEST_1], VocabularyTermCreation[vocabularyId=$PLATE_GEOMETRY,code=LOG_TEST_2]]')");
+                "create-vocabulary-terms  NEW_VOCABULARY_TERMS('[VocabularyTermCreation[vocabularyId=ORGANISM,code=LOG_TEST_1], VocabularyTermCreation[vocabularyId=PLATE_GEOMETRY,code=LOG_TEST_2]]')");
     }
 
     private VocabularyTermCreation termCreation()

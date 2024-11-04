@@ -479,7 +479,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
     sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteria, fetchOptions).getObjects();
     if sampleSearchResults.size() == 1:
         storage = sampleSearchResults.get(0);
-        storageValidationLevel = storage.getProperty("$STORAGE.STORAGE_VALIDATION_LEVEL");
+        storageValidationLevel = storage.getProperty("STORAGE.STORAGE_VALIDATION_LEVEL");
     else:
         raise UserFailureException("Found: " + str(sampleSearchResults.size()) + " storages for storage code: " + storageCode);
 

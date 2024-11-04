@@ -139,7 +139,7 @@ class DataSetExpectations extends Expectations
                 dataSets[0].setPhysicalData(physicalData[0]);
                 dataSets[0].setType(dataSetTypes[1]);
                 dataSets[0].setExperiment(experiment);
-                dataSets[0].setProperty("$NAME", "<b>Test 1</b>");
+                dataSets[0].setProperty("NAME", "<b>Test 1</b>");
                 dataSets[0].setProperty("NOTES", "<body><p><i>This is></i><br/>\n<b>multi</b>line<br/>\n<u>text</u>.</p></body>");
                 dataSets[0].setRegistrator(registrator);
                 dataSets[0].setModifier(modifier);
@@ -154,8 +154,8 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setSample(samples[0]);
                 dataSets[1].setExperiment(sampleExperiment);
                 dataSets[1].setType(dataSetTypes[0]);
-                dataSets[1].setProperty("$NAME", "<i>Test 2</i>");
-                dataSets[1].setProperty("$ATTACHMENT", "file1.bin");
+                dataSets[1].setProperty("NAME", "<i>Test 2</i>");
+                dataSets[1].setProperty("ATTACHMENT", "file1.bin");
                 dataSets[1].setRegistrator(registrator);
                 dataSets[1].setModifier(modifier);
                 dataSets[1].setRegistrationDate(registrationDate);
@@ -170,8 +170,8 @@ class DataSetExpectations extends Expectations
                 dataSets[2].setSample(samples[1]);
                 dataSets[2].setExperiment(sampleExperiment);
                 dataSets[2].setType(dataSetTypes[0]);
-                dataSets[2].setProperty("$NAME", "Test 3");
-                dataSets[2].setProperty("$ATTACHMENT", "file2.bin");
+                dataSets[2].setProperty("NAME", "Test 3");
+                dataSets[2].setProperty("ATTACHMENT", "file2.bin");
                 dataSets[2].setRegistrator(registrator);
                 dataSets[2].setModifier(modifier);
                 dataSets[2].setRegistrationDate(registrationDate);
@@ -210,6 +210,7 @@ class DataSetExpectations extends Expectations
 
                 dataSetTypes[0] = new DataSetType();
                 dataSetTypes[0].setFetchOptions(typeFetchOptions);
+                dataSetTypes[0].setManagedInternally(false);
                 dataSetTypes[0].setPermId(new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET));
                 dataSetTypes[0].setPropertyAssignments(
                         List.of(namePropertyAssignment, attachmentPropertyAssignment)
@@ -217,6 +218,7 @@ class DataSetExpectations extends Expectations
 
                 dataSetTypes[1] = new DataSetType();
                 dataSetTypes[1].setFetchOptions(typeFetchOptions);
+                dataSetTypes[1].setManagedInternally(false);
                 dataSetTypes[1].setPermId(new EntityTypePermId("RAW_DATA", EntityKind.DATA_SET));
                 dataSetTypes[1].setPropertyAssignments(List.of(namePropertyAssignment, notesPropertyAssignment));
                 return dataSetTypes;
@@ -225,7 +227,7 @@ class DataSetExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);
@@ -244,7 +246,7 @@ class DataSetExpectations extends Expectations
             private PropertyAssignment getAttachmentPropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$ATTACHMENT");
+                propertyType.setCode("ATTACHMENT");
                 propertyType.setLabel("Attachment");
                 propertyType.setDescription("Attachment");
                 propertyType.setDataType(DataType.VARCHAR);

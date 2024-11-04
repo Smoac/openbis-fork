@@ -460,7 +460,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
                 "[Data Set, HCS_IMAGE, BACTERIUM bacterium bacterium False 3 False False None True]",
                 "[Data Set, HCS_IMAGE, GENDER The gender of the living organism Gender False 4 False False None True]",
                 "[Data Set, UNKNOWN, N/A]",
-                "[Sample, MASTER_PLATE, $PLATE_GEOMETRY Plate Geometry Plate Geometry True 1 False False None True]",
+                "[Sample, MASTER_PLATE, PLATE_GEOMETRY Plate Geometry Plate Geometry True 1 False False None True]",
                 "[Sample, MASTER_PLATE, DESCRIPTION A Description Description False 2 False False None True]",
                 "[Sample, DILUTION_PLATE, OFFSET Offset from the start of the sequence Offset False 1 False False None True]",
                 "[Experiment, COMPOUND_HCS, DESCRIPTION A Description Description True 1 False False None True]",

@@ -52,8 +52,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			//
 			if(this._sampleTableModel.experiment && 
 					this._sampleTableModel.experiment.properties &&
-					this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"]) {
-				this._sampleTableModel.sampleTypeCodeToUse = this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"];
+					this._sampleTableModel.experiment.properties["DEFAULT_OBJECT_TYPE"]) {
+				this._sampleTableModel.sampleTypeCodeToUse = this._sampleTableModel.experiment.properties["DEFAULT_OBJECT_TYPE"];
 			}
 			
 			var sampleTypeCodeToUse = this._sampleTableModel.sampleTypeCodeToUse;

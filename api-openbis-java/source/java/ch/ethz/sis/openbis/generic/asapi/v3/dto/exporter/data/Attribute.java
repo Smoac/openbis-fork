@@ -44,6 +44,8 @@ public enum Attribute
 
     IDENTIFIER,
 
+    INTERNAL,
+
     LABEL,
 
     MAIN_DATA_SET_PATH,

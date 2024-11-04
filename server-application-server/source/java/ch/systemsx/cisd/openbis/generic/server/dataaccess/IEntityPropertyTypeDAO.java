@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.sql.ResultSet;
 import java.util.List;
 
+import org.hibernate.ScrollableResults;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -136,9 +137,10 @@ public interface IEntityPropertyTypeDAO
     /**
      * List all property values associated to a given entityType-propertyType combination.
      * Useful for re-validation of property values upon pattern-patternType change.
+     * Always remember to close the ScrollableResults!
      * @param entityTypeCode Code of the entity type
      * @param propertyTypeCode Code of property type
      * @return List of non-empty property values of type:propertyTypeCode assigned to entities of type:entityTypeCode
      */
-    public ResultSet listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
+    public ScrollableResults listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException;
 }

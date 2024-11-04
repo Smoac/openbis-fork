@@ -329,6 +329,7 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
     }
 
     @JsonIgnore
+    @Override
     public Boolean isManagedInternally()
     {
         return managedInternally;

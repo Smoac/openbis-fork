@@ -160,7 +160,7 @@ public class TypedTableModelBuilderTest extends AssertJUnit
 
         TypedTableModel<Serializable> model = builder.getModel();
         List<TableModelColumnHeader> headers = model.getHeader();
-        assertHeadersOrder(headers, "ALPHA", "$BETA", "DELTA", "GAMMA", "KAPPA");
+        assertHeadersOrder(headers, "ALPHA", "BETA", "DELTA", "GAMMA", "KAPPA");
         List<TableModelRowWithObject<Serializable>> rows = model.getRows();
         assertEquals(new StringTableCell("HELLO (TEST)"), rows.get(0).getValues().get(0));
         assertEquals(new StringTableCell("3.25"), rows.get(0).getValues().get(1));
@@ -178,7 +178,7 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         String normalizedKey = key.toUpperCase();
         propertyType.setSimpleCode(normalizedKey);
         propertyType.setManagedInternally(managedInternally);
-        propertyType.setCode((managedInternally ? "$" : "") + normalizedKey);
+        propertyType.setCode(normalizedKey);
         propertyType.setLabel(key);
         propertyType.setDataType(new DataType(type));
         property.setPropertyType(propertyType);

@@ -126,7 +126,7 @@ public class LibraryEntityRegistrator
     private static class PlateRegistrator extends AbstractMetadataRegistrator
     {
         private static final String HEADER_PLATES = "[PLATE]\n"
-                + join("identifier", "experiment", "$PLATE_GEOMETRY");
+                + join("identifier", "experiment", "PLATE_GEOMETRY");
 
         private static final String HEADER_SIRNAS = "[" + ScreeningConstants.SIRNA_WELL_TYPE_CODE
                 + "]\n" + join("identifier", "experiment", "container", "SIRNA", "GENE");

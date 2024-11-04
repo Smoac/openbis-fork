@@ -228,7 +228,6 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     public void setCode(final String fullCode)
     {
-        setManagedInternally(CodeConverter.isInternalNamespace(fullCode));
         setSimpleCode(CodeConverter.tryToDatabase(fullCode));
     }
 
@@ -236,7 +235,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     @Transient
     public String getCode()
     {
-        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isManagedInternally());
+        return getSimpleCode();
     }
 
     @Override

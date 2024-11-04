@@ -59,19 +59,19 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
                 { "ORGANISM", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
                         "Internal vocabulary terms can be managed only by the system user." },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
                         "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },
 
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
         };
     }
@@ -116,12 +116,12 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
                 { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, false, null },
                 { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, false, null },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, true,
+                { "PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, true,
                         "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, false,null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, false, null },
+                { "PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, false,null },
+                { "PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, false, null },
         };
     }
 
@@ -309,7 +309,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
     @Test
     public void testUpdateInternalTermWithNonSystemUser_fail()
     {
-        String vocabularyCode = "$PLATE_GEOMETRY";
+        String vocabularyCode = "PLATE_GEOMETRY";
 
         VocabularyTermCreation creation = new VocabularyTermCreation();
         creation.setCode("MY_INTERNAL_CODE");
@@ -325,7 +325,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
 
 
         VocabularyTermUpdate update = new VocabularyTermUpdate();
-        update.setVocabularyTermId(new VocabularyTermPermId("$MY_INTERNAL_CODE", vocabularyCode));
+        update.setVocabularyTermId(new VocabularyTermPermId("MY_INTERNAL_CODE", vocabularyCode));
         update.setLabel("a brand new label");
 
         assertExceptionMessage(new IDelegatedAction()
@@ -378,12 +378,12 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
         update.setVocabularyTermId(new VocabularyTermPermId("DOG", "ORGANISM"));
 
         VocabularyTermUpdate update2 = new VocabularyTermUpdate();
-        update2.setVocabularyTermId(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        update2.setVocabularyTermId(new VocabularyTermPermId("PROPRIETARY", "STORAGE_FORMAT"));
 
         v3api.updateVocabularyTerms(sessionToken, Arrays.asList(update, update2));
 
         assertAccessLog(
-                "update-vocabulary-terms  VOCABULARY_TERM_UPDATES('[VocabularyTermUpdate[vocabularyTermId=DOG (ORGANISM)], VocabularyTermUpdate[vocabularyTermId=PROPRIETARY ($STORAGE_FORMAT)]]')");
+                "update-vocabulary-terms  VOCABULARY_TERM_UPDATES('[VocabularyTermUpdate[vocabularyTermId=DOG (ORGANISM)], VocabularyTermUpdate[vocabularyTermId=PROPRIETARY (STORAGE_FORMAT)]]')");
     }
 
     private List<VocabularyTerm> updateTerms(String user, String password, VocabularyTermUpdate... updates)

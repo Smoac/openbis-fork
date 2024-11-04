@@ -30,7 +30,7 @@ def test_get_datasets_count(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset.save()
 
@@ -49,7 +49,7 @@ def test_get_datasets_paging(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset1.save()
 
@@ -57,7 +57,7 @@ def test_get_datasets_paging(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset2.save()
 
@@ -76,7 +76,7 @@ def test_create_datasets_no_file(space):
         o.new_dataset(
             type="RAW_DATA",
             experiment="/DEFAULT/DEFAULT/DEFAULT",
-            props={"$name": "some good name"},
+            props={"name": "some good name"},
         )
     assert str(exc.value) == "please provide at least one file"
 
@@ -90,13 +90,13 @@ def test_create_delete_dataset(space):
         type="RAW_DATA",
         sample="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name", "notes": "my notes"},
+        props={"name": "some good name", "notes": "my notes"},
     )
 
     assert dataset is not None
     assert not dataset.permId
     assert dataset.p is not None
-    assert dataset.p["$name"] == "some good name"
+    assert dataset.p["name"] == "some good name"
     assert dataset.p.notes == "my notes"
 
     with pytest.raises(Exception):
@@ -126,7 +126,7 @@ def test_create_delete_dataset(space):
     assert dataset_by_permId.experiment.code == "DEFAULT"
 
     assert dataset_by_permId.p is not None
-    assert dataset_by_permId.p["$name"] == "some good name"
+    assert dataset_by_permId.p["name"] == "some good name"
     assert dataset_by_permId.p.notes == "my notes"
 
     assert dataset_by_permId.registrator is not None
@@ -223,7 +223,7 @@ def test_create_new_dataset_v1(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset.save()
 
@@ -240,7 +240,7 @@ def test_create_new_dataset_v3_single_file(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset.save()
 
@@ -257,7 +257,7 @@ def test_create_new_dataset_v3_directory(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset.save()
 
@@ -365,7 +365,7 @@ def test_dataset_array_properties(space):
     )
     dataset_type.save()
 
-    dataset_type.assign_property('$NAME')
+    dataset_type.assign_property('NAME')
     dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_INTEGER')
     dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_REAL')
     dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_STRING')
@@ -582,7 +582,7 @@ def test_create_new_dataset_with_parent(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
     )
     dataset.save()
 
@@ -593,7 +593,7 @@ def test_create_new_dataset_with_parent(space):
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={"$name": "some good name"},
+        props={"name": "some good name"},
         parents=[dataset.permId]
     )
     new_dataset.save()

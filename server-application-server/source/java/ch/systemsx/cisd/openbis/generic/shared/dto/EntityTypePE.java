@@ -116,7 +116,7 @@ public abstract class EntityTypePE extends AbstractTypePE
 
     public void setCode(final String fullCode)
     {
-        setManagedInternally(CodeConverter.isInternalNamespace(fullCode));
+//        setManagedInternally(CodeConverter.isInternalNamespace(fullCode));
         setSimpleCode(CodeConverter.tryToDatabase(fullCode));
     }
 
@@ -124,7 +124,8 @@ public abstract class EntityTypePE extends AbstractTypePE
     @Transient
     public String getCode()
     {
-        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isManagedInternally());
+//        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isManagedInternally());
+        return getSimpleCode();
     }
 
     @Transient

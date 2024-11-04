@@ -66,6 +66,12 @@ async function testLoadExisting() {
   const gridJSON = {
     columns: [
       {
+        name: 'Internal',
+        label: '',
+        filter: null,
+        sort: null
+      },
+      {
         name: 'code',
         label: 'Code',
         filter: null,

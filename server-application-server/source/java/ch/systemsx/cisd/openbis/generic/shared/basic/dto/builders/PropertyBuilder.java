@@ -88,7 +88,7 @@ public class PropertyBuilder
     {
         PropertyType propertyType = property.getPropertyType();
         propertyType.setManagedInternally(true);
-        propertyType.setCode("$" + propertyType.getSimpleCode());
+        propertyType.setCode(propertyType.getSimpleCode());
         return this;
     }
 

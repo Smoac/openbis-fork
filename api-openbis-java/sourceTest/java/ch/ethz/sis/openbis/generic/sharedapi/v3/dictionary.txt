@@ -1296,6 +1296,7 @@ ImagingDataSetControl
 ImagingDataSetExport
 ImagingDataSetImage
 ImagingDataSetPreview
+IManagedInternallyHolder
 IMaterialId
 IMetaDataUpdateHolder
 IModificationDateHolder
@@ -1312,6 +1313,7 @@ indent
 indexOf
 INSTANCE
 INTEGER
+INTERNAL
 INTERNAL_SERVICE_NAME
 IObjectCreation
 IObjectId

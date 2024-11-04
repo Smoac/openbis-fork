@@ -69,13 +69,11 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         assert code != null : "Unspecified property type code";
 
         final String mangledCode = CodeConverter.tryToDatabase(code);
-        final boolean internalNamespace = CodeConverter.isInternalNamespace(code);
         final List<PropertyTypePE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("select pt from %s pt where pt.simpleCode = ? "
-                                + "and pt.managedInternally = ?",
+                        String.format("select pt from %s pt where pt.simpleCode = ? ",
                                 PropertyTypePE.class.getSimpleName()),
-                        toArray(mangledCode, internalNamespace)));
+                        toArray(mangledCode)));
         final PropertyTypePE entity = tryFindEntity(list, "property type", code);
         if (operationLog.isDebugEnabled())
         {

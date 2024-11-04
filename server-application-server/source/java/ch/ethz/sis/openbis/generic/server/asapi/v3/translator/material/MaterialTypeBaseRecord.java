@@ -31,4 +31,6 @@ public class MaterialTypeBaseRecord extends ObjectBaseRecord
 
     public Date modificationDate;
 
+    public boolean managedInternally;
+
 }

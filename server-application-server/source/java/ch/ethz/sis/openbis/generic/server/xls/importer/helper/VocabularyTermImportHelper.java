@@ -41,7 +41,8 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         Version("Version", false),
         Code("Code", true),
         Label("Label", true),
-        Description("Description", true);
+        Description("Description", true),
+        Internal("Internal", false);
 
         private final String headerName;
 
@@ -91,11 +92,11 @@ public class VocabularyTermImportHelper extends BasicImportHelper
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String vocabularyTermCode = getValueByColumnName(header, values, Attribute.Code);
-        if (ImportUtils.isInternalNamespace(vocabularyTermCode) && !ImportUtils.isInternalNamespace(vocabularyCode)) {
+        if (ImportUtils.isTrue(vocabularyTermCode) && !ImportUtils.isTrue(vocabularyCode)) {
             throw new UserFailureException("Internal Vocabulary Terms can only be created on Internal Vocabularies: " + vocabularyTermCode);
         }
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(vocabularyCode);
+        boolean isInternalNamespace = ImportUtils.isTrue(vocabularyCode);
         boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
 
         if (canUpdate == false) {
@@ -105,7 +106,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         return isNewVersionWithInternalNamespace(header, values, versions,
                 delayedExecutor.isSystem(),
                 ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode,
-                Attribute.Version, Attribute.Code);
+                Attribute.Version, Attribute.Code, Attribute.Internal);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
@@ -138,8 +139,9 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String label = getValueByColumnName(header, values, Attribute.Label);
         String description = getValueByColumnName(header, values, Attribute.Description);
+        String internal = getValueByColumnName(header, values, Attribute.Internal);
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean isInternalNamespace = ImportUtils.isTrue(internal);
 
         VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
 
@@ -159,11 +161,12 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String label = getValueByColumnName(header, values, Attribute.Label);
         String description = getValueByColumnName(header, values, Attribute.Description);
+        String internal = getValueByColumnName(header, values, Attribute.Internal);
 
         VocabularyTermPermId termId = new VocabularyTermPermId(code, vocabularyCode);
 
         VocabularyTermUpdate update = new VocabularyTermUpdate();
-        update.setManagedInternally(ImportUtils.isInternalNamespace(code));
+        update.setManagedInternally(ImportUtils.isTrue(internal));
         update.setVocabularyTermId(termId);
         if (label != null)
         {

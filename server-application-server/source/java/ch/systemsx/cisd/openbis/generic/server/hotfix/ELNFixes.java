@@ -70,7 +70,7 @@ public class ELNFixes {
         operationLog.info("ELNFixes beforeUpgrade FINISH");
     }
 
-    private static final String STORAGE_VALIDATION_LEVEL_PROPERTY_CODE = "$STORAGE.STORAGE_VALIDATION_LEVEL";
+    private static final String STORAGE_VALIDATION_LEVEL_PROPERTY_CODE = "STORAGE.STORAGE_VALIDATION_LEVEL";
     private static final String STORAGE_VALIDATION_LEVEL_DEFAULT_VALUE = "RACK";
 
     private static void storageValidationLevelFix(String sessionToken, IApplicationServerInternalApi api) {
@@ -99,7 +99,7 @@ public class ELNFixes {
         operationLog.info("ELNFixes storageValidationLevelFix: " + storageUpdates.size());
     }
 
-    private static final String NAME_PROPERTY_CODE = "$NAME";
+    private static final String NAME_PROPERTY_CODE = "NAME";
 
     private static void nameNoRTFFix(String sessionToken, IApplicationServerInternalApi api) {
         SampleSearchCriteria criteria = new SampleSearchCriteria();

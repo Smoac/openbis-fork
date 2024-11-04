@@ -15,13 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.valueOf;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,10 +43,12 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
+
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
-    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Label", "Description" };
+    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Internal", "Label", "Description" };
 
     public XLSVocabularyExportHelper(final Workbook wb)
     {
@@ -168,8 +163,10 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
             {
                 final String[] values = {
                         vocabularyTerm.getCode(),
+                        vocabularyTerm.isManagedInternally().toString().toUpperCase(),
                         vocabularyTerm.getLabel(),
-                        vocabularyTerm.getDescription() };
+                        vocabularyTerm.getDescription()
+                };
                 addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId, warnings, valueFiles, values);
             }
 
@@ -182,7 +179,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
 
     protected Attribute[] getAttributes()
     {
-        return new Attribute[] { CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
+        return new Attribute[] { CODE, INTERNAL, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
     }
 
     protected String getAttributeValue(final Vocabulary vocabulary, final Attribute attribute)
@@ -192,6 +189,10 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
             case CODE:
             {
                 return vocabulary.getCode();
+            }
+            case INTERNAL:
+            {
+                return Boolean.toString(vocabulary.isManagedInternally()).toUpperCase();
             }
             case DESCRIPTION:
             {
