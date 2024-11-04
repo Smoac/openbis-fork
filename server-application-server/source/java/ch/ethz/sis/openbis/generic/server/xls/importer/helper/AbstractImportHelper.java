@@ -81,7 +81,13 @@ public abstract class AbstractImportHelper
             int column = header.get(columnName.getHeaderName());
             if (column < values.size())
             {
-                return values.get(column);
+                if (columnName.getHeaderName().equals("Code") || columnName.getHeaderName().equals("Identifier")) {
+                    String value = values.get(column);
+                    return (value != null)?value.toUpperCase():null;
+                } else
+                {
+                    return values.get(column);
+                }
             }
         }
         return null;
