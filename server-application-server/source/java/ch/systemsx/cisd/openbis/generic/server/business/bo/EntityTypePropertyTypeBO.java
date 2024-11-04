@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
+import org.hibernate.ScrollableResults;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
@@ -206,13 +207,14 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         final String propertyTypeCode = propertyType.getSimpleCode();
         IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
 
-        List<String> propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode);
-        for(String value : propertyValues) {
-                if(!newPattern.matcher(value).matches()) {
+        try (ScrollableResults propertyValues = entityPropertyTypeDAO.listPropertyValues(entityTypeCode, propertyTypeCode)) {
+            while (propertyValues.next()) {
+                String value = (String) propertyValues.get()[0];
+                if (!newPattern.matcher(value).matches()) {
                     throw new UserFailureException(String.format(errorMsgTemplate, value));
                 }
+            }
         }
-
     }
 
     private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,

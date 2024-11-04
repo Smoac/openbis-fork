@@ -303,7 +303,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     @Override
-    public List<String> listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
+    public ScrollableResults listPropertyValues(String entityTypeCode, String propertyTypeCode) throws DataAccessException
     {
         final String queryString = String.format("SELECT pv.value FROM %s pa join %s pv "
                         + " ON pa.id = pv.entityTypePropertyType.id "
@@ -323,14 +323,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         query.setParameter("entityTypeCode", entityTypeCode);
 
         ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
-        List<String> list = new ArrayList<>();
-        while (results.next()) {
-            String row = (String) results.get()[0];
-            list.add(row);
-        }
-        results.close();
-
-        return list;
+        return results;
     }
 
     @Override
