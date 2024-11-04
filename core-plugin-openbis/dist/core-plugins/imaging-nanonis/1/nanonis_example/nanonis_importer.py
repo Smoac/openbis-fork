@@ -29,6 +29,7 @@ SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.Na
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
 VERBOSE = False
 DEFAULT_URL = "http://localhost:8888/openbis"
+# DEFAULT_URL = "http://local.openbis.ch:8080/openbis"
 
 
 def get_instance(url=None):
@@ -108,7 +109,8 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         print(imaging_property_config.to_json())
 
     return imaging_control.create_imaging_dataset(
-        dataset_type="$IMAGING_DATA",
+        # dataset_type="$IMAGING_DATA",
+        dataset_type="IMAGING_DATA",
         config=imaging_property_config,
         experiment=experiment,
         sample=sample,
@@ -205,7 +207,8 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         print(imaging_property_config.to_json())
 
     return imaging_control.create_imaging_dataset(
-        dataset_type="$IMAGING_DATA",
+        # dataset_type="$IMAGING_DATA",
+        dataset_type="IMAGING_DATA",
         config=imaging_property_config,
         experiment=experiment,
         sample=sample,

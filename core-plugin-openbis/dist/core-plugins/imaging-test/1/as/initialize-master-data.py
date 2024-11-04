@@ -30,7 +30,7 @@ importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
 
-print("======================== imaging-test-data-master-data xls ingestion result ========================")
+print("======================== imaging-test-data-model xls ingestion result ========================")
 print(importResult.getObjectIds())
 
 from java.util import ArrayList
@@ -43,7 +43,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIde
 
 def create_sample(api, space, project, experiment, code):
     creation = SampleCreation()
-    creation.setTypeId(EntityTypePermId("UNKNOWN"))
+    creation.setTypeId(EntityTypePermId("$IMAGING_SAMPLE"))
     creation.setSpaceId(SpacePermId(space))
     creation.setProjectId(ProjectIdentifier(project))
     creation.setExperimentId(ExperimentIdentifier(experiment))
@@ -57,9 +57,9 @@ def create_sample(api, space, project, experiment, code):
     return result
 
 
-create_sample(api, "IMAGING", "/IMAGING/TEST", "/IMAGING/TEST/TEST_COLLECTION", "TEMPLATE-TEST")
+# create_sample(api, "IMAGING", "/IMAGING/TEST", "/IMAGING/TEST/TEST_COLLECTION", "TEMPLATE-TEST")
 
 api.logout(sessionToken)
-print("======================== imaging-test-data xls ingestion result ========================")
+print("======================== imaging-test-data-model xls ingestion result ========================")
 
 

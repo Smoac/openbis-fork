@@ -60,8 +60,8 @@ public class ImagingService implements ICustomDSSServiceExecutor
     private static final Logger
             operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImagingService.class);
 
-    static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
-    static final String DEFAULT_DATASET_VIEW_PROPERTY_NAME = "$DEFAULT_DATASET_VIEW";
+    static final String IMAGING_CONFIG_PROPERTY_NAME = "IMAGING_DATA_CONFIG";
+    static final String DEFAULT_DATASET_VIEW_PROPERTY_NAME = "DEFAULT_DATASET_VIEW";
 
     public ImagingService(Properties properties)
     {
@@ -127,32 +127,36 @@ public class ImagingService implements ICustomDSSServiceExecutor
     {
         DataSet dataSet = getDataSet(sessionToken, data.getPermId());
 
-        ImagingDataSetPropertyConfig config =
-                Util.readConfig(dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME),
-                        ImagingDataSetPropertyConfig.class);
+        String jsonConfig = dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME);
+        if(jsonConfig == null || jsonConfig.isEmpty() || jsonConfig.equals("{}")) {
+            //todo make config flow
+            return null;
+        } else {
+            ImagingDataSetPropertyConfig config =
+                    Util.readConfig(dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME),
+                            ImagingDataSetPropertyConfig.class);
 
-        IImagingDataSetAdaptor adaptor = getAdaptor(config);
-        File rootFile = getRootFile(sessionToken, dataSet);
-        String format = data.getPreview().getFormat();
+            IImagingDataSetAdaptor adaptor = getAdaptor(config);
+            File rootFile = getRootFile(sessionToken, dataSet);
+            String format = data.getPreview().getFormat();
 
-        int index = data.getIndex();
-        if (config.getImages().size() <= index)
-        {
-            throw new UserFailureException("There is no image with index:" + index);
+            int index = data.getIndex();
+            if (config.getImages().size() <= index) {
+                throw new UserFailureException("There is no image with index:" + index);
+            }
+            ImagingDataSetImage image = config.getImages().get(index);
+
+            if (format == null || format.trim().isEmpty()) {
+                throw new UserFailureException("Format can not be empty!");
+            }
+
+            ImagingServiceContext context =
+                    new ImagingServiceContext(sessionToken, getApplicationServerApi(),
+                            getDataStoreServerApi());
+
+            adaptor.computePreview(context, rootFile, image, data.getPreview());
+            return data;
         }
-        ImagingDataSetImage image = config.getImages().get(index);
-
-        if (format == null || format.trim().isEmpty())
-        {
-            throw new UserFailureException("Format can not be empty!");
-        }
-
-        ImagingServiceContext context =
-                new ImagingServiceContext(sessionToken, getApplicationServerApi(),
-                        getDataStoreServerApi());
-
-        adaptor.computePreview(context, rootFile, image, data.getPreview());
-        return data;
     }
 
 

@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
@@ -29,8 +30,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetPreview;
 import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetPropertyConfig;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -43,9 +50,11 @@ import java.util.*;
 public class ImagingDataSetInterceptor implements IOperationListener
 {
 
-    static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
+    static final String IMAGING_CONFIG_PROPERTY_NAME = "IMAGING_DATA_CONFIG";
     static final String IMAGING_TYPE = "IMAGING_DATA";
+    static final String IMAGING_ADAPTER = "IMAGING_ADAPTERS";
     static final String PREVIEW_TOTAL_COUNT = "preview-total-count";
+    static final String PACKAGE_PREFIX = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.";
 
     private boolean isImagingDataSet(String typePermId) {
         if(typePermId == null || typePermId.trim().isEmpty()) {
@@ -78,6 +87,21 @@ public class ImagingDataSetInterceptor implements IOperationListener
         }
     }
 
+    private String convertConfigToJson(ImagingDataSetPropertyConfig val)
+    {
+        try
+        {
+            ObjectMapper objectMapper = new GenericObjectMapper();
+            return objectMapper.writeValueAsString(val);
+        } catch (JsonMappingException mappingException)
+        {
+            throw new UserFailureException(mappingException.toString(), mappingException);
+        } catch (Exception e)
+        {
+            throw new UserFailureException("Could convert the parameters!", e);
+        }
+    }
+
     private String getPropertyConfig(IPropertiesHolder holder) {
         String propertyValue = holder.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME);
         if(propertyValue == null) {
@@ -92,6 +116,7 @@ public class ImagingDataSetInterceptor implements IOperationListener
             IOperation operation)
     {
         if(operation instanceof CreateDataSetsOperation) {
+
             CreateDataSetsOperation createDataSetsOperation = (CreateDataSetsOperation) operation;
 
             for(DataSetCreation creation : createDataSetsOperation.getCreations()) {
@@ -101,26 +126,49 @@ public class ImagingDataSetInterceptor implements IOperationListener
                 if(isImagingDataSet(objectTypeCode)) {
 
                     String propertyConfig = getPropertyConfig(creation);
-                    if(propertyConfig == null) {
-                        throw new UserFailureException("Imaging property config must not be empty!");
-                    }
-                    ImagingDataSetPropertyConfig config = readConfig(propertyConfig);
+                    if(propertyConfig == null || propertyConfig.isEmpty()) {
+                        //TODO create base config?
+                        String adapterCode = creation.getControlledVocabularyProperty(IMAGING_ADAPTER);
+                        IVocabularyTermId vocabularyTermId = new VocabularyTermPermId(adapterCode, IMAGING_ADAPTER);
+                        VocabularyTermSearchCriteria criteria = new  VocabularyTermSearchCriteria();
+                        criteria.withVocabulary().withCode().thatEquals(IMAGING_ADAPTER);
+                        criteria.withCode().thatEquals(adapterCode);
+                        SearchResult<VocabularyTerm> result = api.searchVocabularyTerms(sessionToken, criteria, new VocabularyTermFetchOptions());
 
-                    if(config.getImages() == null || config.getImages().isEmpty()) {
-                        throw new UserFailureException("At least one image must be included!");
-                    }
-                    int count = 0;
-                    for(ImagingDataSetImage image : config.getImages()) {
-                        if(image.getPreviews() == null || image.getPreviews().isEmpty()) {
-                            throw new UserFailureException("At least one preview must be included!");
+//                        Map<IVocabularyTermId, VocabularyTerm> terms = api.getVocabularyTerms(sessionToken,
+//                                Arrays.asList(vocabularyTermId),
+//                                new VocabularyTermFetchOptions());
+
+                        ImagingDataSetPropertyConfig config = new ImagingDataSetPropertyConfig();
+                        ImagingDataSetImage image = new ImagingDataSetImage();
+                        ImagingDataSetPreview preview = new ImagingDataSetPreview();
+                        image.setPreviews(Arrays.asList(preview));
+                        config.setImages(Arrays.asList(image));
+                        Map<String, String> metaData = new HashMap<>();
+                        metaData.put(PREVIEW_TOTAL_COUNT.toLowerCase(), "1");
+                        creation.setMetaData(metaData);
+
+                        String property = convertConfigToJson(config);
+                        creation.setJsonProperty(IMAGING_CONFIG_PROPERTY_NAME, property);
+//                        throw new UserFailureException("Imaging property config must not be empty!");
+                    } else {
+                        ImagingDataSetPropertyConfig config = readConfig(propertyConfig);
+
+                        if(config.getImages() == null || config.getImages().isEmpty()) {
+                            throw new UserFailureException("At least one image must be included!");
                         }
-                        count += image.getPreviews().size();
+                        int count = 0;
+                        for(ImagingDataSetImage image : config.getImages()) {
+                            if(image.getPreviews() == null || image.getPreviews().isEmpty()) {
+                                throw new UserFailureException("At least one preview must be included!");
+                            }
+                            count += image.getPreviews().size();
+                        }
+                        if(creation.getMetaData() == null) {
+                            creation.setMetaData(new HashMap<>());
+                        }
+                        creation.getMetaData().put(PREVIEW_TOTAL_COUNT, Integer.toString(count));
                     }
-                    if(creation.getMetaData() == null) {
-                        creation.setMetaData(new HashMap<>());
-                    }
-                    creation.getMetaData().put(PREVIEW_TOTAL_COUNT, Integer.toString(count));
-
                 }
 
 

@@ -18,7 +18,7 @@ import imaging.imaging as imaging
 from unittest.mock import MagicMock
 import json
 
-IMAGING_CONFIG_PROP_NAME = "$IMAGING_DATA_CONFIG".lower()
+IMAGING_CONFIG_PROP_NAME = "IMAGING_DATA_CONFIG".lower()
 
 PROPER_CONFIG = {
     "config": {

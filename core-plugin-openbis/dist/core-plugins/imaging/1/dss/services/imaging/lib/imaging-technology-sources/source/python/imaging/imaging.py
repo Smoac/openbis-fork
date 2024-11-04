@@ -24,7 +24,7 @@ from urllib.parse import urljoin
 
 
 DEFAULT_SERVICE_NAME = "imaging"
-IMAGING_CONFIG_PROP_NAME = "$IMAGING_DATA_CONFIG".lower()
+IMAGING_CONFIG_PROP_NAME = "IMAGING_DATA_CONFIG".lower()
 
 
 def get_instance(url="http://localhost:8888/openbis"):
