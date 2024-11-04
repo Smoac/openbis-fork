@@ -328,7 +328,7 @@ public abstract class BaseApiClientTest
     {
         login();
 
-        Boolean result = afsClient.write(owner, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        Boolean result = afsClient.write(owner, FILE_B, 0L, DATA);
         assertTrue(result);
 
         byte[] testDataFile = IOUtils.readFully(IOUtils.getPath(testDataRoot, FILE_B));
@@ -341,7 +341,7 @@ public abstract class BaseApiClientTest
         login();
 
         Long offset = 65L;
-        Boolean result = afsClient.write(owner, FILE_B, offset, DATA, IOUtils.getMD5(DATA));
+        Boolean result = afsClient.write(owner, FILE_B, offset, DATA);
         assertTrue(result);
 
         byte[] testDataFile = IOUtils.readFully(IOUtils.getPath(testDataRoot, FILE_A));

@@ -1569,7 +1569,7 @@ public class OpenBIS
         {
             try
             {
-                return afsClientWithTransactions.write(owner, source, offset, data, calculateMD5(data));
+                return afsClientWithTransactions.write(owner, source, offset, data);
             } catch (RuntimeException e)
             {
                 throw e;

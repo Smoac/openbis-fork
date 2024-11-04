@@ -155,8 +155,8 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
     }
 
     @Override
-    public Boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
-        return nextProxy.write(sourceOwner, source, offset, data, md5Hash);
+    public Boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data) throws Exception {
+        return nextProxy.write(sourceOwner, source, offset, data);
     }
 
     @Override

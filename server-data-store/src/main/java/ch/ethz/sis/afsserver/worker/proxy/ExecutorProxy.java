@@ -133,9 +133,9 @@ public class ExecutorProxy extends AbstractProxy
     }
 
     @Override
-    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception
+    public Boolean write(String owner, String source, Long offset, byte[] data) throws Exception
     {
-        return workerContext.getConnection().write(getSourcePath(owner, source), offset, data, md5Hash);
+        return workerContext.getConnection().write(getSourcePath(owner, source), offset, data);
     }
 
     @Override

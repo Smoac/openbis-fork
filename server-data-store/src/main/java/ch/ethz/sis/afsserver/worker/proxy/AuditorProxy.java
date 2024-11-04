@@ -94,9 +94,9 @@ public class AuditorProxy extends AbstractProxy {
     }
 
     @Override
-    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
+    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data) throws Exception {
         auditBefore();
-        return auditAfter(nextProxy.write(owner, source, offset, data, md5Hash));
+        return auditAfter(nextProxy.write(owner, source, offset, data));
     }
 
     @Override

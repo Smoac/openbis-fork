@@ -393,7 +393,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         try
         {
-            afsClient.write(owner, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+            afsClient.write(owner, FILE_B, 0L, DATA);
             fail();
         } catch (Exception e)
         {
@@ -430,7 +430,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         try
         {
-            afsClient.write(owner, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+            afsClient.write(owner, FILE_B, 0L, DATA);
             fail();
         } catch (Exception e)
         {
@@ -464,14 +464,14 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
             return getDefaultOperationExecutor().executeOperation(url, methodName, methodArguments);
         });
 
-        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA);
 
         // dataset gets created on first write
         assertEquals(1, dataSetCreations.size());
         assertEquals(ownerWithoutFiles, dataSetCreations.get(0).getCode());
         assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
 
-        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA);
 
         // no more datasets get created on subsequent writes
         assertEquals(1, dataSetCreations.size());
@@ -496,7 +496,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         });
 
         // even though AS throws an exception this does not fail
-        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA);
     }
 
     @Test
@@ -560,7 +560,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         afsClient.begin(transactionId);
         assertEquals(0, dataSetCreations.size());
 
-        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA);
         assertEquals(0, dataSetCreations.size());
 
         if (rollbackTransaction)
@@ -608,7 +608,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         UUID transactionId2 = UUID.randomUUID();
 
         afsClient.begin(transactionId2);
-        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA);
         afsClient.commit();
 
         // no more than 1 dataset gets created
@@ -693,7 +693,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         try
         {
-            afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+            afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA);
 
             if (dataSetCreationFails)
             {
@@ -742,7 +742,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         UUID transactionId2 = UUID.randomUUID();
 
         afsClient.begin(transactionId2);
-        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA);
         afsClient.prepare();
         afsClient.commit();
 

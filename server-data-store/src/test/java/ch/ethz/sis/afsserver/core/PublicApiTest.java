@@ -104,7 +104,7 @@ public abstract class PublicApiTest extends AbstractTest
     @Test
     public void write() throws Exception
     {
-        getPublicAPI().write(owner,  FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        getPublicAPI().write(owner,  FILE_B, 0L, DATA);
         byte[] bytes = getPublicAPI().read(owner, FILE_B, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }

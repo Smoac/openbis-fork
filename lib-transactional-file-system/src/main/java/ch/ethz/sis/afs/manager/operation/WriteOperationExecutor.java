@@ -62,19 +62,14 @@ public class WriteOperationExecutor implements OperationExecutor<WriteOperation>
             }
         }
 
-        // 1. Validate new data
-        byte[] md5Hash = IOUtils.getMD5(operation.getData());
-        if (!Arrays.equals(md5Hash, operation.getMd5Hash())) {
-            AFSExceptions.throwInstance(MD5NotMatch, OperationName.Write.name(), operation.getSource());
-        }
-        // 2. Create temporary file if it has not been created already
+        // 1. Create temporary file if it has not been created already
         boolean tempSourceExists = IOUtils.exists(operation.getTempSource());
         if (!tempSourceExists) {
             IOUtils.createDirectories(IOUtils.getParentPath(operation.getTempSource()));
             IOUtils.createFile(operation.getTempSource());
         }
 
-        // 3. Flush bytes
+        // 2. Flush bytes
         IOUtils.write(operation.getTempSource(), 0, operation.getData());
         return true;
     }

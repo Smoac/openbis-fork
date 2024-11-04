@@ -38,17 +38,15 @@ public class WriteOperation implements Operation {
     private String tempSource;
     private long offset;
     private byte[] data;
-    private byte[] md5Hash;
     private OperationName name;
 
-    public WriteOperation(UUID owner, String source, String tempSource, long offset, byte[] data, byte[] md5Hash) {
+    public WriteOperation(UUID owner, String source, String tempSource, long offset, byte[] data) {
         this.owner = owner;
         this.locks = new ArrayList<>(Collections.singletonList(new Lock<>(owner, source, LockType.Exclusive)));
         this.source = source;
         this.tempSource = tempSource;
         this.offset = offset;
         this.data = data;
-        this.md5Hash = md5Hash;
         this.name = OperationName.Write;
     }
 }
