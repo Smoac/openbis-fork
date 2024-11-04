@@ -81,7 +81,7 @@ def process(transaction):
       imageDataset.setPlate(space, plateName)
       newDataset = transaction.createNewImageDataSet(imageDataset, incoming);
       if len(splittedDataSetFolderName) > 2:
-          newDataset.setPropertyValue("$ANALYSIS_PROCEDURE", splittedDataSetFolderName[2])
+          newDataset.setPropertyValue("ANALYSIS_PROCEDURE", splittedDataSetFolderName[2])
       searchService = transaction.getSearchService()
       searchCriteria = SearchCriteria()
       searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "HCS_IMAGE_RAW"))
