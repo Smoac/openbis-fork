@@ -38,26 +38,40 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
     public enum SemanticAnnotationType { EntityType, PropertyType, EntityTypeProperty }
 
     private enum Attribute implements IAttribute {
-        Code("Code", true),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false),
-        Internal("Internal", false);
+        Code("Code", true, true),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false),
+        Internal("Internal", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 

@@ -50,42 +50,56 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 {
 
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Mandatory("Mandatory", true),
-        DefaultValue("Default Value", false),
-        ShowInEditViews("Show in edit views", true),
-        Section("Section", true),
-        PropertyLabel("Property label", true),
-        DataType("Data type", true),
-        VocabularyCode("Vocabulary code", true),
-        Description("Description", true),
-        Metadata("Metadata", false),
-        DynamicScript("Dynamic script", false),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false),
-        MultiValued("Multivalued", false),
-        Unique("Unique", false),
-        Pattern("Pattern", false),
-        PatternType("Pattern Type", false),
-        InternalAssignment("Internal Assignment", false),
-        Internal("Internal", false);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Mandatory("Mandatory", true, false),
+        DefaultValue("Default Value", false, false),
+        ShowInEditViews("Show in edit views", true, false),
+        Section("Section", true, false),
+        PropertyLabel("Property label", true, false),
+        DataType("Data type", true, true),
+        VocabularyCode("Vocabulary code", true, true),
+        Description("Description", true, false),
+        Metadata("Metadata", false, false),
+        DynamicScript("Dynamic script", false, false),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false),
+        MultiValued("Multivalued", false, false),
+        Unique("Unique", false, false),
+        Pattern("Pattern", false, false),
+        PatternType("Pattern Type", false, false),
+        InternalAssignment("Internal Assignment", false, false),
+        Internal("Internal", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 

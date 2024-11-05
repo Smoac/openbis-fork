@@ -34,25 +34,39 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 public class VocabularyImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Description("Description", true),
-        Internal("Internal", false);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Description("Description", true, false),
+        Internal("Internal", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
