@@ -3,6 +3,8 @@ package ch.ethz.sis.rdf.main;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.parser.RDFReader;
 import ch.ethz.sis.rdf.main.xlsx.write.XLSXWriter;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Before;
@@ -28,7 +30,8 @@ public class RDFCommandLineTest
     @Before
     public void setup() {
         RDFReader rdfReader = new RDFReader();
-        modelRDF = rdfReader.read(inputFilePath, inputFormatValue, false);
+        OntModel ontModel = ModelFactory.createOntologyModel();
+        modelRDF = rdfReader.read(inputFilePath, inputFormatValue, false, ontModel);
     }
 
     @Test
