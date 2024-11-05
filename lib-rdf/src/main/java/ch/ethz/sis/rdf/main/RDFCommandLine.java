@@ -4,9 +4,17 @@ import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.parser.RDFReader;
 import ch.ethz.sis.rdf.main.xlsx.write.XLSXWriter;
 import org.apache.commons.cli.*;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 
 import java.io.Console;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,7 +94,7 @@ public class RDFCommandLine {
                 asURL, dssURL,
                 USERNAME, PASSWORD,
                 PROJECT_ID,
-                false);
+                false, List.of("/home/meiandr/Downloads/snomed-ct-ch-20231201.ttl/snomed-ct-CH-20231201.ttl"));
     }
 
     //TODO: add flag -d for dependecies list of files or zip
@@ -131,6 +139,11 @@ public class RDFCommandLine {
 
         Option help = new Option("h", "help", false, "Display this help message");
         options.addOption(help);
+
+        Option additionalFiles = new Option("a", "additionalfiles", true, "Additional files");
+        additionalFiles.setArgs(Option.UNLIMITED_VALUES);
+        options.addOption(additionalFiles);
+
 
         return options;
     }
@@ -212,6 +225,7 @@ public class RDFCommandLine {
         String openBISDSSURL = null;
         String projectIdentifier = cmd.getOptionValue("project");
         boolean verbose = cmd.hasOption("verbose");
+        List<String> additionalFiles = Arrays.stream(cmd.getOptionValues("additionalFiles")).toList();
 
         String[] remainingArgs = cmd.getArgs();
         //Arrays.stream(remainingArgs).forEach(System.out::println);
@@ -221,7 +235,7 @@ public class RDFCommandLine {
                 inputFilePath = remainingArgs[0];
                 String outputFilePath = remainingArgs[1];
                 System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath, projectIdentifier, verbose);
+                    handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath, projectIdentifier, verbose, List.of());
                 break;
             case "OPENBIS":
                 username = cmd.getOptionValue("user");
@@ -241,19 +255,34 @@ public class RDFCommandLine {
                 openBISDSSURL = remainingArgs[2];
 
                 System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password), projectIdentifier, verbose);
+                handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password), projectIdentifier, verbose, List.of());
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported output type: " + outputFormatValue.toUpperCase());
         }
     }
 
-    private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath, String projectIdentifier, boolean verbose)
+    private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath, String projectIdentifier, boolean verbose, List<String> additionalFilePaths)
     {
+
+        System.out.println(new Date());
+        System.out.println("Reading ontModel");
+        OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+        RDFDataMgr.read(ontModel, "/home/meiandr/Downloads/snomed-ct-ch-20231201.ttl/snomed-ct-CH-20231201.ttl", Lang.TTL);
+
+
+        OntModel additionalModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+        for (String path : additionalFilePaths){
+            RDFDataMgr.read(additionalModel, path);
+        }
+
+
+
+        System.out.println(new Date());
         System.out.println("Reading Ontology Model...");
 
         RDFReader rdfReader = new RDFReader();
-        ModelRDF modelRDF = rdfReader.read(inputFilePath, inputFormatValue, verbose);
+        ModelRDF modelRDF = rdfReader.read(inputFilePath, inputFormatValue, verbose, additionalModel);
 
         // Collect and map all RDF classes in JAVA obj
         System.out.println("Collecting RDF classes...");
@@ -279,7 +308,7 @@ public class RDFCommandLine {
         }
 
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
-        handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose);
+        handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose, List.of("/home/meiandr/Downloads/snomed-ct-ch-20231201.ttl/snomed-ct-CH-20231201.ttl"));
 
         System.out.println(
                 "Connect to openBIS instance " + openbisURL + " with username[" + username + "]"); //and password[" + new String(password) +"]");
@@ -288,7 +317,7 @@ public class RDFCommandLine {
     }
 
     private static void handleOpenBISDevOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String openBISDSSURL,
-            String username, String password, String projectIdentifier, boolean verbose) {
+            String username, String password, String projectIdentifier, boolean verbose, List<String> additionalFilePaths) {
 
         Path tempFile = Utils.createTemporaryFile();
         String tempFileOutput = tempFile.toString();
@@ -299,7 +328,7 @@ public class RDFCommandLine {
             tempFile = Path.of(tempFileOutput);
         }
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
-        handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose);
+        handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose, additionalFilePaths);
 
         System.out.println("Connect to openBIS-DEV instance AS[" + openbisASURL + "] DSS[" + openBISDSSURL + "] with username[" + username + "]"); //and password[" + new String(password) +"]");
 

@@ -313,17 +313,28 @@ public class ParserUtils {
     }
 
     public static ResourceParsingResult removeObjectsOfUnknownType(ModelRDF modelRDF,
-            Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap)
+            Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap, Map<String, List<String>>
+            additionalChains )
     {
         Map<String, List<SampleObject>> unknownTypeSampleObjects =
                 sampleObjectsGroupedByTypeMap.entrySet().stream()
-                        .filter(x -> !canResolveSampleType(modelRDF, x.getKey()))
+                        .filter(x -> !canResolveSampleType(modelRDF, x.getKey(), additionalChains))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Map<String, List<SampleObject>> objectsKnownTypes =
                 sampleObjectsGroupedByTypeMap.entrySet().stream()
-                        .filter(x -> canResolveSampleType(modelRDF, x.getKey()))
+                        .filter(x -> canResolveSampleType(modelRDF, x.getKey(), additionalChains))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         ;
+        Set<String> importedTypes = objectsKnownTypes.keySet().stream().filter(x -> additionalChains.containsKey(x))
+                .map( x -> additionalChains.get(x))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+
+
+        List<String> classesToImport = new ArrayList<>();
+        List<String> propertiesToImport = new ArrayList<>();
+
 
         List<SampleObject> objects =
                 unknownTypeSampleObjects.entrySet().stream().map(x -> x.getValue())
@@ -378,13 +389,17 @@ public class ParserUtils {
 
         }
 
-        return new ResourceParsingResult(objects, unchangedObjects, changedObjects);
+        return new ResourceParsingResult(objects, unchangedObjects, changedObjects, importedTypes, List.of());
     }
 
-    private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType){
+    private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType, Map<String, List<String>> additionalTypes){
         boolean typeFound = modelRDF.sampleTypeList.stream().anyMatch(x -> x.code.equals(sampleType));
         if (typeFound){
             return typeFound;
+        }
+
+        if (additionalTypes.keySet().contains(sampleType)){
+            return true;
         }
 
         List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleType);
