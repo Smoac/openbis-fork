@@ -1,25 +1,20 @@
 import React from 'react';
-import { Grid,
-    Typography,
-    IconButton,
-} from "@mui/material";
-import ViewListIcon from '@mui/icons-material/ViewList';
-import GridOnIcon from '@mui/icons-material/GridOn';
-import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
+import { Typography } from "@mui/material";
+
 import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
 import messages from "@src/js/common/messages.js";
-import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
-import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
-import GalleryPaging from "@src/js/components/common/imaging/components/gallery/GalleryPaging.jsx";
-import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions.js";
-import Export from "@src/js/components/common/imaging/components/viewer/Exporter.jsx";
-import GalleryFilter from "@src/js/components/common/imaging/components/gallery/GalleryFilter.jsx";
+
 import GalleryGridView from "@src/js/components/common/imaging/components/gallery/GalleryGridView.js";
 import GalleryListView from "@src/js/components/common/imaging/components/gallery/GalleryListView.js";
+import GalleryControlsBar from '@src/js/components/common/imaging/components/gallery/GalleryControlsBar';
+
+import {loadDataSetTypes, loadPreviewsInfo} from '@src/js/components/common/imaging/dataHandlers.js'
 
 const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStoreDisplaySettings = null, onLoadDisplaySettings = null}) => {
+    const imagingFacade = React.useMemo(() => new ImagingFacade(extOpenbis), [extOpenbis]);
+
     const [gridView, setGridView] = React.useState(true);
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [open, setOpen] = React.useState(false);
@@ -36,14 +31,9 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         text: '',
         property: messages.get(messages.ALL)
     });
-    const [dataSetTypes, setDataSetTypes] = React.useState(new ImagingFacade(extOpenbis).loadDataSetTypes());
+    const [dataSetTypes, setDataSetTypes] = React.useState(imagingFacade.loadDataSetTypes());
 
     React.useEffect(() => {
-        async function loadDataSetTypes() {
-            const dataSetTypes = await new ImagingFacade(extOpenbis).loadDataSetTypes();
-            dataSetTypes.push({label: 'All Properties', value: messages.get(messages.ALL)});
-            setDataSetTypes(dataSetTypes);
-        }
 
         // Set the config for the gallery view from previous store config in ELN-LIMS
         if(onLoadDisplaySettings !== null){
@@ -58,7 +48,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
             onLoadDisplaySettings(setDisplaySettings)
         }
 
-        loadDataSetTypes();
+        loadDataSetTypes(imagingFacade, setDataSetTypes);
     }, [])
 
     React.useEffect(() => {
@@ -68,15 +58,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
     }, [paging, showAll, selectAll])
 
     React.useEffect(() => {
-        async function load() {
-            const imagingFacade = new ImagingFacade(extOpenbis);
-            let {previewContainerList, totalCount} = galleryFilter.text.length >= 3 ?
-                await imagingFacade.filterGallery(objId, objType, galleryFilter.operator, galleryFilter.text, galleryFilter.property, paging.page, paging.pageSize)
-                : await imagingFacade.loadPaginatedGalleryDatasets(objId, objType, paging.page, paging.pageSize)
-            setPreviewsInfo({previewContainerList, totalCount});
-            setIsLoaded(true);
-        }
-        load();
+        loadPreviewsInfo(imagingFacade, objId, objType, galleryFilter, paging, setPreviewsInfo, setIsLoaded);
     }, [paging, galleryFilter])
 
     const handleErrorCancel = () => {
@@ -112,7 +94,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         let selectedPreview = previewContainer.preview;
         selectedPreview.show = !selectedPreview.show;
         try {
-            await new ImagingFacade(extOpenbis).updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreview);
+            await imagingFacade.updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreview);
         } catch (error) {
             handleError(error);
         } finally {
@@ -130,7 +112,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         setOpen(true);
         const exportList = previewsInfo.previewContainerList.filter(previewObj => previewObj.select);
         try {
-            const downloadableURL = await new ImagingFacade(extOpenbis)
+            const downloadableURL = await imagingFacade
                 .multiExportImagingDataset(currentConfigExport, exportList);
             if (downloadableURL)
                 window.open(downloadableURL, '_blank');
@@ -146,7 +128,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         let selectedPreviewContainer = previewContainer;
         selectedPreviewContainer.preview.metadata['comment'] = comment;
         try {
-            const isSaved = await new ImagingFacade(extOpenbis).updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreviewContainer.preview);
+            const isSaved = await imagingFacade.updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreviewContainer.preview);
             if (isSaved === null) {
                 let updatedContainerList = [...previewsInfo.previewContainerList];
                 updatedContainerList[idx] = selectedPreviewContainer;
@@ -161,90 +143,6 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
 
     const onGalleryFilterChange = (newGalleryFilter) => {
         setGalleryFilter(newGalleryFilter);
-    }
-
-    const renderControlsBar = (isExportDisable, configExports = []) => {
-        const options = GridPagingOptions.GALLERY_PAGE_SIZE_OPTIONS[paging.pageColumns - 1].map(pageSize => ({
-            label: pageSize,
-            value: pageSize
-        }))
-        return (
-            (<PaperBox>
-                <Typography variant='h6'>
-                    Gallery View
-                </Typography>
-                <Grid container direction="row" spacing={2} sx={{
-                    alignItems: "center"
-                }}>
-                    <Grid item xs={8}>
-                        <OutlinedBox label='Paging'>
-                            <GalleryPaging id='gallery-paging'
-                                           count={previewsInfo.totalCount}
-                                           page={paging.page}
-                                           pageSize={paging.pageSize}
-                                           pageColumns={paging.pageColumns}
-                                           options={options}
-                                           isGridView={gridView}
-                                           onColumnChange={(value) => setPaging({
-                                               page: 0,
-                                               pageSize: value,
-                                               pageColumns: value
-                                           })}
-                                           onPageChange={(value) => setPaging({
-                                               ...paging,
-                                               page: value
-                                           })}
-                                           onPageSizeChange={(value) => setPaging({
-                                               ...paging,
-                                               page: 0,
-                                               pageSize: value
-                                           })}
-                            />
-                        </OutlinedBox>
-                    </Grid>
-                    <Grid item xs>
-                        <OutlinedBox style={{width: 'fit-content'}}
-                                     label={messages.get(messages.SHOW)}>
-                            <CustomSwitch isChecked={showAll} onChange={setShowAll}/>
-                        </OutlinedBox>
-                    </Grid>
-                    <Grid item xs>
-                        <OutlinedBox style={{width: 'fit-content'}} label='Select'>
-                            <CustomSwitch disabled={!gridView} isChecked={selectAll}
-                                          onChange={handleSelectAll}/>
-                        </OutlinedBox>
-                    </Grid>
-                    <Grid item xs>
-                        <OutlinedBox style={{width: 'fit-content'}} label='View Mode'>
-                            <IconButton
-                                color={gridView ? 'primary' : 'default'}
-                                onClick={() => handleViewChange(true)}
-                                size="large">
-                                <GridOnIcon fontSize="large"/>
-                            </IconButton>
-                            <IconButton
-                                color={!gridView ? 'primary' : 'default'}
-                                onClick={() => handleViewChange(false)}
-                                size="large">
-                                <ViewListIcon fontSize="large"/>
-                            </IconButton>
-                        </OutlinedBox>
-                    </Grid>
-                    <Grid item xs={8}>
-                        <OutlinedBox label='Filter'>
-                            <GalleryFilter options={dataSetTypes}
-                                           galleryFilter={galleryFilter}
-                                           onGalleryFilterChange={onGalleryFilterChange}/>
-                        </OutlinedBox>
-                    </Grid>
-                    <Grid item xs>
-                        {configExports.length > 0 &&
-                            <Export config={configExports} handleExport={handleExport}
-                                    disabled={isExportDisable}/>}
-                    </Grid>
-                </Grid>
-            </PaperBox>)
-        );
     }
 
     const extractCommonExportsConfig = () => {
@@ -286,7 +184,22 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         <>
             <LoadingDialog loading={open}/>
             <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
-            {renderControlsBar(isExportDisable, commonExportConfig)}
+            <GalleryControlsBar isExportDisable = {isExportDisable}
+                configExports = {commonExportConfig}
+                gridView = {gridView}
+                handleViewChange = {handleViewChange}
+                paging = {paging}
+                setPaging = {setPaging}
+                showAll = {showAll}
+                setShowAll = {setShowAll}
+                selectAll = {selectAll}
+                handleSelectAll = {handleSelectAll}
+                galleryFilter = {galleryFilter}
+                onGalleryFilterChange = {onGalleryFilterChange}
+                count = {previewsInfo.totalCount}
+                handleExport = {handleExport}
+                dataSetTypes = {dataSetTypes}
+            />
             {gridView ? <GalleryGridView previewContainerList={previewContainerList}
                                          cols={paging.pageColumns}
                                          selectAll={selectAll}

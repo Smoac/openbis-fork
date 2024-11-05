@@ -1,6 +1,6 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import LockIcon from '@material-ui/icons/Lock'
+import withStyles from '@mui/styles/withStyles'
+import LockIcon from '@mui/icons-material/Lock'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({

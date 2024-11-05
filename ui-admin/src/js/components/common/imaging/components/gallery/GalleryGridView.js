@@ -5,7 +5,7 @@ import {
     CardMedia,
     ImageList,
     ImageListItem,
-    Grid,
+    Grid2,
     Card,
     Checkbox,
     FormControlLabel
@@ -17,10 +17,6 @@ import CustomSwitch from "@src/js/components/common/imaging/components/common/Cu
 const useStyles = makeStyles((theme) => ({
     card: {
         margin: '5px',
-    },
-    imageList: {
-        width: '100%',
-        /*height: 800,*/
     },
     content: {
         flex: '1 0 auto',
@@ -43,7 +39,7 @@ const GalleryGridView = ({
     const classes = useStyles();
 
     return (
-        (<ImageList className={classes.imageList} cols={cols} gap={5}>
+        (<ImageList sx={{width:'100%', height: '800px'}} cols={cols} gap={5}>
             {previewContainerList.map((previewContainer, idx) => (
                 <ImageListItem style={{height: 'unset'}} key={`image-grid-item-${idx}`}>
                     <Card className={classes.card}>
@@ -55,22 +51,22 @@ const GalleryGridView = ({
                             />
                         </CardActionArea>
                         {selectAll && <CardActions className={classes.content}>
-                            <Grid
+                            <Grid2
                                 container
                                 sx={{
                                     alignItems: "center",
                                     justifyContent: "space-evenly"
                                 }}>
-                                <Grid item>
+                                <Grid2 item>
                                     <CustomSwitch
                                         size="small"
                                         label="Show"
                                         labelPlacement="start"
                                         isChecked={previewContainer.preview.show}
                                         onChange={() => handleShowPreview(previewContainer)}/>
-                                </Grid>
+                                </Grid2>
                                 {previewContainer.preview.bytes &&
-                                    <Grid item>
+                                    <Grid2 item>
                                         <FormControlLabel
                                             value="start"
                                             control={<Checkbox value={previewContainer.select}
@@ -78,9 +74,9 @@ const GalleryGridView = ({
                                                                color="primary"/>}
                                             label="Export"
                                             labelPlacement="start"/>
-                                    </Grid>
+                                    </Grid2>
                                 }
-                            </Grid>
+                            </Grid2>
                         </CardActions>}
                     </Card>
                 </ImageListItem>

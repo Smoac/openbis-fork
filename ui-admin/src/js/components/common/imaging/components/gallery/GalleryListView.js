@@ -25,9 +25,6 @@ const useStyles = makeStyles((theme) => ({
         flex: '1 0 auto',
         alignSelf: 'center',
     },
-    imageList: {
-        width: '100%',
-    },
     imgFixedWidth: {
         height: '350px',
     }
@@ -37,7 +34,7 @@ const GalleryListView = ({previewContainerList, onOpenPreview, onEditComment}) =
     const classes = useStyles();
 
     return (
-        (<ImageList className={classes.imageList} cols={1} gap={5}>
+        (<ImageList sx={{width:'100%', height: '800px'}} cols={1} gap={5}>
             {previewContainerList.map((previewContainer, idx) => (
                 <ImageListItem style={{height: 'unset'}} key={'image-list-item-' + idx}>
                     <Card className={classes.card} key={'card-list-item-' + idx}>

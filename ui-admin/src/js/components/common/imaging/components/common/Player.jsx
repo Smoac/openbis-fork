@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createTheme, styled, useTheme, adaptV4Theme } from '@mui/material/styles';
+import { createTheme, styled } from '@mui/material/styles';
 import makeStyles from '@mui/styles/makeStyles';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
@@ -11,7 +11,7 @@ import FastRewindRounded from '@mui/icons-material/FastRewindRounded';
 import MobileStepper from "@mui/material/MobileStepper";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 
-const themeDisabled = createTheme(adaptV4Theme({
+const themeDisabled = createTheme({
     overrides: {
         // Style sheet name ⚛️
         MuiIconButton: {
@@ -22,9 +22,9 @@ const themeDisabled = createTheme(adaptV4Theme({
             }
         },
     },
-}));
+});
 
-const themeSlider = createTheme(adaptV4Theme({
+const themeSlider = createTheme({
    overrides: {
        MuiSlider: {
            thumb: {
@@ -41,7 +41,7 @@ const themeSlider = createTheme(adaptV4Theme({
            }
        }
    }
-}));
+});
 
 const Widget = styled('div')(() => ({
     padding: 10,
