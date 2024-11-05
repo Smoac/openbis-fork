@@ -31,7 +31,7 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
 
     @Override
     public void operation() throws Exception {
-        write(FILE_B_PATH, 0, DATA, getMD5(DATA));
+        write(FILE_B_PATH, 0, DATA);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
         begin();
         String realPath = OperationExecutor.getRealPath(getTransaction(), FILE_B_PATH);
         File beforeWrite = IOUtils.getFile(realPath);
-        write(FILE_B_PATH, 0, DATA, getMD5(DATA));
+        write(FILE_B_PATH, 0, DATA);
         File afterWrite = IOUtils.getFile(realPath);
         assertEquals(1, getTransaction().getOperations().size());
         assertEquals(beforeWrite, afterWrite);
@@ -52,7 +52,7 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
     @Test(expected = RuntimeException.class)
     public void operation_writeDirectory_exception() throws Exception {
         begin();
-        write(DIR_B_PATH, 0, DATA, getMD5(DATA));
+        write(DIR_B_PATH, 0, DATA);
     }
 
     @Test
@@ -60,8 +60,8 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
         begin();
         String realPath = OperationExecutor.getRealPath(getTransaction(), FILE_B_PATH);
         File beforeWrite = IOUtils.getFile(realPath);
-        write(FILE_B_PATH, 0, DATA, getMD5(DATA));
-        write(FILE_B_PATH, DATA.length, DATA, getMD5(DATA));
+        write(FILE_B_PATH, 0, DATA);
+        write(FILE_B_PATH, DATA.length, DATA);
         File afterWrite = IOUtils.getFile(realPath);
         assertEquals(2, getTransaction().getOperations().size());
         assertEquals(beforeWrite, afterWrite);
@@ -75,20 +75,13 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
         assertTrue(Arrays.equals(data, DATA.length, 2 * DATA.length, DATA, 0, DATA.length));
     }
 
-
-    @Test(expected = RuntimeException.class)
-    public void operation_writeWrongMD5_exception() throws Exception {
-        begin();
-        write(FILE_B_PATH, 0, DATA, "WRONG_MD5".getBytes());
-    }
-
     @Test
     public void operation_writeEmpty_succeed() throws Exception {
         begin();
         String realPath = OperationExecutor.getRealPath(getTransaction(), FILE_B_PATH);
         File beforeWrite = IOUtils.getFile(realPath);
         byte[] empty = new byte[0];
-        write(FILE_B_PATH, 0, empty, getMD5(empty));
+        write(FILE_B_PATH, 0, empty);
         File afterWrite = IOUtils.getFile(realPath);
         assertEquals(1, getTransaction().getOperations().size());
         assertEquals(beforeWrite, afterWrite);
@@ -103,7 +96,7 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
         begin();
         String realPath = OperationExecutor.getRealPath(getTransaction(), FILE_B_PATH);
         File beforeWrite = IOUtils.getFile(realPath);
-        write(FILE_B_PATH, 4, DATA, getMD5(DATA));
+        write(FILE_B_PATH, 4, DATA);
         File afterWrite = IOUtils.getFile(realPath);
         assertEquals(1, getTransaction().getOperations().size());
         assertEquals(beforeWrite.getPath(), afterWrite.getPath());
@@ -121,7 +114,7 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
     {
         begin();
         final String realPath = OperationExecutor.getRealPath(getTransaction(), FILE_B_PATH);
-        write(FILE_B_PATH, 0, DATA, getMD5(DATA));
+        write(FILE_B_PATH, 0, DATA);
         write(0, "12");
         write(2, "34");
         write(1, "B");
@@ -141,7 +134,7 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
     private void write(final int offset, final String value) throws Exception
     {
         final byte[] data12 = value.getBytes();
-        write(FILE_B_PATH, offset, data12, getMD5(data12));
+        write(FILE_B_PATH, offset, data12);
     }
 
 }
