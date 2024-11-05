@@ -284,7 +284,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                 Pattern newPattern = Pattern.compile(assignmentUpdates.getPatternRegex());
                 if(assignmentUpdates.isMandatory()) {
                     String defaultValue = assignmentUpdates.getDefaultValue();
-                    if(!newPattern.matcher(defaultValue).matches()) {
+                    if(defaultValue != null && !newPattern.matcher(defaultValue).matches()) {
                         throw new UserFailureException("New pattern does not match default value!");
                     }
                 }
