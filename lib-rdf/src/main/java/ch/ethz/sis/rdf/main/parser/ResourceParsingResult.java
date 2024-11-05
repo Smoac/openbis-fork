@@ -1,27 +1,9 @@
 package ch.ethz.sis.rdf.main.parser;
 
-import ch.ethz.sis.rdf.main.ClassCollector;
-import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
-import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
-import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
-import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
-import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
-import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
-import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
-import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.Restriction;
-import org.apache.jena.ontology.UnionClass;
-import org.apache.jena.rdf.model.*;
-import org.apache.jena.vocabulary.OWL;
-import org.apache.jena.vocabulary.OWL2;
-import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Set;
 
 public class ResourceParsingResult
 {
@@ -31,13 +13,20 @@ public class ResourceParsingResult
 
     private final List<SampleObject> editedObjects;
 
+    private final Set<String> classesImported;
+
+    private final List<String> propertiesImported;
+
     public ResourceParsingResult(List<SampleObject> deletedObjects,
             List<SampleObject> unchangedObjects,
-            List<SampleObject> editedObjects)
+            List<SampleObject> editedObjects, Set<String> classesImported,
+            List<String> propertiesImported)
     {
         this.deletedObjects = deletedObjects;
         this.unchangedObjects = unchangedObjects;
         this.editedObjects = editedObjects;
+        this.classesImported = classesImported;
+        this.propertiesImported = propertiesImported;
     }
 
     public List<SampleObject> getDeletedObjects()
@@ -53,5 +42,15 @@ public class ResourceParsingResult
     public List<SampleObject> getUnchangedObjects()
     {
         return unchangedObjects;
+    }
+
+    public Set<String> getClassesImported()
+    {
+        return classesImported;
+    }
+
+    public List<String> getPropertiesImported()
+    {
+        return propertiesImported;
     }
 }

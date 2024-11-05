@@ -8,6 +8,7 @@ import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.Before;
@@ -97,7 +98,8 @@ public class RDFReaderTest {
     public void testInvalidModelFormat() {
         String invalidFileName = "invalid.ttl";
         String invalidFormat = "UNKNOWN";
+        OntModel addiionalModel = ModelFactory.createOntologyModel();
 
-        assertThrows(Exception.class, () -> rdfReader.read(invalidFileName, invalidFormat));
+        assertThrows(Exception.class, () -> rdfReader.read(invalidFileName, invalidFormat, false, addiionalModel));
     }
 }

@@ -26,19 +26,19 @@ import java.util.stream.Stream;
 
 public class RDFReader
 {
-    public ModelRDF read(String inputFileName, String inputFormatValue)
+    public ModelRDF read(String inputFileName, String inputFormatValue, OntModel additionalModel)
     {
-        return read(inputFileName, inputFormatValue, false);
+        return read(inputFileName, inputFormatValue, false, additionalModel);
     }
 
-    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose)
+    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose, OntModel additionalModel)
     {
         Model model = LoaderRDF.loadModel(inputFileName, inputFormatValue);
         ModelRDF modelRDF = initializeModelRDF(model);
 
         handleSubclassChains(model, modelRDF);
         handleOntologyModel(model, inputFileName, inputFormatValue, modelRDF);
-        ResourceParsingResult resourceParsingResult =  handleResources(model, modelRDF);
+        ResourceParsingResult resourceParsingResult =  handleResources(model, modelRDF, additionalModel);
         printResourceParsingResult(resourceParsingResult);
 
 
@@ -76,6 +76,8 @@ public class RDFReader
 
     private void processOntologyModel(OntModel ontModel, ModelRDF modelRDF)
     {
+
+
         Map<String, List<String>> RDFtoOpenBISDataTypeMap = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
         //modelRDF.RDFtoOpenBISDataType = RDFtoOpenBISDataTypeMap;
         Map<String, List<String>> objectPropToOntClassMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
@@ -92,10 +94,14 @@ public class RDFReader
         modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
     }
 
-    private ResourceParsingResult handleResources(Model model, ModelRDF modelRDF)
+    private ResourceParsingResult handleResources(Model model, ModelRDF modelRDF, OntModel additionalOntModel)
     {
         boolean modelContainsResources = ParserUtils.containsResources(model);
         System.out.println("Model contains Resources ? " + (modelContainsResources ? "YES" : "NO"));
+        Map<String, List<String>>
+                additionalChains = getSubclassChainsEndingWithClass(additionalOntModel,
+                additionalOntModel.listStatements(null, RDFS.subClassOf, (RDFNode) null));
+
 
         modelRDF.resourcesGroupedByType =
                 modelContainsResources ? ParserUtils.getResourceMap(model) : Collections.emptyMap();
@@ -118,7 +124,18 @@ public class RDFReader
                         sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap,
                         modelRDF.subClassChanisMap);
         ResourceParsingResult resourceParsingResult =
-                ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap);
+                ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap, additionalChains);
+
+        //how do i parse classes and such here?
+
+        Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(additionalOntModel);
+
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(additionalOntModel, ontClass2OntClassExtensionMap)
+                .stream().filter(sampleType ->  resourceParsingResult.getClassesImported().contains(sampleType.ontologyAnnotationId)).toList();
+        modelRDF.sampleTypeList.addAll(sampleTypeList);
+
+
+
 
         modelRDF.sampleObjectsGroupedByTypeMap = Stream.concat( resourceParsingResult.getUnchangedObjects()
                 .stream(), resourceParsingResult.getEditedObjects().stream() ).collect(Collectors.groupingBy(x -> x.type));
