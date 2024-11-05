@@ -24,7 +24,7 @@ public class ParserUtilsTest extends TestCase {
 
         Map<String, List<SampleObject>> objects = Map.of(typeCode, List.of(object));
 
-        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects);
+        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects, Map.of());
         assertEquals(1, result.getUnchangedObjects().size());
 
 
@@ -45,7 +45,7 @@ public class ParserUtilsTest extends TestCase {
 
         Map<String, List<SampleObject>> objects = Map.of(typeCode2, List.of(object));
 
-        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects);
+        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects, Map.of());
         assertEquals(0, result.getUnchangedObjects().size());
         assertEquals(1, result.getDeletedObjects().size());
 
@@ -77,7 +77,7 @@ public class ParserUtilsTest extends TestCase {
 
         Map<String, List<SampleObject>> objects = Map.of(typeCode, List.of(object), typeCode2, List.of(objectFromProperty));
 
-        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects);
+        ResourceParsingResult result = ParserUtils.removeObjectsOfUnknownType(modelRDF, objects, Map.of());
         assertEquals(0, result.getUnchangedObjects().size());
         assertEquals(1, result.getDeletedObjects().size());
         assertEquals(1, result.getEditedObjects().size());

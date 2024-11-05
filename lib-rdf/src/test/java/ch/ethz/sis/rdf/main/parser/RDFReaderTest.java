@@ -37,7 +37,8 @@ public class RDFReaderTest {
 
     @Test
     public void testReadBasicRDFModel() {
-        ModelRDF modelRDF = rdfReader.read(inputFileName, inputFormatValue, false);
+        OntModel ontModel1 = ModelFactory.createOntologyModel();
+        ModelRDF modelRDF = rdfReader.read(inputFileName, inputFormatValue, false, ontModel1);
 
         assertNotNull(modelRDF);
         assertEquals("https://biomedit.ch/rdf/sphn-schema/sphn#", modelRDF.ontNamespace);
