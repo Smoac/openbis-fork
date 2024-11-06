@@ -560,7 +560,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                         "method" : "write",
 		                // use base64 url version of encoding that produces url safe characters only (default version of base64 produces "+" and "/" which need to be further converted by encodeURIComponent to "%2B" and "%2F" and therefore they unnecessarily increase the request size)
 
-                        "params" : [ owner, source, offset, base64URLEncode(dataString), base64URLEncode(hex2a(md5(dataString))) ]
+                        "params" : [ owner, source, offset, base64URLEncode(dataString)]
                     }
                 })
             }else{

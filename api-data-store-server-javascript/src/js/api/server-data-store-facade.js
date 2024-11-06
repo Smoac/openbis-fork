@@ -464,8 +464,7 @@ DataStoreServer.prototype.write = function(owner, source, offset, data){
 		"method": "write",
 		"owner" : owner,
 		"source": source,
-		"offset": offset,
-		"md5Hash": base64URLEncode(hex2a(getMD5Hash(data))),
+		"offset": offset
 	});
 
 	return this._internal.sendHttpRequest(

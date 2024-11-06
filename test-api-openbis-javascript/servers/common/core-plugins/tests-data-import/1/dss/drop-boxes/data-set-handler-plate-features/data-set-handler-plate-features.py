@@ -27,7 +27,7 @@ def process(transaction):
   dataset = transaction.createNewFeatureVectorDataSet(config, incoming)
   dataset.setFileFormatType('CSV')
   if len(splittedFileName) > 1:
-    dataset.setPropertyValue("$ANALYSIS_PROCEDURE", splittedFileName[1])
+    dataset.setPropertyValue("ANALYSIS_PROCEDURE", splittedFileName[1])
   dataset.setSample(sample)
   transaction.moveFile(incoming.getPath(), dataset)
 

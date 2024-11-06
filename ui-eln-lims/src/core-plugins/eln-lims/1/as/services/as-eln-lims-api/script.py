@@ -133,7 +133,7 @@ def _getAllSettingsSamples(context):
 def _removeInventorySpace(context, settingsSamples, code):
     settingsUpdated = False
     for settingsSample in settingsSamples:
-        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        settings = settingsSample.getProperty("ELN_SETTINGS")
         if settings is not None:
             removed = False
             settings = json.loads(settings)
@@ -162,7 +162,7 @@ def createSpace(context, parameters):
     reloadNeeded = False
     if parameters.get("isInventory"):
         settingsSample = _getSettingsSample(context, parameters, group)
-        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        settings = settingsSample.getProperty("ELN_SETTINGS")
         if settings is None:
             raise UserFailureException("Settings %s not yet defined. Please, edit them first." 
                                        % settingsSample.getIdentifier())
@@ -208,7 +208,7 @@ def _updateSettings(context, settingsSample, settings):
 
     sampleUpdate = SampleUpdate()
     sampleUpdate.setSampleId(settingsSample.getPermId())
-    sampleUpdate.setProperty("$ELN_SETTINGS", json.dumps(settings))
+    sampleUpdate.setProperty("ELN_SETTINGS", json.dumps(settings))
     context.getApplicationService().updateSamples(context.getSessionToken(), [sampleUpdate])
 
 def _addAuthorizations(context, parameters, group, code, isReadOnly, spaces):

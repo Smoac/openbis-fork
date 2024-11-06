@@ -284,10 +284,10 @@ public class TransactionConnection implements TransactionalFileSystem {
     private final Set<String> written = new HashSet<>();
 
     @Override
-    public boolean write(String source, long offset, byte[] data, byte[] md5Hash) throws Exception {
+    public boolean write(String source, long offset, byte[] data) throws Exception {
         String tempSource = OperationExecutor.getTempPath(transaction, source) + "." + UUID.randomUUID();
         source = getSafePath(OperationName.Write, source);
-        WriteOperation operation = new WriteOperation(transaction.getUuid(), source, tempSource, offset, data, md5Hash);
+        WriteOperation operation = new WriteOperation(transaction.getUuid(), source, tempSource, offset, data);
         boolean prepared = prepare(operation, source, null);
         if (prepared) {
             written.add(source);
@@ -379,7 +379,7 @@ public class TransactionConnection implements TransactionalFileSystem {
             if (prepared) {
                 if (Objects.requireNonNull(operationName) == OperationName.Write)
                 {
-                    transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).md5Hash(null).build());
+                    transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).build());
                 } else
                 {
                     transaction.getOperations().add(operation);

@@ -45,8 +45,8 @@ public class ValidationProxy extends AbstractProxy {
     }
 
     @Override
-    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception {
-        return nextProxy.write(owner, source, offset, data, md5Hash);
+    public Boolean write(String owner, String source, Long offset, byte[] data) throws Exception {
+        return nextProxy.write(owner, source, offset, data);
     }
 
     @Override

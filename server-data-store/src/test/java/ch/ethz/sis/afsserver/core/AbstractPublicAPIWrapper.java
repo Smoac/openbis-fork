@@ -59,13 +59,12 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
 
     @Override
     public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset,
-            @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception
+            @NonNull byte[] data) throws Exception
     {
         Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source,
-                "offset", offset,
-                "md5Hash", md5Hash);
+                "offset", offset);
         return process(Boolean.class, "write", args, data);
     }
 

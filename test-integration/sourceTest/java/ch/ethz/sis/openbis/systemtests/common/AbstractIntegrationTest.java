@@ -398,7 +398,7 @@ public abstract class AbstractIntegrationTest
 
         SampleUpdate elnSettingsUpdate = new SampleUpdate();
         elnSettingsUpdate.setSampleId(new SampleIdentifier("/ELN_SETTINGS/GENERAL_ELN_SETTINGS"));
-        elnSettingsUpdate.setProperties(Map.of("$ELN_SETTINGS", FileUtilities.loadToString(new File("etc/as/eln-settings.json"))));
+        elnSettingsUpdate.setProperties(Map.of("ELN_SETTINGS", FileUtilities.loadToString(new File("etc/as/eln-settings.json"))));
 
         openBIS.updateSamples(List.of(elnSettingsUpdate));
     }

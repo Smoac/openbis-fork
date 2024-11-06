@@ -169,13 +169,11 @@ public final class AfsClient implements PublicAPI, ClientAPI
 
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
-            @NonNull final Long offset, @NonNull final byte[] data,
-            @NonNull final byte[] md5Hash) throws Exception
+            @NonNull final Long offset, @NonNull final byte[] data) throws Exception
     {
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner",
-                owner, "source", source,"offset", offset.toString(),
-                "md5Hash", Base64.getUrlEncoder().encodeToString(md5Hash)) , data, false );
+                owner, "source", source,"offset", offset.toString()) , data, false );
     }
 
     @Override
@@ -590,7 +588,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
             final byte[] data = result < fullBuffer.length ? Arrays.copyOf(fullBuffer, result) : fullBuffer;
             try
             {
-                final Boolean writeSuccessful = write(owner, destination, this.offset, data, getMD5(data));
+                final Boolean writeSuccessful = write(owner, destination, this.offset, data);
                 if (!writeSuccessful)
                 {
                     hasError.set(true);

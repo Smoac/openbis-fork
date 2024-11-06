@@ -116,9 +116,9 @@ public class AuthenticationProxy extends AbstractProxy {
     }
 
     @Override
-    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
+    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data) throws Exception {
         validateSessionAvailable();
-        return nextProxy.write(owner, source, offset, data, md5Hash);
+        return nextProxy.write(owner, source, offset, data);
     }
 
     @Override

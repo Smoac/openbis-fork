@@ -145,8 +145,8 @@ public abstract class AbstractTransactionConnectionTest extends AbstractTest {
         return transaction.read(source, offset, limit);
     }
 
-    public boolean write(String source, long offset, byte[] data, byte[] md5Hash) throws Exception {
-        return transaction.write(source, offset, data, md5Hash);
+    public boolean write(String source, long offset, byte[] data) throws Exception {
+        return transaction.write(source, offset, data);
     }
 
     public boolean delete(String source) throws Exception {

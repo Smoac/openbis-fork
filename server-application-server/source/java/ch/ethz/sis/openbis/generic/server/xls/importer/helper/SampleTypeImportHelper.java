@@ -36,31 +36,45 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class SampleTypeImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Description("Description", true),
-        AutoGenerateCodes("Auto generate codes", true),
-        ValidationScript("Validation script", true),
-        GeneratedCodePrefix("Generated code prefix", true),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false),
-        Internal("Internal", false);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Description("Description", true, false),
+        AutoGenerateCodes("Auto generate codes", true, false),
+        ValidationScript("Validation script", true, false),
+        GeneratedCodePrefix("Generated code prefix", true, false),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false),
+        Internal("Internal", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 

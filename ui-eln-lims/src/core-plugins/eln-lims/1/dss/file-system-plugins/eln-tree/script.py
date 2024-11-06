@@ -211,7 +211,7 @@ def getAllSettings(context):
     mainMenues = {}
     sampleTypeViewAttributes = {}
     for settingsSample in settingsSamples:
-        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        settings = settingsSample.getProperty("ELN_SETTINGS")
         if settings is not None:
             settings = json.loads(settings)
             inventorySpaces.update(settings["inventorySpaces"])
@@ -489,7 +489,7 @@ def gatherEntity(entitiesByName, entity):
 
 def getNodeName(entity):
     nodeName = entity.getCode()
-    name = entity.getProperties().get("$NAME")
+    name = entity.getProperties().get("NAME")
     if name is not None:
         # replacing normal slash character by a 'division slash' in order to avoid interpretation as path delimiter
         nodeName = name.replace("/", u"\u2215")

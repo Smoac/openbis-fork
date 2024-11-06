@@ -60,9 +60,9 @@ public class AuthorizationProxy extends AbstractProxy {
     }
 
     @Override
-    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception {
+    public Boolean write(String owner, String source, Long offset, byte[] data) throws Exception {
         validateUserRights(owner, source, IOUtils.writePermissions, OperationName.Write);
-        return nextProxy.write(owner, source, offset, data, md5Hash);
+        return nextProxy.write(owner, source, offset, data);
     }
 
     @Override

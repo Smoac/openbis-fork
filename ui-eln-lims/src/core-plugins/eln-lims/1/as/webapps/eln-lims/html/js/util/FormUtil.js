@@ -1165,10 +1165,10 @@ var FormUtil = new function() {
         return $component;
     }
 
-	this._getDatePickerField = function(id, alt, isRequired, isDateOnly, value) {
+	this._getDatePickerField = function(id, alt, isRequired, isDateOnly, value, excludeTimeZone) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
-		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'placeholder' : (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss ZZ (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND TIMEZONE)'),
+		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'placeholder' : (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : (excludeTimeZone ? 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND)' : 'yyyy-MM-dd HH:mm:ss ZZ (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND TIMEZONE)')),
 			'data-format' : isDateOnly ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'});
 		if (isRequired) {
 			$input.attr('required', '');
@@ -1181,11 +1181,11 @@ var FormUtil = new function() {
 		$subComponent.append($spanAddOn);
 
 		var date = null;
-		if(value) {
+		if(value && value != null) {
 			date = Util.parseDate(value);
 		}
 		var datetimepicker = $subComponent.datetimepicker({
-            format : isDateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss ZZ',
+            format : isDateOnly ? 'YYYY-MM-DD' : (excludeTimeZone ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss ZZ'),
             extraFormats: isDateOnly ? [] : [ 'YYYY-MM-DD HH:mm:ss' ],
             useCurrent : false,
             defaultDate : date
