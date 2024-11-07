@@ -154,7 +154,7 @@ public class ELNFixes {
 
     private static void fixProperties(final String propertiesTable, final String entityTypePropertyTypesTable,
             final String entityTypePropertyTypesColumn, final String frozenColumn) {
-        ELNCollectionTypeMigration.executeNativeUpdate(
+        int executeNativeUpdate_1_Ok = ELNCollectionTypeMigration.executeNativeUpdate(
             String.format("UPDATE %s prop\n"
                     + "SET value = null\n"
                     + "FROM %s etpt\n"
@@ -162,7 +162,7 @@ public class ELNFixes {
                     + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
                     + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code = 'CONTROLLEDVOCABULARY' AND prop.%s = false",
                     propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn, frozenColumn));
-        ELNCollectionTypeMigration.executeNativeUpdate(
+        int executeNativeUpdate_2_Ok = ELNCollectionTypeMigration.executeNativeUpdate(
             String.format("UPDATE %s prop\n"
                 + "SET cvte_id = null\n"
                 + "FROM %s etpt\n"
