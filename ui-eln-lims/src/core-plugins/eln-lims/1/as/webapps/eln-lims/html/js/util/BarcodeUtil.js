@@ -277,7 +277,7 @@ var BarcodeUtil = new function() {
     }
 
     this.getBarcodePattern = function() {
-        return profile.barcodePattern ? profile.barcodePattern : /^[-0-9]+$/;
+        return profile.barcodePattern ? new RegExp(profile.barcodePattern) : /^[-0-9]+$/;
     }
 
     this.isValidBarcode = function(barcode) {
