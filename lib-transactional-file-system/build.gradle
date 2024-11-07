@@ -13,6 +13,9 @@ repositories {
         ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
         artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
     }
+
+    // temporarily to experiment with kryo, later on can be added to ivy
+    mavenCentral()
 }
 
 dependencies {
@@ -24,7 +27,9 @@ dependencies {
                     'fasterxml:jackson-annotations:2.9.10',
                     'fasterxml:jackson-core:2.9.10',
                     'fasterxml:jackson-databind:2.9.10.8',
-                    'fasterxml:jackson-datatype-jsr310:2.9.10';
+                    'fasterxml:jackson-datatype-jsr310:2.9.10',
+                    'com.esotericsoftware:kryo:5.6.2';
+
     testImplementation 'junit:junit:4.10'
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }

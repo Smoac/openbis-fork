@@ -21,6 +21,7 @@ import ch.ethz.sis.afs.dto.LockType;
 import lombok.Value;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +43,8 @@ public class DeleteOperation implements Operation {
             sourceLockType = LockType.Exclusive;
         }
 
-        this.locks = List.of(new Lock<>(owner, source, sourceLockType));
+        this.locks = new ArrayList<>();
+        locks.add(new Lock<>(owner, source, sourceLockType));
         this.source = source;
         this.name = OperationName.Delete;
     }

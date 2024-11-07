@@ -17,6 +17,7 @@ package ch.ethz.sis.afs.manager;
 
 import static ch.ethz.sis.shared.collection.List.safe;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import ch.ethz.sis.afs.dto.LockType;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.CollectionSerializer;
+import com.esotericsoftware.kryo.serializers.MapSerializer;
 import org.apache.logging.log4j.util.Strings;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
@@ -83,6 +89,26 @@ public class TransactionConnection implements TransactionalFileSystem {
     private String writeAheadLogRoot;
     private String storageRoot;
     private RecoveredTransactions recoveredTransactions;
+
+    private static final Kryo kryo = new Kryo();
+    static {
+        kryo.register(Transaction.class, 10);
+        kryo.register(UUID.class, 11);
+        kryo.register(List.class, 12);
+        kryo.register(Operation.class, 13);
+        kryo.register(ArrayList.class, 14);
+        kryo.register(WriteOperation.class, 15);
+        kryo.register(byte[].class, 16);
+        kryo.register(OperationName.class, 17);
+        kryo.register(ch.ethz.sis.afs.dto.Lock.class, 18);
+        kryo.register(LockType.class, 19);
+        kryo.register(DeleteOperation.class,20);
+        kryo.register(ReadOperation.class,21);
+        kryo.register(List.class, new CollectionSerializer<>());
+        kryo.register(Set.class, new CollectionSerializer<>());
+        kryo.register(Map.class, new MapSerializer<>());
+
+    };
 
     /*
      * Used only to create new transactions
@@ -166,7 +192,18 @@ public class TransactionConnection implements TransactionalFileSystem {
     }
 
     private void writeTransactionLog(boolean isCommitted) throws Exception {
-        byte[] bytes = jsonObjectMapper.writeValue(transaction);
+        //long start = System.currentTimeMillis();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (Output output = new Output(baos)) {
+            kryo.writeObject(output, transaction);
+        }
+        byte[] bytes = baos.toByteArray();
+       // System.out.println(">>>>>>>>>>>>>>> kryo took : " + (System.currentTimeMillis() - start));
+
+//        start = System.currentTimeMillis();
+//        byte[] bytes = jsonObjectMapper.writeValue(transaction);
+//        System.out.println(">>>>>>>>>>>>>>>> jsonObjectMapper took : " + (System.currentTimeMillis() - start));
         String transactionLog = OperationExecutor.getTransactionLog(transaction, isCommitted);
         IOUtils.createFile(transactionLog);
         IOUtils.write(transactionLog, 0, bytes);
