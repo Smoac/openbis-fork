@@ -13,10 +13,11 @@ import java.util.*;
 public class AdditionalVocabularyMapper
 {
 
-    public static List<VocabularyType> findVocabularyTypes(ResourceParsingResult resourceParsingResult, OntModel additionalOntModel, Set<String> baseVocabClassUris){
+    public static AdditionalVocabularyStuff findVocabularyTypes(ResourceParsingResult resourceParsingResult, OntModel additionalOntModel, Set<String> baseVocabClassUris){
         Set<String> importedClasses = resourceParsingResult.getClassesImported();
         List<VocabularyType> res = new ArrayList<>();
         Map<String, List<VocabularyTypeOption>> temp = new HashMap<>();
+        Set<String> vocabAnnotationIds = new HashSet<>();
         for (String classUri : importedClasses){
             OntClass ontClass = additionalOntModel.getOntClass(classUri);
             String baseClassUri = getBaseVocabClass(ontClass, baseVocabClassUris);
@@ -27,8 +28,8 @@ public class AdditionalVocabularyMapper
             if (temp.get(baseClassUri) == null){
                 temp.put(baseClassUri, new ArrayList<>());
             }
-
             temp.get(baseClassUri).add(getTypeOption(ontClass));
+            vocabAnnotationIds.add(classUri);
         }
         for (Map.Entry<String, List<VocabularyTypeOption>> entry : temp.entrySet()){
             OntClass ontClass = additionalOntModel.getOntClass(entry.getKey());
@@ -44,7 +45,7 @@ public class AdditionalVocabularyMapper
 
 
 
-        return res;
+        return new AdditionalVocabularyStuff(res, vocabAnnotationIds);
 
     }
 
@@ -76,6 +77,28 @@ public class AdditionalVocabularyMapper
         }
         return getBaseVocabClass(cls.getSuperClass(), baseVocabClassUris);
 
+    }
+
+    public static class  AdditionalVocabularyStuff{
+        private final List<VocabularyType> vocabularyTypeList;
+        private final Set<String> vocabAnnotationIds;
+
+        public AdditionalVocabularyStuff(List<VocabularyType> vocabularyTypeList,
+                Set<String> vocabAnnotationIds)
+        {
+            this.vocabularyTypeList = vocabularyTypeList;
+            this.vocabAnnotationIds = vocabAnnotationIds;
+        }
+
+        public List<VocabularyType> getVocabularyTypeList()
+        {
+            return vocabularyTypeList;
+        }
+
+        public Set<String> getVocabAnnotationIds()
+        {
+            return vocabAnnotationIds;
+        }
     }
 
 
