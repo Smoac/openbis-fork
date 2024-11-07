@@ -4,7 +4,7 @@ import autoBind from 'auto-bind'
 import withStyles from '@mui/styles/withStyles';
 import { Draggable, Droppable } from "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration"
 import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -182,9 +182,8 @@ class BrowserNodeClass extends React.PureComponent {
     } else {
       return (
         <React.Fragment>
-          <ListItem
+          <ListItemButton
             ref={this.references.node}
-            button
             selected={node.selected}
             onClick={this.handleClick}
             style={{ paddingLeft: level * PADDING_PER_LEVEL + 'px' }}
@@ -195,7 +194,7 @@ class BrowserNodeClass extends React.PureComponent {
             {this.renderIcon(node)}
             {this.renderText(node)}
             {this.renderOptions(node)}
-          </ListItem>
+          </ListItemButton>
           <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
             {this.renderChildren()}
           </Collapse>
@@ -372,9 +371,8 @@ class BrowserNodeClass extends React.PureComponent {
 
     if (this.hasMoreChildren(node)) {
       return (
-        <ListItem
+        <ListItemButton
           ref={this.references.loadMore}
-          button
           onClick={this.handleLoadMore}
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
           classes={{
@@ -402,7 +400,7 @@ class BrowserNodeClass extends React.PureComponent {
               primary: classes.text
             }}
           />
-        </ListItem>
+        </ListItemButton>
       )
     } else {
       return null
@@ -414,8 +412,7 @@ class BrowserNodeClass extends React.PureComponent {
 
     if (!this.hasChildren(node) && !this.hasMoreChildren(node)) {
       return (
-        <ListItem
-          button
+        <ListItemButton
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
           classes={{
             root: classes.item
@@ -434,7 +431,7 @@ class BrowserNodeClass extends React.PureComponent {
               primary: classes.text
             }}
           />
-        </ListItem>
+        </ListItemButton>
       )
     } else {
       return null

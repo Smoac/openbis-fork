@@ -5,7 +5,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTreeOutlined'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 import IconButton from '@mui/material/IconButton'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
@@ -81,8 +81,7 @@ class BrowserRoot extends React.PureComponent {
     }
 
     return (
-      <ListItem
-        button
+      <ListItemButton
         classes={{
           root: classes.item
         }}
@@ -90,7 +89,7 @@ class BrowserRoot extends React.PureComponent {
         {this.renderHome()}
         {this.renderPath()}
         {this.renderClear()}
-      </ListItem>
+      </ListItemButton>
     )
   }
 
