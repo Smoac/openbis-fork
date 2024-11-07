@@ -15,10 +15,6 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
 
-  optimization: {
-    sideEffects: true
-  },
-
   module: {
     rules: [
       {

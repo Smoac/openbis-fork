@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 const useStyles = makeStyles(() => ({
     root: {
         padding: '8px',
-        margin: '6px 0 6px 0',
+        margin: '6px 0 12px 0',
         borderColor: '#ebebeb',
         borderStyle: 'solid',
         borderWidth: '1px 2px 2px 1px',

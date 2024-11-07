@@ -3,11 +3,12 @@ import withStyles from '@mui/styles/withStyles';
 import {
     Box,
     Divider,
-    Grid,
-    Typography
+    Grid2,
+    Typography,
+    Container
 } from "@mui/material";
 
-import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
+import { convertToBase64, inRange, isObjectEmpty } from "@src/js/components/common/imaging/utils.js";
 import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
 import InputFileUpload
     from "@src/js/components/common/imaging/components/viewer/InputFileUpload.js";
@@ -39,6 +40,8 @@ import Button from '@src/js/components/common/form/Button.jsx'
 import DefaultMetadaField
     from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
 
+import ImageSection from "@src/js/components/common/imaging/components/viewer/ImageSection.jsx";
+
 const styles = theme => ({
     imgContainer: {
         maxHeight: '800px',
@@ -61,7 +64,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            error: {open: false, error: null},
+            error: { open: false, error: null },
             isSaved: true,
             isChanged: false,
             open: true,
@@ -75,7 +78,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     async componentDidMount() {
         if (!this.state.loaded) {
-            const {objId, extOpenbis} = this.props;
+            const { objId, extOpenbis } = this.props;
             try {
                 const imagingDataSetPropertyConfig = await new ImagingFacade(extOpenbis).loadImagingDataset(objId);
                 if (isObjectEmpty(imagingDataSetPropertyConfig.images[0].previews[0].config)) {
@@ -101,35 +104,35 @@ class ImagingDataSetViewer extends React.PureComponent {
     }
 
     saveDataset = async () => {
-        const {objId, extOpenbis, onUnsavedChanges} = this.props;
-        const {imagingDataset} = this.state;
+        const { objId, extOpenbis, onUnsavedChanges } = this.props;
+        const { imagingDataset } = this.state;
         this.handleOpen();
         try {
             const isSaved = await new ImagingFacade(extOpenbis).saveImagingDataset(objId, imagingDataset);
             if (isSaved === null) {
-                this.setState({open: false, isChanged: false, isSaved: true});
+                this.setState({ open: false, isChanged: false, isSaved: true });
                 if (onUnsavedChanges !== null)
                     onUnsavedChanges(this.props.objId, false);
             }
         } catch (error) {
-            this.setState({open: false, isChanged: false, isSaved: false});
+            this.setState({ open: false, isChanged: false, isSaved: false });
             this.handleError(error);
         }
     }
 
     handleUpdate = async () => {
         this.handleOpen();
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const {objId, extOpenbis, onUnsavedChanges} = this.props;
+        const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
+        const { objId, extOpenbis, onUnsavedChanges } = this.props;
         try {
             const updatedImagingDataset = await new ImagingFacade(extOpenbis)
                 .updateImagingDataset(objId, activeImageIdx, imagingDataset.images[activeImageIdx].previews[activePreviewIdx]);
             if (updatedImagingDataset.error) {
-                this.setState({open: false, isChanged: true, isSaved: false});
+                this.setState({ open: false, isChanged: true, isSaved: false });
                 this.handleError(updatedImagingDataset.error);
             }
             delete updatedImagingDataset.preview['@id']; //@id are duplicated across different previews on update, need to be deleted
-            let toUpdateImgDs = {...imagingDataset};
+            let toUpdateImgDs = { ...imagingDataset };
             toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = updatedImagingDataset.preview;
             this.setState({
                 open: false,
@@ -140,49 +143,49 @@ class ImagingDataSetViewer extends React.PureComponent {
             if (onUnsavedChanges !== null)
                 onUnsavedChanges(this.props.objId, true);
         } catch (error) {
-            this.setState({open: false, isChanged: true, isSaved: false});
+            this.setState({ open: false, isChanged: true, isSaved: false });
             this.handleError(error);
         }
     };
 
     onExport = async (state) => {
         this.handleOpen();
-        const {activeImageIdx} = this.state;
-        const {objId, extOpenbis} = this.props;
+        const { activeImageIdx } = this.state;
+        const { objId, extOpenbis } = this.props;
         try {
             const downloadableURL = await new ImagingFacade(extOpenbis)
                 .exportImagingDataset(objId, activeImageIdx, state, {});
             if (downloadableURL)
                 window.open(downloadableURL, '_blank');
-            this.setState({open: false});
+            this.setState({ open: false });
         } catch (error) {
-            this.setState({open: false});
+            this.setState({ open: false });
             this.handleError(error);
         }
     };
 
     handleErrorCancel = () => {
         this.setState({
-            error: {open: false, error: null}
+            error: { open: false, error: null }
         })
     }
 
     handleError = (error) => {
         this.setState({
-            error: {open: true, error: error}
+            error: { open: true, error: error }
         })
     }
 
     handleOpen = () => {
-        this.setState({open: true});
+        this.setState({ open: true });
     }
 
     handleActiveImageChange = (selectedImageIdx) => {
-        this.setState({activeImageIdx: selectedImageIdx, activePreviewIdx: 0});
+        this.setState({ activeImageIdx: selectedImageIdx, activePreviewIdx: 0 });
     };
 
     handleActivePreviewChange = (selectedPreviewIdx) => {
-        this.setState({activePreviewIdx: selectedPreviewIdx});
+        this.setState({ activePreviewIdx: selectedPreviewIdx });
     };
 
     handleResolutionChange = (event) => {
@@ -195,14 +198,14 @@ class ImagingDataSetViewer extends React.PureComponent {
             this.setState({resolution: [width, height]});
         } else if (val.includes('x')){*/
         const v_list = event.target.value.split('x');
-        this.setState({resolution: v_list});
+        this.setState({ resolution: v_list });
     };
 
     handleActiveConfigChange = (name, value, update = false) => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx,} = this.state;
-        let toUpdateIDS = {...imagingDataset};
+        const { imagingDataset, activeImageIdx, activePreviewIdx, } = this.state;
+        let toUpdateIDS = { ...imagingDataset };
         toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config[name] = value;
-        this.setState({imagingDataset: toUpdateIDS, isChanged: true});
+        this.setState({ imagingDataset: toUpdateIDS, isChanged: true });
         // Used by the player to autoupdate
         if (update) {
             this.handleUpdate();
@@ -210,20 +213,20 @@ class ImagingDataSetViewer extends React.PureComponent {
     }
 
     handleShowPreview = () => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const {onUnsavedChanges} = this.props;
-        let toUpdateIDS = {...imagingDataset};
+        const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
+        const { onUnsavedChanges } = this.props;
+        let toUpdateIDS = { ...imagingDataset };
         toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].show = !toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].show;
-        this.setState({imagingDataset: toUpdateIDS, isSaved: false});
+        this.setState({ imagingDataset: toUpdateIDS, isSaved: false });
         if (onUnsavedChanges !== null)
             onUnsavedChanges(this.props.objId, true);
     }
 
     onMove = (position) => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const {onUnsavedChanges} = this.props;
+        const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
+        const { onUnsavedChanges } = this.props;
         this.handleOpen();
-        let toUpdateImgDs = {...imagingDataset};
+        let toUpdateImgDs = { ...imagingDataset };
         let previewsList = toUpdateImgDs.images[activeImageIdx].previews;
         let tempMovedPreview = previewsList[activePreviewIdx];
         tempMovedPreview.index += position;
@@ -231,7 +234,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         previewsList[activePreviewIdx].index -= position;
         previewsList[activePreviewIdx + position] = tempMovedPreview;
         toUpdateImgDs.images[activeImageIdx].previews = previewsList;
-        this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false});
+        this.setState({ open: false, imagingDataset: toUpdateImgDs, isSaved: false });
         if (onUnsavedChanges !== null)
             onUnsavedChanges(this.props.objId, true);
     }
@@ -273,7 +276,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             }
                         }
                         let rangeInitValue = [inRange(activeConfig[input.label][0], input.range[0], input.range[1]) ? activeConfig[input.label][0] : input.range[0],
-                            inRange(activeConfig[input.label][1], input.range[0], input.range[1]) ? activeConfig[input.label][1] : input.range[1]]
+                        inRange(activeConfig[input.label][1], input.range[0], input.range[1]) ? activeConfig[input.label][1] : input.range[1]]
                         return [input.label, rangeInitValue];
                     } else {
                         if (input.visibility) {
@@ -291,9 +294,9 @@ class ImagingDataSetViewer extends React.PureComponent {
     };
 
     createNewPreview = () => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const {extOpenbis, onUnsavedChanges} = this.props;
-        let toUpdateImgDs = {...imagingDataset};
+        const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
+        const { extOpenbis, onUnsavedChanges } = this.props;
+        let toUpdateImgDs = { ...imagingDataset };
         let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
         let inputValues = this.createInitValues(imagingDataset.config.inputs, toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx].config);
         let imagingDataSetPreview = new ImagingMapper(extOpenbis)
@@ -312,10 +315,10 @@ class ImagingDataSetViewer extends React.PureComponent {
     handleUpload = async (file) => {
         this.handleOpen();
         const base64 = await convertToBase64(file);
-        const {imagingDataset, activeImageIdx} = this.state;
-        const {onUnsavedChanges} = this.props;
+        const { imagingDataset, activeImageIdx } = this.state;
+        const { onUnsavedChanges } = this.props;
         try {
-            let toUpdateImgDs = {...imagingDataset};
+            let toUpdateImgDs = { ...imagingDataset };
             let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
             let previewTemplate = new ImagingMapper(this.props.extOpenbis).getImagingDataSetPreview(
                 {},
@@ -325,34 +328,34 @@ class ImagingDataSetViewer extends React.PureComponent {
                 null,
                 newLastIdx,
                 false,
-                {"file": file}
+                { "file": file }
             )
             toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, previewTemplate];
-            this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false})
+            this.setState({ open: false, imagingDataset: toUpdateImgDs, isSaved: false })
             if (onUnsavedChanges !== null)
                 onUnsavedChanges(this.props.objId, true);
         } catch (error) {
-            this.setState({open: false});
+            this.setState({ open: false });
             this.handleError(error);
         }
     };
 
     deletePreview = () => {
         this.handleOpen();
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        let toUpdateImgDs = {...imagingDataset};
+        const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
+        let toUpdateImgDs = { ...imagingDataset };
         toUpdateImgDs.images[activeImageIdx].previews.splice(activePreviewIdx, 1);
         toUpdateImgDs.images[activeImageIdx].previews = toUpdateImgDs.images[activeImageIdx].previews.map(p => {
             if (p.index > activePreviewIdx)
                 p.index -= 1;
             return p;
         });
-        this.setState({imagingDataset: toUpdateImgDs, activePreviewIdx: 0});
+        this.setState({ imagingDataset: toUpdateImgDs, activePreviewIdx: 0 });
         this.saveDataset();
     };
 
     render() {
-        const {loaded, open, error} = this.state;
+        const { loaded, open, error } = this.state;
         if (!loaded) return null;
         const {
             imagingDataset,
@@ -362,108 +365,90 @@ class ImagingDataSetViewer extends React.PureComponent {
             isSaved,
             isChanged
         } = this.state;
-        const {classes} = this.props;
+        const { classes } = this.props;
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
         //console.log('ImagingDataSetViewer.render: ', this.state);
         return (
-            <React.Fragment>
-                <LoadingDialog loading={open}/>
+            <Container sx={{height: '100%', overflow:'auto'}}>
+                <LoadingDialog loading={open} />
                 <ErrorDialog open={error.state} error={error.error}
-                             onClose={this.handleErrorCancel}/>
-                {this.renderImageSection(imagingDataset.images, activeImageIdx, imagingDataset.config.exports)}
+                    onClose={this.handleErrorCancel} />
+                <ImageSection images={imagingDataset.images}
+                    activeImageIdx={activeImageIdx}
+                    configExports={imagingDataset.config.exports}
+                    onActiveItemChange={this.handleActiveImageChange}
+                    handleExport={this.onExport}
+                />
                 {this.renderPreviewsSection(imagingDataset.images[activeImageIdx].previews, imagingDataset.config.exports, activeImageIdx, activePreviewIdx, isSaved)}
                 <PaperBox>
-                    <Grid container className={classes.gridDirection}>
+                    <Grid2 container className={classes.gridDirection}>
                         {this.renderBigPreview(classes, activePreview, resolution)}
                         {this.renderInputControls(classes, activePreview, imagingDataset.config.inputs, imagingDataset.config.resolutions, resolution, isChanged)}
-                    </Grid>
+                    </Grid2>
                 </PaperBox>
                 {this.renderMetadataSection(classes, activePreview, imagingDataset.images[activeImageIdx], imagingDataset.config.metadata)}
-            </React.Fragment>
+            </Container>
         )
     };
 
-    renderImageSection(images, activeImageIdx, configExports) {
-        return (
-            (<PaperBox>
-                <Grid container direction='row' spacing={1}>
-                    <Grid item xs={9} sm={10}>
-                        <ImageListItemSection title={messages.get(messages.IMAGES)}
-                                              cols={3} rowHeight={150}
-                                              type={constants.IMAGE_TYPE}
-                                              items={images}
-                                              activeImageIdx={activeImageIdx}
-                                              onActiveItemChange={this.handleActiveImageChange}/>
-                    </Grid>
-                    <Grid item xs={3} sm={2} container direction='column'
-                          sx={{
-                              justifyContent: "space-around"
-                          }}>
-                        {configExports.length > 0 ?
-                            <Export handleExport={this.onExport}
-                                    config={configExports}/> : <></>}
-                    </Grid>
-                </Grid>
-            </PaperBox>)
-        );
-    };
+
 
     renderPreviewsSection(previews, configExports, activeImageIdx, activePreviewIdx, isSaved) {
         const nPreviews = previews.length;
         return (
             (<PaperBox>
-                <Grid container direction='row' spacing={1}>
-                    <Grid item xs={9} sm={10}>
+                <Grid2 container direction='row' spacing={1}>
+                    <Grid2 item xs={9} sm={10}>
                         <ImageListItemSection title={messages.get(messages.PREVIEWS)}
-                                              cols={4} rowHeight={200}
-                                              type={constants.PREVIEW_TYPE}
-                                              items={previews}
-                                              activeImageIdx={activeImageIdx}
-                                              activePreviewIdx={activePreviewIdx}
-                                              onActiveItemChange={this.handleActivePreviewChange}
-                                              onMove={this.onMove}/>
-                    </Grid>
-                    <Grid item xs={3} sm={2} container direction='column'
-                          sx={{
-                              justifyContent: "space-around"
-                          }}>
+                            cols={4} rowHeight={200}
+                            type={constants.PREVIEW_TYPE}
+                            items={previews}
+                            activeImageIdx={activeImageIdx}
+                            activePreviewIdx={activePreviewIdx}
+                            onActiveItemChange={this.handleActivePreviewChange}
+                            onMove={this.onMove} />
+                    </Grid2>
+                    <Grid2 item xs={3} sm={2} container direction='column'
+                        sx={{
+                            justifyContent: "space-around"
+                        }}>
                         {!isSaved && (
                             <Message type='warning'>
                                 {messages.get(messages.UNSAVED_CHANGES)}
                             </Message>
                         )}
                         <Button name="btn-save-preview"
-                                label={messages.get(messages.SAVE)}
-                                variant='outlined'
-                                type='final'
-                                startIcon={<SaveIcon/>}
-                                disabled={isSaved}
-                                onClick={this.saveDataset}/>
+                            label={messages.get(messages.SAVE)}
+                            variant='outlined'
+                            type='final'
+                            startIcon={<SaveIcon />}
+                            disabled={isSaved}
+                            onClick={this.saveDataset} />
 
-                        <AlertDialog label={messages.get(messages.REMOVE)} icon={<DeleteIcon/>}
-                                     title={messages.get(messages.CONFIRMATION_REMOVE, 'current preview')}
-                                     content={messages.get(messages.CONTENT_REMOVE_PREVIEW)}
-                                     disabled={nPreviews === 1}
-                                     onHandleYes={this.deletePreview}/>
+                        <AlertDialog label={messages.get(messages.REMOVE)} icon={<DeleteIcon />}
+                            title={messages.get(messages.CONFIRMATION_REMOVE, 'current preview')}
+                            content={messages.get(messages.CONTENT_REMOVE_PREVIEW)}
+                            disabled={nPreviews === 1}
+                            onHandleYes={this.deletePreview} />
 
                         <Button
                             name='btn-new-preview'
                             label={messages.get(messages.NEW)}
                             type='final'
                             variant='outlined'
-                            startIcon={<AddToQueueIcon/>}
+                            startIcon={<AddToQueueIcon />}
                             onClick={this.createNewPreview} />
 
-                        <InputFileUpload onInputFile={this.handleUpload}/>
-                    </Grid>
-                </Grid>
+                        <InputFileUpload onInputFile={this.handleUpload} />
+                    </Grid2>
+                </Grid2>
             </PaperBox>)
         );
     };
 
     renderBigPreview(classes, activePreview, resolution) {
         return (
-            (<Grid
+            (<Grid2
                 container
                 item
                 xs={12}
@@ -484,7 +469,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             width={resolution[1]}
                         />}
                 </Box>
-            </Grid>)
+            </Grid2>)
         );
     };
 
@@ -494,21 +479,21 @@ class ImagingDataSetViewer extends React.PureComponent {
         const currentMetadata = activePreview.metadata;
         const isUploadedPreview = isObjectEmpty(currentMetadata) ? false : ("file" in currentMetadata);
         return (
-            (<Grid item xs={12} sm={4}>
+            (<Grid2 item xs={12} sm={4}>
                 <PaperBox className={classes.noBorderNoShadow}>
-                    <Grid item xs>
-                        <Grid
+                    <Grid2 item xs>
+                        <Grid2
                             container
                             sx={{
                                 justifyContent: "space-between",
                                 alignItems: "center"
                             }}>
                             <Button label={messages.get(messages.UPDATE)}
-                                    variant='outlined'
-                                    color='primary'
-                                    startIcon={<RefreshIcon/>}
-                                    onClick={this.handleUpdate}
-                                    disabled={!isChanged || isUploadedPreview}/>
+                                variant='outlined'
+                                color='primary'
+                                startIcon={<RefreshIcon />}
+                                onClick={this.handleUpdate}
+                                disabled={!isChanged || isUploadedPreview} />
 
                             {isChanged && !isUploadedPreview && (
                                 <Message type='info'>
@@ -516,61 +501,61 @@ class ImagingDataSetViewer extends React.PureComponent {
                                 </Message>
                             )}
 
-                            <OutlinedBox style={{width: 'fit-content'}}
-                                         label={messages.get(messages.SHOW)}>
+                            <OutlinedBox style={{ width: 'fit-content' }}
+                                label={messages.get(messages.SHOW)}>
                                 <CustomSwitch isChecked={activePreview.show}
-                                              onChange={this.handleShowPreview}/>
+                                    onChange={this.handleShowPreview} />
                             </OutlinedBox>
 
                             <Dropdown onSelectChange={this.handleResolutionChange}
-                                      label={messages.get(messages.RESOLUTIONS)}
-                                      values={configResolutions}
-                                      initValue={resolution.join('x')}/>
-                        </Grid>
+                                label={messages.get(messages.RESOLUTIONS)}
+                                values={configResolutions}
+                                initValue={resolution.join('x')} />
+                        </Grid2>
 
                         {configInputs.map((c, idx) => {
                             switch (c.type) {
                                 case constants.DROPDOWN:
                                     return <Dropdown key={`InputsPanel-${c.type}-${idx}`}
-                                                     label={c.label}
-                                                     initValue={inputValues[c.label]}
-                                                     values={c.values}
-                                                     isMulti={c.multiselect}
-                                                     disabled={isUploadedPreview}
-                                                     onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;
+                                        label={c.label}
+                                        initValue={inputValues[c.label]}
+                                        values={c.values}
+                                        isMulti={c.multiselect}
+                                        disabled={isUploadedPreview}
+                                        onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)} />;
                                 case constants.SLIDER:
                                     return <InputSlider key={`InputsPanel-${c.type}-${idx}`}
-                                                        label={c.label}
-                                                        initValue={inputValues[c.label]}
-                                                        range={c.range}
-                                                        unit={c.unit}
-                                                        playable={c.playable && !isUploadedPreview}
-                                                        speeds={c.speeds}
-                                                        disabled={isUploadedPreview}
-                                                        onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)}/>;
+                                        label={c.label}
+                                        initValue={inputValues[c.label]}
+                                        range={c.range}
+                                        unit={c.unit}
+                                        playable={c.playable && !isUploadedPreview}
+                                        speeds={c.speeds}
+                                        disabled={isUploadedPreview}
+                                        onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)} />;
                                 case constants.RANGE:
                                     return <InputRangeSlider key={`InputsPanel-${c.type}-${idx}`}
-                                                             label={c.label}
-                                                             initValue={inputValues[c.label]}
-                                                             range={c.range}
-                                                             disabled={isUploadedPreview || c.range.findIndex(n => n === 'nan') !== -1}
-                                                             unit={c.unit}
-                                                             playable={c.playable && !isUploadedPreview}
-                                                             speeds={c.speeds}
-                                                             onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)}/>;
+                                        label={c.label}
+                                        initValue={inputValues[c.label]}
+                                        range={c.range}
+                                        disabled={isUploadedPreview || c.range.findIndex(n => n === 'nan') !== -1}
+                                        unit={c.unit}
+                                        playable={c.playable && !isUploadedPreview}
+                                        speeds={c.speeds}
+                                        onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)} />;
                                 case constants.COLORMAP:
                                     return <ColorMap key={`InputsPanel-${c.type}-${idx}`}
-                                                     values={c.values}
-                                                     disabled={isUploadedPreview}
-                                                     initValue={inputValues[c.label]}
-                                                     label={c.label}
-                                                     onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;
+                                        values={c.values}
+                                        disabled={isUploadedPreview}
+                                        initValue={inputValues[c.label]}
+                                        label={c.label}
+                                        onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)} />;
                             }
                         })
                         }
-                    </Grid>
+                    </Grid2>
                 </PaperBox>
-            </Grid>)
+            </Grid2>)
         );
     };
 
@@ -592,47 +577,47 @@ class ImagingDataSetViewer extends React.PureComponent {
                     Preview Metadata Section
                 </Typography>
                 <Typography key={`preview-metadata-${activePreview.index}`} variant="body2"
-                            component={'span'} sx={{
-                    color: "textSecondary"
-                }}>
+                    component={'span'} sx={{
+                        color: "textSecondary"
+                    }}>
                     {isObjectEmpty(currPreviewMetadata) ?
                         <p>No preview metadata to display</p>
                         : Object.entries(currPreviewMetadata).map(([key, value], pos) =>
                             <DefaultMetadaField key={'preview-property-' + pos} keyProp={key}
-                                                valueProp={value} idx={activeImage.index}
-                                                pos={pos}/>)
+                                valueProp={value} idx={activeImage.index}
+                                pos={pos} />)
                     }
                 </Typography>
-                <Divider/>
+                <Divider />
                 <Typography gutterBottom variant='h6'>
                     Image Metadata Section
                 </Typography>
                 <Typography key={`image-metadata-${activeImage.index}`} variant="body2"
-                            component={'span'} sx={{
-                    color: "textSecondary"
-                }}>
+                    component={'span'} sx={{
+                        color: "textSecondary"
+                    }}>
                     {isObjectEmpty(activeImage.metadata) ?
                         <p>No image metadata to display</p>
                         : Object.entries(activeImage.metadata).map(([key, value], pos) =>
                             <DefaultMetadaField key={'image-property-' + pos} keyProp={key}
-                                                valueProp={value} idx={activePreview.index}
-                                                pos={pos}/>)
+                                valueProp={value} idx={activePreview.index}
+                                pos={pos} />)
                     }
                 </Typography>
-                <Divider/>
+                <Divider />
                 <Typography gutterBottom variant='h6'>
                     Config Metadata section
                 </Typography>
                 <Typography key={`config-metadata`} variant="body2"
-                            component={'span'} sx={{
-                    color: "textSecondary"
-                }}>
+                    component={'span'} sx={{
+                        color: "textSecondary"
+                    }}>
                     {isObjectEmpty(configMetadata) ?
                         <p>No config metadata to display</p>
                         : Object.entries(configMetadata).map(([key, value], pos) =>
                             <DefaultMetadaField key={'config-property-' + pos} keyProp={key}
-                                                valueProp={value} idx={activePreview.index}
-                                                pos={pos}/>)
+                                valueProp={value} idx={activePreview.index}
+                                pos={pos} />)
                     }
                 </Typography>
             </PaperBox>)

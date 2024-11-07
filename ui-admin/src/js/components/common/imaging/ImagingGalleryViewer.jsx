@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from "@mui/material";
+import { Typography, Grid2 } from "@mui/material";
 
 import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
@@ -160,32 +160,9 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         return commonConfig
     }
 
-    if (!isLoaded) return null;
-    if (previewsInfo.previewContainerList.length === 0) {
-        return (<>
-            <LoadingDialog loading={open}/>
-            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
-            {renderControlsBar(true, {})}
-            <Grid container sx={{
-                justifyContent: "space-evenly"
-            }}>
-                <Typography key="no-dataset-comment" gutterBottom variant="h6">
-                    No Datasets to display
-                </Typography>
-                .
-            </Grid>
-        </>);
-    }
-    //console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
-    const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
-    const isExportDisable = (!(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0) || !gridView)
-    const commonExportConfig = extractCommonExportsConfig();
-    return (
-        <>
-            <LoadingDialog loading={open}/>
-            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
-            <GalleryControlsBar isExportDisable = {isExportDisable}
-                configExports = {commonExportConfig}
+    const renderControlsBar = (isExportDisable, configExports) => {
+        return <GalleryControlsBar isExportDisable = {isExportDisable}
+                configExports = {configExports}
                 gridView = {gridView}
                 handleViewChange = {handleViewChange}
                 paging = {paging}
@@ -200,6 +177,33 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
                 handleExport = {handleExport}
                 dataSetTypes = {dataSetTypes}
             />
+    }
+
+    if (!isLoaded) return null;
+    if (previewsInfo.previewContainerList.length === 0) {
+        return (<>
+            <LoadingDialog loading={open}/>
+            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
+            {renderControlsBar(true, {})}
+            <Grid2 container sx={{
+                justifyContent: "space-evenly"
+            }}>
+                <Typography key="no-dataset-comment" gutterBottom variant="h6">
+                    No Datasets to display
+                </Typography>
+                .
+            </Grid2>
+        </>);
+    }
+    //console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
+    const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
+    const isExportDisable = (!(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0) || !gridView)
+    const commonExportConfig = extractCommonExportsConfig();
+    return (
+        <>
+            <LoadingDialog loading={open}/>
+            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
+            {renderControlsBar(isExportDisable, commonExportConfig)}
             {gridView ? <GalleryGridView previewContainerList={previewContainerList}
                                          cols={paging.pageColumns}
                                          selectAll={selectAll}

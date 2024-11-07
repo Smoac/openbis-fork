@@ -61,7 +61,7 @@ class DatabaseComponent extends React.PureComponent {
         fetchOptions.withDataSets().withProperties()
         const experiments = await openbis.getExperiments(
           [new openbis.ExperimentPermId(object.id)],
-             fetchOptions
+          fetchOptions
         )
         json = experiments[object.id]
         showDataBrowser = openbis.isAfsSet()
@@ -103,18 +103,18 @@ class DatabaseComponent extends React.PureComponent {
 
   datasetOpenTab(id) {
     AppController.getInstance().objectOpen(
-        pages.DATABASE,
-        objectTypes.DATA_SET,
-        id
+      pages.DATABASE,
+      objectTypes.DATA_SET,
+      id
     )
   }
 
-  imagingDatasetChange(id, changed){
+  imagingDatasetChange(id, changed) {
     AppController.getInstance().objectChange(
-        pages.DATABASE,
-        objectTypes.DATA_SET,
-        id,
-        changed
+      pages.DATABASE,
+      objectTypes.DATA_SET,
+      id,
+      changed
     )
   }
 
@@ -122,44 +122,46 @@ class DatabaseComponent extends React.PureComponent {
     this.setState({ value })
   }
 
+  renderImagingDataset(object) {
+    return <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange}
+        objId={object.id}
+        objType={object.type}
+        extOpenbis={openbis} />
+  }
+
   renderDataBrowsers() {
     const { object, classes } = this.props
     const { value } = this.state
-
+    console.log('renderDataBrowsers - object: ', object)
+    console.log('renderDataBrowsers - state: ', this.state)
     return (
       <Container>
-      <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={this.handleTabChange}>
-            <Tab label={messages.get(messages.FILES)} value="0"/>
-            <Tab label={messages.get(messages.IMAGES)} value="1"/>
-          </Tabs>
-        </Box>
-        <TabPanel classes={{ root: classes.tabsPanel }} value="0">
-          <DataBrowser
-            id={object.id}
-            kind={object.type}
-            viewType='list'
-            sessionToken={AppController.getInstance().getSessionToken()}
-          />
-        </TabPanel>
-        <TabPanel classes={{ root: classes.tabsPanel }} value="1">
-          {object.type === objectType.DATA_SET
-            && constants.IMAGING_DATA_CONFIG in this.state.json.properties
-            && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange}
-                                     objId={object.id}
-                                     objType={object.type}
-                                     extOpenbis={openbis}/>}
-          {(object.type === objectType.COLLECTION
-            || object.type === objectType.OBJECT)
-            && <ImagingGalleryViewer onStoreDisplaySettings={null}
-                                     onLoadDisplaySettings={null}
-                                     onOpenPreview={this.datasetOpenTab}
-                                     objId={object.id}
-                                     objType={object.type}
-                                     extOpenbis={openbis}/>}
-        </TabPanel>
-      </TabContext>
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={this.handleTabChange}>
+              <Tab label={messages.get(messages.FILES)} value="0" />
+              <Tab label={messages.get(messages.IMAGES)} value="1" />
+            </Tabs>
+          </Box>
+          <TabPanel classes={{ root: classes.tabsPanel }} value="0">
+            <DataBrowser
+              id={object.id}
+              kind={object.type}
+              viewType='list'
+              sessionToken={AppController.getInstance().getSessionToken()}
+            />
+          </TabPanel>
+          <TabPanel classes={{ root: classes.tabsPanel }} value="1">
+            {(object.type === objectType.COLLECTION
+              || object.type === objectType.OBJECT)
+              && <ImagingGalleryViewer onStoreDisplaySettings={null}
+                onLoadDisplaySettings={null}
+                onOpenPreview={this.datasetOpenTab}
+                objId={object.id}
+                objType={object.type}
+                extOpenbis={openbis} />}
+          </TabPanel>
+        </TabContext>
       </Container>
     )
   }
@@ -177,7 +179,9 @@ class DatabaseComponent extends React.PureComponent {
     if (!this.state.json) {
       return null
     }
-
+    const { object } = this.props
+    const { properties } = this.state.json
+    if (object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in properties) return this.renderImagingDataset(object)
     return this.state.showDataBrowser ? this.renderDataBrowsers()
       : this.renderJson()
   }
