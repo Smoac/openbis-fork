@@ -157,8 +157,8 @@ public class TranslatorUtils
     public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
             DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
 
-    /** Indicator that the property is internal. */
-    private static final String INTERNAL_PROPERTY_PREFIX = "$";
+//    /** Indicator that the property is internal. */
+//    private static final String INTERNAL_PROPERTY_PREFIX = "$";
 
     private TranslatorUtils()
     {
@@ -583,15 +583,15 @@ public class TranslatorUtils
         TranslatorUtils.addDateValueToArgs(fieldValue, args);
     }
 
-    public static boolean isPropertyInternal(final String propertyName)
-    {
-        return propertyName.startsWith(INTERNAL_PROPERTY_PREFIX);
-    }
-
-    public static String normalisePropertyName(final String propertyName)
-    {
-        return isPropertyInternal(propertyName) ? propertyName.substring(INTERNAL_PROPERTY_PREFIX.length()) : propertyName;
-    }
+//    public static boolean isPropertyInternal(final String propertyName)
+//    {
+//        return propertyName.startsWith(INTERNAL_PROPERTY_PREFIX);
+//    }
+//
+//    public static String normalisePropertyName(final String propertyName)
+//    {
+//        return isPropertyInternal(propertyName) ? propertyName.substring(INTERNAL_PROPERTY_PREFIX.length()) : propertyName;
+//    }
 
     public static void appendJoin(final StringBuilder sqlBuilder, final JoinInformation joinInformation)
     {
@@ -959,7 +959,7 @@ public class TranslatorUtils
         TranslatorUtils.appendAttributeTypesSubselect(tableMapper, sqlBuilder, propertyTableAlias);
         sqlBuilder.append(RP).append(SP).append(EQ).append(SP).append(QU);
 
-        args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+        args.add(fullPropertyName);
     }
 
     public static void appendAttributeTypesSubselect(final TableMapper tableMapper, final StringBuilder sqlBuilder,
@@ -1025,39 +1025,39 @@ public class TranslatorUtils
                 .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
                 .append(WHERE).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(CODE_COLUMN)
                 .append(SP).append(EQ).append(SP).append(QU);
-        args.add(normalisePropertyName(propertyTypeCode));
+        args.add(propertyTypeCode);
 
-        sqlBuilder.append(SP).append(AND).append(SP);
-        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
-                .append(SP).append(QU);
-        args.add(isPropertyInternal(propertyTypeCode));
-
-        sqlBuilder.append(RP);
-    }
-
-    public static void appendInternalExternalConstraint(final TableMapper tableMapper, final List<Object> args,
-            final StringBuilder sqlBuilder, final boolean internal, final String propertyTableAlias)
-    {
-        sqlBuilder.append(propertyTableAlias).append(PERIOD)
-                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
-        sqlBuilder.append(LP);
-        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                .append(SP)
-                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
-                .append(PROPERTY_TYPE_ALIAS).append(SP)
-                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
-                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
-                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
-                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
-                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
-                .append(WHERE).append(SP);
-
-        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
-                .append(SP).append(QU);
-        args.add(internal);
+//        sqlBuilder.append(SP).append(AND).append(SP);
+//        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
+//                .append(SP).append(QU);
+//        args.add(isPropertyInternal(propertyTypeCode));
 
         sqlBuilder.append(RP);
     }
+
+//    public static void appendInternalExternalConstraint(final TableMapper tableMapper, final List<Object> args,
+//            final StringBuilder sqlBuilder, final boolean internal, final String propertyTableAlias)
+//    {
+//        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+//                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
+//        sqlBuilder.append(LP);
+//        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+//                .append(SP)
+//                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+//                .append(PROPERTY_TYPE_ALIAS).append(SP)
+//                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+//                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
+//                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+//                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+//                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
+//                .append(WHERE).append(SP);
+//
+//        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
+//                .append(SP).append(QU);
+//        args.add(internal);
+//
+//        sqlBuilder.append(RP);
+//    }
 
     public static void appendPropertiesExist(final StringBuilder sqlBuilder, final String propertiesTableAlias)
     {

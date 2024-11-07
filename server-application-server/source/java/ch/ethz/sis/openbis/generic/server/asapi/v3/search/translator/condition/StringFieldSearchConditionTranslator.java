@@ -190,8 +190,8 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
 
             } else
             {
-                TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
-                        TranslatorUtils.isPropertyInternal(criterion.getFieldName()), propertyTableAlias);
+//                TranslatorUtils.appendInternalExternalConstraint(tableMapper, args, sqlBuilder,
+//                        TranslatorUtils.isPropertyInternal(criterion.getFieldName()), propertyTableAlias);
             }
         } else
         {
