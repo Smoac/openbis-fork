@@ -36,7 +36,8 @@ const config = {
     background: {
       primary: '#ebebeb',
       secondary: '#f5f5f5',
-      field: '#e8e8e8'
+      field: '#e8e8e8',
+      paper: '#ffffff'
     },
     border: {
       primary: '#dbdbdb',
@@ -46,7 +47,7 @@ const config = {
   }
 }
 
-const theme = createTheme(config)
+const theme = createTheme(config);
 
 class ThemeProviderDefault extends React.Component {
   render() {
@@ -56,5 +57,5 @@ class ThemeProviderDefault extends React.Component {
   }
 }
 
-export default ThemeProviderDefault
-export { config }
+export default ThemeProviderDefault;
+export { config };

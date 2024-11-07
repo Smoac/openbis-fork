@@ -15,7 +15,7 @@ const styles = theme => ({
     width: '100%',
     height: '100%',
     zIndex: 1000,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme?.palette?.background?.paper || '#ffffff',
     opacity: 0.6,
     textAlign: 'center'
   },

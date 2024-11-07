@@ -100,8 +100,13 @@ var LayoutManager = {
 
 			this.secondColumn.append(this.secondColumnHeader);
 			this.secondColumn.append(this.secondColumnContent);
-			$(this.secondColumnHeader).on( "DOMNodeInserted", this.secondColumnContentResize);
-			$(this.secondColumnHeader).on( "DOMNodeRemoved", this.secondColumnContentResize);
+			// Set up MutationObserver to replace DOMNodeInserted and DOMNodeRemoved
+            this.mutationObserver = new MutationObserver(this.secondColumnContentResize);
+            this.mutationObserver.observe(this.secondColumnHeader[0], { childList: true });
+
+            // If you need to observe other types of changes (like attribute changes), add them here
+            // this.mutationObserver.observe(this.secondColumnHeader[0], { childList: true, attributes: true, subtree: true });
+        
 		}
 
 		if(this.thirdColumn == null) {
@@ -175,6 +180,12 @@ var LayoutManager = {
 			});
 		}
 	},
+	// Ensure the observer is disconnected when LayoutManager is no longer used
+    _destroy: function() {
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+        }
+    },
 	_setDesktopLayout : function(view, isFirstTime) {
         var _this = this
 
