@@ -1,6 +1,7 @@
 package ch.ethz.sis.rdf.main.parser;
 
 import ch.ethz.sis.rdf.main.ClassCollector;
+import ch.ethz.sis.rdf.main.mappers.AdditionalVocabularyMapper;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
@@ -126,12 +127,22 @@ public class RDFReader
         ResourceParsingResult resourceParsingResult =
                 ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap, additionalChains);
 
-        //how do i parse classes and such here?
+        List<VocabularyType> vocabTypes = AdditionalVocabularyMapper.findVocabularyTypes(resourceParsingResult, additionalOntModel, Set.of("http://snomed.info/id/138875005"));
+        List<VocabularyType> tempVocabTypes = new ArrayList<>();
+        tempVocabTypes.addAll(modelRDF.vocabularyTypeList);
+        tempVocabTypes.addAll(vocabTypes);
+
+
+        modelRDF.vocabularyTypeList = tempVocabTypes;
 
         Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(additionalOntModel);
 
+
+
+
         List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(additionalOntModel, ontClass2OntClassExtensionMap)
-                .stream().filter(sampleType ->  resourceParsingResult.getClassesImported().contains(sampleType.ontologyAnnotationId)).toList();
+                .stream().filter(sampleType ->  resourceParsingResult.getClassesImported().contains(sampleType.ontologyAnnotationId))
+                .filter(x -> vocabTypes.stream().noneMatch(y -> y.ontologyAnnotationId.equals(x.ontologyAnnotationId))).toList();
         modelRDF.sampleTypeList.addAll(sampleTypeList);
 
 
@@ -142,6 +153,7 @@ public class RDFReader
         return resourceParsingResult;
 
     }
+
 
 
 
