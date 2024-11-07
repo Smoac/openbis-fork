@@ -396,7 +396,7 @@ public class OrderTranslator
                             MAIN_TABLE_ALIAS, tableMapper.getValuesTableEntityTypeAttributeTypeIdField(),
                             tableMapper.getEntityTypesAttributeTypesTable(),
                             tableMapper.getAttributeTypesTable(), tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
-            translationContext.getArgs().add(TranslatorUtils.normalisePropertyName(fullPropertyName));
+            translationContext.getArgs().add(fullPropertyName);
             return result;
         } else
         {
