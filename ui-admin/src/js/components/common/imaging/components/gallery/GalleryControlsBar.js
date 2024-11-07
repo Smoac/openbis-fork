@@ -12,12 +12,12 @@ import Export from "@src/js/components/common/imaging/components/viewer/Exporter
 import GalleryFilter from "@src/js/components/common/imaging/components/gallery/GalleryFilter.jsx";
 
 const GalleryControlsBar = ({
-    isExportDisable, configExports, 
-    gridView, handleViewChange, 
-    paging, setPaging, 
-    showAll, setShowAll, 
-    selectAll, handleSelectAll, 
-    galleryFilter, onGalleryFilterChange, 
+    isExportDisable, configExports,
+    gridView, handleViewChange,
+    paging, setPaging,
+    showAll, setShowAll,
+    selectAll, handleSelectAll,
+    galleryFilter, onGalleryFilterChange,
     count,
     handleExport,
     dataSetTypes
@@ -33,10 +33,8 @@ const GalleryControlsBar = ({
             <Typography variant='h6'>
                 Gallery View
             </Typography>
-            <Grid2 container direction="row" spacing={2} sx={{
-                alignItems: "center"
-            }}>
-                <Grid2 item xs={8}>
+            <Grid2 container direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                <Grid2 xs={8}>
                     <OutlinedBox label='Paging'>
                         <GalleryPaging id='gallery-paging'
                             count={count}
@@ -62,19 +60,19 @@ const GalleryControlsBar = ({
                         />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 item xs>
+                <Grid2 xs={1}>
                     <OutlinedBox style={{ width: 'fit-content' }}
                         label={messages.get(messages.SHOW)}>
                         <CustomSwitch isChecked={showAll} onChange={setShowAll} />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 item xs>
+                <Grid2 xs={1}>
                     <OutlinedBox style={{ width: 'fit-content' }} label='Select'>
                         <CustomSwitch disabled={!gridView} isChecked={selectAll}
                             onChange={handleSelectAll} />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 item>
+                <Grid2 xs={2}>
                     <OutlinedBox style={{ width: 'fit-content' }} label='View Mode'>
                         <IconButton
                             color={gridView ? 'primary' : 'default'}
@@ -90,14 +88,14 @@ const GalleryControlsBar = ({
                         </IconButton>
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 item xs={8}>
+                <Grid2 xs={8}>
                     <OutlinedBox label='Filter'>
                         <GalleryFilter options={dataSetTypes}
                             galleryFilter={galleryFilter}
                             onGalleryFilterChange={onGalleryFilterChange} />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 item >
+                <Grid2 xs={4}>
                     {configExports.length > 0 &&
                         <Export config={configExports} handleExport={handleExport}
                             disabled={isExportDisable} />}
