@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.node-gradle.node" version "3.6.0"
+    id "com.github.node-gradle.node" version "7.1.0"
 }
 
 apply from: '../build/javaproject.gradle'
@@ -8,7 +8,7 @@ node {
     download = true
     version = '20.18.0'
     workDir = file("${projectDir}/node/nodejs")
-    nodeModulesDir = file("${projectDir}")
+    //nodeModulesDir = file("${projectDir}")
 }
 
 task copyAfsApi(type: Copy) {
