@@ -34,26 +34,35 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
     @Override
     public void traceAccess(String message, Object... args)
     {
-        traceAccess(message, null, args);
+        if(this.getLevel() == Level.TRACE)
+        {
+            traceAccess(message, null, args);
+        }
     }
 
     @Override public void traceAccess(String message, Throwable ex, Object... args)
     {
-        this.logMessage(FQCN,
-                Level.TRACE,
-                ENTRY_MARKER,
-                entryMsg(message, args),
-                ex);
+        if(this.getLevel() == Level.TRACE)
+        {
+            this.logMessage(FQCN,
+                    Level.TRACE,
+                    ENTRY_MARKER,
+                    entryMsg(message, args),
+                    ex);
+        }
     }
 
     @Override
     public <R> R traceExit(R result)
     {
-        this.logMessage(FQCN,
-                Level.TRACE,
-                EXIT_MARKER,
-                exitMsg((String) null, result),
-                (Throwable) null);
+        if(this.getLevel() == Level.TRACE)
+        {
+            this.logMessage(FQCN,
+                    Level.TRACE,
+                    EXIT_MARKER,
+                    exitMsg((String) null, result),
+                    (Throwable) null);
+        }
         return result;
     }
 
@@ -80,11 +89,14 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
 
     @Override public void debug(String message, Object... args)
     {
-        this.logMessage(FQCN,
-                Level.DEBUG,
-                null,
-                logger.getMessageFactory().newMessage(message, args),
-                (Throwable) null);
+        if(this.getLevel() == Level.DEBUG || this.getLevel() == Level.TRACE)
+        {
+            this.logMessage(FQCN,
+                    Level.DEBUG,
+                    null,
+                    logger.getMessageFactory().newMessage(message, args),
+                    (Throwable) null);
+        }
     }
 
     @Override
@@ -104,10 +116,13 @@ class Log4JLogger extends ExtendedLoggerWrapper implements ch.ethz.sis.shared.lo
 
     @Override public void warn(String message, Object... args)
     {
-        this.logMessage(FQCN,
-                Level.WARN,
-                null,
-                logger.getMessageFactory().newMessage(message, args),
-                (Throwable) null);
+        if(this.getLevel() == Level.WARN || this.getLevel() == Level.INFO || this.getLevel() == Level.DEBUG || this.getLevel() == Level.TRACE)
+        {
+            this.logMessage(FQCN,
+                    Level.WARN,
+                    null,
+                    logger.getMessageFactory().newMessage(message, args),
+                    (Throwable) null);
+        }
     }
 }

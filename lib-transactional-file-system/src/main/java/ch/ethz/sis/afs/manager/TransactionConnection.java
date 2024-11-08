@@ -166,8 +166,26 @@ public class TransactionConnection implements TransactionalFileSystem {
     }
 
     private void writeTransactionLog(boolean isCommitted) throws Exception {
-        byte[] bytes = jsonObjectMapper.writeValue(transaction);
-        String transactionLog = OperationExecutor.getTransactionLog(transaction, isCommitted);
+        // Clone transaction and Removing data from write operations,
+        // then writing the clone without data as transaction log leaving original unchanged.
+        Transaction transactionForLog = new Transaction(
+                                            transaction.getWriteAheadLogRoot(),
+                                            transaction.getStorageRoot(),
+                                            transaction.getUuid(),
+                                            new ArrayList<>());
+
+        transaction.getOperations().forEach(operation ->{
+            OperationName operationName = operation.getName();
+            if (Objects.requireNonNull(operationName) == OperationName.Write) {
+                transactionForLog.getOperations()
+                        .add(((WriteOperation) operation).toBuilder().data(null).build());
+            } else {
+                transactionForLog.getOperations().add(operation);
+            }
+        });
+
+        byte[] bytes = jsonObjectMapper.writeValue(transactionForLog);
+        String transactionLog = OperationExecutor.getTransactionLog(transactionForLog, isCommitted);
         IOUtils.createFile(transactionLog);
         IOUtils.write(transactionLog, 0, bytes);
     }
@@ -377,13 +395,8 @@ public class TransactionConnection implements TransactionalFileSystem {
                 prepared = operationExecutors.get(operationName).prepare(transaction, operation);
             }
             if (prepared) {
-                if (Objects.requireNonNull(operationName) == OperationName.Write)
-                {
-                    transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).build());
-                } else
-                {
                     transaction.getOperations().add(operation);
-                }
+
             }
         } catch (Exception ex) {
             if (locksObtained) {
