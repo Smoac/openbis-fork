@@ -8,7 +8,7 @@ import messages from "@src/js/common/messages.js";
 
 import GalleryGridView from "@src/js/components/common/imaging/components/gallery/GalleryGridView.js";
 import GalleryListView from "@src/js/components/common/imaging/components/gallery/GalleryListView.js";
-import GalleryControlsBar from '@src/js/components/common/imaging/components/gallery/GalleryControlsBar';
+import GalleryControlsBar from '@src/js/components/common/imaging/components/gallery/GalleryControlsBar.js';
 
 import {loadDataSetTypes, loadPreviewsInfo} from '@src/js/components/common/imaging/dataHandlers.js'
 

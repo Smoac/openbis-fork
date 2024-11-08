@@ -40,7 +40,8 @@ import Button from '@src/js/components/common/form/Button.jsx'
 import DefaultMetadaField
     from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
 
-import ImageSection from "@src/js/components/common/imaging/components/viewer/ImageSection.jsx";
+import ImageSection from "@src/js/components/common/imaging/components/viewer/ImageSection.js";
+import PreviewsSection from './components/viewer/PreviewSection';
 
 const styles = theme => ({
     imgContainer: {
@@ -369,7 +370,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
         //console.log('ImagingDataSetViewer.render: ', this.state);
         return (
-            <Container sx={{height: '100%', overflow:'auto'}}>
+            <Container sx={{ height: '100%', overflow: 'auto' }}>
                 <LoadingDialog loading={open} />
                 <ErrorDialog open={error.state} error={error.error}
                     onClose={this.handleErrorCancel} />
@@ -379,7 +380,17 @@ class ImagingDataSetViewer extends React.PureComponent {
                     onActiveItemChange={this.handleActiveImageChange}
                     handleExport={this.onExport}
                 />
-                {this.renderPreviewsSection(imagingDataset.images[activeImageIdx].previews, imagingDataset.config.exports, activeImageIdx, activePreviewIdx, isSaved)}
+                <PreviewsSection previews={imagingDataset.images[activeImageIdx].previews}
+                    activeImageIdx={activeImageIdx}
+                    activePreviewIdx={activePreviewIdx}
+                    isSaved={isSaved}
+                    onActiveItemChange={this.handleActivePreviewChange}
+                    onMove={this.onMove}
+                    onClickSave={this.saveDataset}
+                    onHandleYes={this.deletePreview}
+                    onClickNew={this.createNewPreview}
+                    onInputFile={this.handleUpload}
+                />
                 <PaperBox>
                     <Grid2 container className={classes.gridDirection}>
                         {this.renderBigPreview(classes, activePreview, resolution)}
@@ -389,61 +400,6 @@ class ImagingDataSetViewer extends React.PureComponent {
                 {this.renderMetadataSection(classes, activePreview, imagingDataset.images[activeImageIdx], imagingDataset.config.metadata)}
             </Container>
         )
-    };
-
-
-
-    renderPreviewsSection(previews, configExports, activeImageIdx, activePreviewIdx, isSaved) {
-        const nPreviews = previews.length;
-        return (
-            (<PaperBox>
-                <Grid2 container direction='row' spacing={1}>
-                    <Grid2 item xs={9} sm={10}>
-                        <ImageListItemSection title={messages.get(messages.PREVIEWS)}
-                            cols={4} rowHeight={200}
-                            type={constants.PREVIEW_TYPE}
-                            items={previews}
-                            activeImageIdx={activeImageIdx}
-                            activePreviewIdx={activePreviewIdx}
-                            onActiveItemChange={this.handleActivePreviewChange}
-                            onMove={this.onMove} />
-                    </Grid2>
-                    <Grid2 item xs={3} sm={2} container direction='column'
-                        sx={{
-                            justifyContent: "space-around"
-                        }}>
-                        {!isSaved && (
-                            <Message type='warning'>
-                                {messages.get(messages.UNSAVED_CHANGES)}
-                            </Message>
-                        )}
-                        <Button name="btn-save-preview"
-                            label={messages.get(messages.SAVE)}
-                            variant='outlined'
-                            type='final'
-                            startIcon={<SaveIcon />}
-                            disabled={isSaved}
-                            onClick={this.saveDataset} />
-
-                        <AlertDialog label={messages.get(messages.REMOVE)} icon={<DeleteIcon />}
-                            title={messages.get(messages.CONFIRMATION_REMOVE, 'current preview')}
-                            content={messages.get(messages.CONTENT_REMOVE_PREVIEW)}
-                            disabled={nPreviews === 1}
-                            onHandleYes={this.deletePreview} />
-
-                        <Button
-                            name='btn-new-preview'
-                            label={messages.get(messages.NEW)}
-                            type='final'
-                            variant='outlined'
-                            startIcon={<AddToQueueIcon />}
-                            onClick={this.createNewPreview} />
-
-                        <InputFileUpload onInputFile={this.handleUpload} />
-                    </Grid2>
-                </Grid2>
-            </PaperBox>)
-        );
     };
 
     renderBigPreview(classes, activePreview, resolution) {
