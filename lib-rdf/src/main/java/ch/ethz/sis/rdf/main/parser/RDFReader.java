@@ -289,7 +289,7 @@ public class RDFReader
                         samplePropertyType.dataType = RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0);
                         //System.out.println("    DATATYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0));
 
-                    } else if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null)
+                    } else if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null && samplePropertyType.dataType.equals("CONTROLLEDVOCABULARY") )
                     {
                         samplePropertyType.dataType = "SAMPLE"+ ":" + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0);
                         //System.out.println(" OBJECT_PROP: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0));
