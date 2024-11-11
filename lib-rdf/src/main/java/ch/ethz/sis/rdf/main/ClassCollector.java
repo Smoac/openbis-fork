@@ -352,7 +352,7 @@ public class ClassCollector {
         return toOntClass2StringOntClassExtension(ontClass2OntClassExtensionMap);
     }
 
-    private static List<SamplePropertyType> getPropertyTypeList(final OntModel ontModel, final OntClass currentCls)
+    private static List<SamplePropertyType> getPropertyTypeList(final OntModel ontModel, final OntClass currentCls, Collection<String> generalVocabularyTypes)
     {
         List<SamplePropertyType> propertyTypeList = new ArrayList<>();
         // Find all properties where the class is the domain
@@ -380,6 +380,24 @@ public class ClassCollector {
                         } else {
                             propertyType.dataType = "SAMPLE";
                         }
+                        boolean vocabTypesFromUnion = isUnionWithVocabularyTypes(unionOperands, Set.of("https://biomedit.ch/rdf/sphn-schema/sphn#Terminology"),  ontModel);
+
+                        if (vocabTypesFromUnion)
+                        {
+                            propertyType.metadata.put("VOCABULARY_UNION", "It's a union!");
+
+                            generalVocabularyTypes.stream().forEach(genVocab -> {
+                                SamplePropertyType vocabPropertyType = new SamplePropertyType(propertyType.propertyLabel+"Vocabulary" +genVocab, propertyType.ontologyAnnotationId);
+                                vocabPropertyType.dataType = "CONTROLLEDVOCABULARY";
+                                vocabPropertyType.vocabularyCode = genVocab;
+                                propertyTypeList.add(vocabPropertyType);
+
+                                    }
+                            );
+
+
+                        }
+
                         propertyType.metadata.put("TYPE", "The type was a union of " + unionOperands.stream().collect(
                                 Collectors.joining(", ")));
 
@@ -415,7 +433,24 @@ public class ClassCollector {
 
     }
 
-    public static List<SampleType> getSampleTypeList(final OntModel ontModel, Map<String, OntClassExtension> ontClassExtensionMap)
+    static boolean isUnionWithVocabularyTypes(Collection<String> unionOperands, Collection<String> vocabularyTypes, OntModel ontModel){
+        Set<String> vocabTypes = new HashSet<>();
+        for (String operand : unionOperands){
+            OntClass ontClass = ontModel.getOntClass(operand);
+            while (ontClass != null && ontClass.getSuperClass() != null)
+            {
+                if (vocabularyTypes.contains(ontClass.getURI())){
+                    return true;
+                }
+                ontClass = ontClass.getSuperClass();
+            }
+
+        }
+        return false;
+
+    }
+
+    public static List<SampleType> getSampleTypeList(final OntModel ontModel, Map<String, OntClassExtension> ontClassExtensionMap, Collection<String> generalVocabTypes)
     {
         List<SampleType> sampleTypeList = new ArrayList<>();
 
@@ -424,7 +459,7 @@ public class ClassCollector {
                 .forEach(ontClass -> {
 
                     SampleType sampleType = new SampleType(ontClass);
-                    sampleType.properties = getPropertyTypeList(ontModel, ontClass);
+                    sampleType.properties = getPropertyTypeList(ontModel, ontClass, generalVocabTypes);
                     OntClassExtension extension = ontClassExtensionMap.get(sampleType.ontologyAnnotationId);
                     if (extension != null)
                     {

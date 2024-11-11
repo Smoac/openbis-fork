@@ -7,10 +7,7 @@ import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
-import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
-import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
+import ch.ethz.sis.rdf.main.model.xlsx.*;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.Restriction;
@@ -52,6 +49,7 @@ public class RDFReader
     private void handleVocabularyUnions(ModelRDF modelRDF)
     {
         for(SampleType a : modelRDF.sampleTypeList){
+
 
 
         }
@@ -98,10 +96,10 @@ public class RDFReader
         //modelRDF.objectPropertyMap = objectPropToOntClassMap;
         Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
         modelRDF.stringOntClassExtensionMap = ontClass2OntClassExtensionMap;
-        var vocabUnionTypes = handleVocabularyUnion(ontModel, "https://biomedit.ch/rdf/sphn-schema/sphn#Terminology");
+        Set<String> vocabUnionTypes = handleVocabularyUnion(ontModel, "https://biomedit.ch/rdf/sphn-schema/sphn#Terminology", modelRDF);
 
 
-        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, ontClass2OntClassExtensionMap);
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, ontClass2OntClassExtensionMap, vocabUnionTypes);
 
         sampleTypeList.removeIf(sampleType -> modelRDF.vocabularyTypeListGroupedByType.containsKey(sampleType.code));
         restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
@@ -110,7 +108,7 @@ public class RDFReader
         modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
     }
 
-    private Set<String> handleVocabularyUnion(OntModel ontModel, String vocabTypeUri){
+    private Set<String> handleVocabularyUnion(OntModel ontModel, String vocabTypeUri, ModelRDF modelRDF){
         Set<String> vocabUris = new HashSet<>();
         ontModel.listStatements().forEach(x -> {
             boolean subClass = x.getPredicate().equals(RDFS.subClassOf);
@@ -119,19 +117,18 @@ public class RDFReader
                 vocabUris.add(x.getSubject().getURI());
             }
 
+        });
 
+        List<VocabularyType> vocabularyTypeList = new ArrayList<>();
+        vocabularyTypeList.addAll(modelRDF.vocabularyTypeList);
+        vocabUris.stream().forEach(x -> {
+            VocabularyTypeOption vocabularyTypeOption = new VocabularyTypeOption(x, "dummy", "dummy");
 
-/*
-            try
-            {
-                var maybeParentUri =
-                        Optional.ofNullable(x.getSuperClass()).filter(y -> vocabTypeUri.equals(y.getURI()));
-                maybeParentUri.ifPresent(y -> vocabUris.add(x.getURI()));
-            } catch (
-                    ConversionException e
-            ) {
-                System.err.println(e.getMessage());
-            }*/
+            List<VocabularyTypeOption> vocabularyTypeOptions = List.of(vocabularyTypeOption);
+            VocabularyType vocabularyType =
+                    new VocabularyType("code", "description", x, vocabularyTypeOptions);
+
+            vocabularyTypeList.add(vocabularyType);
         });
 
         return vocabUris;
@@ -185,7 +182,7 @@ public class RDFReader
 
 
 
-        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(additionalOntModel, ontClass2OntClassExtensionMap)
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(additionalOntModel, ontClass2OntClassExtensionMap, List.of())
                 .stream().filter(sampleType ->  resourceParsingResult.getClassesImported().contains(sampleType.ontologyAnnotationId))
                 .filter(x -> vocabTypes.getVocabAnnotationIds().contains(x)).toList();
         modelRDF.sampleTypeList.addAll(sampleTypeList);
