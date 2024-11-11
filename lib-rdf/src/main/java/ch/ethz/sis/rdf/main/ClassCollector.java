@@ -387,8 +387,10 @@ public class ClassCollector {
                             propertyType.metadata.put("VOCABULARY_UNION", "It's a union!");
 
                             generalVocabularyTypes.stream().forEach(genVocab -> {
-                                SamplePropertyType vocabPropertyType = new SamplePropertyType(propertyType.propertyLabel+"Vocabulary" +genVocab, propertyType.ontologyAnnotationId);
-                                vocabPropertyType.dataType = "CONTROLLEDVOCABULARY";
+                                String[] parts = genVocab.split("/");
+                                String code = parts[parts.length -1];
+                                SamplePropertyType vocabPropertyType = new SamplePropertyType(propertyType.propertyLabel+"Vocabulary" +code, propertyType.ontologyAnnotationId);
+                                vocabPropertyType.dataType = "VARCHAR";
                                 vocabPropertyType.vocabularyCode = genVocab;
                                 propertyTypeList.add(vocabPropertyType);
 
