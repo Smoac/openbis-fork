@@ -7,6 +7,7 @@ import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
 import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
 
@@ -361,7 +362,19 @@ public class ParserUtils {
             {
                 if (deletedCodes.contains(property.getValue()))
                 {
+
                     change = true;
+                    SampleType sampleType = modelRDF.sampleTypeList.stream().filter(x -> x.properties.stream().anyMatch(y -> y.ontologyAnnotationId.equals(property.propertyURI))).findFirst().get();
+                    String code = "138875005";
+                    sampleType.properties.stream()
+                            .filter(x -> x.ontologyAnnotationId.equals(property.propertyURI))
+                            .filter(x -> x.code.toLowerCase().contains(code))
+                            .findFirst()
+                            .ifPresent(x -> {
+                                SampleObjectProperty sampleObjectProperty = new SampleObjectProperty(property.propertyURI, x.propertyLabel, property.value, property.valueURI);
+                                tempProperties.add(sampleObjectProperty);
+                            });
+
 
                     boolean required =
                             codeToPropertyType.get(property.label.toUpperCase()).isMandatory == 1;

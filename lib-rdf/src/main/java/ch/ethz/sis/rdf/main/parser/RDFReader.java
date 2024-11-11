@@ -122,14 +122,17 @@ public class RDFReader
         List<VocabularyType> vocabularyTypeList = new ArrayList<>();
         vocabularyTypeList.addAll(modelRDF.vocabularyTypeList);
         vocabUris.stream().forEach(x -> {
-            VocabularyTypeOption vocabularyTypeOption = new VocabularyTypeOption(x, "dummy", "dummy");
+            VocabularyTypeOption vocabularyTypeOption = new VocabularyTypeOption("DUMMY", "dummy", "dummy");
+            String[] parts = x.split("/");
+            String code = parts[parts.length - 1];
 
             List<VocabularyTypeOption> vocabularyTypeOptions = List.of(vocabularyTypeOption);
             VocabularyType vocabularyType =
-                    new VocabularyType("code", "description", x, vocabularyTypeOptions);
+                    new VocabularyType(code, "description", x, vocabularyTypeOptions);
 
             vocabularyTypeList.add(vocabularyType);
         });
+        modelRDF.vocabularyTypeList = vocabularyTypeList;
 
         return vocabUris;
 
