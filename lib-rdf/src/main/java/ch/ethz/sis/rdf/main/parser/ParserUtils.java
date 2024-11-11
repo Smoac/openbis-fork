@@ -8,6 +8,7 @@ import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
 import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
 
@@ -318,13 +319,19 @@ public class ParserUtils {
             additionalChains )
     {
         Map<String, List<SampleObject>> unknownTypeSampleObjects =
-                sampleObjectsGroupedByTypeMap.entrySet().stream()
-                        .filter(x -> !canResolveSampleType(modelRDF, x.getKey(), additionalChains))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                sampleObjectsGroupedByTypeMap.values().stream()
+                        .flatMap(Collection::stream)
+                        .filter(x -> !canResolveSampleType(modelRDF, x.typeURI, additionalChains) || StringUtils.isBlank(x.type))
+                        .collect( Collectors.groupingBy( x -> x.typeURI));
+                ;
+
+
         Map<String, List<SampleObject>> objectsKnownTypes =
-                sampleObjectsGroupedByTypeMap.entrySet().stream()
-                        .filter(x -> canResolveSampleType(modelRDF, x.getKey(), additionalChains))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                sampleObjectsGroupedByTypeMap.values().stream()
+                        .flatMap(Collection::stream)
+                        .filter(x -> canResolveSampleType(modelRDF, x.typeURI, additionalChains))
+                        .filter(x -> !StringUtils.isBlank(x.type))
+                        .collect( Collectors.groupingBy( x -> x.typeURI));
         ;
         Set<String> importedTypes = objectsKnownTypes.keySet().stream().filter(x -> additionalChains.containsKey(x))
                 .map( x -> additionalChains.get(x))
@@ -406,9 +413,18 @@ public class ParserUtils {
     }
 
     private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType, Map<String, List<String>> additionalTypes){
-        boolean typeFound = modelRDF.sampleTypeList.stream().anyMatch(x -> x.code.equals(sampleType));
-        if (typeFound){
-            return typeFound;
+        if (StringUtils.isBlank(sampleType)){
+            return false;
+        }
+
+        Optional<SampleType> typeFound = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(sampleType)).findFirst();
+        if (typeFound.isPresent()){
+            if (StringUtils.isBlank(typeFound.get().code) ){
+                return false;
+            }
+
+
+            return true;
         }
 
         if (additionalTypes.keySet().contains(sampleType)){
