@@ -40,12 +40,25 @@ public class RDFReader
         handleSubclassChains(model, modelRDF);
         handleOntologyModel(model, inputFileName, inputFormatValue, modelRDF);
         ResourceParsingResult resourceParsingResult =  handleResources(model, modelRDF, additionalModel);
+        handleVocabularyUnions(modelRDF);
         printResourceParsingResult(resourceParsingResult);
 
 
         if (verbose) ParserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
 
         return modelRDF;
+    }
+
+    private void handleVocabularyUnions(ModelRDF modelRDF)
+    {
+        for(SampleType a : modelRDF.sampleTypeList){
+
+
+        }
+
+
+
+
     }
 
     private ModelRDF initializeModelRDF(Model model)
@@ -85,6 +98,8 @@ public class RDFReader
         //modelRDF.objectPropertyMap = objectPropToOntClassMap;
         Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
         modelRDF.stringOntClassExtensionMap = ontClass2OntClassExtensionMap;
+        var vocabUnionTypes = handleVocabularyUnion(ontModel, "https://biomedit.ch/rdf/sphn-schema/sphn#Terminology");
+
 
         List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, ontClass2OntClassExtensionMap);
 
@@ -93,6 +108,36 @@ public class RDFReader
         verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, modelRDF.vocabularyTypeListGroupedByType, modelRDF.stringOntClassExtensionMap);
 
         modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
+    }
+
+    private Set<String> handleVocabularyUnion(OntModel ontModel, String vocabTypeUri){
+        Set<String> vocabUris = new HashSet<>();
+        ontModel.listStatements().forEach(x -> {
+            boolean subClass = x.getPredicate().equals(RDFS.subClassOf);
+            var isVocabulary = x.getObject().canAs(OntClass.class) && vocabTypeUri.equals(x.getObject().as(OntClass.class).getURI());
+            if (subClass && isVocabulary){
+                vocabUris.add(x.getSubject().getURI());
+            }
+
+
+
+/*
+            try
+            {
+                var maybeParentUri =
+                        Optional.ofNullable(x.getSuperClass()).filter(y -> vocabTypeUri.equals(y.getURI()));
+                maybeParentUri.ifPresent(y -> vocabUris.add(x.getURI()));
+            } catch (
+                    ConversionException e
+            ) {
+                System.err.println(e.getMessage());
+            }*/
+        });
+
+        return vocabUris;
+
+
+
     }
 
     private ResourceParsingResult handleResources(Model model, ModelRDF modelRDF, OntModel additionalOntModel)
