@@ -175,8 +175,6 @@ public class RDFReader
         AdditionalVocabularyMapper.AdditionalVocabularyStuff vocabTypes = AdditionalVocabularyMapper.findVocabularyTypes(resourceParsingResult, additionalOntModel, Set.of("http://snomed.info/id/138875005"));
         List<VocabularyType> tempVocabTypes = new ArrayList<>();
         tempVocabTypes.addAll(modelRDF.vocabularyTypeList);
-        tempVocabTypes.addAll(vocabTypes.getVocabularyTypeList());
-
 
         modelRDF.vocabularyTypeList = tempVocabTypes;
 
