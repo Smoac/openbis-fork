@@ -26,7 +26,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="PyBIS",
-    version="1.37.1-rc0",
+    version="1.37.1-rc1",
     author="ID SIS • ETH Zürich",
     author_email="openbis-support@id.ethz.ch",
     description="openBIS connection and interaction, optimized for using with Jupyter",
@@ -44,6 +44,9 @@ setup(
         "tabulate",
         "python-dateutil",
     ],
+    project_urls={
+        "Documentation": "https://openbis.readthedocs.io/en/20.10.x/software-developer-documentation/apis/python-v3-api.html",
+    },
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3",
