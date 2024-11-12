@@ -464,7 +464,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
     this._addTimestampField = function($container, uuid, isDateOnly) {
         var _this = this;
-        var $dateField = FormUtil._getDatePickerField(uuid, "", false, isDateOnly);
+        var $dateField = FormUtil._getDatePickerField(uuid, "", false, isDateOnly, null, true);
         var $input = $dateField.find("#" + uuid);
         this._setUpKeyHandling($input, uuid);
         $input.blur(function() {
