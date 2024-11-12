@@ -170,7 +170,7 @@ public class RDFReader
                         sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap,
                         modelRDF.subClassChanisMap);
         ResourceParsingResult resourceParsingResult =
-                ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap, additionalChains);
+                ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap, additionalChains, additionalOntModel);
 
         AdditionalVocabularyMapper.AdditionalVocabularyStuff vocabTypes = AdditionalVocabularyMapper.findVocabularyTypes(resourceParsingResult, additionalOntModel, Set.of("http://snomed.info/id/138875005"));
         List<VocabularyType> tempVocabTypes = new ArrayList<>();
@@ -187,7 +187,7 @@ public class RDFReader
 
         List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(additionalOntModel, ontClass2OntClassExtensionMap, List.of())
                 .stream().filter(sampleType ->  resourceParsingResult.getClassesImported().contains(sampleType.ontologyAnnotationId))
-                .filter(x -> vocabTypes.getVocabAnnotationIds().contains(x)).toList();
+                .filter(x -> vocabTypes.getVocabAnnotationIds().contains(x.ontologyAnnotationId)).toList();
         modelRDF.sampleTypeList.addAll(sampleTypeList);
 
 

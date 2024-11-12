@@ -9,8 +9,10 @@ import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
 import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
+import org.apache.thrift.annotation.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -316,7 +318,7 @@ public class ParserUtils {
 
     public static ResourceParsingResult removeObjectsOfUnknownType(ModelRDF modelRDF,
             Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap, Map<String, List<String>>
-            additionalChains )
+            additionalChains,@Nullable OntModel additionModel)
     {
         Map<String, List<SampleObject>> unknownTypeSampleObjects =
                 sampleObjectsGroupedByTypeMap.values().stream()
@@ -324,6 +326,7 @@ public class ParserUtils {
                         .filter(x -> !canResolveSampleType(modelRDF, x.typeURI, additionalChains) || StringUtils.isBlank(x.type))
                         .collect( Collectors.groupingBy( x -> x.typeURI));
                 ;
+
 
 
         Map<String, List<SampleObject>> objectsKnownTypes =
@@ -378,7 +381,9 @@ public class ParserUtils {
                             .filter(x -> x.code.toLowerCase().contains(code))
                             .findFirst()
                             .ifPresent(x -> {
-                                SampleObjectProperty sampleObjectProperty = new SampleObjectProperty(property.propertyURI, x.propertyLabel, property.value, property.valueURI);
+                                String value = extractValue(x, additionModel, property);
+
+                                SampleObjectProperty sampleObjectProperty = new SampleObjectProperty(property.propertyURI, x.propertyLabel, value, property.valueURI);
                                 tempProperties.add(sampleObjectProperty);
                             });
 
@@ -410,6 +415,26 @@ public class ParserUtils {
         }
 
         return new ResourceParsingResult(objects, unchangedObjects, changedObjects, importedTypes, List.of());
+    }
+
+    static String extractValue(SamplePropertyType samplePropertyType, OntModel additionalOntModel,
+            SampleObjectProperty sampleObjectProperty)
+    {
+        if (additionalOntModel == null)
+        {
+            return sampleObjectProperty.getValue();
+        }
+        Optional<String> maybeValue = Optional.ofNullable(samplePropertyType.metadata.get("SomeValuesFromRestriction"))
+                .map( x -> additionalOntModel.getOntClass(x))
+                .map(x -> x.getProperty(RDFS.label))
+                .map(Statement::getObject)
+                .map(RDFNode::toString);
+        if (maybeValue.isPresent()){
+            return maybeValue.get();
+        }
+
+
+        return sampleObjectProperty.getValue();
     }
 
     private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType, Map<String, List<String>> additionalTypes){
