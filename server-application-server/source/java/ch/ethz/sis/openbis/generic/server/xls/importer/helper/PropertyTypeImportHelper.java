@@ -196,7 +196,9 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
-        String dataType = getValueByColumnName(header, values, Attribute.DataType);
+        String dataTypeAux = getValueByColumnName(header, values, Attribute.DataType);
+        DataType dataType = DataType.valueOf(dataTypeAux);
+
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
         String multiValued = getValueByColumnName(header, values, Attribute.MultiValued);
@@ -207,25 +209,27 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         creation.setLabel(propertyLabel);
         creation.setDescription(description);
 
-        if (dataType.startsWith(SAMPLE_DATA_TYPE_PREFIX))
+        if (dataType.name().startsWith(SAMPLE_DATA_TYPE_PREFIX))
         {
             creation.setDataType(DataType.SAMPLE);
-            if (dataType.contains(SAMPLE_DATA_TYPE_MANDATORY_TYPE))
+            if (dataType.name().contains(SAMPLE_DATA_TYPE_MANDATORY_TYPE))
             {
-                String sampleType = dataType.split(SAMPLE_DATA_TYPE_MANDATORY_TYPE)[1];
+                String sampleType = dataType.name().split(SAMPLE_DATA_TYPE_MANDATORY_TYPE)[1];
                 creation.setSampleTypeId(new EntityTypePermId(sampleType, EntityKind.SAMPLE));
             }
         } else
         {
-            creation.setDataType(DataType.valueOf(dataType));
+            creation.setDataType(dataType);
         }
 
         creation.setManagedInternally(ImportUtils.isTrue(internal));
         creation.setMultiValue(ImportUtils.isTrue(multiValued));
 
-        if (vocabularyCode != null && !vocabularyCode.isEmpty())
+        if (dataType == DataType.CONTROLLEDVOCABULARY && vocabularyCode != null && !vocabularyCode.isEmpty())
         {
             creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
+        } else if(dataType != DataType.CONTROLLEDVOCABULARY && vocabularyCode != null && !vocabularyCode.isEmpty()) {
+            throw new UserFailureException("Ambiguous Property type declaration, the dataType is not CONTROLLEDVOCABULARY but it has a controlled vocabulary set.");
         }
         if (metadata != null && !metadata.trim().isEmpty())
         {
