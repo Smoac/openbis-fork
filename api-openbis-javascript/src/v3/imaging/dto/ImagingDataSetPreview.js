@@ -12,6 +12,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.height = null;
 		prototype.index = null;
 		prototype.metadata = null;
+		prototype.comment = null;
+		prototype.tags = null;
 
 		prototype.getConfig = function() {
 			return this.config;
@@ -61,6 +63,18 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setMetadata = function(metadata) {
 			this.metadata = metadata;
 		};
+		prototype.getComment = function() {
+            return this.comment;
+        };
+        prototype.setComment = function(comment) {
+            this.comment = comment;
+        };
+        prototype.getTags = function() {
+            return this.tags;
+        };
+        prototype.setTags = function(tags) {
+            this.tags = tags;
+        };
 		prototype.toString = function() {
             return "ImagingDataSetPreview: " + this.config;
         };
