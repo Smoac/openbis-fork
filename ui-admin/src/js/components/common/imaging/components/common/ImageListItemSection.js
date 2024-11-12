@@ -8,8 +8,7 @@ import constants from "@src/js/components/common/imaging/constants.js";
 
 const useStyles = makeStyles(() => ({
     imgFullWidth: {
-        width: '100%',
-        height: 'unset'
+        flexGrow: 'unset !important'
     },
     elevation: {
         boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',

@@ -1,49 +1,25 @@
 import React from 'react'
 import withStyles from '@mui/styles/withStyles';
-import {
-    Box,
-    Divider,
-    Grid2,
-    Typography,
-    Container
-} from "@mui/material";
-
+import { Grid2 } from "@mui/material";
 import { convertToBase64, inRange, isObjectEmpty } from "@src/js/components/common/imaging/utils.js";
+import Container from '@src/js/components/common/form/Container.jsx'
 import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
-import InputFileUpload
-    from "@src/js/components/common/imaging/components/viewer/InputFileUpload.js";
-import AlertDialog from "@src/js/components/common/imaging/components/common/AlertDialog.jsx";
-import Export from "@src/js/components/common/imaging/components/viewer/Exporter.jsx";
-import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
-import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
-import InputSlider from "@src/js/components/common/imaging/components/common/InputSlider.jsx";
-import InputRangeSlider
-    from "@src/js/components/common/imaging/components/common/InputRangeSlider.jsx";
-import ColorMap from "@src/js/components/common/imaging/components/viewer/ColorMap.jsx";
 import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
 import constants from "@src/js/components/common/imaging/constants.js";
 import ImagingMapper from "@src/js/components/common/imaging/ImagingMapper.js";
-import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
-import ImageListItemSection
-    from "@src/js/components/common/imaging/components/common/ImageListItemSection.js";
-
-import AddToQueueIcon from "@mui/icons-material/AddToQueue";
-import SaveIcon from "@mui/icons-material/Save";
-import DeleteIcon from "@mui/icons-material/Delete";
-import RefreshIcon from "@mui/icons-material/Refresh";
-
-import messages from '@src/js/common/messages.js'
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
-import Message from '@src/js/components/common/form/Message.jsx'
 import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
-import Button from '@src/js/components/common/form/Button.jsx'
-import DefaultMetadaField
-    from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
-
 import ImageSection from "@src/js/components/common/imaging/components/viewer/ImageSection.js";
-import PreviewsSection from './components/viewer/PreviewSection';
+import PreviewsSection from '@src/js/components/common/imaging/components/viewer/PreviewSection.js';
+import MainPreview from '@src/js/components/common/imaging/components/viewer/MainPreview.js';
+import MainPreviewInputControls from '@src/js/components/common/imaging/components/viewer/MainPreviewInputControls.js';
+import MetadataSection from '@src/js/components/common/imaging/components/viewer/MetadataSection.js';
 
 const styles = theme => ({
+    container: {
+        height: '100%', 
+        overflow: 'auto' 
+    },
     imgContainer: {
         maxHeight: '800px',
         textAlign: 'center',
@@ -370,7 +346,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
         //console.log('ImagingDataSetViewer.render: ', this.state);
         return (
-            <Container sx={{ height: '100%', overflow: 'auto' }}>
+            <Container className={classes.container}>
                 <LoadingDialog loading={open} />
                 <ErrorDialog open={error.state} error={error.error}
                     onClose={this.handleErrorCancel} />
@@ -393,191 +369,25 @@ class ImagingDataSetViewer extends React.PureComponent {
                 />
                 <PaperBox>
                     <Grid2 container className={classes.gridDirection}>
-                        {this.renderBigPreview(classes, activePreview, resolution)}
-                        {this.renderInputControls(classes, activePreview, imagingDataset.config.inputs, imagingDataset.config.resolutions, resolution, isChanged)}
+                        <MainPreview activePreview={activePreview} resolution={resolution}/>
+                        <MainPreviewInputControls activePreview={activePreview} 
+                            configInputs={imagingDataset.config.inputs}
+                            configResolutions={imagingDataset.config.resolutions}
+                            resolution={resolution}
+                            isChanged={isChanged}
+                            onClickUpdate={this.handleUpdate}
+                            onChangeShow={this.handleShowPreview}
+                            onSelectChangeRes={this.handleResolutionChange}
+                            onChangeActConf={this.handleActiveConfigChange}
+                        />
                     </Grid2>
                 </PaperBox>
-                {this.renderMetadataSection(classes, activePreview, imagingDataset.images[activeImageIdx], imagingDataset.config.metadata)}
+                <MetadataSection activePreview={activePreview}
+                    activeImage={imagingDataset.images[activeImageIdx]}
+                    configMetadata={imagingDataset.config.metadata}
+                />
             </Container>
         )
-    };
-
-    renderBigPreview(classes, activePreview, resolution) {
-        return (
-            (<Grid2
-                container
-                item
-                xs={12}
-                sm={8}
-                sx={{
-                    justifyContent: "center",
-                    alignItems: "center"
-                }}>
-                <Box className={classes.imgContainer}>
-                    {activePreview.bytes === null ?
-                        <Typography variant='body2'>
-                            {messages.get(messages.NO_PREVIEW)}
-                        </Typography>
-                        : <img
-                            src={`data:image/${activePreview.format};base64,${activePreview.bytes}`}
-                            alt={""}
-                            height={resolution[0]}
-                            width={resolution[1]}
-                        />}
-                </Box>
-            </Grid2>)
-        );
-    };
-
-    renderInputControls(classes, activePreview, configInputs, configResolutions, resolution, isChanged) {
-        const inputValues = this.createInitValues(configInputs, activePreview.config);
-        activePreview.config = inputValues;
-        const currentMetadata = activePreview.metadata;
-        const isUploadedPreview = isObjectEmpty(currentMetadata) ? false : ("file" in currentMetadata);
-        return (
-            (<Grid2 item xs={12} sm={4}>
-                <PaperBox className={classes.noBorderNoShadow}>
-                    <Grid2 item xs>
-                        <Grid2
-                            container
-                            sx={{
-                                justifyContent: "space-between",
-                                alignItems: "center"
-                            }}>
-                            <Button label={messages.get(messages.UPDATE)}
-                                variant='outlined'
-                                color='primary'
-                                startIcon={<RefreshIcon />}
-                                onClick={this.handleUpdate}
-                                disabled={!isChanged || isUploadedPreview} />
-
-                            {isChanged && !isUploadedPreview && (
-                                <Message type='info'>
-                                    {messages.get(messages.UPDATE_CHANGES)}
-                                </Message>
-                            )}
-
-                            <OutlinedBox style={{ width: 'fit-content' }}
-                                label={messages.get(messages.SHOW)}>
-                                <CustomSwitch isChecked={activePreview.show}
-                                    onChange={this.handleShowPreview} />
-                            </OutlinedBox>
-
-                            <Dropdown onSelectChange={this.handleResolutionChange}
-                                label={messages.get(messages.RESOLUTIONS)}
-                                values={configResolutions}
-                                initValue={resolution.join('x')} />
-                        </Grid2>
-
-                        {configInputs.map((c, idx) => {
-                            switch (c.type) {
-                                case constants.DROPDOWN:
-                                    return <Dropdown key={`InputsPanel-${c.type}-${idx}`}
-                                        label={c.label}
-                                        initValue={inputValues[c.label]}
-                                        values={c.values}
-                                        isMulti={c.multiselect}
-                                        disabled={isUploadedPreview}
-                                        onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)} />;
-                                case constants.SLIDER:
-                                    return <InputSlider key={`InputsPanel-${c.type}-${idx}`}
-                                        label={c.label}
-                                        initValue={inputValues[c.label]}
-                                        range={c.range}
-                                        unit={c.unit}
-                                        playable={c.playable && !isUploadedPreview}
-                                        speeds={c.speeds}
-                                        disabled={isUploadedPreview}
-                                        onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)} />;
-                                case constants.RANGE:
-                                    return <InputRangeSlider key={`InputsPanel-${c.type}-${idx}`}
-                                        label={c.label}
-                                        initValue={inputValues[c.label]}
-                                        range={c.range}
-                                        disabled={isUploadedPreview || c.range.findIndex(n => n === 'nan') !== -1}
-                                        unit={c.unit}
-                                        playable={c.playable && !isUploadedPreview}
-                                        speeds={c.speeds}
-                                        onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)} />;
-                                case constants.COLORMAP:
-                                    return <ColorMap key={`InputsPanel-${c.type}-${idx}`}
-                                        values={c.values}
-                                        disabled={isUploadedPreview}
-                                        initValue={inputValues[c.label]}
-                                        label={c.label}
-                                        onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)} />;
-                            }
-                        })
-                        }
-                    </Grid2>
-                </PaperBox>
-            </Grid2>)
-        );
-    };
-
-    renderMetadataSection(classes, activePreview, activeImage, configMetadata) {
-        const currPreviewMetadata = activePreview.metadata;
-        /*if (!isObjectEmpty(currPreviewMetadata))
-            return JSON.stringify(currPreviewMetadata)*/
-        if (isObjectEmpty(configMetadata) && isObjectEmpty(currPreviewMetadata))
-            return (
-                <PaperBox>
-                    <Typography gutterBottom variant='h6'>
-                        No Metadata to display
-                    </Typography>
-                </PaperBox>
-            );
-        return (
-            (<PaperBox>
-                <Typography gutterBottom variant='h6'>
-                    Preview Metadata Section
-                </Typography>
-                <Typography key={`preview-metadata-${activePreview.index}`} variant="body2"
-                    component={'span'} sx={{
-                        color: "textSecondary"
-                    }}>
-                    {isObjectEmpty(currPreviewMetadata) ?
-                        <p>No preview metadata to display</p>
-                        : Object.entries(currPreviewMetadata).map(([key, value], pos) =>
-                            <DefaultMetadaField key={'preview-property-' + pos} keyProp={key}
-                                valueProp={value} idx={activeImage.index}
-                                pos={pos} />)
-                    }
-                </Typography>
-                <Divider />
-                <Typography gutterBottom variant='h6'>
-                    Image Metadata Section
-                </Typography>
-                <Typography key={`image-metadata-${activeImage.index}`} variant="body2"
-                    component={'span'} sx={{
-                        color: "textSecondary"
-                    }}>
-                    {isObjectEmpty(activeImage.metadata) ?
-                        <p>No image metadata to display</p>
-                        : Object.entries(activeImage.metadata).map(([key, value], pos) =>
-                            <DefaultMetadaField key={'image-property-' + pos} keyProp={key}
-                                valueProp={value} idx={activePreview.index}
-                                pos={pos} />)
-                    }
-                </Typography>
-                <Divider />
-                <Typography gutterBottom variant='h6'>
-                    Config Metadata section
-                </Typography>
-                <Typography key={`config-metadata`} variant="body2"
-                    component={'span'} sx={{
-                        color: "textSecondary"
-                    }}>
-                    {isObjectEmpty(configMetadata) ?
-                        <p>No config metadata to display</p>
-                        : Object.entries(configMetadata).map(([key, value], pos) =>
-                            <DefaultMetadaField key={'config-property-' + pos} keyProp={key}
-                                valueProp={value} idx={activePreview.index}
-                                pos={pos} />)
-                    }
-                </Typography>
-            </PaperBox>)
-        );
     };
 }
 

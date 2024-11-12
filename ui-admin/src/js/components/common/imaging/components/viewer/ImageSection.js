@@ -10,7 +10,7 @@ import messages from '@src/js/common/messages.js'
 
 const ImageSection = ({ images, activeImageIdx, configExports, onActiveItemChange, handleExport }) => {
 	return (<PaperBox>
-		<Grid2 container direction='row' spacing={1}>
+		<Grid2 container direction='row' spacing={1} sx={{ justifyContent: "space-between", alignItems: "center" }}>
 			<Grid2 item xs={9} sm={10}>
 				<ImageListItemSection title={messages.get(messages.IMAGES)}
 					cols={3} rowHeight={150}

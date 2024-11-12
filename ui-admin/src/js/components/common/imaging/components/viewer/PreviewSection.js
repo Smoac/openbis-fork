@@ -25,10 +25,10 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 	const nPreviews = previews.length;
 	return (
 		(<PaperBox>
-			<Grid2 container direction='row' spacing={1}>
+			<Grid2 container direction='row' spacing={1} sx={{ justifyContent: "space-between", alignItems: "center" }}>
 				<Grid2 xs={9} sm={10}>
 					<ImageListItemSection title={messages.get(messages.PREVIEWS)}
-						cols={4} rowHeight={200}
+						cols={5} rowHeight={200}
 						type={constants.PREVIEW_TYPE}
 						items={previews}
 						activeImageIdx={activeImageIdx}
