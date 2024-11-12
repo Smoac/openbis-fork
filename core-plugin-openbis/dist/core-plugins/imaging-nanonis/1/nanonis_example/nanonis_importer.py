@@ -109,7 +109,6 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         print(imaging_property_config.to_json())
 
     return imaging_control.create_imaging_dataset(
-        # dataset_type="$IMAGING_DATA",
         dataset_type="IMAGING_DATA",
         config=imaging_property_config,
         experiment=experiment,

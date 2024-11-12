@@ -85,14 +85,18 @@ class ImagingDataSetPreview(AbstractImagingRequest):
     index: int
     show: bool
     metadata: dict
+    comment: str
+    tags: list
 
-    def __init__(self, preview_format, config=None, metadata=None, index=0):
+    def __init__(self, preview_format, config=None, metadata=None, index=0, comment="", tags=[]):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetPreview"
         self.bytes = None
         self.format = preview_format
         self.config = config if config is not None else dict()
         self.metadata = metadata if metadata is not None else dict()
         self.index = index
+        self.comment = comment
+        self.tags = tags
         self._validate_data()
 
     def set_preview_image_bytes(self, width, height, bytes):

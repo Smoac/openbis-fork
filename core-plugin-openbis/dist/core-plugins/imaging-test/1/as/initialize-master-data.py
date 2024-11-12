@@ -20,12 +20,18 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportData
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportFormat
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportMode
+from java.lang import ProcessBuilder
+from java.lang import String
+from java.nio.charset import StandardCharsets
 import sys
+import inspect
+import os
 
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
 sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "imaging-test-data-model.xls")
+print(sessionWorkspaceFiles)
 importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
@@ -43,7 +49,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIde
 
 def create_sample(api, space, project, experiment, code):
     creation = SampleCreation()
-    creation.setTypeId(EntityTypePermId("$IMAGING_SAMPLE"))
+    creation.setTypeId(EntityTypePermId("IMAGING_SAMPLE"))
     creation.setSpaceId(SpacePermId(space))
     creation.setProjectId(ProjectIdentifier(project))
     creation.setExperimentId(ExperimentIdentifier(experiment))
@@ -58,6 +64,18 @@ def create_sample(api, space, project, experiment, code):
 
 
 # create_sample(api, "IMAGING", "/IMAGING/TEST", "/IMAGING/TEST/TEST_COLLECTION", "TEMPLATE-TEST")
+
+
+
+# print(os.path.abspath(inspect.stack()[0][1]))
+# # process = ProcessBuilder(["python3", "./source/core-plugins/imaging-test/1/imaging_test_example/importer.py"]).start()
+# process = ProcessBuilder(["/home/alaskowski/venv/bin/python3", "./source/core-plugins/imaging-test/1/imaging_test_example/importer.py"]).start()
+#
+# exitCode = process.waitFor()
+# if exitCode != 0:
+#     error = String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8)
+#     raise ValueError("Script evaluation failed: " + str(error))
+
 
 api.logout(sessionToken)
 print("======================== imaging-test-data-model xls ingestion result ========================")
