@@ -3596,7 +3596,7 @@ public class SearchSampleTest extends AbstractSampleTest
 
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
         final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
-        assertSampleIdentifiers(samples, "/CISD/CL1", "/CISD/3VCP7", "/TEST-SPACE/TEST-PROJECT/EV-TEST");
+        assertSampleIdentifiers(samples, "/CISD/CL1", "/CISD/3VCP7", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "/TEST-SPACE/TEST-PROJECT/SAMPLE-WITH-INTERNAL-PROP");
 
         // "/CISD/CL1" -> "test control layout"
         // "/CISD/3VCP7" -> "test comment"
@@ -3662,7 +3662,7 @@ public class SearchSampleTest extends AbstractSampleTest
         final List<Sample> samples = searchSamples(sessionToken, criteria, fetchOptions);
 
         // Then
-        assertEquals(samples.size(), 6);
+        assertEquals(samples.size(), 7);
         System.err.println(samples);
         try {
             samples.forEach(sample -> assertFalse(sample.getProperties().isEmpty(), sample + " has unexpected properties"));
