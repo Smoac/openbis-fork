@@ -57,6 +57,12 @@ public class ImagingDataSetPreview implements Serializable
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> metadata;
 
+    @JsonProperty
+    private String comment;
+
+    @JsonProperty
+    private String[] tags;
+
 
     @JsonIgnore
     public Map<String, Serializable> getConfig()
@@ -144,6 +150,24 @@ public class ImagingDataSetPreview implements Serializable
     public void setMetadata(Map<String, Serializable> metadata)
     {
         this.metadata = metadata;
+    }
+
+    @JsonIgnore
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @JsonIgnore
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
     }
 
     @Override
