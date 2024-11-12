@@ -21,7 +21,6 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMap
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AND;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ASTERISK;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AT_TIME_ZONE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.BACKSLASH;
@@ -65,7 +64,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.DYNAMI
 import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.ERROR_PROPERTY_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.IS_MANAGED_INTERNALLY;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MATERIAL_PROP_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PART_OF_SAMPLE_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERM_ID_COLUMN;
@@ -1035,29 +1033,29 @@ public class TranslatorUtils
         sqlBuilder.append(RP);
     }
 
-//    public static void appendInternalExternalConstraint(final TableMapper tableMapper, final List<Object> args,
-//            final StringBuilder sqlBuilder, final boolean internal, final String propertyTableAlias)
-//    {
-//        sqlBuilder.append(propertyTableAlias).append(PERIOD)
-//                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
-//        sqlBuilder.append(LP);
-//        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
-//                .append(SP)
-//                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
-//                .append(PROPERTY_TYPE_ALIAS).append(SP)
-//                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
-//                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
-//                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
-//                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
-//                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()).append(SP)
+    public static void appendInternalExternalInfo(final TableMapper tableMapper, final List<Object> args,
+            final StringBuilder sqlBuilder, final String propertyTableAlias)
+    {
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(tableMapper.getValuesTableEntityTypeAttributeTypeIdField()).append(SP).append(IN).append(SP);
+        sqlBuilder.append(LP);
+        sqlBuilder.append(SELECT).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP)
+                .append(FROM).append(SP).append(tableMapper.getAttributeTypesTable()).append(SP)
+                .append(PROPERTY_TYPE_ALIAS).append(SP)
+                .append(LEFT_JOIN).append(SP).append(tableMapper.getEntityTypesAttributeTypesTable()).append(SP)
+                .append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(SP)
+                .append(ON).append(SP).append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(ID_COLUMN)
+                .append(SP).append(EQ).append(SP).append(ENTITY_TYPE_PROPERTY_TYPE_ALIAS).append(PERIOD)
+                .append(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()); //.append(SP)
 //                .append(WHERE).append(SP);
 //
 //        sqlBuilder.append(PROPERTY_TYPE_ALIAS).append(PERIOD).append(IS_MANAGED_INTERNALLY).append(SP).append(EQ)
 //                .append(SP).append(QU);
 //        args.add(internal);
-//
-//        sqlBuilder.append(RP);
-//    }
+
+        sqlBuilder.append(RP);
+    }
 
     public static void appendPropertiesExist(final StringBuilder sqlBuilder, final String propertiesTableAlias)
     {
