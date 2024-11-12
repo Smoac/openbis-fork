@@ -230,7 +230,7 @@ class OpenBisObject:
 
             version = self.openbis.get_server_information().openbis_version
             if version is not None:
-                if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
+                if 'SNAPSHOT' not in version and not version.startswith('6') and 'UNKNOWN' not in version:
                     if request['method'] == 'createPropertyTypes' and 'multiValue' in request['params'][1][0]:
                         del request['params'][1][0]['multiValue']
                     if (request['method'] in ('createSampleTypes', 'createSamples',
@@ -260,7 +260,7 @@ class OpenBisObject:
 
             version = self.openbis.get_server_information().openbis_version
             if version is not None:
-                if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
+                if 'SNAPSHOT' not in version and not version.startswith('6') and 'UNKNOWN' not in version:
                     if (request['method'] in ('updateSampleTypes', 'updateSamples',
                                               'updateExperimentTypes', 'updateExperiments',
                                               'updateDataSetTypes', 'updateDataSets')
@@ -391,7 +391,7 @@ class Transaction:
 
                     if version is not None:
                         if 'SNAPSHOT' not in version and not version.startswith(
-                                '7') and 'UNKNOWN' not in version:
+                                '6') and 'UNKNOWN' not in version:
                             if request['method'] == 'createPropertyTypes' and 'multiValue' in \
                                     request['params'][1][0]:
                                 del request['params'][1][0]['multiValue']
