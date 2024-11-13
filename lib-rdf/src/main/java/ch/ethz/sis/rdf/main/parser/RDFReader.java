@@ -37,26 +37,12 @@ public class RDFReader
         handleSubclassChains(model, modelRDF);
         handleOntologyModel(model, inputFileName, inputFormatValue, modelRDF);
         ResourceParsingResult resourceParsingResult =  handleResources(model, modelRDF, additionalModel);
-        handleVocabularyUnions(modelRDF);
         printResourceParsingResult(resourceParsingResult);
 
 
         if (verbose) ParserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
 
         return modelRDF;
-    }
-
-    private void handleVocabularyUnions(ModelRDF modelRDF)
-    {
-        for(SampleType a : modelRDF.sampleTypeList){
-
-
-
-        }
-
-
-
-
     }
 
     private ModelRDF initializeModelRDF(Model model)
@@ -119,9 +105,8 @@ public class RDFReader
 
         });
 
-        List<VocabularyType> vocabularyTypeList = new ArrayList<>();
-        vocabularyTypeList.addAll(modelRDF.vocabularyTypeList);
-        vocabUris.stream().forEach(x -> {
+        List<VocabularyType> vocabularyTypeList = new ArrayList<>(modelRDF.vocabularyTypeList);
+        vocabUris.forEach(x -> {
             VocabularyTypeOption vocabularyTypeOption = new VocabularyTypeOption("DUMMY", "dummy", "dummy");
             String[] parts = x.split("/");
             String code = parts[parts.length - 1];
