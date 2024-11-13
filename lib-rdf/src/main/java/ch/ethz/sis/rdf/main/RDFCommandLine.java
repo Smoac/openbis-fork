@@ -35,6 +35,8 @@ public class RDFCommandLine {
     private static final String OPENBIS_HOME = "/home/mdanaila/Projects/rdf/openbis/";
     private static final String TEMP_OUTPUT_XLSX = OPENBIS_HOME + "lib-rdf/test-data/sphn-data-small/output.xlsx";
 
+    public static final String ADDITIONALFILES = "additionalfiles";
+
     public static void main(String[] args) {
 
         if (DEV_MODE)
@@ -140,7 +142,7 @@ public class RDFCommandLine {
         Option help = new Option("h", "help", false, "Display this help message");
         options.addOption(help);
 
-        Option additionalFiles = new Option("a", "additionalfiles", true, "Additional files");
+        Option additionalFiles = new Option("a", ADDITIONALFILES, true, "Additional files");
         additionalFiles.setArgs(Option.UNLIMITED_VALUES);
         options.addOption(additionalFiles);
 
@@ -225,7 +227,9 @@ public class RDFCommandLine {
         String openBISDSSURL = null;
         String projectIdentifier = cmd.getOptionValue("project");
         boolean verbose = cmd.hasOption("verbose");
-        List<String> additionalFiles = Arrays.stream(cmd.getOptionValues("additionalFiles")).toList();
+        String[] additionalFileOption = cmd.getOptionValues(ADDITIONALFILES);
+
+        List<String> additionalFiles = additionalFileOption != null ? Arrays.stream(additionalFileOption).toList(): List.of();
 
         String[] remainingArgs = cmd.getArgs();
         //Arrays.stream(remainingArgs).forEach(System.out::println);
@@ -235,7 +239,7 @@ public class RDFCommandLine {
                 inputFilePath = remainingArgs[0];
                 String outputFilePath = remainingArgs[1];
                 System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                    handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath, projectIdentifier, verbose, List.of());
+                    handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath, projectIdentifier, verbose, additionalFiles);
                 break;
             case "OPENBIS":
                 username = cmd.getOptionValue("user");
@@ -245,7 +249,7 @@ public class RDFCommandLine {
 
                 System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
                 System.out.println("Connect to openBIS instance " + openbisASURL + " with username[" + username + "]"); // and password[" + new String(password) + "]");
-                handleOpenBISOutput(inputFormatValue, inputFilePath, openbisASURL, username, new String(password), projectIdentifier, verbose);
+                handleOpenBISOutput(inputFormatValue, inputFilePath, openbisASURL, username, new String(password), projectIdentifier, verbose, additionalFiles);
                 break;
             case "OPENBIS-DEV":
                 username = cmd.getOptionValue("user");
@@ -255,7 +259,7 @@ public class RDFCommandLine {
                 openBISDSSURL = remainingArgs[2];
 
                 System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
-                handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password), projectIdentifier, verbose, List.of());
+                handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password), projectIdentifier, verbose, additionalFiles);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported output type: " + outputFormatValue.toUpperCase());
@@ -268,8 +272,12 @@ public class RDFCommandLine {
         System.out.println(new Date());
         System.out.println("Reading ontModel");
         OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
-        RDFDataMgr.read(ontModel, "/home/meiandr/Downloads/snomed-ct-ch-20231201.ttl/snomed-ct-CH-20231201.ttl", Lang.TTL);
-
+        for (String path : additionalFilePaths)
+        {
+            RDFDataMgr.read(ontModel,
+                    path,
+                    Lang.TTL);
+        }
 
         OntModel additionalModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
         for (String path : additionalFilePaths){
@@ -295,7 +303,7 @@ public class RDFCommandLine {
         System.out.println("XLSX created successfully!");
     }
 
-    private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisURL, String username, String password, String projectIdentifier, boolean verbose)
+    private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisURL, String username, String password, String projectIdentifier, boolean verbose, List<String> additionalPaths)
     {
         Path tempFile = Utils.createTemporaryFile();
         String tempFileOutput = tempFile.toString();
@@ -308,7 +316,7 @@ public class RDFCommandLine {
         }
 
         System.out.println("Created temporary XLSX output file: " + tempFileOutput);
-        handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose, List.of("/home/meiandr/Downloads/snomed-ct-ch-20231201.ttl/snomed-ct-CH-20231201.ttl"));
+        handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput, projectIdentifier, verbose, additionalPaths);
 
         System.out.println(
                 "Connect to openBIS instance " + openbisURL + " with username[" + username + "]"); //and password[" + new String(password) +"]");
