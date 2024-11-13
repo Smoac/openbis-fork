@@ -14,10 +14,7 @@ import org.apache.jena.vocabulary.RDFS;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 public class RDFReaderTest {
@@ -69,7 +66,8 @@ public class RDFReaderTest {
 
     @Test
     public void testSampleTypeProcessing() {
-        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, Map.of());
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, Map.of(),
+                Set.of());
         sampleTypeList.forEach(System.out::println);
         assertNotNull(sampleTypeList);
         assertEquals(6, sampleTypeList.size());
