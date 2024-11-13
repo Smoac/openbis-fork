@@ -196,8 +196,17 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
         String description = getValueByColumnName(header, values, Attribute.Description);
-        String dataTypeAux = getValueByColumnName(header, values, Attribute.DataType);
-        DataType dataType = DataType.valueOf(dataTypeAux);
+        String dataTypeXLS = getValueByColumnName(header, values, Attribute.DataType);
+
+        DataType dataType = null;
+        String dataTypeObjectType = null;
+        if (dataTypeXLS.contains(SAMPLE_DATA_TYPE_MANDATORY_TYPE))
+        {
+            dataType = DataType.valueOf(dataTypeXLS.split(SAMPLE_DATA_TYPE_MANDATORY_TYPE)[0]);
+            dataTypeObjectType = dataTypeXLS.split(SAMPLE_DATA_TYPE_MANDATORY_TYPE)[1];
+        } else {
+            dataType = DataType.valueOf(dataTypeXLS);
+        }
 
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
@@ -208,18 +217,10 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         creation.setCode(code);
         creation.setLabel(propertyLabel);
         creation.setDescription(description);
-
-        if (dataType.name().startsWith(SAMPLE_DATA_TYPE_PREFIX))
+        creation.setDataType(dataType);
+        if (dataType == DataType.SAMPLE && dataTypeObjectType != null)
         {
-            creation.setDataType(DataType.SAMPLE);
-            if (dataType.name().contains(SAMPLE_DATA_TYPE_MANDATORY_TYPE))
-            {
-                String sampleType = dataType.name().split(SAMPLE_DATA_TYPE_MANDATORY_TYPE)[1];
-                creation.setSampleTypeId(new EntityTypePermId(sampleType, EntityKind.SAMPLE));
-            }
-        } else
-        {
-            creation.setDataType(dataType);
+            creation.setSampleTypeId(new EntityTypePermId(dataTypeObjectType, EntityKind.SAMPLE));
         }
 
         creation.setManagedInternally(ImportUtils.isTrue(internal));

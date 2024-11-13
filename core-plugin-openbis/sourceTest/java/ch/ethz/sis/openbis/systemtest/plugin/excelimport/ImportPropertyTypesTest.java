@@ -192,7 +192,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Entity \\[DETECTION\\] could not be found..*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Ambiguous Property type declaration.*")
     public void testPropertyTypeVocabularyCodeToNonVocabularyType() throws IOException
     {
         final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
