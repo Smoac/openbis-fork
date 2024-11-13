@@ -1,16 +1,17 @@
 package ch.ethz.sis.rdf.main.parser;
 
 import ch.ethz.sis.rdf.main.ClassCollector;
+import ch.ethz.sis.rdf.main.mappers.AdditionalVocabularyMapper;
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
 import ch.ethz.sis.rdf.main.mappers.NamedIndividualMapper;
 import ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper;
 import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
-import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
-import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
-import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
-import org.apache.jena.ontology.*;
+import ch.ethz.sis.rdf.main.model.xlsx.*;
+import org.apache.jena.ontology.OntClass;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.Restriction;
+import org.apache.jena.ontology.UnionClass;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.OWL2;
@@ -19,22 +20,25 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RDFReader
 {
-    public ModelRDF read(String inputFileName, String inputFormatValue)
+    public ModelRDF read(String inputFileName, String inputFormatValue, OntModel additionalModel)
     {
-        return read(inputFileName, inputFormatValue, false);
+        return read(inputFileName, inputFormatValue, false, additionalModel);
     }
 
-    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose)
+    public ModelRDF read(String inputFileName, String inputFormatValue, boolean verbose, OntModel additionalModel)
     {
         Model model = LoaderRDF.loadModel(inputFileName, inputFormatValue);
         ModelRDF modelRDF = initializeModelRDF(model);
 
         handleSubclassChains(model, modelRDF);
         handleOntologyModel(model, inputFileName, inputFormatValue, modelRDF);
-        handleResources(model, modelRDF);
+        ResourceParsingResult resourceParsingResult =  handleResources(model, modelRDF, additionalModel);
+        printResourceParsingResult(resourceParsingResult);
+
 
         if (verbose) ParserUtils.extractGeneralInfo(model, model.getNsPrefixURI(""));
 
@@ -70,41 +74,117 @@ public class RDFReader
 
     private void processOntologyModel(OntModel ontModel, ModelRDF modelRDF)
     {
+
+
         Map<String, List<String>> RDFtoOpenBISDataTypeMap = DatatypeMapper.getRDFtoOpenBISDataTypeMap(ontModel);
         //modelRDF.RDFtoOpenBISDataType = RDFtoOpenBISDataTypeMap;
         Map<String, List<String>> objectPropToOntClassMap = ObjectPropertyMapper.getObjectPropToOntClassMap(ontModel);
         //modelRDF.objectPropertyMap = objectPropToOntClassMap;
         Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(ontModel);
         modelRDF.stringOntClassExtensionMap = ontClass2OntClassExtensionMap;
+        Set<String> vocabUnionTypes = handleVocabularyUnion(ontModel, "https://biomedit.ch/rdf/sphn-schema/sphn#Terminology", modelRDF);
 
-        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
+
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, ontClass2OntClassExtensionMap, vocabUnionTypes);
 
         sampleTypeList.removeIf(sampleType -> modelRDF.vocabularyTypeListGroupedByType.containsKey(sampleType.code));
         restrictionsToSampleMetadata(sampleTypeList, ontClass2OntClassExtensionMap);
-        verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, modelRDF.vocabularyTypeListGroupedByType);
+        verifyPropertyTypes(sampleTypeList, RDFtoOpenBISDataTypeMap, objectPropToOntClassMap, modelRDF.vocabularyTypeListGroupedByType, modelRDF.stringOntClassExtensionMap);
 
         modelRDF.sampleTypeList = sampleTypeList; //ClassCollector.getSampleTypeList(ontModel);
     }
 
-    private void handleResources(Model model, ModelRDF modelRDF)
+    private Set<String> handleVocabularyUnion(OntModel ontModel, String vocabTypeUri, ModelRDF modelRDF){
+        Set<String> vocabUris = new HashSet<>();
+        ontModel.listStatements().forEach(x -> {
+            boolean subClass = x.getPredicate().equals(RDFS.subClassOf);
+            var isVocabulary = x.getObject().canAs(OntClass.class) && vocabTypeUri.equals(x.getObject().as(OntClass.class).getURI());
+            if (subClass && isVocabulary){
+                vocabUris.add(x.getSubject().getURI());
+            }
+
+        });
+
+        List<VocabularyType> vocabularyTypeList = new ArrayList<>(modelRDF.vocabularyTypeList);
+        vocabUris.forEach(x -> {
+            VocabularyTypeOption vocabularyTypeOption = new VocabularyTypeOption("DUMMY", "dummy", "dummy");
+            String[] parts = x.split("/");
+            String code = parts[parts.length - 1];
+
+            List<VocabularyTypeOption> vocabularyTypeOptions = List.of(vocabularyTypeOption);
+            VocabularyType vocabularyType =
+                    new VocabularyType(code, "description", x, vocabularyTypeOptions);
+
+            vocabularyTypeList.add(vocabularyType);
+        });
+        modelRDF.vocabularyTypeList = vocabularyTypeList;
+
+        return vocabUris;
+
+
+
+    }
+
+    private ResourceParsingResult handleResources(Model model, ModelRDF modelRDF, OntModel additionalOntModel)
     {
         boolean modelContainsResources = ParserUtils.containsResources(model);
         System.out.println("Model contains Resources ? " + (modelContainsResources ? "YES" : "NO"));
+        Map<String, List<String>>
+                additionalChains = getSubclassChainsEndingWithClass(additionalOntModel,
+                additionalOntModel.listStatements(null, RDFS.subClassOf, (RDFNode) null));
 
-        modelRDF.resourcesGroupedByType = modelContainsResources ? ParserUtils.getResourceMap(model) : Collections.emptyMap();
+
+        modelRDF.resourcesGroupedByType =
+                modelContainsResources ? ParserUtils.getResourceMap(model) : Collections.emptyMap();
 
         Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap =
-                modelContainsResources ? ParserUtils.getSampleObjectsGroupedByTypeMap(model) : Collections.emptyMap();
+                modelContainsResources ?
+                        ParserUtils.getSampleObjectsGroupedByTypeMap(model) :
+                        Collections.emptyMap();
 
-        List<String> sampleObjectMapKeyList = sampleObjectsGroupedByTypeMap.keySet().stream().toList();
+        List<String> sampleObjectMapKeyList =
+                sampleObjectsGroupedByTypeMap.keySet().stream().toList();
         Map<String, String> sampleTypeUriToCodeMap = modelRDF.sampleTypeList.stream()
                 .collect(Collectors.toMap(
                         sampleType -> sampleType.ontologyAnnotationId,
                         sampleType -> sampleType.code
                 ));
 
-        modelRDF.sampleObjectsGroupedByTypeMap = checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList, sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap, modelRDF.subClassChanisMap);
+        modelRDF.sampleObjectsGroupedByTypeMap =
+                checkForNotSampleTypeInSampleObjectMap(sampleObjectMapKeyList,
+                        sampleTypeUriToCodeMap, sampleObjectsGroupedByTypeMap,
+                        modelRDF.subClassChanisMap);
+        ResourceParsingResult resourceParsingResult =
+                ParserUtils.removeObjectsOfUnknownType(modelRDF, sampleObjectsGroupedByTypeMap, additionalChains, additionalOntModel);
+
+        AdditionalVocabularyMapper.AdditionalVocabularyStuff vocabTypes = AdditionalVocabularyMapper.findVocabularyTypes(resourceParsingResult, additionalOntModel, Set.of("http://snomed.info/id/138875005"));
+        List<VocabularyType> tempVocabTypes = new ArrayList<>();
+        tempVocabTypes.addAll(modelRDF.vocabularyTypeList);
+
+        modelRDF.vocabularyTypeList = tempVocabTypes;
+
+        Map<String, OntClassExtension> ontClass2OntClassExtensionMap = ClassCollector.getOntClass2OntClassExtensionMap(additionalOntModel);
+
+
+
+
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(additionalOntModel, ontClass2OntClassExtensionMap, List.of())
+                .stream().filter(sampleType ->  resourceParsingResult.getClassesImported().contains(sampleType.ontologyAnnotationId))
+                .filter(x -> vocabTypes.getVocabAnnotationIds().contains(x.ontologyAnnotationId)).toList();
+        modelRDF.sampleTypeList.addAll(sampleTypeList);
+
+
+
+
+        modelRDF.sampleObjectsGroupedByTypeMap = Stream.concat( resourceParsingResult.getUnchangedObjects()
+                .stream(), resourceParsingResult.getEditedObjects().stream() ).collect(Collectors.groupingBy(x -> x.type));
+        return resourceParsingResult;
+
     }
+
+
+
+
 
     private Map<String, List<SampleObject>> checkForNotSampleTypeInSampleObjectMap(List<String> sampleObjectMapKeyList,
             Map<String, String> sampleTypeUriToCodeMap,
@@ -162,7 +242,7 @@ public class RDFReader
 
     //TODO: there is no direct connection from hasComparator to Comparator, from prop to vocabulary type
     void verifyPropertyTypes(List<SampleType> sampleTypeList, Map<String, List<String>> RDFtoOpenBISDataTypeMap,
-            Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap)
+            Map<String, List<String>> objectPropToOntClassMap, Map<String, List<VocabularyType>> vocabularyTypeListGroupedByTypeMap, Map<String, OntClassExtension> ontClassExtensionMap)
     {
         for(SampleType sampleType: sampleTypeList)
         {
@@ -171,18 +251,28 @@ public class RDFReader
             {
                 if (!Objects.equals(samplePropertyType.dataType, "SAMPLE"))
                 {
-                    if (vocabularyTypeListGroupedByTypeMap.containsKey(samplePropertyType.code) || vocabularyTypeListGroupedByTypeMap.keySet().stream().anyMatch(key -> samplePropertyType.code.contains(key)))
+
+                    var restrictions = findSomeValueRestrictions(ontClassExtensionMap, samplePropertyType.code);
+                    var restrictionCodes = restrictions.stream()
+                            .filter(Objects::nonNull)
+                            .map(x -> getCodeFromSphnUri(x)).toList();
+
+                    if (vocabularyTypeListGroupedByTypeMap.containsKey(samplePropertyType.code) || restrictionCodes.stream().anyMatch(
+                            vocabularyTypeListGroupedByTypeMap::containsKey) || vocabularyTypeListGroupedByTypeMap.keySet().stream().anyMatch(key -> samplePropertyType.code.contains(key)))
                     {
                         //System.out.println("GET: "+ vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(null));
                         samplePropertyType.dataType = "CONTROLLEDVOCABULARY";
-                        samplePropertyType.vocabularyCode = vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(() -> "UNKNOWN");
+                        samplePropertyType.vocabularyCode = vocabularyTypeListGroupedByTypeMap.keySet().stream().filter(key -> samplePropertyType.code.contains(key)).findFirst().orElseGet(() -> {
+                            return restrictionCodes.stream().filter(
+                                    vocabularyTypeListGroupedByTypeMap::containsKey).findFirst().orElse("UNKNOWN");
+                        });
                         //System.out.println("  VACAB_TYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.code + " -> " + vocabularyTypeListGroupedByTypeMap.get(samplePropertyType.code));
                     } else if (RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId) != null)
                     {
                         samplePropertyType.dataType = RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0);
                         //System.out.println("    DATATYPE: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + RDFtoOpenBISDataTypeMap.get(samplePropertyType.ontologyAnnotationId).get(0));
 
-                    } else if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null)
+                    } else if (objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId) != null && !samplePropertyType.dataType.equals("VARCHAR") )
                     {
                         samplePropertyType.dataType = "SAMPLE"+ ":" + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0);
                         //System.out.println(" OBJECT_PROP: "+ samplePropertyType.dataType + " -> " + samplePropertyType.ontologyAnnotationId + " -> " + objectPropToOntClassMap.get(samplePropertyType.ontologyAnnotationId).get(0));
@@ -192,6 +282,35 @@ public class RDFReader
             }
         }
     }
+
+
+
+    private Set<String> findSomeValueRestrictions(Map<String, OntClassExtension> ontClassExtensionMap, String code){
+        return ontClassExtensionMap.values()
+                .stream()
+                .flatMap(x -> x.restrictions.values().stream())
+                .flatMap(Collection::stream)
+                .filter(x -> x.getOnProperty().getURI().toLowerCase().contains(code.toLowerCase()))
+                .filter(x -> {
+                    try {
+                        x.asSomeValuesFromRestriction();
+                        return true;
+                    }
+                    catch (RuntimeException e ){
+                        return false;
+                    }
+
+                })
+                .map(x -> x.asSomeValuesFromRestriction())
+                .map(x -> x.getSomeValuesFrom().getURI())
+                .collect(Collectors.toSet());
+    }
+
+    private String getCodeFromSphnUri(String uri){
+       return uri.replaceAll("https://biomedit.ch/rdf/sphn-schema/sphn#", "").toUpperCase(Locale.ROOT);
+    }
+
+
 
     private void restrictionsToSampleMetadata(List<SampleType> sampleTypeList, Map<String, OntClassExtension> ontClass2OntClassExtensionMap)
     {
@@ -343,5 +462,23 @@ public class RDFReader
         // Remove the last element added if no valid chain is found
         chain.remove(chain.size() - 1);
         return false;
+    }
+
+    private void printResourceParsingResult(ResourceParsingResult resourceParsingResult){
+        if (resourceParsingResult.getDeletedObjects().isEmpty()){
+            return;
+        }
+        System.out.println("There were resources whose types could not be resolved");
+        resourceParsingResult.getDeletedObjects().forEach(x -> System.out.println(x.code));
+
+        if (resourceParsingResult.getEditedObjects().isEmpty()){
+            return;
+        }
+        System.out.println("------------------------------");
+        System.out.println("The resources were referenced in the following objects, these references are now deleted");
+        resourceParsingResult.getEditedObjects().forEach(x -> System.out.println(x.code));
+
+
+
     }
 }

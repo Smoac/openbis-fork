@@ -1,14 +1,23 @@
 package ch.ethz.sis.rdf.main.parser;
 
+import ch.ethz.sis.rdf.main.Constants;
+import ch.ethz.sis.rdf.main.model.rdf.ModelRDF;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.model.rdf.ResourceRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObject;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleObjectProperty;
+import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
+import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.*;
+import org.apache.thrift.annotation.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ParserUtils {
 
@@ -208,7 +217,7 @@ public class ParserUtils {
     }
 
     private static String getPropertySafely(Resource ontology, Property property){
-        return (ontology != null && ontology.getProperty(property) != null) ? ontology.getProperty(DC.description).getObject().toString() : "";
+        return (ontology != null && ontology.getProperty(property) != null) ? ontology.getProperty(property).getObject().toString() : "";
     }
 
     public static String getVersionIRI(Model model){
@@ -306,4 +315,157 @@ public class ParserUtils {
         return resource.hasProperty(RDF.type, OWL.Restriction) || resource.hasProperty(RDF.type, OWL.Class)
                 && (resource.hasProperty(OWL.unionOf) || resource.hasProperty(OWL.intersectionOf) || resource.hasProperty(OWL.allValuesFrom));
     }
+
+    public static ResourceParsingResult removeObjectsOfUnknownType(ModelRDF modelRDF,
+            Map<String, List<SampleObject>> sampleObjectsGroupedByTypeMap, Map<String, List<String>>
+            additionalChains,@Nullable OntModel additionModel)
+    {
+        Map<String, List<SampleObject>> unknownTypeSampleObjects =
+                sampleObjectsGroupedByTypeMap.values().stream()
+                        .flatMap(Collection::stream)
+                        .filter(x -> !canResolveSampleType(modelRDF, x.typeURI, additionalChains) || StringUtils.isBlank(x.type))
+                        .collect( Collectors.groupingBy( x -> x.typeURI));
+                ;
+
+
+
+        Map<String, List<SampleObject>> objectsKnownTypes =
+                sampleObjectsGroupedByTypeMap.values().stream()
+                        .flatMap(Collection::stream)
+                        .filter(x -> canResolveSampleType(modelRDF, x.typeURI, additionalChains))
+                        .filter(x -> !StringUtils.isBlank(x.type))
+                        .collect( Collectors.groupingBy( x -> x.typeURI));
+        ;
+        Set<String> importedTypes = objectsKnownTypes.keySet().stream().filter(x -> additionalChains.containsKey(x))
+                .map( x -> additionalChains.get(x))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+
+
+        List<String> classesToImport = new ArrayList<>();
+        List<String> propertiesToImport = new ArrayList<>();
+
+
+        List<SampleObject> objects =
+                unknownTypeSampleObjects.entrySet().stream().map(x -> x.getValue())
+                        .flatMap(Collection::stream).toList();
+        List<SampleObject> objectsWritten =
+                objectsKnownTypes.entrySet().stream().map(x -> x.getValue())
+                        .flatMap(Collection::stream).toList();
+        Set<String> deletedCodes = objects.stream().map(x -> x.code).collect(Collectors.toSet());
+
+        Map<String, SamplePropertyType> codeToPropertyType = modelRDF.sampleTypeList.stream().map(x -> x.properties)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toMap(x -> x.code, Function.identity()));
+
+        List<SampleObject> changedObjects = new ArrayList<>();
+        List<SampleObject> unchangedObjects = new ArrayList<>();
+
+        for (SampleObject object : objectsWritten)
+        {
+            List<SampleObjectProperty> tempProperties = new ArrayList<>();
+
+            boolean change = false;
+            for (var property : object.properties)
+            {
+                if (deletedCodes.contains(property.getValue()))
+                {
+
+                    change = true;
+                    SampleType sampleType = modelRDF.sampleTypeList.stream().filter(x -> x.properties.stream().anyMatch(y -> y.ontologyAnnotationId.equals(property.propertyURI))).findFirst().get();
+                    String code = "138875005";
+                    sampleType.properties.stream()
+                            .filter(x -> x.ontologyAnnotationId.equals(property.propertyURI))
+                            .filter(x -> x.code.toLowerCase().contains(code))
+                            .findFirst()
+                            .ifPresent(x -> {
+                                String value = extractValue(x, additionModel, property);
+
+                                SampleObjectProperty sampleObjectProperty = new SampleObjectProperty(property.propertyURI, x.propertyLabel, value, property.valueURI);
+                                tempProperties.add(sampleObjectProperty);
+                            });
+
+
+                    boolean required =
+                            codeToPropertyType.get(property.label.toUpperCase()).isMandatory == 1;
+                    if (required){
+                        SampleObjectProperty dummyProperty = new SampleObjectProperty(property.propertyURI , Constants.UNKNOWN, property.value, property.valueURI);
+                        tempProperties.add(dummyProperty);
+                    }
+                } else
+                {
+                    tempProperties.add(property);
+                }
+
+
+
+            }
+            if (change)
+            {
+                changedObjects.add(object);
+                object.properties = tempProperties;
+
+            } else
+            {
+                unchangedObjects.add(object);
+            }
+
+        }
+
+        return new ResourceParsingResult(objects, unchangedObjects, changedObjects, importedTypes, List.of());
+    }
+
+    static String extractValue(SamplePropertyType samplePropertyType, OntModel additionalOntModel,
+            SampleObjectProperty sampleObjectProperty)
+    {
+        if (additionalOntModel == null)
+        {
+            return sampleObjectProperty.getValue();
+        }
+        Optional<String> maybeValue = Optional.ofNullable(samplePropertyType.metadata.get("SomeValuesFromRestriction"))
+                .map( x -> additionalOntModel.getOntClass(x))
+                .map(x -> x.getProperty(RDFS.label))
+                .map(Statement::getObject)
+                .map(RDFNode::toString);
+        if (maybeValue.isPresent()){
+            return maybeValue.get();
+        }
+
+
+        return sampleObjectProperty.getValue();
+    }
+
+    private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType, Map<String, List<String>> additionalTypes){
+        if (StringUtils.isBlank(sampleType)){
+            return false;
+        }
+
+        Optional<SampleType> typeFound = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(sampleType)).findFirst();
+        if (typeFound.isPresent()){
+            if (StringUtils.isBlank(typeFound.get().code) ){
+                return false;
+            }
+
+
+            return true;
+        }
+
+        if (additionalTypes.keySet().contains(sampleType)){
+            return true;
+        }
+
+        List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleType);
+        if (typeFoundChain==null){
+            return false;
+        }
+
+
+        return typeFoundChain.contains(sampleType);
+
+
+
+    }
+
 }

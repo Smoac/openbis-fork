@@ -8,15 +8,13 @@ import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import ch.ethz.sis.rdf.main.model.xlsx.VocabularyType;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 public class RDFReaderTest {
@@ -36,7 +34,8 @@ public class RDFReaderTest {
 
     @Test
     public void testReadBasicRDFModel() {
-        ModelRDF modelRDF = rdfReader.read(inputFileName, inputFormatValue, false);
+        OntModel ontModel1 = ModelFactory.createOntologyModel();
+        ModelRDF modelRDF = rdfReader.read(inputFileName, inputFormatValue, false, ontModel1);
 
         assertNotNull(modelRDF);
         assertEquals("https://biomedit.ch/rdf/sphn-schema/sphn#", modelRDF.ontNamespace);
@@ -67,7 +66,8 @@ public class RDFReaderTest {
 
     @Test
     public void testSampleTypeProcessing() {
-        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel);
+        List<SampleType> sampleTypeList = ClassCollector.getSampleTypeList(ontModel, Map.of(),
+                Set.of());
         sampleTypeList.forEach(System.out::println);
         assertNotNull(sampleTypeList);
         assertEquals(6, sampleTypeList.size());
@@ -88,7 +88,7 @@ public class RDFReaderTest {
         Map<String, List<String>> RDFtoOpenBISDataTypeMap = new HashMap<>();
         RDFtoOpenBISDataTypeMap.put("PropAnnotation", List.of("STRING"));
 
-        rdfReader.verifyPropertyTypes(sampleTypes, RDFtoOpenBISDataTypeMap, new HashMap<>(), new HashMap<>());
+        rdfReader.verifyPropertyTypes(sampleTypes, RDFtoOpenBISDataTypeMap, new HashMap<>(), new HashMap<>(), Map.of());
 
         assertEquals("STRING", sampleType.properties.get(0).dataType);
     }
@@ -97,7 +97,8 @@ public class RDFReaderTest {
     public void testInvalidModelFormat() {
         String invalidFileName = "invalid.ttl";
         String invalidFormat = "UNKNOWN";
+        OntModel addiionalModel = ModelFactory.createOntologyModel();
 
-        assertThrows(Exception.class, () -> rdfReader.read(invalidFileName, invalidFormat));
+        assertThrows(Exception.class, () -> rdfReader.read(invalidFileName, invalidFormat, false, addiionalModel));
     }
 }

@@ -50,6 +50,7 @@ java -jar rdf-lib-tool.jar [options]
 -p, --password <password>: specifies the password for authentication (needed for OPENBIS and OPENBIS-DEV output format options).
 -v, --verbose: displays detailed information on the process.
 -h, --help: displays the help message.
+-a, --additionalfiles specifies additional file paths for resolving ontologies and terminology.  
 ```
 
 Other mandatory parameters must be provided based on what output format has been chosen:

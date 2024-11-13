@@ -2,6 +2,7 @@ package ch.ethz.sis.rdf.main.model.xlsx;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SamplePropertyType
 {
@@ -46,5 +47,22 @@ public class SamplePropertyType
                 ", ontologyAnnotationId='" + ontologyAnnotationId + '\'' +
                 ", multiValued=" + isMultiValue +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        SamplePropertyType that = (SamplePropertyType) o;
+        return Objects.equals(code, that.code);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(code);
     }
 }

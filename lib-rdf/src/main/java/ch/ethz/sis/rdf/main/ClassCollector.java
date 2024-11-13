@@ -1,15 +1,18 @@
 package ch.ethz.sis.rdf.main;
 
 import ch.ethz.sis.rdf.main.mappers.DatatypeMapper;
+import ch.ethz.sis.rdf.main.model.rdf.AdditionalProperty;
 import ch.ethz.sis.rdf.main.model.rdf.OntClassExtension;
 import ch.ethz.sis.rdf.main.model.rdf.PropertyTupleRDF;
 import ch.ethz.sis.rdf.main.model.xlsx.SamplePropertyType;
 import ch.ethz.sis.rdf.main.model.xlsx.SampleType;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.event.EntityType.SAMPLE;
 import static ch.ethz.sis.rdf.main.Constants.COLON;
@@ -48,9 +51,53 @@ public class ClassCollector {
             }
         } catch (ConversionException e) {
             System.err.println("ConversionException: " + e.getMessage());
+            if (e.getMessage().contains("Cannot convert node http://purl.org/dc/terms/conformsTo to OntProperty")){
+                handleAdditionalProperty(ontClassObject, restriction, "conformsTo", "VARCHAR", DCTerms.conformsTo.getURI());
+            }
+
+
         } catch (Exception e) {
             System.err.println("Exception: " + e.getMessage());
         }
+    }
+
+    private static void handleAdditionalProperty(OntClassExtension ontClassObject, Restriction restriction, String name, String dataType, String uri
+    ){
+        String code = name.toUpperCase(Locale.ROOT);
+
+        AdditionalProperty additionalProperty = Optional.ofNullable(ontClassObject.hackyProperties.get(code
+    )).orElse(new AdditionalProperty(code
+    ));
+        additionalProperty.setDataType(dataType);
+        additionalProperty.setProperty(name);
+
+
+        if (restriction.isMaxCardinalityRestriction()){
+            additionalProperty.setMax(restriction.asMaxCardinalityRestriction().getMaxCardinality());
+        }
+        if (restriction.isMinCardinalityRestriction()){
+            additionalProperty.setMin(restriction.asMinCardinalityRestriction().getMinCardinality());
+        }
+        if (additionalProperty.getMin() == 1 && additionalProperty.getMax() == 1){
+            additionalProperty.setMandatory(1);
+            additionalProperty.setMultiValued(0);
+        } else {
+            additionalProperty.setMandatory(0);
+            additionalProperty.setMultiValued(1);
+        }
+
+        additionalProperty.setUri(uri);
+        additionalProperty.setDescription(name);
+
+
+
+
+        ontClassObject.hackyProperties.put(name
+    , additionalProperty);
+
+
+
+
     }
 
     private static void addRestrictionSafely(OntClassExtension ontClassObject, Property onProperty, Restriction restriction)
@@ -305,7 +352,7 @@ public class ClassCollector {
         return toOntClass2StringOntClassExtension(ontClass2OntClassExtensionMap);
     }
 
-    private static List<SamplePropertyType> getPropertyTypeList(final OntModel ontModel, final OntClass currentCls)
+    private static List<SamplePropertyType> getPropertyTypeList(final OntModel ontModel, final OntClass currentCls, Collection<String> generalVocabularyTypes)
     {
         List<SamplePropertyType> propertyTypeList = new ArrayList<>();
         // Find all properties where the class is the domain
@@ -327,7 +374,35 @@ public class ClassCollector {
                     Resource range = rangeStmt.getObject().asResource();
                     if (range.canAs(UnionClass.class))
                     {
-                        propertyType.dataType = "SAMPLE";
+                        var unionOperands = getUnionClassOperands(range.as(UnionClass.class));
+                        if (isUnionWithPrimitiveTypes(unionOperands)){
+                            propertyType.dataType = "VARCHAR";
+                        } else {
+                            propertyType.dataType = "SAMPLE";
+                        }
+                        boolean vocabTypesFromUnion = isUnionWithVocabularyTypes(unionOperands, Set.of("https://biomedit.ch/rdf/sphn-schema/sphn#Terminology"),  ontModel);
+
+                        if (vocabTypesFromUnion)
+                        {
+                            propertyType.metadata.put("VOCABULARY_UNION", "It's a union!");
+
+                            generalVocabularyTypes.stream().forEach(genVocab -> {
+                                String[] parts = genVocab.split("/");
+                                String code = parts[parts.length -1];
+                                SamplePropertyType vocabPropertyType = new SamplePropertyType(propertyType.propertyLabel+"Vocabulary" +code, propertyType.ontologyAnnotationId);
+                                vocabPropertyType.dataType = "VARCHAR";
+                                propertyTypeList.add(vocabPropertyType);
+
+                                    }
+                            );
+
+
+                        }
+
+                        propertyType.metadata.put("TYPE", "The type was a union of " + unionOperands.stream().collect(
+                                Collectors.joining(", ")));
+
+
                         propertyType.metadata.put("UNION_TYPE", getUnionClassOperands(range.as(UnionClass.class)).toString());
                     } else if (range.isURIResource())
                     {
@@ -345,7 +420,38 @@ public class ClassCollector {
         return propertyTypeList;
     }
 
-    public static List<SampleType> getSampleTypeList(final OntModel ontModel)
+    static boolean isUnionWithPrimitiveTypes(Collection<String> unionOperands){
+        Set<String> primitiveTypes = Set.of(
+                "http://www.w3.org/2001/XMLSchema#string",
+                "http://www.w3.org/2001/XMLSchema#double",
+                "http://www.w3.org/2001/XMLSchema#int",
+                "http://www.w3.org/2001/XMLSchema#boolean"
+
+        );
+        return unionOperands.stream().anyMatch(primitiveTypes::contains);
+
+
+
+    }
+
+    static boolean isUnionWithVocabularyTypes(Collection<String> unionOperands, Collection<String> vocabularyTypes, OntModel ontModel){
+        Set<String> vocabTypes = new HashSet<>();
+        for (String operand : unionOperands){
+            OntClass ontClass = ontModel.getOntClass(operand);
+            while (ontClass != null && ontClass.getSuperClass() != null)
+            {
+                if (vocabularyTypes.contains(ontClass.getURI())){
+                    return true;
+                }
+                ontClass = ontClass.getSuperClass();
+            }
+
+        }
+        return false;
+
+    }
+
+    public static List<SampleType> getSampleTypeList(final OntModel ontModel, Map<String, OntClassExtension> ontClassExtensionMap, Collection<String> generalVocabTypes)
     {
         List<SampleType> sampleTypeList = new ArrayList<>();
 
@@ -354,10 +460,32 @@ public class ClassCollector {
                 .forEach(ontClass -> {
 
                     SampleType sampleType = new SampleType(ontClass);
-                    sampleType.properties = getPropertyTypeList(ontModel, ontClass);
+                    sampleType.properties = getPropertyTypeList(ontModel, ontClass, generalVocabTypes);
+                    OntClassExtension extension = ontClassExtensionMap.get(sampleType.ontologyAnnotationId);
+                    if (extension != null)
+                    {
+                        extension.getHackyProperties().values().forEach(x -> {
+                                    SamplePropertyType hackySampleType =
+                                            new SamplePropertyType(x.getProperty(), x.getUri());
+                                    hackySampleType.ontologyAnnotationId = x.getOntologyAnnotationId();
+                                    hackySampleType.code = x.getCode();
+                                    hackySampleType.isMandatory = x.getMandatory();
+                                    hackySampleType.dataType = x.getDataType();
+                                    hackySampleType.description = x.getDescription();
+                                    hackySampleType.isMandatory = x.getMultiValued();
+                                    sampleType.properties.add(hackySampleType);
+
+                                }
+                        );
+                    }
+
+
                     sampleTypeList.add(sampleType);
 
+
                 });
+
+
         return sampleTypeList;
     }
 }

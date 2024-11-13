@@ -1,5 +1,6 @@
 package ch.ethz.sis.rdf.main.model.xlsx;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -16,11 +17,27 @@ public class SampleType {
     public List<SamplePropertyType> properties;
 
     public SampleType(Resource cls){
-        this.code = cls.getLocalName().toUpperCase(Locale.ROOT);
+        this.code = findCode(cls);
+
         this.description = processDescription(cls);
         this.metadata = new HashMap<>();
         this.ontologyAnnotationId = cls.getURI();
         this.properties = new ArrayList<>();
+    }
+
+    String findCode(Resource cls)
+    {
+        if (StringUtils.isNotBlank(cls.getLocalName()))
+        {
+            return cls.getLocalName().toUpperCase(Locale.ROOT);
+        }
+        if (cls.getURI().contains("snomed"))
+        {
+            return "SNOMED-" + cls.getURI().replace("http://snomed.info/id/", "")
+                    .toUpperCase(Locale.ROOT);
+        }
+
+        return "";
     }
 
     public SampleType(String localName, String uri){
