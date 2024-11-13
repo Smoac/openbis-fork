@@ -461,15 +461,15 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
 
     samplePermId = parameters.get("samplePermId");
     sampleProperties = parameters.get("sampleProperties");
-    storageCode = sampleProperties.get("$STORAGE_POSITION.STORAGE_CODE");
-    storageRackRow = sampleProperties.get("$STORAGE_POSITION.STORAGE_RACK_ROW");
-    storageRackColumn = sampleProperties.get("$STORAGE_POSITION.STORAGE_RACK_COLUMN");
-    storageBoxName = sampleProperties.get("$STORAGE_POSITION.STORAGE_BOX_NAME");
-    storageBoxSize = sampleProperties.get("$STORAGE_POSITION.STORAGE_BOX_SIZE");
-    storageBoxPosition = sampleProperties.get("$STORAGE_POSITION.STORAGE_BOX_POSITION");
+    storageCode = sampleProperties.get("STORAGE_POSITION.STORAGE_CODE");
+    storageRackRow = sampleProperties.get("STORAGE_POSITION.STORAGE_RACK_ROW");
+    storageRackColumn = sampleProperties.get("STORAGE_POSITION.STORAGE_RACK_COLUMN");
+    storageBoxName = sampleProperties.get("STORAGE_POSITION.STORAGE_BOX_NAME");
+    storageBoxSize = sampleProperties.get("STORAGE_POSITION.STORAGE_BOX_SIZE");
+    storageBoxPosition = sampleProperties.get("STORAGE_POSITION.STORAGE_BOX_POSITION");
 
-    storageUser = sampleProperties.get("$STORAGE_POSITION.STORAGE_USER");
-
+    storageUser = sampleProperties.get("STORAGE_POSITION.STORAGE_USER");
+    OPERATION_LOG.debug("-----------------> " + str(sampleProperties))
     # 1. Obtain Storage to retrieve Storage Validation Level
     if storageCode is None:
         raise UserFailureException("Storage code missing");
@@ -506,8 +506,8 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
     # 3. IF $STORAGE.STORAGE_VALIDATION_LEVEL >= RACK
     # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 3");
     # 3.1 Check the rack exists, it should always be specified as an integer, failing the conversion is a valid error
-    storageNumOfRowsAsInt = int(storage.getProperty("$STORAGE.ROW_NUM"));
-    storageNumOfColAsInt = int(storage.getProperty("$STORAGE.COLUMN_NUM"));
+    storageNumOfRowsAsInt = int(storage.getProperty("STORAGE.ROW_NUM"));
+    storageNumOfColAsInt = int(storage.getProperty("STORAGE.COLUMN_NUM"));
     storageRackRowAsInt = int(storageRackRow)
     storageRackColAsInt = int(storageRackColumn)
     if storageRackRowAsInt > storageNumOfRowsAsInt or storageRackColAsInt > storageNumOfColAsInt:
@@ -520,28 +520,30 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1");
         searchCriteriaOtherBox = SampleSearchCriteria();
         searchCriteriaOtherBox.withType().withCode().thatEquals("STORAGE_POSITION");
-        searchCriteriaOtherBox.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
+        searchCriteriaOtherBox.withStringProperty("STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
         searchCriteriaOtherBoxOptions = SampleFetchOptions();
         searchCriteriaOtherBoxOptions.withProperties();
 
-        sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, searchCriteriaOtherBoxOptions).getObjects();
-        # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1 - LEN: " + str(len(sampleSearchResults)));
+        sampleSearchResultsRes = context.applicationService.searchSamples(sessionToken, searchCriteriaOtherBox, searchCriteriaOtherBoxOptions);
+        sampleSearchResults = sampleSearchResultsRes.getObjects();
+        OPERATION_LOG.debug("-----------------> " + str(sampleSearchResultsRes) + " ----- " + str(sampleSearchResults))
+        OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.1 - LEN: " + str(len(sampleSearchResults)));
         for result in sampleSearchResults:
-            if (result.getProperty("$STORAGE_POSITION.STORAGE_CODE") != storageCode) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") != storageRackRow) or (result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN") != storageRackColumn):
-                raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName) + " Given -> Storage Code: " + str(storageCode) + " Rack Row: " + str(storageRackRow) + " Rack Column: " + str(storageRackColumn) + " - Found -> Storage Code: " + result.getProperty("$STORAGE_POSITION.STORAGE_CODE") + " Rack Row: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_ROW") + " Rack Column: " + result.getProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN"));
+            if (result.getProperty("STORAGE_POSITION.STORAGE_CODE") != storageCode) or (result.getProperty("STORAGE_POSITION.STORAGE_RACK_ROW") != storageRackRow) or (result.getProperty("STORAGE_POSITION.STORAGE_RACK_COLUMN") != storageRackColumn):
+                raise UserFailureException("You entered the name of an already existing box in a different place - Box Name: " + str(storageBoxName) + " Given -> Storage Code: " + str(storageCode) + " Rack Row: " + str(storageRackRow) + " Rack Column: " + str(storageRackColumn) + " - Found -> Storage Code: " + result.getProperty("STORAGE_POSITION.STORAGE_CODE") + " Rack Row: " + result.getProperty("STORAGE_POSITION.STORAGE_RACK_ROW") + " Rack Column: " + result.getProperty("STORAGE_POSITION.STORAGE_RACK_COLUMN"));
 
     if storageValidationLevel == "BOX" or storageValidationLevel == "BOX_POSITION":
         # 4.2 The number of total different box names on the rack including the given one should be below $STORAGE.BOX_NUM
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.2");
         searchCriteriaStorageRack = SampleSearchCriteria();
         searchCriteriaStorageRack.withType().withCode().thatEquals("STORAGE_POSITION");
-        searchCriteriaStorageRack.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
-        searchCriteriaStorageRack.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
-        searchCriteriaStorageRack.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
+        searchCriteriaStorageRack.withStringProperty("STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+        searchCriteriaStorageRack.withNumberProperty("STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
+        searchCriteriaStorageRack.withNumberProperty("STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
         searchCriteriaStorageRackResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageRack, fetchOptions).getObjects();
         storageRackBoxes = {storageBoxName};
         for sample in searchCriteriaStorageRackResults:
-            storageRackBoxes.add(sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME"));
+            storageRackBoxes.add(sample.getProperty("STORAGE_POSITION.STORAGE_BOX_NAME"));
         # 4.3 $STORAGE.BOX_NUM is only checked in is configured
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.3");
         storageBoxNum = storage.getProperty("$STORAGE.BOX_NUM");
@@ -579,23 +581,23 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
         for storageBoxSubPosition in storageBoxPosition.split(" "):
             searchCriteriaStorageBoxPosition = SampleSearchCriteria();
             searchCriteriaStorageBoxPosition.withType().withCode().thatEquals("STORAGE_POSITION");
-            searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
-            searchCriteriaStorageBoxPosition.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
-            searchCriteriaStorageBoxPosition.withNumberProperty("$STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
+            searchCriteriaStorageBoxPosition.withStringProperty("STORAGE_POSITION.STORAGE_CODE").thatEquals(storageCode);
+            searchCriteriaStorageBoxPosition.withNumberProperty("STORAGE_POSITION.STORAGE_RACK_ROW").thatEquals(int(storageRackRow));
+            searchCriteriaStorageBoxPosition.withNumberProperty("STORAGE_POSITION.STORAGE_RACK_COLUMN").thatEquals(int(storageRackColumn));
 
             if enableNewSearchEngine:
-                searchCriteriaStorageBoxPosition.withProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
+                searchCriteriaStorageBoxPosition.withStringProperty("STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(storageBoxName);
             else: # Patch for Lucene
                 import org.apache.lucene.queryparser.classic.QueryParserBase as QueryParserBase
-                searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(QueryParserBase.escape(storageBoxName));
-            searchCriteriaStorageBoxPosition.withStringProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").thatContains(storageBoxSubPosition);
+                searchCriteriaStorageBoxPosition.withStringProperty("STORAGE_POSITION.STORAGE_BOX_NAME").thatEquals(QueryParserBase.escape(storageBoxName));
+            searchCriteriaStorageBoxPosition.withStringProperty("STORAGE_POSITION.STORAGE_BOX_POSITION").thatContains(storageBoxSubPosition);
             searchCriteriaStorageBoxResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageBoxPosition, fetchOptions).getObjects();
             # 5.1 If the given box position dont exists (the list is empty), is new
             for sample in searchCriteriaStorageBoxResults:
                 if sample.getPermId().getPermId() != samplePermId \
-                        and storageBoxSubPosition in sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").split(" ") \
-                        and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
-                        and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
+                        and storageBoxSubPosition in sample.getProperty("STORAGE_POSITION.STORAGE_BOX_POSITION").split(" ") \
+                        and sample.getProperty("STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
+                        and sample.getProperty("STORAGE_POSITION.STORAGE_CODE") == storageCode:
                     # 5.3 If the given box position already exists, with a different permId -> Is an error
                     raise UserFailureException("You entered an existing box position - Box Name: " + str(storageBoxName) + " Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
                 else:
