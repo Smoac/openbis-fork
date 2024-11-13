@@ -12,6 +12,9 @@ class Route {
   format(params) {
     if (_.isMatch(params, this.params)) {
       let toPath = compile(this.pattern, { encode: encodeURIComponent })
+      Object.entries(params).forEach(([paramName, paramValue]) => {
+        params[paramName] = String(paramValue)
+      })
       return {
         path: toPath(params),
         specificity: Object.keys(this.params).length
