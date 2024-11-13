@@ -302,8 +302,8 @@ def getEntity(service, sessionToken, type, permId):
 
 def getDisplayName(entity):
 	displayName = None;
-	if hasattr(entity, 'properties') and "$NAME" in entity.properties and entity.properties["$NAME"]:
-		displayName = entity.properties["$NAME"];
+	if hasattr(entity, 'properties') and "NAME" in entity.properties and entity.properties["NAME"]:
+		displayName = entity.properties["NAME"];
 	elif hasattr(entity, 'code') and entity.getCode():
 		displayName = entity.getCode();
 	elif hasattr(permId, 'permId'):

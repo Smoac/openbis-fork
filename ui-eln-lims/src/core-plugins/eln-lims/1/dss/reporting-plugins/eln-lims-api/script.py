@@ -732,10 +732,10 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 		for newSampleParent in sampleParentsNew:
 			parent = tr.createNewSample(newSampleParent.get("identifier"), newSampleParent.get("sampleTypeCode")); #Create Sample given his id
 			properties = getProperties(tr, parameters, newSampleParent.get("sampleTypeCode"), EntityKind.SAMPLE);
-			if newSampleParent.get("annotations") != None and sampleProperties.get("$ANNOTATIONS_STATE") != None:
-				sample_ANNOTATIONS_STATE = sampleProperties.get("$ANNOTATIONS_STATE");
+			if newSampleParent.get("annotations") != None and sampleProperties.get("ANNOTATIONS_STATE") != None:
+				sample_ANNOTATIONS_STATE = sampleProperties.get("ANNOTATIONS_STATE");
 				sample_ANNOTATIONS_STATE = sample_ANNOTATIONS_STATE.replace("PERM_ID_PLACEHOLDER_FOR" + newSampleParent.get("identifier"), parent.getPermId());
-				sampleProperties.put("$ANNOTATIONS_STATE", sample_ANNOTATIONS_STATE);
+				sampleProperties.put("ANNOTATIONS_STATE", sample_ANNOTATIONS_STATE);
 			if newSampleParent.get("experimentIdentifierOrNull") != None:
 				parentExperiment = tr.getExperiment(newSampleParent.get("experimentIdentifierOrNull"));
 				parent.setExperiment(parentExperiment);

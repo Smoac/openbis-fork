@@ -23,7 +23,7 @@ FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
 FOLDER_CONTAINS_NON_DELETABLE_FILES_ERROR_MESSAGE = "Folder contains non-deletable files";
 SAMPLE_MISSING_ERROR_MESSAGE = "Sample not found";
 EXPERIMENT_MISSING_ERROR_MESSAGE = "Experiment not found";
-NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice, it should just be in either folder name or metadata.json"
+NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "NAME property specified twice, it should just be in either folder name or metadata.json"
 EMAIL_SUBJECT = "ELN LIMS Dropbox Error";
 ILLEGAL_FILES_ERROR_MESSAGE = "Directory contains illegal files";
 INVALID_PATTERN_ERROR_MESSAGE = "Provided pattern could not be compiled"
@@ -132,7 +132,7 @@ def process(transaction):
                 dataSet = transaction.createNewDataSet();
 
             if name is not None:
-                dataSet.setPropertyValue("$NAME", name);  # Set name if found
+                dataSet.setPropertyValue("NAME", name);  # Set name if found
 
             # Set sample or experiment
             if sample is not None:
@@ -151,7 +151,7 @@ def process(transaction):
                     root = JSONObject(FileUtils.readFileToString(item, "UTF-8"))
                     properties = root.get("properties")
                     for propertyKey in properties.keys():
-                        if propertyKey == "$NAME" and name is not None:
+                        if propertyKey == "NAME" and name is not None:
                             raise UserFailureException(NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE)
                         propertyValue = properties.get(propertyKey)
                         if propertyValue is not None:

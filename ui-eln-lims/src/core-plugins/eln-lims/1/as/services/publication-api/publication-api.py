@@ -139,14 +139,14 @@ def createPublicationSamples(parameters, sessionToken, v3):
         sampleCreation.setExperimentId(ExperimentIdentifier('/' + groupPrefix + 'PUBLICATIONS/' + groupPrefix
                 + 'PUBLIC_REPOSITORIES/' + groupPrefix + 'PUBLICATIONS_COLLECTION'))
         sampleCreation.setSpaceId(SpacePermId(groupPrefix + 'PUBLICATIONS'))
-        sampleCreation.setProperty('$NAME', name)
-        sampleCreation.setProperty('$PUBLICATION.ORGANIZATION', publicationOrganization)
-        sampleCreation.setProperty('$PUBLICATION.TYPE', publicationType)
-        sampleCreation.setProperty('$PUBLICATION.IDENTIFIER', publicationIdentifier)
-        sampleCreation.setProperty('$PUBLICATION.URL', publicationURL)
-        sampleCreation.setProperty('$PUBLICATION.DESCRIPTION', publicationDescription)
+        sampleCreation.setProperty('NAME', name)
+        sampleCreation.setProperty('PUBLICATION.ORGANIZATION', publicationOrganization)
+        sampleCreation.setProperty('PUBLICATION.TYPE', publicationType)
+        sampleCreation.setProperty('PUBLICATION.IDENTIFIER', publicationIdentifier)
+        sampleCreation.setProperty('PUBLICATION.URL', publicationURL)
+        sampleCreation.setProperty('PUBLICATION.DESCRIPTION', publicationDescription)
         # Adding identifiers with removed repetitions
-        sampleCreation.setProperty('$PUBLICATION.OPENBIS_RELATED_IDENTIFIERS',
+        sampleCreation.setProperty('PUBLICATION.OPENBIS_RELATED_IDENTIFIERS',
                                    String.join(', ', LinkedHashSet(openBISRelatedIdentifiers.split(','))))
         sampleCreations.append(sampleCreation)
 

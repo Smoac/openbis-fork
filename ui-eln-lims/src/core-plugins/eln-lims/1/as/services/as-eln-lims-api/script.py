@@ -354,7 +354,7 @@ def validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, s
 def validateBarcode(row_number, properties, barcodeValidationInfo):
     barcode = properties.get("custom barcode")
     if barcode is None:
-        barcode = properties.get("$BARCODE")
+        barcode = properties.get("BARCODE")
     if barcode is not None:
         minBarcodeLength = barcodeValidationInfo['minBarcodeLength']
         if len(barcode) < minBarcodeLength:
@@ -546,7 +546,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
             storageRackBoxes.add(sample.getProperty("STORAGE_POSITION.STORAGE_BOX_NAME"));
         # 4.3 $STORAGE.BOX_NUM is only checked in is configured
         # OPERATION_LOG.info("isValidStoragePositionToInsertUpdate - 4.3");
-        storageBoxNum = storage.getProperty("$STORAGE.BOX_NUM");
+        storageBoxNum = storage.getProperty("STORAGE.BOX_NUM");
         if storageBoxNum is not None:
             storageBoxNumAsInt = int(storageBoxNum);
             if len(storageRackBoxes) > storageBoxNumAsInt:

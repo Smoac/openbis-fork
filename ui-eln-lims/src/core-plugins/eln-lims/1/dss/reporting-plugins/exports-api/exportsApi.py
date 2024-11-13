@@ -277,8 +277,8 @@ def cleanUp(tempDirPath, tempZipFilePath):
 # Return Name (Code) if it exists, otherwise return just Code
 def extractName(entity):
     name = None
-    if "$NAME" in entity.getProperties():
-        name = entity.getProperties().get("$NAME") + " (" + entity.getCode() + ")"
+    if "NAME" in entity.getProperties():
+        name = entity.getProperties().get("NAME") + " (" + entity.getCode() + ")"
     if name is not None and len(name) > 0:
         return name
     else:
