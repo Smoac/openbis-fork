@@ -323,7 +323,7 @@ public class ParserUtils {
         Map<String, List<SampleObject>> unknownTypeSampleObjects =
                 sampleObjectsGroupedByTypeMap.values().stream()
                         .flatMap(Collection::stream)
-                        .filter(x -> !canResolveSampleType(modelRDF, x.typeURI, additionalChains) || StringUtils.isBlank(x.type))
+                        .filter(x -> !canResolveSampleType(modelRDF, x, additionalChains) || StringUtils.isBlank(x.type))
                         .collect( Collectors.groupingBy( x -> x.typeURI));
                 ;
 
@@ -332,7 +332,7 @@ public class ParserUtils {
         Map<String, List<SampleObject>> objectsKnownTypes =
                 sampleObjectsGroupedByTypeMap.values().stream()
                         .flatMap(Collection::stream)
-                        .filter(x -> canResolveSampleType(modelRDF, x.typeURI, additionalChains))
+                        .filter(x -> canResolveSampleType(modelRDF, x, additionalChains))
                         .filter(x -> !StringUtils.isBlank(x.type))
                         .collect( Collectors.groupingBy( x -> x.typeURI));
         ;
@@ -374,18 +374,20 @@ public class ParserUtils {
                 {
 
                     change = true;
-                    SampleType sampleType = modelRDF.sampleTypeList.stream().filter(x -> x.properties.stream().anyMatch(y -> y.ontologyAnnotationId.equals(property.propertyURI))).findFirst().get();
-                    String code = "138875005";
-                    sampleType.properties.stream()
-                            .filter(x -> x.ontologyAnnotationId.equals(property.propertyURI))
-                            .filter(x -> x.code.toLowerCase().contains(code))
-                            .findFirst()
-                            .ifPresent(x -> {
-                                String value = extractValue(x, additionModel, property);
+                    modelRDF.sampleTypeList.stream().filter(x -> x.properties.stream().anyMatch(y -> y.ontologyAnnotationId.equals(property.propertyURI))).findFirst().ifPresent(
+                            sampleType ->
+                            sampleType.properties.stream()
+                                    .filter(x -> x.ontologyAnnotationId.equals(property.propertyURI))
+                                    .filter(x -> x.code.toLowerCase().contains(sampleType.code))
+                                    .findFirst()
+                                    .ifPresent(x -> {
+                                        String value = extractValue(x, additionModel, property);
 
-                                SampleObjectProperty sampleObjectProperty = new SampleObjectProperty(property.propertyURI, x.propertyLabel, value, property.valueURI);
-                                tempProperties.add(sampleObjectProperty);
-                            });
+                                        SampleObjectProperty sampleObjectProperty = new SampleObjectProperty(property.propertyURI, x.propertyLabel, value, property.valueURI);
+                                        tempProperties.add(sampleObjectProperty);
+                                    }));
+                    String code = "138875005";
+
 
 
                     boolean required =
@@ -437,12 +439,12 @@ public class ParserUtils {
         return sampleObjectProperty.getValue();
     }
 
-    private static boolean canResolveSampleType(ModelRDF modelRDF, String sampleType, Map<String, List<String>> additionalTypes){
-        if (StringUtils.isBlank(sampleType)){
+    private static boolean canResolveSampleType(ModelRDF modelRDF, SampleObject sampleObject, Map<String, List<String>> additionalTypes){
+        if (StringUtils.isBlank(sampleObject.typeURI)){
             return false;
         }
 
-        Optional<SampleType> typeFound = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(sampleType)).findFirst();
+        Optional<SampleType> typeFound = modelRDF.sampleTypeList.stream().filter(x -> x.code.equals(sampleObject.type)).findFirst();
         if (typeFound.isPresent()){
             if (StringUtils.isBlank(typeFound.get().code) ){
                 return false;
@@ -452,17 +454,17 @@ public class ParserUtils {
             return true;
         }
 
-        if (additionalTypes.keySet().contains(sampleType)){
+        if (additionalTypes.keySet().contains(sampleObject.typeURI)){
             return true;
         }
 
-        List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleType);
+        List<String> typeFoundChain = modelRDF.subClassChanisMap.get(sampleObject.typeURI);
         if (typeFoundChain==null){
             return false;
         }
 
 
-        return typeFoundChain.contains(sampleType);
+        return typeFoundChain.contains(sampleObject.typeURI);
 
 
 
