@@ -246,8 +246,7 @@ ldap prefixed properties are only used by ldap.
 | archiver.timeout | 10800 | Timeout in seconds after which the archiver fails to write data to the final destination |
 | archiver.temp-destination |  | Path to the mounted storage volume to be used for storing temporary data during sanity checks |
 | archiver.unarchiving-max-waiting-time	| 5 d | Maximum time to wait in between the scheduling of an unarchiving request and the unarchiving request being finished |
-| archiver.unarchiving-polling-time	| 1 h | Time used to polling (querying) whether a file on the final destination is flagged as being ready to be unarchived (only used if archiver.unarchiving-wait-for-t-flag
- is set) |
+| archiver.unarchiving-polling-time	| 1 h | Time used to polling (querying) whether a file on the final destination is flagged as being ready to be unarchived (only used if archiver.unarchiving-wait-for-t-flag is set) |
 | archiver.unarchiving-prepare-command-template |  | Script to run each archiver.unarchiving-polling-time days/hours/minutes/seconds to trigger the copying of the file from the tape archive to the mounted landing zone that is accessible from the openBIS node |
 | archiver.unarchiving-wait-for-t-flag | true | Wait for the container file (.tar) in the final destination to be have the "t" flag removed (used for tape backends that set this flag to indicate that the file has been copied from the actual tape to the mounted landing zone that is accessible from the openBIS node) |
 | archiver.unique-experiment-name-property-code | ${experiment-name-property-code} | |
