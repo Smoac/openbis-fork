@@ -216,6 +216,8 @@ ldap prefixed properties are only used by ldap.
 | jython-version                                         | 2.7                                                               |                                                                                                                            |
 
 ### Archiver Configuration
+| Key                                                    | Example Value                            | Short Explanation                                                                                                          |
+|--------------------------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | archiver.batch-size-in-bytes | 1520000000000 | Size of batches of datasets to be archived. Should be marginally higher than archiver.maximum_container_size_in_bytes |
 | archiver.class | ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver | Archiver class specification |
 | archiver.cleaner.deletion-requests-dir | ${storeroot-dir} | Directory pointing to the store from which deletions shall be performed after an archiving request has succeeded |
