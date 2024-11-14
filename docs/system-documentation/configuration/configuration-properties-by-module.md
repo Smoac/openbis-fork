@@ -124,7 +124,7 @@ ldap prefixed properties are only used by ldap.
 | onlinehelp.generic.root-url          |               |                   |      
 | openbis.support.email                |               |                   |      
 | memorymonitor-monitoring-interval    |               |                   |      
-| memory-monitor-log-interval          |               |                   |      
+| memorymonitor-log-interval           |               |                   |      
 | memorymonitor-high-watermark-percent |               |                   |      
 
 
