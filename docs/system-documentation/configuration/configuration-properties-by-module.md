@@ -25,7 +25,7 @@
 |------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
 | session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        |
 | session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |
-| session-workspace-root-dir                     | /home/openbis/data/store/as-sessionWorkspace  |                                                                                         |
+| session-workspace-root-dir                     | ${storeroot-dir}/sessionWorkspace  |                                                                                         |
 | max-number-of-sessions-per-user                |                                               |                                                                                         |
 | users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |
 | personal-access-tokens-enabled                 | true                                          | Enable personal access tokens                                                           |
@@ -192,7 +192,6 @@ ldap prefixed properties are only used by ldap.
 | storeroot-dir                                          | ${root-dir}/store                                                 | The root directory of the data store                                                                                       |
 | incoming-root-dir                                      | ${root-dir}                                                       |                                                                                                                            |
 | cache-workspace-folder                                 | ${root-dir}/dss-cache                                             | Cache for data set files from other Data Store Servers                                                                     |
-| session-workspace-root-dir                             | ${storeroot-dir}/sessionWorkspace                                 |                                                                                                                            |
 | commandqueue-dir                                       | /home/openbis/run/datastore_commandqueue                          | The directory where the command queue file is located                                                                      |
 | data-set-command-queue-mapping                         |                                                                   | Comma-separated list of definitions of additional queues for processing processing plugins.                                |
 | port                                                   | 8081                                                              |                                                                                                                            |
@@ -227,7 +226,7 @@ ldap prefixed properties are only used by ldap.
 | path-info-db.basicDatabaseName         |                                                                        |                                                              |
 | path-info-db.urlHostPart               |                                                                        |                                                              |
 | path-info-db.databaseKind              |                                                                        |                                                              |
-| path-info-db.scriptFolder              |                                                                        |                                                              |
+| path-info-db.scriptFolder              | ${root-dir}/sql                                                        |                                                              |
 | path-info-db.owner                     |                                                                        | The owner of the database                                    |
 | path-info-db.password                  |                                                                        | Owner password                                               |
 | path-info-db.adminUser                 |                                                                        | The administrator user of the database server.               |
