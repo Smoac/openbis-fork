@@ -211,10 +211,50 @@ ldap prefixed properties are only used by ldap.
 | highwater-mark                                         | -1                                                                | Data Set Registration Halt                                                                                                 |
 | recovery-highwater-mark                                | -1                                                                | Data Set Registration Halt                                                                                                 |
 | notify-successful-registration                         | false                                                             |                                                                                                                            |
-| archiver.class                                         |                                                                   | Archiver class specification                                                                                               |
 | rsync-options                                          | --no-p --no-o --no-g --chmod=Du=rwx,Fu=rw --chown=openbis:openbis | Typical options to disable coping general, owner and group permissions                                                     |
 | api.v3.fast-download.maximum-number-of-allowed-streams | 10                                                                | The maximum number of allowed download streams.                                                                            |
 | jython-version                                         | 2.7                                                               |                                                                                                                            |
+
+### Archiver Configuration
+| archiver.batch-size-in-bytes | 1520000000000 | Size of batches of datasets to be archived. Should be marginally higher than archiver.maximum_container_size_in_bytes |
+| archiver.class | ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver | Archiver class specification |
+| archiver.cleaner.deletion-requests-dir | ${storeroot-dir} | Directory pointing to the store from which deletions shall be performed after an archiving request has succeeded |
+| archiver.cleaner.email-address |  | Email address that archiver deletion failures should be sent to |
+| archiver.cleaner.email-from-address |  | Email address used as the sender address in emails notifying about failed deletions |
+| archiver.cleaner.email-subject | MultiDatasetArchiver: Deletion failure | Email subject to be used in emails informing about deletion failures |
+| archiver.cleaner.email-template | The following files could not be deleted:\n${file-list} | Template for the email body to be sent in case of deletion failures |
+| archiver.cleaner.file-path-prefixes-for-async-deletion |  | Comma-separated list of paths to be used for asynchronous deletions on the remote storage volume. This should match the list of mountpoints specified in archiver.final-destination and archiver.replicated-destination |
+| archiver.data-source | multi-dataset-archiver-db | The name of the database to be used by the archiver |
+| archiver.database.kind | prod |  |
+| archiver.dataset-unarchiving-highwater-mark | | Highwater mark for unarchiving |
+| archiver.final-destination |  | Path to the mounted storage volume representing the final (primary) location of the archiver backend (e.g., a mounted tape drive) |
+| archiver.finalizer-max-waiting-time | 14 d | Maximum amount of time that the archiver is waiting for an archiving job to complete (both the primary and replica destinations contain a validated copy of the archived data) |
+| archiver.finalizer-polling-time | 120 min | Time period the archiver waits after the finalization of the data transfer to the primary destination before checking for t-flags and/or running sanity checks |
+| archiver.finalizer-sanity-check	| true | Perform a sanity check after the data to be archived has been copied to the primary destination |
+| archiver.finalizer-wait-for-t-flag | true | Wait for the container file (.tar) in the final destination to be flagged with a "t" (used for tape backends that set this flag to indicate that the copying of the data to the actual tape is complete) |
+| archiver.hdf5-files-in-data-set | false | Specify whether any of the datasets to be archived may contain HDF5-formatted files. If this is not set, proper archiving of those files will fail. |
+| archiver.maximum-container-size-in-bytes | 1500000000000 | Maximum size of container files (tar files) to be created by the archiver |
+| archiver.maximum-unarchiving-capacity-in-megabytes | 2000000 | Size of the scratch volume (in MB) to be used for unarchiving data from the archive system |
+| archiver.minimum-container-size-in-bytes | 10000000000 | Minimum size of container files (tar files) to be created by the archiver |
+| archiver.pause-file-polling-time | 10 min | Time used to polling (querying) the file specified in archiver.pause-file |
+| archiver.pause-file | ${root-dir}/pause-archiving | Pause archiving until this file has been removed |
+| archiver.replicated-destination |  | Path to the mounted storage volume representing the secondary (replica) location of the archiver backend (e.g., a mounted tape drive) |
+| archiver.sql-root-folder | ${root-dir}/sql/multi-dataset-archive |  |
+| archiver.staging-destination |  | Path to the mounted storage volume to be used for writing the container file (tar) initially, before moving it to the final destination |
+| archiver.timeout | 10800 | Timeout in seconds after which the archiver fails to write data to the final destination |
+| archiver.temp-destination |  | Path to the mounted storage volume to be used for storing temporary data during sanity checks |
+| archiver.unarchiving-max-waiting-time	| 5 d | Maximum time to wait in between the scheduling of an unarchiving request and the unarchiving request being finished |
+| archiver.unarchiving-polling-time	| 1 h | Time used to polling (querying) whether a file on the final destination is flagged as being ready to be unarchived (only used if archiver.unarchiving-wait-for-t-flag
+ is set) |
+| archiver.unarchiving-prepare-command-template |  | Script to run each archiver.unarchiving-polling-time days/hours/minutes/seconds to trigger the copying of the file from the tape archive to the mounted landing zone that is accessible from the openBIS node |
+| archiver.unarchiving-wait-for-t-flag | true | Wait for the container file (.tar) in the final destination to be have the "t" flag removed (used for tape backends that set this flag to indicate that the file has been copied from the actual tape to the mounted landing zone that is accessible from the openBIS node) |
+| archiver.unique-experiment-name-property-code | ${experiment-name-property-code} | |
+| archiver.unique-sample-name-property-code | ${sample-name-property-code} | |
+| archiver.wait-for-sanity-check-initial-waiting-time | 30 min | Initial time to wait beofre attempting to run the sanity check on the final destination for the first time |
+| archiver.wait-for-sanity-check-max-waiting-time | 24 h | Maximum time to wait for the sanity check to either return with SUCCESS or ERROR |
+| archiver.wait-for-sanity-check | true | Wait for the sanity check to return with SUCCESS (true) or not (false) |
+| archiver.waiting-for-free-space-polling-time | 10 min | Time used to polling (querying) whether sufficient disk space got available on the final destination for storing the container file (.tar) |
+| archiver.with-sharding | false | Use directory sharding for the data stored on the archiving destination |
 
 ### Database Configuration (Required)
 
