@@ -8,26 +8,26 @@
 
 | Key                                      | Example Value | Short Explanation                                                                          |
 |------------------------------------------|---------------|--------------------------------------------------------------------------------------------|
-| database-instance                        | DEFAULT       | The database instance local unique identifier.                                             |      
-| database.url-host-part                   | localhost     | The host and optionally port.                                                              |      
-| database.kind                            | prod          |                                                                                            |      
-| database.owner                           | openbis       | User who owns the database. Default: Operating system user running the server.             |      
-| database.owner-password                  |               |                                                                                            |      
-| database.admin-user                      | postgres      | Superuser of the database.                                                                 |      
-| database.admin-password                  |               |                                                                                            |      
-| database.max-active-connections          | 20            | Max. number of active database connections.                                                |      
-| database.max-idle-connections            | 20            | Max. number of idle database connections to keep open.                                     |      
-| database.active-connections-log-interval | 3600          | Log interval (in seconds) between two regular log entries of the number of active database |      
+| database-instance                        | DEFAULT       | The database instance local unique identifier.                                             |
+| database.url-host-part                   | localhost     | The host and optionally port.                                                              |
+| database.kind                            | prod          |                                                                                            |
+| database.owner                           | openbis       | User who owns the database. Default: Operating system user running the server.             |
+| database.owner-password                  |               |                                                                                            |
+| database.admin-user                      | postgres      | Superuser of the database.                                                                 |
+| database.admin-password                  |               |                                                                                            |
+| database.max-active-connections          | 20            | Max. number of active database connections.                                                |
+| database.max-idle-connections            | 20            | Max. number of idle database connections to keep open.                                     |
+| database.active-connections-log-interval | 3600          | Log interval (in seconds) between two regular log entries of the number of active database |
 
 ### Session Configuration (Required)
 
-| Key                                            | Example Value                                 | Short Explanation                                                                       | 
+| Key                                            | Example Value                                 | Short Explanation                                                                       |
 |------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
-| session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        | 
-| session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |     
+| session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        |
+| session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |
 | session-workspace-root-dir                     | /home/openbis/data/store/as-sessionWorkspace  |                                                                                         |
-| max-number-of-sessions-per-user                |                                               |                                                                                         |      
-| users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |      
+| max-number-of-sessions-per-user                |                                               |                                                                                         |
+| users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |
 | personal-access-tokens-enabled                 | true                                          | Enable personal access tokens                                                           |
 | personal-access-tokens-file-path               | /home/openbis/run/personal-access-tokens.json |                                                                                         |
 | personal-access-tokens-max-validity-period     | 2592000                                       | Validity of personal access tokens                                                      |
@@ -44,14 +44,14 @@
 
 ### Exports Configuration (Optional)
 
-| Key               | Example Value     | Short Explanation                   | 
+| Key               | Example Value     | Short Explanation                   |
 |-------------------|-------------------|-------------------------------------|
 | download-url      | https://localhost | The base URL for Web client access. |
 | export.data-limit | 10737418240       | Export data limit in bytes          |
 
 ### Imports Configuration (Optional)
 
-| Key                          | Example Value                         | Short Explanation                                                                            | 
+| Key                          | Example Value                         | Short Explanation                                                                            |
 |------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------|
 | xls-import.version-data-file | ../../../xls-import-version-info.json | Path to the file which stores version information of master data imported from Excel sheets. |
 
@@ -70,62 +70,62 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                        | Example Value               | Short Explanation                                                                                                                                       |
 |--------------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| authentication-service                     | file-authentication-service | Authentication configuration                                                                                                                            |      
-| user-for-anonymous-login                   |                             | Login of the existing user whose settings will be used for anonymous login                                                                              |      
-| allow-missing-user-creation                | false                       | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service. |      
-| crowd.service.host                         |                             | Crowd configuration                                                                                                                                     |      
-| crowd.service.port                         |                             |                                                                                                                                                         |      
-| crowd.application.name                     |                             |                                                                                                                                                         |      
-| crowd.application.password                 |                             |                                                                                                                                                         |      
-| ldap.server.url                            | <LDAP URL1> <LDAP URL2>     | The space-separated URLs of the LDAP servers                                                                                                            |      
-| ldap.security.principal.distinguished.name |                             | The distinguished name of the security principal                                                                                                        |      
-| ldap.security.principal.password           |                             |                                                                                                                                                         |      
-| ldap.security.protocol                     |                             |                                                                                                                                                         |      
-| ldap.security.authentication-method        |                             |                                                                                                                                                         |      
-| ldap.referral                              |                             |                                                                                                                                                         |      
-| ldap.searchBase                            |                             |                                                                                                                                                         |      
-| ldap.attributenames.user.id                |                             |                                                                                                                                                         |      
-| ldap.attributenames.email                  |                             |                                                                                                                                                         |      
-| ldap.attributenames.first.name             |                             |                                                                                                                                                         |      
-| ldap.attributenames.last.name              |                             |                                                                                                                                                         |      
-| ldap.queryEmailForAliases                  |                             |                                                                                                                                                         |      
-| ldap.queryTemplate                         |                             |                                                                                                                                                         |      
-| ldap.maxRetries                            |                             |                                                                                                                                                         |      
-| ldap.timeout                               |                             |                                                                                                                                                         |      
-| ldap.timeToWaitAfterFailure                |                             |                                                                                                                                                         |      
+| authentication-service                     | file-authentication-service | Authentication configuration                                                                                                                            |
+| user-for-anonymous-login                   |                             | Login of the existing user whose settings will be used for anonymous login                                                                              |
+| allow-missing-user-creation                | false                       | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service. |
+| crowd.service.host                         |                             | Crowd configuration                                                                                                                                     |
+| crowd.service.port                         |                             |                                                                                                                                                         |
+| crowd.application.name                     |                             |                                                                                                                                                         |
+| crowd.application.password                 |                             |                                                                                                                                                         |
+| ldap.server.url                            | <LDAP URL1> <LDAP URL2>     | The space-separated URLs of the LDAP servers                                                                                                            |
+| ldap.security.principal.distinguished.name |                             | The distinguished name of the security principal                                                                                                        |
+| ldap.security.principal.password           |                             |                                                                                                                                                         |
+| ldap.security.protocol                     |                             |                                                                                                                                                         |
+| ldap.security.authentication-method        |                             |                                                                                                                                                         |
+| ldap.referral                              |                             |                                                                                                                                                         |
+| ldap.searchBase                            |                             |                                                                                                                                                         |
+| ldap.attributenames.user.id                |                             |                                                                                                                                                         |
+| ldap.attributenames.email                  |                             |                                                                                                                                                         |
+| ldap.attributenames.first.name             |                             |                                                                                                                                                         |
+| ldap.attributenames.last.name              |                             |                                                                                                                                                         |
+| ldap.queryEmailForAliases                  |                             |                                                                                                                                                         |
+| ldap.queryTemplate                         |                             |                                                                                                                                                         |
+| ldap.maxRetries                            |                             |                                                                                                                                                         |
+| ldap.timeout                               |                             |                                                                                                                                                         |
+| ldap.timeToWaitAfterFailure                |                             |                                                                                                                                                         |
 
 ### Authorization Configuration (Required)
 
-| Key                                 | Example Value | Short Explanation | 
+| Key                                 | Example Value | Short Explanation |
 |-------------------------------------|---------------|-------------------|
-| authorization.project-level.enabled |               |                   |      
-| authorization.project-level.users   |               |                   |      
+| authorization.project-level.enabled |               |                   |
+| authorization.project-level.users   |               |                   |
 
 ### Miscellaneous Configuration (Optional)
 
-| Key                           | Example Value | Short Explanation | 
+| Key                           | Example Value | Short Explanation |
 |-------------------------------|---------------|-------------------|
-| web-client-configuration-file |               |                   |  
-| trusted-cross-origin-domains  |               |                   |    
+| web-client-configuration-file |               |                   |
+| trusted-cross-origin-domains  |               |                   |
 
 ### Miscellaneous Configuration (Optional)
 
 | Key                                      | Example Value | Short Explanation |
 |------------------------------------------|---------------|-------------------|
 | project-samples-enabled                  | true          |                   |
-| material-relax-code-constraints          |               |                   |      
-| data-set-types-with-no-experiment-needed |               |                   |      
+| material-relax-code-constraints          |               |                   |
+| data-set-types-with-no-experiment-needed |               |                   |
 | create-continuous-sample-codes           |               |                   |
 
 ### Support Related Configuration (Optional)
 
 | Key                                  | Example Value | Short Explanation |
 |--------------------------------------|---------------|-------------------|
-| onlinehelp.generic.root-url          |               |                   |      
-| openbis.support.email                |               |                   |      
-| memorymonitor-monitoring-interval    |               |                   |      
-| memorymonitor-log-interval           |               |                   |      
-| memorymonitor-high-watermark-percent |               |                   |      
+| onlinehelp.generic.root-url          |               |                   |
+| openbis.support.email                |               |                   |
+| memorymonitor-monitoring-interval    |               |                   |
+| memorymonitor-log-interval           |               |                   |
+| memorymonitor-high-watermark-percent |               |                   |
 
 
 ### Miscellaneous Configuration (Optional)
@@ -133,11 +133,11 @@ ldap prefixed properties are only used by ldap.
 | Key                                      | Example Value                    | Short Explanation                                                                                                                                                                |
 |------------------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | entity-history.enabled                   | true                             | Enables/disables history of deleted entities. Default value is 'true', keeping entity history has a performance overhead on updates. On certain scenarios you might not want it. |                                                                                                                                                         
-| authorization-component-factory          |                                  | Internal - do not change                                                                                                                                                         |      
-| script-folder                            |                                  | Internal - do not change                                                                                                                                                         |      
-| jython-version                           | 2.7                              | Internal - do not change                                                                                                                                                         |      
+| authorization-component-factory          |                                  | Internal - do not change                                                                                                                                                         |
+| script-folder                            |                                  | Internal - do not change                                                                                                                                                         |
+| jython-version                           | 2.7                              | Internal - do not change                                                                                                                                                         |
 | server-public-information.afs-server.url | http://localhost:8085/afs-server | A URL of the AFS server which is used for data storage                                                                                                                           |
-| maintenance-plugins                      |                                  | Maintenance plugins configuration                                                                                                                                                |      
+| maintenance-plugins                      |                                  | Maintenance plugins configuration                                                                                                                                                |
 
 ### V3 API Configuration (Optional)
 
