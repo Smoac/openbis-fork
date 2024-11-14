@@ -1,6 +1,6 @@
 # Configuration properties by module
 
-# CORE MODULES 
+# CORE MODULES
 
 ## AS  MODULES
 
@@ -23,15 +23,15 @@
 
 | Key                                            | Example Value                                 | Short Explanation                                                                       |
 |------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
-| session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        |
-| session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |
-| session-workspace-root-dir                     | ${storeroot-dir}/sessionWorkspace  |                                                                                         |
 | max-number-of-sessions-per-user                |                                               |                                                                                         |
-| users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |
 | personal-access-tokens-enabled                 | true                                          | Enable personal access tokens                                                           |
 | personal-access-tokens-file-path               | /home/openbis/run/personal-access-tokens.json |                                                                                         |
 | personal-access-tokens-max-validity-period     | 2592000                                       | Validity of personal access tokens                                                      |
 | personal-access-tokens-validity-warning-period | 432000                                        |                                                                                         |
+| session-workspace-root-dir                     | ${storeroot-dir}/sessionWorkspace             |                                                                                         |
+| session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        |
+| session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |
+| users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |
 
 ### Mail server Configuration (Optional)
 
@@ -133,7 +133,7 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                      | Example Value                    | Short Explanation                                                                                                                                                                |
 |------------------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| entity-history.enabled                   | true                             | Enables/disables history of deleted entities. Default value is 'true', keeping entity history has a performance overhead on updates. On certain scenarios you might not want it. |                                                                                                                                                         
+| entity-history.enabled                   | true                             | Enables/disables history of deleted entities. Default value is 'true', keeping entity history has a performance overhead on updates. On certain scenarios you might not want it. |
 | authorization-component-factory          |                                  | Internal - do not change                                                                                                                                                         |
 | script-folder                            |                                  | Internal - do not change                                                                                                                                                         |
 | jython-version                           | 2.7                              | Internal - do not change                                                                                                                                                         |
@@ -144,41 +144,42 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                                                                    | Example Value | Short Explanation |
 |----------------------------------------------------------------------------------------|---------------|-------------------|
-| api.v3.operation-execution.store.path                                                  |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.name                                            |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.core-size                                       |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.max-size                                        |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.thread-pool.keep-alive-time                                 |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.progress.thread-name                                        |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.progress.interval                                           |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.default                                   |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.max                                       |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.summary.default                           |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.summary.max                               |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.details.default                           |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-time.details.max                               |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timeout-pending-task.name          |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval      |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name     |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name     |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.capacity                                              |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.class                                                 |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.directory                                             |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.clearance-task-name                                   |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.timeout                                               |               |                   |                                                                                                                                                         |      |
-| api.v3.operation-execution.cache.timeout-check-interval                                |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.enabled                                                             |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.coordinator-key                                                     |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.interactive-session-key                                             |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.transaction-count-limit                                             |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.transaction-timeout                                                 |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.finish-transactions-interval                                        |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.transaction-log-folder-path                                         |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.participant.application-server.url                                  |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.participant.application-server.timeout                              |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.participant.afs-server.url                                          |               |                   |                                                                                                                                                         |      |
-| api.v3.transaction.participant.afs-server.timeout                                      |               |                   |                                                                                                                                                         |      |
+| api.v3.fast-download.maximum-number-of-allowed-streams                                 | 10            | The maximum number of allowed download streams |
+| api.v3.operation-execution.store.path                                                  |               |                   |
+| api.v3.operation-execution.thread-pool.name                                            |               |                   |
+| api.v3.operation-execution.thread-pool.core-size                                       |               |                   |
+| api.v3.operation-execution.thread-pool.max-size                                        |               |                   |
+| api.v3.operation-execution.thread-pool.keep-alive-time                                 |               |                   |
+| api.v3.operation-execution.progress.thread-name                                        |               |                   |
+| api.v3.operation-execution.progress.interval                                           |               |                   |
+| api.v3.operation-execution.availability-time.default                                   |               |                   |
+| api.v3.operation-execution.availability-time.max                                       |               |                   |
+| api.v3.operation-execution.availability-time.summary.default                           |               |                   |
+| api.v3.operation-execution.availability-time.summary.max                               |               |                   |
+| api.v3.operation-execution.availability-time.details.default                           |               |                   |
+| api.v3.operation-execution.availability-time.details.max                               |               |                   |
+| api.v3.operation-execution.availability-update.mark-timeout-pending-task.name          |               |                   |
+| api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval      |               |                   |
+| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name     |               |                   |
+| api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval |               |                   |
+| api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name     |               |                   |
+| api.v3.operation-execution.cache.capacity                                              |               |                   |
+| api.v3.operation-execution.cache.class                                                 |               |                   |
+| api.v3.operation-execution.cache.directory                                             |               |                   |
+| api.v3.operation-execution.cache.clearance-task-name                                   |               |                   |
+| api.v3.operation-execution.cache.timeout                                               |               |                   |
+| api.v3.operation-execution.cache.timeout-check-interval                                |               |                   |
+| api.v3.transaction.enabled                                                             |               |                   |
+| api.v3.transaction.coordinator-key                                                     |               |                   |
+| api.v3.transaction.interactive-session-key                                             |               |                   |
+| api.v3.transaction.transaction-count-limit                                             |               |                   |
+| api.v3.transaction.transaction-timeout                                                 |               |                   |
+| api.v3.transaction.finish-transactions-interval                                        |               |                   |
+| api.v3.transaction.transaction-log-folder-path                                         |               |                   |
+| api.v3.transaction.participant.application-server.url                                  |               |                   |
+| api.v3.transaction.participant.application-server.timeout                              |               |                   |
+| api.v3.transaction.participant.afs-server.url                                          |               |                   |
+| api.v3.transaction.participant.afs-server.timeout                                      |               |                   |
 
 ## DSS MODULES
 
@@ -186,34 +187,35 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                                    | Example Value                                                     | Short Explanation                                                                                                          |
 |--------------------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| data-store-server-code                                 | DSS1                                                              | Unique code of this Data Store Server.                                                                                     |
-| host-address                                           | http://localhost                                                  | host name of the machine on which the datastore server is running                                                          |
-| root-dir                                               | /home/openbis/data                                                | parent directory of the store directory and all the dropboxes                                                              |
-| storeroot-dir                                          | ${root-dir}/store                                                 | The root directory of the data store                                                                                       |
-| incoming-root-dir                                      | ${root-dir}                                                       |                                                                                                                            |
 | cache-workspace-folder                                 | ${root-dir}/dss-cache                                             | Cache for data set files from other Data Store Servers                                                                     |
+| check-interval                                         | 5                                                                 | The check interval (in seconds)                                                                                            |
 | commandqueue-dir                                       | /home/openbis/run/datastore_commandqueue                          | The directory where the command queue file is located                                                                      |
 | data-set-command-queue-mapping                         |                                                                   | Comma-separated list of definitions of additional queues for processing processing plugins.                                |
-| port                                                   | 8081                                                              |                                                                                                                            |
-| use-ssl                                                | false                                                             |                                                                                                                            |
-| session-timeout                                        | 720                                                               | Session timeout in minutes                                                                                                 |
-| keystore.path                                          | etc/openBIS.keystore                                              | Path to the keystore                                                                                                       |
-| keystore.password                                      | changeit                                                          | Password of the keystore                                                                                                   |
-| keystore.key-password                                  | changeit                                                          | Key password of the keystore                                                                                               |
-| server-url                                             | ${host-address}:8443                                              | The URL of the openBIS server                                                                                              |
+| data-store-server-code                                 | DSS1                                                              | Unique code of this Data Store Server.                                                                                     |
 | download-url                                           | ${host-address}:${port}                                           | The base URL for Web client access to the data store server.                                                               |
-| username                                               | etlserver                                                         | The username to use when contacting the openBIS server                                                                     |
-| password                                               |                                                                   | The password for the etlserver user who contacts the openBIS server                                                        |
-| check-interval                                         | 5                                                                 | The check interval (in seconds)                                                                                            |
-| quiet-period                                           | 180                                                               |                                                                                                                            |
-| shutdown-timeout                                       | 180                                                               | The time-out for clean up work in the shutdown sequence (in seconds).                                                      |
-| minimum-time-to-keep-streams-in-sec                    | 20                                                                | The minimum time (in seconds) of availability of the data stream since moment when user requested for the data stream url. |
+| experiment-name-property-code                          | name                                                              |                                                                                                                            |
 | highwater-mark                                         | -1                                                                | Data Set Registration Halt                                                                                                 |
-| recovery-highwater-mark                                | -1                                                                | Data Set Registration Halt                                                                                                 |
-| notify-successful-registration                         | false                                                             |                                                                                                                            |
-| rsync-options                                          | --no-p --no-o --no-g --chmod=Du=rwx,Fu=rw --chown=openbis:openbis | Typical options to disable coping general, owner and group permissions                                                     |
-| api.v3.fast-download.maximum-number-of-allowed-streams | 10                                                                | The maximum number of allowed download streams.                                                                            |
+| host-address                                           | http://localhost                                                  | host name of the machine on which the datastore server is running                                                          |
+| incoming-root-dir                                      | ${root-dir}                                                       |                                                                                                                            |
 | jython-version                                         | 2.7                                                               |                                                                                                                            |
+| keystore.key-password                                  | changeit                                                          | Key password of the keystore                                                                                               |
+| keystore.password                                      | changeit                                                          | Password of the keystore                                                                                                   |
+| keystore.path                                          | etc/openBIS.keystore                                              | Path to the keystore                                                                                                       |
+| minimum-time-to-keep-streams-in-sec                    | 20                                                                | The minimum time (in seconds) of availability of the data stream since moment when user requested for the data stream url. |
+| notify-successful-registration                         | false                                                             |                                                                                                                            |
+| password                                               |                                                                   | The password for the etlserver user who contacts the openBIS server                                                        |
+| port                                                   | 8081                                                              |                                                                                                                            |
+| quiet-period                                           | 180                                                               |                                                                                                                            |
+| recovery-highwater-mark                                | -1                                                                | Data Set Registration Halt                                                                                                 |
+| root-dir                                               | /home/openbis/data                                                | parent directory of the store directory and all the dropboxes                                                              |
+| rsync-options                                          | --no-p --no-o --no-g --chmod=Du=rwx,Fu=rw --chown=openbis:openbis | Typical options to disable coping general, owner and group permissions                                                     |
+| sample-name-property-code                              | samplename                                                        |                                                                                                                            |
+| server-url                                             | ${host-address}:8443                                              | The URL of the openBIS server                                                                                              |
+| session-timeout                                        | 720                                                               | Session timeout in minutes                                                                                                 |
+| shutdown-timeout                                       | 180                                                               | The time-out for clean up work in the shutdown sequence (in seconds).                                                      |
+| storeroot-dir                                          | ${root-dir}/store                                                 | The root directory of the data store                                                                                       |
+| use-ssl                                                | false                                                             |                                                                                                                            |
+| username                                               | etlserver                                                         | The username to use when contacting the openBIS Application Server (AS)                                                    |
 
 ### Archiver Configuration
 | Key                                                    | Example Value                            | Short Explanation                                                                                                          |
