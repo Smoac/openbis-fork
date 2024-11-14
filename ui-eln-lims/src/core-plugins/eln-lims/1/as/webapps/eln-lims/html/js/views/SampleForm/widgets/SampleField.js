@@ -93,7 +93,14 @@ function SampleField(isRequired,
 	        	    var fetchOptions = new SampleFetchOptions();
 	        	    fetchOptions.withProperties();
 	        	    mainController.openbisV3.getSamples([ id1 ], fetchOptions).done(function(map) {
-	        	        _this.setValue(Object.values(map)[0]);
+                        if(Object.values(map).length > 0){
+	        	            _this.setValue(Object.values(map)[0]);
+                        }else{
+                            var deletedText = singlePermId + " (deleted)";
+                            var deletedOption = new Option(deletedText, null, true, true);
+		                    deletedOption.title = deletedText;
+		                    $plainSelect.append(deletedOption).trigger('change');
+                        }
 	        	    });
 				}
             });
@@ -256,9 +263,13 @@ function SampleField(isRequired,
                 };
 
                 selectOptions['templateSelection'] = function(data, container) {
-                    var link = FormUtil.getFormLink(data.data, "Sample", data.id);
-                    link.text(data.title ? data.title : data.text);
-                    return link;
+                    if(data.id === "null"){
+                        return data.title
+                    }else{
+                        var link = FormUtil.getFormLink(data.data, "Sample", data.id);
+                        link.text(data.title ? data.title : data.text);
+                        return link;
+                    }
                 };
             }
 

@@ -73,7 +73,13 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
                 currentPropertyRecord.objectId = currentProperty.objectId;
                 currentPropertyRecord.propertyCode = currentProperty.propertyCode;
                 currentPropertyRecord.propertyValue = currentProperty.propertyValue;
-                currentPropertyRecord.samplePropertyValue = currentProperty.sample_perm_id;
+                if (currentProperty.sample_perm_id != null)
+                {
+                    currentPropertyRecord.samplePropertyValue = currentProperty.sample_perm_id;
+                } else if (currentProperty.sample_id != null)
+                {
+                    currentPropertyRecord.samplePropertyValue = String.valueOf(currentProperty.sample_id);
+                }
                 currentPropertyRecord.integerArrayPropertyValue = currentProperty.integerArrayPropertyValue;
                 currentPropertyRecord.realArrayPropertyValue = currentProperty.realArrayPropertyValue;
                 currentPropertyRecord.stringArrayPropertyValue = currentProperty.stringArrayPropertyValue;
@@ -183,7 +189,7 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
         } else if (record.samplePropertyValue != null)
         {
             entry.setPropertyValue(record.samplePropertyValue);
-        }else if (record.integerArrayPropertyValue != null)
+        } else if (record.integerArrayPropertyValue != null)
         {
             entry.setPropertyValue(convertArrayToString(record.integerArrayPropertyValue));
         } else if (record.realArrayPropertyValue != null)
@@ -198,7 +204,7 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
         } else if (record.jsonPropertyValue != null)
         {
             entry.setPropertyValue(record.jsonPropertyValue);
-        }  else
+        } else
         {
             throw new IllegalArgumentException("Unexpected property history entry with all values null");
         }
@@ -211,8 +217,9 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
         return entry;
     }
 
-    private String convertArrayToString(String[] array) {
-        return Arrays.stream(array).reduce((a,b) -> a + ", " + b).get();
+    private String convertArrayToString(String[] array)
+    {
+        return Arrays.stream(array).reduce((a, b) -> a + ", " + b).get();
     }
 
 }
