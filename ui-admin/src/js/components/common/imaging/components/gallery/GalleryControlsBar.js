@@ -34,7 +34,7 @@ const GalleryControlsBar = ({
                 Gallery View
             </Typography>
             <Grid2 container direction="row" spacing={2} sx={{ alignItems: "center" }}>
-                <Grid2 xs={8}>
+                <Grid2 size={{xs:12, sm:7}}>
                     <OutlinedBox label='Paging'>
                         <GalleryPaging id='gallery-paging'
                             count={count}
@@ -60,19 +60,19 @@ const GalleryControlsBar = ({
                         />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 xs={1}>
+                <Grid2 size="auto">
                     <OutlinedBox style={{ width: 'fit-content' }}
                         label={messages.get(messages.SHOW)}>
                         <CustomSwitch isChecked={showAll} onChange={setShowAll} />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 xs={1}>
+                <Grid2 size="auto">
                     <OutlinedBox style={{ width: 'fit-content' }} label='Select'>
                         <CustomSwitch disabled={!gridView} isChecked={selectAll}
                             onChange={handleSelectAll} />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 xs={2}>
+                <Grid2 size="auto">
                     <OutlinedBox style={{ width: 'fit-content' }} label='View Mode'>
                         <IconButton
                             color={gridView ? 'primary' : 'default'}
@@ -88,14 +88,14 @@ const GalleryControlsBar = ({
                         </IconButton>
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 xs={8}>
+                <Grid2 size={{xs:10, sm:8}}>
                     <OutlinedBox label='Filter'>
                         <GalleryFilter options={dataSetTypes}
                             galleryFilter={galleryFilter}
                             onGalleryFilterChange={onGalleryFilterChange} />
                     </OutlinedBox>
                 </Grid2>
-                <Grid2 xs={4}>
+                <Grid2 size={{xs:2, sm:2}}>
                     {configExports.length > 0 &&
                         <Export config={configExports} handleExport={handleExport}
                             disabled={isExportDisable} />}

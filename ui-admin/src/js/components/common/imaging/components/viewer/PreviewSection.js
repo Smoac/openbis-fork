@@ -24,9 +24,9 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 }) => {
 	const nPreviews = previews.length;
 	return (
-		(<PaperBox>
+		<PaperBox>
 			<Grid2 container direction='row' spacing={1} sx={{ justifyContent: "space-between", alignItems: "center" }}>
-				<Grid2 xs={9} sm={10}>
+				<Grid2 size={{ xs: 9, sm: 10 }}>
 					<ImageListItemSection title={messages.get(messages.PREVIEWS)}
 						cols={5} rowHeight={200}
 						type={constants.PREVIEW_TYPE}
@@ -36,10 +36,7 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 						onActiveItemChange={onActiveItemChange}
 						onMove={onMove} />
 				</Grid2>
-				<Grid2 xs={3} sm={2} container direction='column'
-					sx={{
-						justifyContent: "space-around"
-					}}>
+				<Grid2 size={{ xs: 3, sm: 2 }} container direction='column' sx={{ justifyContent: "space-around" }}>
 					{!isSaved && (
 						<Message type='warning'>
 							{messages.get(messages.UNSAVED_CHANGES)}
@@ -70,7 +67,7 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 					<InputFileUpload onInputFile={onInputFile} />
 				</Grid2>
 			</Grid2>
-		</PaperBox>)
+		</PaperBox>
 	);
 };
 

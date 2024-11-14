@@ -11,7 +11,7 @@ import messages from '@src/js/common/messages.js'
 const ImageSection = ({ images, activeImageIdx, configExports, onActiveItemChange, handleExport }) => {
 	return (<PaperBox>
 		<Grid2 container direction='row' spacing={1} sx={{ justifyContent: "space-between", alignItems: "center" }}>
-			<Grid2 item xs={9} sm={10}>
+			<Grid2 size={{ xs: 9, sm: 10 }}>
 				<ImageListItemSection title={messages.get(messages.IMAGES)}
 					cols={3} rowHeight={150}
 					type={constants.IMAGE_TYPE}
@@ -19,13 +19,9 @@ const ImageSection = ({ images, activeImageIdx, configExports, onActiveItemChang
 					activeImageIdx={activeImageIdx}
 					onActiveItemChange={onActiveItemChange} />
 			</Grid2>
-			<Grid2 item xs={3} sm={2} container direction='column'
-				sx={{
-					justifyContent: "space-around"
-				}}>
-				{configExports.length > 0 ?
-					<Export handleExport={handleExport}
-						config={configExports} /> : <></>}
+			<Grid2 size={{ xs: 3, sm: 2 }} container direction='column' sx={{ justifyContent: "space-around" }}>
+				{configExports.length > 0 &&
+					<Export handleExport={handleExport} config={configExports} />}
 			</Grid2>
 		</Grid2>
 	</PaperBox>);

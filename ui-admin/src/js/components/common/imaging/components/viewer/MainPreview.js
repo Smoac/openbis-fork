@@ -14,7 +14,8 @@ const useStyles = makeStyles((theme) => ({
 const MainPreview = ({ activePreview, resolution }) => {
 	const classes = useStyles();
 
-	return (<Grid2 container xs={12} sm={8} sx={{ justifyContent: "space-between", alignItems: "center" }}>
+	return (
+	<Grid2 container size={{ xs: 12, sm: 8 }} sx={{ justifyContent: "space-between", alignItems: "center" }}>
 		<Box className={classes.imgContainer}>
 			{activePreview.bytes === null ?
 				<Typography variant='body2'>

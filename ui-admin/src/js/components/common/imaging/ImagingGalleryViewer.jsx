@@ -185,9 +185,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
             <LoadingDialog loading={open}/>
             <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
             {renderControlsBar(true, {})}
-            <Grid2 container sx={{
-                justifyContent: "space-evenly"
-            }}>
+            <Grid2 container sx={{justifyContent: "space-evenly"}}>
                 <Typography key="no-dataset-comment" gutterBottom variant="h6">
                     No Datasets to display
                 </Typography>
