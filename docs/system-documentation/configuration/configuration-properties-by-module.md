@@ -121,7 +121,8 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                  | Example Value | Short Explanation |
 |--------------------------------------|---------------|-------------------|
-| onlinehelp.generic.root-url          |               |                   |
+| onlinehelp.generic.root-url          |               | TO_DELETE - the default URL we use, https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp , no longer works         |
+| onlinehelp.generic.page-template     | true&fromPageId=40633829 |                   |
 | openbis.support.email                |               |                   |
 | memorymonitor-monitoring-interval    |               |                   |
 | memorymonitor-log-interval           |               |                   |
