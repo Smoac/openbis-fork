@@ -2,7 +2,8 @@ import messages from "@src/js/common/messages.js";
 
 export async function loadDataSetTypes(imagingFacade, setDataSetTypes) {
 	const dataSetTypes = await imagingFacade.loadDataSetTypes();
-	dataSetTypes.push({label: 'All Properties', value: messages.get(messages.ALL)});
+	dataSetTypes.push({label: 'All Properties', value: messages.ALL});
+	dataSetTypes.push({label: 'Tags', value: messages.TAGS});
 	setDataSetTypes(dataSetTypes);
 }
 

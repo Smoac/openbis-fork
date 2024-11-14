@@ -29,7 +29,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
     const [galleryFilter, setGalleryFilter] = React.useState({
         operator: 'AND',
         text: '',
-        property: messages.get(messages.ALL)
+        property: messages.ALL
     });
     const [dataSetTypes, setDataSetTypes] = React.useState(imagingFacade.loadDataSetTypes());
 
