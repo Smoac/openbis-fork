@@ -295,7 +295,7 @@ class spm:
             
             label.append('comment: %s' % comment)
     
-        label.append('path: %s' % self.path)  
+        # label.append('path: %s' % self.path)
         label = '\n'.join(label)
         
         if show:
