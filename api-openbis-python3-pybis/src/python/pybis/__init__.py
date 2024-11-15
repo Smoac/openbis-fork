@@ -20,3 +20,4 @@ __version__ = "1.37.1-rc2"
 from . import pybis
 from .pybis import DataSet
 from .pybis import Openbis
+from .pybis import ImagingControl

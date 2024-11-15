@@ -90,6 +90,7 @@ from .utils import (
     split_identifier,
 )
 from .vocabulary import Vocabulary, VocabularyTerm
+from .imaging import *
 
 # import the various openBIS entities
 
@@ -5565,3 +5566,134 @@ class SessionInformation(
     entity="sessionInformation",
 ):
     pass
+
+class ImagingControl:
+
+    DEFAULT_SERVICE_NAME = "imaging"
+    IMAGING_CONFIG_PROP_NAME = "IMAGING_DATA_CONFIG".lower()
+    DEFAULT_DATASET_VIEW_PROP_NAME = "default_dataset_view"
+    IMAGING_DATASET_VIEWER = "IMAGING_DATASET_VIEWER"
+
+    def __init__(self, openbis_instance, service_name=DEFAULT_SERVICE_NAME):
+        self._openbis = openbis_instance
+        self._service_name = service_name
+
+    def make_preview(self, perm_id: str, index: int, preview: ImagingDataSetPreview) -> ImagingDataSetPreview:
+        parameters = {
+            "type": "preview",
+            "permId": perm_id,
+            "index": index,
+            "error": None,
+            "preview": preview.__dict__
+        }
+        service_response = self._openbis.execute_custom_dss_service(self._service_name, parameters)
+        if service_response['error'] is None:
+            if '@id' in service_response:
+                del service_response['@id']
+            if '@id' in service_response['preview']:
+                del service_response['preview']['@id']
+            preview.__dict__ = service_response["preview"]
+            return preview
+        else:
+            raise ValueError(service_response['error'])
+
+    def _get_export_url(self, perm_id: str, export: ImagingDataSetExport, image_index: int = 0) -> str:
+        parameters = {
+            "type": "export",
+            "permId": perm_id,
+            "index": image_index,
+            "error": None,
+            "url": None,
+            "export": export.__dict__
+        }
+        service_response = self._openbis.execute_custom_dss_service(self._service_name, parameters)
+        if service_response['error'] is None:
+            return service_response['url']
+        else:
+            raise ValueError(service_response['error'])
+
+    def _get_multi_export_url(self, exports: list[ImagingDataSetMultiExport]) -> str:
+        parameters = {
+            "type": "multi-export",
+            "error": None,
+            "url": None,
+            "exports": [export.__dict__ for export in exports]
+        }
+        service_response = self._openbis.execute_custom_dss_service(self._service_name, parameters)
+        if service_response['error'] is None:
+            return service_response['url']
+        else:
+            raise ValueError(service_response['error'])
+
+    def export_image(self, perm_id, image_id, path_to_download,
+                     include=None, image_format='original', archive_format="zip", resolution='original'):
+        if include is None:
+            include = ['image', 'raw data']
+        export_config = {
+            "include": include,
+            "image-format": image_format,
+            "archive-format": archive_format,
+            "resolution": resolution
+        }
+        imaging_export = ImagingDataSetExport(export_config)
+        self._single_export_download(perm_id, imaging_export, image_id, path_to_download)
+
+    def multi_export_images(self, perm_ids, image_ids, preview_ids,
+                            path_to_download, include=None, image_format='original',
+                            archive_format="zip", resolution='original'):
+        if include is None:
+            include = ['image', 'raw data']
+        export_config = {
+            "include": include,
+            "image-format": image_format,
+            "archive-format": archive_format,
+            "resolution": resolution
+        }
+        imaging_multi_exports = []
+        for i in range(len(perm_ids)):
+            imaging_multi_exports += [ImagingDataSetMultiExport(perm_ids[i], image_ids[i],
+                                                                        preview_ids[i], export_config)]
+        self._multi_export_download(imaging_multi_exports, path_to_download)
+
+    def _single_export_download(self, perm_id: str, export: ImagingDataSetExport, image_index: int = 0,
+                               directory_path=""):
+        export_url = self._get_export_url(perm_id, export, image_index)
+        self._download(export_url, directory_path)
+
+    def _multi_export_download(self, exports: list[ImagingDataSetMultiExport], directory_path=""):
+        export_url = self._get_multi_export_url(exports)
+        self._download(export_url, directory_path)
+
+    def _download(self, url, directory_path=""):
+        get_response = requests.get(url, stream=True, verify=self._openbis.verify_certificates)
+        file_name = url.split("/")[-1]
+        path = os.path.join(directory_path, file_name)
+        with open(path, 'wb') as f:
+            for chunk in get_response.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+
+    def get_property_config(self, perm_id: str) -> ImagingDataSetPropertyConfig:
+        dataset = self._openbis.get_dataset(perm_id)
+        imaging_property = json.loads(dataset.props[ImagingControl.IMAGING_CONFIG_PROP_NAME])
+        return ImagingDataSetPropertyConfig.from_dict(imaging_property)
+
+    def update_property_config(self, perm_id: str, config: ImagingDataSetPropertyConfig):
+        dataset = self._openbis.get_dataset(perm_id)
+        dataset.props[ImagingControl.IMAGING_CONFIG_PROP_NAME] = config.to_json()
+        dataset.save()
+
+    def create_imaging_dataset(self, dataset_type: str, config: ImagingDataSetPropertyConfig,
+                               experiment: str, sample: str,
+                               files: list[str], other_properties=None):
+        if other_properties is None:
+            other_properties = {}
+        assert dataset_type is not None
+        assert files is not None and len(files) > 0, "Files parameter must not be empty!"
+        assert config is not None
+        props = other_properties
+        props[ImagingControl.IMAGING_CONFIG_PROP_NAME] = config.to_json()
+        props[ImagingControl.DEFAULT_DATASET_VIEW_PROP_NAME] = ImagingControl.IMAGING_DATASET_VIEWER
+        dataset = self._openbis.new_dataset(dataset_type, experiment=experiment, sample=sample, files=files,
+                                            props=props)
+        return dataset.save()
