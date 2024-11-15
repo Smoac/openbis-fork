@@ -18,6 +18,8 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 	this._mainController = mainController;
 	this._sampleFormModel = new SampleFormModel(mode, sample, paginationInfo);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
+    this._originalProperties = $.extend(true, {}, sample.properties);
+
 //	this._storageControllers = [];
 	
 	this.init = function(views, loadFromTemplate) {
@@ -257,7 +259,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			var sampleExperiment = null;
 			var sampleCode = sample.code;
 			var properties = $.extend(true, {}, sample.properties); //Deep copy that can be modified before sending to the server and gets discarded in case of failure / simulates a rollback.
-			
+
 			//
 			// Annotations
 			//
@@ -363,6 +365,15 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 				method = "insertSample";
 			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
 				method = "updateSample";
+
+                // in the update we want to send only changed properties
+                Object.keys(_this._originalProperties).forEach(function(propertyCode){
+                    var originalPropertyValue = _this._originalProperties[propertyCode]
+                    var currentPropertyValue = properties[propertyCode]
+                    if(originalPropertyValue == currentPropertyValue){
+                        delete properties[propertyCode]
+                    }
+                })
 			}
 			
 			var changesToDo = [];
