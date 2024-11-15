@@ -101,12 +101,20 @@ ldap prefixed properties are only used by ldap.
 | authorization.project-level.enabled |               |                   |
 | authorization.project-level.users   |               |                   |
 
-### Miscellaneous Configuration (Optional)
+### AutoArchiver Configuration (optional)
 
-| Key                           | Example Value | Short Explanation |
-|-------------------------------|---------------|-------------------|
-| web-client-configuration-file |               |                   |
-| trusted-cross-origin-domains  |               |                   |
+| Key                                        | Example Value               | Short Explanation                                                                                                                                       |
+|--------------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `<AutoArchiverName>`.archive-candidate-discoverer.class | ch.systemsx.cisd.etlserver.plugins.AgeArchiveCandidateDiscoverer | Archive candidate discoverer class specification |
+| `<AutoArchiverName>`.class | ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask | Auto archiver task class specificication  |
+| `<AutoArchiverName>`.data-set-type |  | Data set type to be archived by this AutoArchiver |
+| `<AutoArchiverName>`.interval |  | Time interval specifying by what interval the AutoArchiver should check if new datasets matching the autoarchiving criteria are available for archiving |
+| `<AutoArchiverName>`.older-than |  | Minimum age that datasets need to have in order to be archived by the AutoArchiver |
+| `<AutoArchiverName>`.policy.class | ch.systemsx.cisd.etlserver.plugins.GroupingPolicy | Policy class specification |
+| `<AutoArchiverName>`.policy.grouping-keys |  | Keys by which to group datasets for archiving |
+| `<AutoArchiverName>`.policy.maximal-archive-size | 200000000000 | Maximum size of container file (tar file) to be created by the AutoArchiver |
+| `<AutoArchiverName>`.policy.minimal-archive-size | 10000000000 | Minimum size of container file (tar file) to be created by the AutoArchiver |
+| `<AutoArchiverName>`.remove-datasets-from-store | true | Remove datasets from store after the archiving is complete (true) or not (false) |
 
 ### Miscellaneous Configuration (Optional)
 
@@ -116,6 +124,8 @@ ldap prefixed properties are only used by ldap.
 | material-relax-code-constraints          |               |                   |
 | data-set-types-with-no-experiment-needed |               |                   |
 | create-continuous-sample-codes           |               |                   |
+| web-client-configuration-file            |               |                   |
+| trusted-cross-origin-domains             |               |                   |
 
 ### Support Related Configuration (Optional)
 
