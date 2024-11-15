@@ -5,6 +5,7 @@ import TextField from '@src/js/components/common/form/TextField.jsx';
 import SelectField from '@src/js/components/common/form/SelectField.jsx';
 import messages from '@src/js/common/messages.js';
 import { makeStyles } from '@mui/styles';
+import constants from '@src/js/components/common/imaging/constants.js';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -24,22 +25,9 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
-
 const GalleryFilter = ({ id, options, galleryFilter, onGalleryFilterChange }) => {
     const classes = useStyles();
     const [selectedTags, setSelectedTags] = React.useState([]);
-
-    const TAGS_OPTIONS = [{ label: 'Tag1', value: 'TAG1' }, { label: 'Tag2', value: 'TAG2' }];
 
     const handleGalleryFilterChange = (event) => {
         const { name, value } = event.target;
@@ -98,14 +86,13 @@ const GalleryFilter = ({ id, options, galleryFilter, onGalleryFilterChange }) =>
                 />
             </Grid2>
             <Grid2 size='grow'>
-                {galleryFilter.property === messages.TAGS ?
+                {galleryFilter.property === constants.IMAGING_TAGS ?
                     <FormControl variant="standard" className={classes.tagsSelect} >
-                        <Select
-                            multiple
+                        <Select multiple
                             value={selectedTags}
                             onChange={handleTagsOnChange}
                         >
-                            {TAGS_OPTIONS.map((tag) => (
+                            {options.find(option => option.value === constants.IMAGING_TAGS).options.map((tag) => (
                                 <MenuItem key={tag.value} value={tag.value}>
                                     {tag.label}
                                 </MenuItem>

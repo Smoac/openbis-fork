@@ -22,10 +22,6 @@ const useStyles = makeStyles((theme) => ({
         flex: '1 0 auto',
         alignSelf: 'center',
         justifyContent: 'space-evenly'
-    },
-    imgFullWidth: {
-        width: '100%',
-        height: 'unset'
     }
 }));
 
@@ -40,7 +36,7 @@ const GalleryGridView = ({
     const classes = useStyles();
 
     return (
-        (<ImageList sx={{ width: '100%', height: '800px' }} cols={cols} gap={5}>
+        <ImageList sx={{ width: '100%', height: '800px' }} cols={cols} gap={5}>
             {previewContainerList.map((previewContainer, idx) => (
                 <ImageListItem style={{ height: 'unset' }} key={`image-grid-item-${idx}`}>
                     <Card className={classes.card}>
@@ -77,7 +73,7 @@ const GalleryGridView = ({
                     </Card>
                 </ImageListItem>
             ))}
-        </ImageList>)
+        </ImageList>
     );
 }
 

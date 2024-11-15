@@ -1,10 +1,12 @@
 import messages from "@src/js/common/messages.js";
+import constants from '@src/js/components/common/imaging/constants.js';
 
-export async function loadDataSetTypes(imagingFacade, setDataSetTypes) {
-	const dataSetTypes = await imagingFacade.loadDataSetTypes();
-	dataSetTypes.push({label: 'All Properties', value: messages.ALL});
-	dataSetTypes.push({label: 'Tags', value: messages.TAGS});
-	setDataSetTypes(dataSetTypes);
+export async function loadGalleryViewFilters(imagingFacade, setDataSetTypes) {
+	const imagingDatasetTypes = await imagingFacade.loadDataSetTypes();
+	const tagsVocabularyTerms = await imagingFacade.loadImagingTagsVocabularyTerms();
+	imagingDatasetTypes.push({label: constants.IMAGING_TAGS_LABEL, value: constants.IMAGING_TAGS, options: tagsVocabularyTerms})
+	imagingDatasetTypes.push({label: messages.get(messages.ALL_PROPERTIES), value: messages.ALL});
+	setDataSetTypes(imagingDatasetTypes);
 }
 
 export async function loadPreviewsInfo(imagingFacade, objId, objType, galleryFilter, paging, setPreviewsInfo, setIsLoaded) {

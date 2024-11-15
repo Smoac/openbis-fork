@@ -9,6 +9,27 @@ export default class ImagingFacade {
         this.openbis = extOpenbis;
     }
 
+    async loadImagingTagsVocabulary() {
+        const criteria = new this.openbis.VocabularySearchCriteria()
+        criteria.withCode().thatContains(constants.IMAGING_TAGS)
+
+        const fetchOptions = new this.openbis.VocabularyFetchOptions()
+        const result = await this.openbis.searchVocabularies(criteria, fetchOptions)
+        //console.log('loadImagingTagsVocabulary: ', result);
+    }
+
+    async loadImagingTagsVocabularyTerms() {
+        const criteria = new this.openbis.VocabularyTermSearchCriteria()
+        criteria.withVocabulary().withCode().thatEquals(constants.IMAGING_TAGS)
+        
+        const fo = new this.openbis.VocabularyTermFetchOptions()
+        fo.sortBy().code().asc()
+
+        const result = await this.openbis.searchVocabularyTerms(criteria, fo)
+
+        return result.getObjects().map(vocabularyTerm => ({ label: vocabularyTerm.label, value: vocabularyTerm.code }));
+    }
+
     async loadDataSetTypes() {
         const fetchOptions = new this.openbis.DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType();

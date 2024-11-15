@@ -10,7 +10,7 @@ import GalleryGridView from "@src/js/components/common/imaging/components/galler
 import GalleryListView from "@src/js/components/common/imaging/components/gallery/GalleryListView.js";
 import GalleryControlsBar from '@src/js/components/common/imaging/components/gallery/GalleryControlsBar.js';
 
-import {loadDataSetTypes, loadPreviewsInfo} from '@src/js/components/common/imaging/dataHandlers.js'
+import {loadGalleryViewFilters, loadPreviewsInfo} from '@src/js/components/common/imaging/dataHandlers.js'
 
 const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStoreDisplaySettings = null, onLoadDisplaySettings = null}) => {
     const imagingFacade = React.useMemo(() => new ImagingFacade(extOpenbis), [extOpenbis]);
@@ -31,7 +31,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
         text: '',
         property: messages.ALL
     });
-    const [dataSetTypes, setDataSetTypes] = React.useState(imagingFacade.loadDataSetTypes());
+    const [dataSetTypes, setDataSetTypes] = React.useState([]);
 
     React.useEffect(() => {
 
@@ -48,7 +48,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
             onLoadDisplaySettings(setDisplaySettings)
         }
 
-        loadDataSetTypes(imagingFacade, setDataSetTypes);
+        loadGalleryViewFilters(imagingFacade, setDataSetTypes);
     }, [])
 
     React.useEffect(() => {
