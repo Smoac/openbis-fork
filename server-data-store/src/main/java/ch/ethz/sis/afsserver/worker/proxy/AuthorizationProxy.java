@@ -131,6 +131,7 @@ public class AuthorizationProxy extends AbstractProxy {
         {
             workerContext.getOwnerPathMap()
                     .put(owner, userRightsCache.get(permissionsCacheKey).getValue());
+            return;
         }
 
         if (authorizationInfoProvider.doesSessionHaveRights(workerContext, owner, permissions))
