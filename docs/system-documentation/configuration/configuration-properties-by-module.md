@@ -154,14 +154,7 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                                                                    | Example Value | Short Explanation |
 |----------------------------------------------------------------------------------------|---------------|-------------------|
-| api.v3.fast-download.maximum-number-of-allowed-streams                                 | 10            | The maximum number of allowed download streams |
-| api.v3.operation-execution.store.path                                                  |               |                   |
-| api.v3.operation-execution.thread-pool.name                                            |               |                   |
-| api.v3.operation-execution.thread-pool.core-size                                       |               |                   |
-| api.v3.operation-execution.thread-pool.max-size                                        |               |                   |
-| api.v3.operation-execution.thread-pool.keep-alive-time                                 |               |                   |
-| api.v3.operation-execution.progress.thread-name                                        |               |                   |
-| api.v3.operation-execution.progress.interval                                           |               |                   |
+| api.v3.fast-download.maximum-number-of-allowed-streams                                 | 50            | The maximum number of allowed download streams |
 | api.v3.operation-execution.availability-time.default                                   |               |                   |
 | api.v3.operation-execution.availability-time.max                                       |               |                   |
 | api.v3.operation-execution.availability-time.summary.default                           |               |                   |
@@ -172,24 +165,31 @@ ldap prefixed properties are only used by ldap.
 | api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval      |               |                   |
 | api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name     |               |                   |
 | api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval |               |                   |
+| api.v3.operation-execution.cache.capacity                                              | 10240         |                   |
+| api.v3.operation-execution.cache.class                                                 | ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.cache.FileCache |                   |
+| api.v3.operation-execution.cache.clearance-task-name                                   | cache-clearance-task |                   |
+| api.v3.operation-execution.cache.directory                                             | targets/sessionWorkspace/cache |                   |
+| api.v3.operation-execution.cache.timeout                                               | 3600          |                   |
+| api.v3.operation-execution.cache.timeout-check-interval                                | 300           |                   |
+| api.v3.operation-execution.progress.thread-name                                        |               |                   |
+| api.v3.operation-execution.progress.interval                                           |               |                   |
 | api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name     |               |                   |
-| api.v3.operation-execution.cache.capacity                                              |               |                   |
-| api.v3.operation-execution.cache.class                                                 |               |                   |
-| api.v3.operation-execution.cache.directory                                             |               |                   |
-| api.v3.operation-execution.cache.clearance-task-name                                   |               |                   |
-| api.v3.operation-execution.cache.timeout                                               |               |                   |
-| api.v3.operation-execution.cache.timeout-check-interval                                |               |                   |
-| api.v3.transaction.enabled                                                             |               |                   |
+| api.v3.operation-execution.store.path                                                  |               |                   |
+| api.v3.operation-execution.thread-pool.name                                            |               |                   |
+| api.v3.operation-execution.thread-pool.core-size                                       |               |                   |
+| api.v3.operation-execution.thread-pool.max-size                                        |               |                   |
+| api.v3.operation-execution.thread-pool.keep-alive-time                                 |               |                   |
 | api.v3.transaction.coordinator-key                                                     |               |                   |
-| api.v3.transaction.interactive-session-key                                             |               |                   |
-| api.v3.transaction.transaction-count-limit                                             |               |                   |
-| api.v3.transaction.transaction-timeout                                                 |               |                   |
+| api.v3.transaction.enabled                                                             |               |                   |
 | api.v3.transaction.finish-transactions-interval                                        |               |                   |
-| api.v3.transaction.transaction-log-folder-path                                         |               |                   |
-| api.v3.transaction.participant.application-server.url                                  |               |                   |
+| api.v3.transaction.interactive-session-key                                             |               |                   |
 | api.v3.transaction.participant.application-server.timeout                              |               |                   |
-| api.v3.transaction.participant.afs-server.url                                          |               |                   |
+| api.v3.transaction.participant.application-server.url                                  |               |                   |
 | api.v3.transaction.participant.afs-server.timeout                                      |               |                   |
+| api.v3.transaction.participant.afs-server.url                                          |               |                   |
+| api.v3.transaction.transaction-count-limit                                             |               |                   |
+| api.v3.transaction.transaction-log-folder-path                                         |               |                   |
+| api.v3.transaction.transaction-timeout                                                 |               |                   |
 
 ## DSS MODULES
 
