@@ -8,22 +8,22 @@
 
 | Key                                      | Example Value | Short Explanation                                                                          |
 |------------------------------------------|---------------|--------------------------------------------------------------------------------------------|
-| database-instance                        | DEFAULT       | The database instance local unique identifier.                                             |
-| database.url-host-part                   | localhost     | The host and optionally port.                                                              |
-| database.kind                            | prod          |                                                                                            |
-| database.owner                           | openbis       | User who owns the database. Default: Operating system user running the server.             |
-| database.owner-password                  |               |                                                                                            |
-| database.admin-user                      | postgres      | Superuser of the database.                                                                 |
+| database.active-connections-log-interval | 3600          | Log interval (in seconds) between two regular log entries of the number of active database |
 | database.admin-password                  |               |                                                                                            |
+| database.admin-user                      | postgres      | Superuser of the database.                                                                 |
+| database-instance                        | DEFAULT       | The database instance local unique identifier.                                             |
+| database.kind                            | prod          |                                                                                            |
 | database.max-active-connections          | 20            | Max. number of active database connections.                                                |
 | database.max-idle-connections            | 20            | Max. number of idle database connections to keep open.                                     |
-| database.active-connections-log-interval | 3600          | Log interval (in seconds) between two regular log entries of the number of active database |
+| database.owner                           | openbis       | User who owns the database. Default: Operating system user running the server.             |
+| database.owner-password                  |               |                                                                                            |
+| database.url-host-part                   | localhost     | The host and optionally port.                                                              |
 
 ### Session Configuration (Required)
 
 | Key                                            | Example Value                                 | Short Explanation                                                                       |
 |------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
-| max-number-of-sessions-per-user                |                                               |                                                                                         |
+| max-number-of-sessions-per-user                | 5                                             | The maximum number of sessions a single user is allowed to have open                    |
 | personal-access-tokens-enabled                 | true                                          | Enable personal access tokens                                                           |
 | personal-access-tokens-file-path               | /home/openbis/run/personal-access-tokens.json |                                                                                         |
 | personal-access-tokens-max-validity-period     | 2592000                                       | Validity of personal access tokens                                                      |
@@ -60,23 +60,24 @@
 Supported Authentication options are:
 - 'file-authentication-service'
 - 'ldap-authentication-service'
-- 'crowd-authentication-service'
-- 'file-crowd-authentication-service'
+- 'crowd-authentication-service' TO_DELETE?
+- 'file-crowd-authentication-service' TO_DELETE?
 - 'file-ldap-authentication-service'
-- 'stacked-authentication-service' : ldap - crowd
+- 'stacked-authentication-service' : ldap - crowd TO_DELETE?
 
-crowd prefixed properties are only used by crowd.
+crowd prefixed properties are only used by crowd. TO_DELETE?
 ldap prefixed properties are only used by ldap.
 
 | Key                                        | Example Value               | Short Explanation                                                                                                                                       |
 |--------------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| allow-missing-user-creation                | false                       | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service  |
 | authentication-service                     | file-authentication-service | Authentication configuration                                                                                                                            |
-| user-for-anonymous-login                   |                             | Login of the existing user whose settings will be used for anonymous login                                                                              |
-| allow-missing-user-creation                | false                       | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service. |
-| crowd.service.host                         |                             | Crowd configuration                                                                                                                                     |
-| crowd.service.port                         |                             |                                                                                                                                                         |
-| crowd.application.name                     |                             |                                                                                                                                                         |
-| crowd.application.password                 |                             |                                                                                                                                                         |
+| authentication-service.switch-aai.label    | Single Sign On Login Service | Label of the single sign-on (shibboleth) login service provider                                                                                        |
+| authentication-service.switch-aai.link     | https://${host}/Shibboleth.sso/Login?target=https://${host}/shibboleth?redirect-url=${current-url} | URL to be used for authenticating via the shibboleth login service provider      |
+| crowd.service.host                         |                             | TO_DELETE? Crowd configuration                                                                                                                          |
+| crowd.service.port                         |                             | TO_DELETE?                                                                                                                                              |
+| crowd.application.name                     |                             | TO_DELETE?                                                                                                                                              |
+| crowd.application.password                 |                             | TO_DELETE?                                                                                                                                              |
 | ldap.server.url                            | <LDAP URL1> <LDAP URL2>     | The space-separated URLs of the LDAP servers                                                                                                            |
 | ldap.security.principal.distinguished.name |                             | The distinguished name of the security principal                                                                                                        |
 | ldap.security.principal.password           |                             |                                                                                                                                                         |
@@ -93,6 +94,7 @@ ldap prefixed properties are only used by ldap.
 | ldap.maxRetries                            |                             |                                                                                                                                                         |
 | ldap.timeout                               |                             |                                                                                                                                                         |
 | ldap.timeToWaitAfterFailure                |                             |                                                                                                                                                         |
+| user-for-anonymous-login                   |                             | Login of the existing user whose settings will be used for anonymous login                                                                              |
 
 ### Authorization Configuration (Required)
 
@@ -116,14 +118,24 @@ ldap prefixed properties are only used by ldap.
 | `<AutoArchiverName>`.policy.minimal-archive-size | 10000000000 | Minimum size of container file (tar file) to be created by the AutoArchiver |
 | `<AutoArchiverName>`.remove-datasets-from-store | true | Remove datasets from store after the archiving is complete (true) or not (false) |
 
+### Hibernate Search Configuration (Optional)
+
+| Key                                      | Example Value | Short Explanation |
+|------------------------------------------|---------------|-------------------|
+| hibernate.search.batch-size | 1000 |  |
+| hibernate.search.index-base | ./indices |  |
+| hibernate.search.index-mode | SKIP_IF_MARKER_FOUND |  |
+| hibernate.search.maxResults | 100000 |  |
+| hibernate.search.worker.execution | async |  |
+
 ### Miscellaneous Configuration (Optional)
 
 | Key                                      | Example Value | Short Explanation |
 |------------------------------------------|---------------|-------------------|
-| project-samples-enabled                  | true          |                   |
-| material-relax-code-constraints          |               |                   |
+| create-continuous-sample-codes           | true          |                   |
 | data-set-types-with-no-experiment-needed |               |                   |
-| create-continuous-sample-codes           |               |                   |
+| material-relax-code-constraints          |               |                   |
+| project-samples-enabled                  | true          |                   |
 | web-client-configuration-file            |               |                   |
 | trusted-cross-origin-domains             |               |                   |
 
@@ -131,24 +143,25 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                  | Example Value | Short Explanation |
 |--------------------------------------|---------------|-------------------|
-| onlinehelp.generic.root-url          |               | TO_DELETE - the default URL we use, https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp , no longer works         |
-| onlinehelp.generic.page-template     | true&fromPageId=40633829 |                   |
+| memorymonitor-high-watermark-percent | 90            |                   |
+| memorymonitor-log-interval           | 3600          |                   |
+| memorymonitor-monitoring-interval    | 60            |                   |
+| onlinehelp.generic.root-url          |               | TO_DELETE? - the default URL we use, https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp , no longer works         |
+| onlinehelp.generic.page-template     | true&fromPageId=40633829 | TO_DELETE?                  |
 | openbis.support.email                |               |                   |
-| memorymonitor-monitoring-interval    |               |                   |
-| memorymonitor-log-interval           |               |                   |
-| memorymonitor-high-watermark-percent |               |                   |
-
 
 ### Miscellaneous Configuration (Optional)
 
 | Key                                      | Example Value                    | Short Explanation                                                                                                                                                                |
 |------------------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| authorization-component-factory          | active-authorization             | Internal - do not change                                                                                                                                                         |
+| authorization.project-level.enabled      | true                             |                                                                                                                                                                                  |
+| authorization.project-level.users        | .*                               |                                                                                                                                                                                  |
 | entity-history.enabled                   | true                             | Enables/disables history of deleted entities. Default value is 'true', keeping entity history has a performance overhead on updates. On certain scenarios you might not want it. |
-| authorization-component-factory          |                                  | Internal - do not change                                                                                                                                                         |
-| script-folder                            |                                  | Internal - do not change                                                                                                                                                         |
 | jython-version                           | 2.7                              | Internal - do not change                                                                                                                                                         |
+| maintenance-plugins                      |                                  | Comma-separated list of maintenance plugins to be configured for the AS                                                                                                          |
+| script-folder                            |                                  | Internal - do not change                                                                                                                                                         |
 | server-public-information.afs-server.url | http://localhost:8085/afs-server | A URL of the AFS server which is used for data storage                                                                                                                           |
-| maintenance-plugins                      |                                  | Maintenance plugins configuration                                                                                                                                                |
 
 ### V3 API Configuration (Optional)
 
@@ -274,11 +287,11 @@ ldap prefixed properties are only used by ldap.
 | Key                                    | Example Value                                                          | Short Explanation                                            |
 |----------------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------|
 | data-sources                           | path-info-db                                                           | Data sources                                                 |
-| path-info-db.version-holder-class      |                                                                        |                                                              |
-| path-info-db.databaseEngineCode        |                                                                        |                                                              |
-| path-info-db.basicDatabaseName         |                                                                        |                                                              |
+| path-info-db.version-holder-class      | ch.systemsx.cisd.openbis.dss.generic.shared.PathInfoDatabaseVersionHolder |                                                           |
+| path-info-db.databaseEngineCode        | postgresql                                                             |                                                              |
+| path-info-db.basicDatabaseName         | pathinfo                                                               |                                                              |
 | path-info-db.urlHostPart               |                                                                        |                                                              |
-| path-info-db.databaseKind              |                                                                        |                                                              |
+| path-info-db.databaseKind              | prod                                                                   |                                                              |
 | path-info-db.scriptFolder              | ${root-dir}/sql                                                        |                                                              |
 | path-info-db.owner                     |                                                                        | The owner of the database                                    |
 | path-info-db.password                  |                                                                        | Owner password                                               |
@@ -311,9 +324,10 @@ ldap prefixed properties are only used by ldap.
 | dss-rpc.put-default                                    | default-dropbox                          |                                                                                                                            |
 | default-dropbox.incoming-dir                           | ${incoming-root-dir}/incoming-default    |                                                                                                                            |
 | default-dropbox.incoming-data-completeness-condition   | auto-detection                           |                                                                                                                            |
-| default-dropbox.top-level-data-set-handler             |                                          |                                                                                                                            |
-| default-dropbox.program-class                          |                                          |                                                                                                                            |
-| default-dropbox.storage-processor                      |                                          |                                                                                                                            |
+| default-dropbox.program-class                          | ch.systemsx.cisd.etlserver.registrator.DefaultDropbox |                                                                                                               |
+| default-dropbox.storage-processor                      | ch.systemsx.cisd.etlserver.DefaultStorageProcessor |                                                                                                                  |
+| default-dropbox.top-level-data-set-handler             | ch.systemsx.cisd.etlserver.registrator.api.v2.JavaTopLevelDataSetHandlerV2 |                                                                                          |
+| mail.addresses.dropbox-errors                          |                                          | Comma-separated list of e-mail addresses that should be notified in case of dropbox errors                                 |
 
 ### Post Registration Task (Optional)
 
@@ -347,6 +361,25 @@ ldap prefixed properties are only used by ldap.
 | path-info-deletion.data-set-table-name | data_sets                                                              |                                                              |
 | path-info-deletion.data-set-perm-id    | CODE                                                                   |                                                              |
 
+### Miscellaneous Configuration (Optional)
+
+| Key                                    | Example Value                                                          | Short Explanation                                            |
+|----------------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------|
+| data-set-file-name-entity-separator    | .                                                                      |                                                              |
+| failure-interval                       |                                                                        |                                                              |
+| file-name-property-code                | file_name                                                              |                                                              |
+| max-retries                            |                                                                        |                                                              |
+| maintenance-tasks |  | Comma-separated list of maintenance tasks to be configured for the DSS |
+
+### Screening Configuration (Optional)
+| Key                                    | Example Value                                                          | Short Explanation                                            |
+|----------------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------|
+| data-source-provider                   | dss-based-data-source-provider                                         |                                                              |
+| dss-based-data-source-provider.data-store-servers	| dss-screening | |
+| dss-based-data-source-provider.dss-screening.database-driver | org.postgresql.Driver | |
+| dss-based-data-source-provider.dss-screening.database-url | jdbc:postgresql://{{ openbis_local_hostname }}/imaging_productive | |
+
+
 ## PLUGIN MODULES
 
 Plugin modules, with few exceptions, follow the naming schema in lower-case characters:
@@ -367,8 +400,8 @@ e.g
 
 | Key                                                                        | Example Value | Short Explanation |
 |----------------------------------------------------------------------------|---------------|-------------------|
-| eln-lims.as.miscellaneous.file-service.file-server.maximum-file-size-in-MB |               |                   |
-| eln-lims.as.miscellaneous.file-service.file-server.repository-path         |               |                   |
+| eln-lims.as.miscellaneous.file-service.file-server.maximum-file-size-in-MB | 50            |                   |
+| eln-lims.as.miscellaneous.file-service.file-server.repository-path         | /data/openbis/raw-store | Directory to be used for storing media objects such as images embedded within rich text fields in the ELN |
 | eln-lims.as.services.as-eln-lims-api.script-path                           |               |                   |
 | eln-lims.as.services.freeze-api.script-path                                |               |                   |
 | eln-lims.as.services.publication-api.script-path                           |               |                   |
@@ -442,7 +475,7 @@ e.g
 | rc-exports-api-password                                                              |               |                   |
 | dataset-uploader.h5-folders                                                          |               |                   |
 | dataset-uploader.h5ar-folders                                                        |               |                   |
-| default-incoming-share-id                                                            |               |                   |
+| default-incoming-share-id                                                            | 1             |                   |
 | default-incoming-share-minimum-free-space-in-gb                                      |               |                   |
 | download-url                                                                         |               |                   |
 
@@ -512,7 +545,7 @@ None.
 | dropbox-monitor.dss.reporting-plugins.dropboxReporter.script-path |               |                   |
 | dropbox-monitor.dss.reporting-plugins.dropboxReporter.share-id    |               |                   |
 | root-dir                                                          |               |                   |
-| dss-registration-log-dir                                          |               |                   |
+| dss-registration-log-dir                                          | /var/log/openbis/dss/log-registrations |                   |
 
 ### IMAGING
 
