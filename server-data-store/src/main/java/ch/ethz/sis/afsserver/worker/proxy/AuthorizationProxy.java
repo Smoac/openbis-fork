@@ -16,35 +16,52 @@
 package ch.ethz.sis.afsserver.worker.proxy;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import ch.ethz.sis.afs.dto.operation.OperationName;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
+import ch.ethz.sis.afsserver.server.performance.Pair;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.shared.io.FilePermission;
 import ch.ethz.sis.shared.io.IOUtils;
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import lombok.NonNull;
 
 public class AuthorizationProxy extends AbstractProxy {
 
+    private static final Logger logger = LogManager.getLogger(AuthorizationProxy.class);
+
     AuthorizationInfoProvider authorizationInfoProvider;
 
+    /*
+     * Map<String, Set<FilePermission>>
+     * Where String is "sessionToken-owner-source"
+     */
+
+    private final Integer authorizationProxyCacheIdleTimeout;
+    private static final long IDLE_SESSION_TIMEOUT_CHECK_INTERVAL_IN_MILLIS = 1000;
+
+
+    private static final Map<String, Pair<Set<FilePermission>, String>> userRightsCache = new ConcurrentHashMap<>();
+    private static final Map<String, Long> userRightsLastAccessed = new ConcurrentHashMap<>();
+
+    private Timer cacheTimeoutCleanup;
+
     public AuthorizationProxy(AbstractProxy nextProxy,
-                              AuthorizationInfoProvider authorizationInfoProvider) {
+            AuthorizationInfoProvider authorizationInfoProvider,
+            Integer authorizationProxyCacheIdleTimeout) {
         super(nextProxy);
         this.authorizationInfoProvider = authorizationInfoProvider;
-    }
+        this.authorizationProxyCacheIdleTimeout = authorizationProxyCacheIdleTimeout;
 
-    private void validateUserRights(String owner, String source, Set<FilePermission> permissions, OperationName operationName) throws Exception {
-        boolean doesSessionHaveRights = authorizationInfoProvider.doesSessionHaveRights(workerContext,
-                owner,
-                permissions);
-        if (!doesSessionHaveRights) {
-            throw FSExceptions.USER_NO_ACL_RIGHTS.getInstance(workerContext.getSessionToken(), permissions, owner, source, operationName);
-        }
+        scheduleIdleWorkerCleanupTask();
     }
 
     @Override
@@ -100,4 +117,94 @@ public class AuthorizationProxy extends AbstractProxy {
         return nextProxy.free(owner, source);
     }
 
+    //
+    //
+    //
+
+    private void validateUserRights(String owner, String source, Set<FilePermission> permissions,
+            OperationName operationName) throws Exception
+    {
+
+        String permissionsCacheKey = workerContext.getSessionToken() + "-" + owner + "-" + source;
+
+        if (hasCachedRights(permissions, permissionsCacheKey))
+        {
+            workerContext.getOwnerPathMap()
+                    .put(owner, userRightsCache.get(permissionsCacheKey).getValue());
+        }
+
+        if (authorizationInfoProvider.doesSessionHaveRights(workerContext, owner, permissions))
+        {
+            cacheUserRightsAndOwnerPath(permissionsCacheKey, permissions,
+                    workerContext.getOwnerPathMap().get(owner));
+            return;
+        }
+
+        throw FSExceptions.USER_NO_ACL_RIGHTS.getInstance(workerContext.getSessionToken(),
+                permissions, owner, source, operationName);
+
+    }
+
+    private boolean hasCachedRights(Set<FilePermission> permissions, String permissionsCacheKey)
+    {
+        if (isCacheEnabled() && userRightsCache.get(permissionsCacheKey) != null
+                    && userRightsCache.get(permissionsCacheKey).getKey().containsAll(permissions)){
+            userRightsLastAccessed.put(permissionsCacheKey, System.currentTimeMillis());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isCacheEnabled() {
+        return authorizationProxyCacheIdleTimeout != null && authorizationProxyCacheIdleTimeout > 0;
+    }
+
+    private void cacheUserRightsAndOwnerPath(String cacheKey, Set<FilePermission> permissions, String ownerPath) {
+        if (isCacheEnabled()) {
+            userRightsCache.put(cacheKey,new Pair<>(permissions, ownerPath));
+            userRightsLastAccessed.put(cacheKey, System.currentTimeMillis());
+        }
+    }
+
+
+    private void scheduleIdleWorkerCleanupTask() {
+        cacheTimeoutCleanup = new Timer();
+        cacheTimeoutCleanup.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        cleanUpExpiredUserRights();
+                    }
+                }, 0, IDLE_SESSION_TIMEOUT_CHECK_INTERVAL_IN_MILLIS
+        );
+    }
+
+    private void cleanUpExpiredUserRights()
+    {
+        try {
+            for (Map.Entry<String, ?> userRights:userRightsCache.entrySet()) {
+                Long lastAccessed = userRightsLastAccessed.get(userRights.getKey());
+                if(lastAccessed != null)
+                {
+                    boolean isTimeout = lastAccessed +
+                            authorizationProxyCacheIdleTimeout < System.currentTimeMillis();
+                    // Remove from cache
+                    if (isTimeout)
+                    {
+                        userRightsCache.remove(userRights.getKey());
+                        userRightsLastAccessed.remove(userRights.getKey());
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+    }
+
+    // TODO how to call this
+    public void shutdown() {
+        if (cacheTimeoutCleanup != null) {
+            cacheTimeoutCleanup.cancel();
+        }
+    }
 }
