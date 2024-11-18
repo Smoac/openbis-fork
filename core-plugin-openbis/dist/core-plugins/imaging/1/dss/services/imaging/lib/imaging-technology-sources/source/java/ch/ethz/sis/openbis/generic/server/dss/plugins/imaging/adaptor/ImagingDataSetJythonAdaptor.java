@@ -71,7 +71,7 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
             ImagingDataSetImage image, ImagingDataSetPreview preview)
     {
         Map<String, Serializable> map = process(context, rootFile, preview.getFormat(),
-                image.getConfig(), image.getMetadata(),
+                image.getImageConfig(), image.getMetadata(),
                 preview.getConfig(), preview.getMetadata());
 
         for (Map.Entry<String, Serializable> entry : map.entrySet())

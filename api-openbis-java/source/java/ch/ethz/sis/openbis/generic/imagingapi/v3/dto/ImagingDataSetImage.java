@@ -31,10 +31,13 @@ public class ImagingDataSetImage implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private ImagingDataSetConfig config;
+
+    @JsonProperty
     private List<ImagingDataSetPreview> previews;
 
     @JsonProperty
-    private Map<String, Serializable> config;
+    private Map<String, Serializable> imageConfig;
 
     @JsonProperty
     private Integer index;
@@ -55,14 +58,14 @@ public class ImagingDataSetImage implements Serializable
     }
 
     @JsonIgnore
-    public Map<String, Serializable> getConfig()
+    public Map<String, Serializable> getImageConfig()
     {
-        return config;
+        return imageConfig;
     }
 
-    public void setConfig(Map<String, Serializable> config)
+    public void setImageConfig(Map<String, Serializable> imageConfig)
     {
-        this.config = config;
+        this.imageConfig = imageConfig;
     }
 
     @JsonIgnore
@@ -85,6 +88,17 @@ public class ImagingDataSetImage implements Serializable
     public void setMetadata(Map<String, Serializable> metadata)
     {
         this.metadata = metadata;
+    }
+
+    @JsonIgnore
+    public ImagingDataSetConfig getConfig()
+    {
+        return config;
+    }
+
+    public void setConfig(ImagingDataSetConfig config)
+    {
+        this.config = config;
     }
 
     @Override
