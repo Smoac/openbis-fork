@@ -15,23 +15,48 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
-
+import java.util.concurrent.ConcurrentHashMap;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
+import ch.ethz.sis.afsserver.server.APIServer;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthenticationInfoProvider;
+import ch.ethz.sis.shared.log.LogManager;
+import ch.ethz.sis.shared.log.Logger;
 import lombok.NonNull;
 
 public class AuthenticationProxy extends AbstractProxy {
 
-    private AuthenticationInfoProvider authenticationInfoProvider;
+    private static final Logger logger = LogManager.getLogger(AuthenticationProxy.class);
 
-    public AuthenticationProxy(AbstractProxy nextProxy, AuthenticationInfoProvider authenticationInfoProvider) {
+    private final AuthenticationInfoProvider authenticationInfoProvider;
+    private final Integer authenticationProxyCacheIdleTimeout;
+    private static final long IDLE_SESSION_TIMEOUT_CHECK_INTERVAL_IN_MILLIS = 1000;
+
+    /*
+     * Information is kept across calls to reuse with a due time
+     */
+    private static final Map<String,Integer> userSessionsCache = new ConcurrentHashMap<>();
+    private static final Map<String, Long> userSessionLastAccessed = new ConcurrentHashMap<>();
+
+    private Timer cacheTimeoutCleanup;
+
+
+    public AuthenticationProxy(AbstractProxy nextProxy, AuthenticationInfoProvider authenticationInfoProvider,
+            Integer authenticationProxyCacheIdleTimeout) {
         super(nextProxy);
         this.authenticationInfoProvider = authenticationInfoProvider;
+        this.authenticationProxyCacheIdleTimeout = authenticationProxyCacheIdleTimeout;
+        scheduleIdleWorkerCleanupTask();
     }
 
     //
@@ -158,14 +183,97 @@ public class AuthenticationProxy extends AbstractProxy {
     //
 
     private void validateSessionAvailable() throws Exception {
-        if (workerContext.getSessionExists() == null) {
+        if (workerContext.getSessionExists() == null)
+        {
             String sessionToken = workerContext.getSessionToken();
-            boolean doSessionExists = authenticationInfoProvider.isSessionValid(sessionToken);
-            workerContext.setSessionExists(doSessionExists);
+
+            if (isSessionCached(sessionToken))
+            {
+                workerContext.setSessionExists(true);
+                return;
+            }
+
+            boolean isValid = authenticationInfoProvider.isSessionValid(sessionToken);
+            workerContext.setSessionExists(isValid);
+            if (isValid)
+            {
+                cacheSession(sessionToken);
+                return;
+            }
         }
+
         if (!workerContext.getSessionExists()) {
             throw FSExceptions.SESSION_NOT_FOUND.getInstance(workerContext.getSessionToken());
         }
+    }
+
+    private boolean isSessionCached(String sessionToken) {
+        if (isCacheEnabled()
+                && userSessionsCache.containsKey(sessionToken)) {
+            userSessionLastAccessed.put(sessionToken, System.currentTimeMillis());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isCacheEnabled()
+    {
+        return authenticationProxyCacheIdleTimeout != null && authenticationProxyCacheIdleTimeout > 0;
+    }
+
+    private void cacheSession(String sessionToken) {
+        if (isCacheEnabled()) {
+            userSessionsCache.put(sessionToken,0);
+            userSessionLastAccessed.put(sessionToken, System.currentTimeMillis());
+        }
+    }
+
+    private void scheduleIdleWorkerCleanupTask() {
+        if (isCacheEnabled()) {
+            cacheTimeoutCleanup = new Timer();
+            cacheTimeoutCleanup.schedule(new TimerTask()
+                                         {
+                                             @Override
+                                             public void run()
+                                             {
+                                                 cleanUpExpiredSessions();
+                                             }
+                                         }, 0, IDLE_SESSION_TIMEOUT_CHECK_INTERVAL_IN_MILLIS
+            );
+        }
+    }
+
+    private void cleanUpExpiredSessions() {
+        try {
+            for (String sessionToken:userSessionsCache.keySet()) {
+                Long lastAccessed = userSessionLastAccessed.get(sessionToken);
+                if(lastAccessed != null)
+                {
+                    boolean isTimeout = lastAccessed +
+                            authenticationProxyCacheIdleTimeout < System.currentTimeMillis();
+                    // Remove from cache
+                    if (isTimeout)
+                    {
+                        userSessionsCache.remove(sessionToken);
+                        userSessionLastAccessed.remove(sessionToken);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+    }
+
+
+    public void shutdown() {
+        if (cacheTimeoutCleanup != null) {
+            cacheTimeoutCleanup.cancel();
+        }
+    }
+
+    public static void resetCache(){
+        userSessionsCache.clear();
+        userSessionLastAccessed.clear();
     }
 
 }

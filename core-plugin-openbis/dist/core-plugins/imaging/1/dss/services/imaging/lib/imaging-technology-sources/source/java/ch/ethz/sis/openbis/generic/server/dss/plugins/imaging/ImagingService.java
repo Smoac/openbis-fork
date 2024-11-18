@@ -62,6 +62,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
     static final String IMAGING_CONFIG_PROPERTY_NAME = "IMAGING_DATA_CONFIG";
     static final String DEFAULT_DATASET_VIEW_PROPERTY_NAME = "DEFAULT_DATASET_VIEW";
+    static final String USER_DEFINED_IMAGING_DATA_TYPE = "USER_DEFINED_IMAGING_DATA";
 
     public ImagingService(Properties properties)
     {
@@ -129,6 +130,10 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
         String jsonConfig = dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME);
         if(jsonConfig == null || jsonConfig.isEmpty() || jsonConfig.equals("{}")) {
+            if(dataSet.getType().getCode().equals(USER_DEFINED_IMAGING_DATA_TYPE))
+            {
+                throw new UserFailureException(String.format("%s does not support preview generation!", USER_DEFINED_IMAGING_DATA_TYPE));
+            }
             throw new UserFailureException("Imaging config is empty!");
         } else {
             ImagingDataSetPropertyConfig config =

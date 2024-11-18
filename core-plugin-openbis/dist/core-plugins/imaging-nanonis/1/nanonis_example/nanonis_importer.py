@@ -553,7 +553,7 @@ def demo_dat_flow(openbis, folder_path, permId=None):
 
 
 openbis_url = None
-data_folder = 'data2'
+data_folder = 'data'
 
 if len(sys.argv) > 2:
     openbis_url = sys.argv[1]

@@ -94,6 +94,10 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
     private static final String TEST_CONTENT_ABC = "test-content-abc";
 
+    private static int authenticationProxyCacheIdleTimeout;
+
+    private static int authorizationProxyCacheIdleTimeout;
+
     private DummyOpenBisServer dummyOpenBisServer;
 
     // used for creating test data for the super class tests
@@ -130,6 +134,9 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
 
+        authenticationProxyCacheIdleTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.authenticationProxyCacheIdleTimeout);
+        authorizationProxyCacheIdleTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.authorizationProxyCacheIdleTimeout);
+
         // create 3 shares for AFS to have something to loop over in search for experiment/sample location
         IOUtils.createDirectories(storageRoot + "/" + SHARE_1);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_2);
@@ -157,6 +164,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     public void list_callFailsDueToMissingPermissions() throws Exception
     {
         login();
+
+        Thread.sleep(authenticationProxyCacheIdleTimeout+1000);
 
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
@@ -188,6 +197,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     public void list_failsDueToExpiredSession() throws Exception
     {
         login();
+
+        Thread.sleep(authenticationProxyCacheIdleTimeout+1000);
 
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
@@ -320,6 +331,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
+        Thread.sleep(authenticationProxyCacheIdleTimeout+1000);
+
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
@@ -351,6 +364,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     {
         login();
 
+        Thread.sleep(authenticationProxyCacheIdleTimeout+1000);
+
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
             switch (methodName)
@@ -378,6 +393,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     public void write_failsDueToMissingPermission_noFileCreated() throws Exception
     {
         login();
+
+        Thread.sleep(authorizationProxyCacheIdleTimeout+1000);
 
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
@@ -410,6 +427,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     public void write_withDataSetOwner_failsDueToMissingPermission_noFileCreated() throws Exception
     {
         login();
+
+        Thread.sleep(authorizationProxyCacheIdleTimeout+1000);
 
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
@@ -755,6 +774,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     public void move_failsDueToMissingPermissions() throws Exception
     {
         login();
+
+        Thread.sleep(authorizationProxyCacheIdleTimeout+1000);
 
         dummyOpenBisServer.setOperationExecutor((url, methodName, methodArguments) ->
         {
