@@ -30,21 +30,7 @@ public class ImagingDataSetPropertyConfig implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    ImagingDataSetConfig config;
-
-    @JsonProperty
     List<ImagingDataSetImage> images;
-
-    @JsonIgnore
-    public ImagingDataSetConfig getConfig()
-    {
-        return config;
-    }
-
-    public void setConfig(ImagingDataSetConfig config)
-    {
-        this.config = config;
-    }
 
     @JsonIgnore
     public List<ImagingDataSetImage> getImages()

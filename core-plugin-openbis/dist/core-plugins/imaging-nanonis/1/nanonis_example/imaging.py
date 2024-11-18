@@ -289,14 +289,17 @@ class ImagingDataSetConfig(AbstractImagingClass):
 
 
 class ImagingDataSetImage(AbstractImagingClass):
+    config: ImagingDataSetConfig
     previews: list[ImagingDataSetPreview]
-    config: dict
+    image_config: dict
     index: int
     metadata: dict
 
-    def __init__(self, config=None, previews=None, metadata=None, index=0):
+    def __init__(self, config: ImagingDataSetConfig, image_config=None, previews=None, metadata=None, index=0):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetImage"
-        self.config = config if config is not None else dict()
+        assert config is not None, "Config must not be None!"
+        self.config = config
+        self.image_config = image_config if image_config is not None else dict()
         self.previews = previews if previews is not None else [ImagingDataSetPreview("png")]
         self.metadata = metadata if metadata is not None else dict()
         self.index = index if index is not None else 0
@@ -311,7 +314,8 @@ class ImagingDataSetImage(AbstractImagingClass):
             return None
         if "@id" in data:
             del data["@id"]
-        image = cls(None, None, None)
+        config = ImagingDataSetConfig.from_dict(data.get('config'))
+        image = cls(config,None, None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
             if prop == 'previews' and attribute is not None:
@@ -321,13 +325,10 @@ class ImagingDataSetImage(AbstractImagingClass):
 
 
 class ImagingDataSetPropertyConfig(AbstractImagingClass):
-    config: ImagingDataSetConfig
     images: list[ImagingDataSetImage]
 
-    def __init__(self, config: ImagingDataSetConfig, images: list[ImagingDataSetImage]):
-        assert config is not None, "Config must not be None!"
+    def __init__(self, images: list[ImagingDataSetImage]):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetPropertyConfig"
-        self.config = config
         self.images = images if images is not None else []
 
     @classmethod
@@ -335,10 +336,9 @@ class ImagingDataSetPropertyConfig(AbstractImagingClass):
         assert data is not None and any(data), "There is no property config found!"
         if "@id" in data:
             del data["@id"]
-        config = ImagingDataSetConfig.from_dict(data.get('config'))
         attr = data.get('images')
         images = [ImagingDataSetImage.from_dict(image) for image in attr] if attr is not None else None
-        return cls(config, images)
+        return cls(images)
 
     def add_image(self, image: ImagingDataSetImage):
         if self.images is None:

@@ -63,11 +63,11 @@ def get_color_scale_range(img, channel):
         step = 0.01
     else:
         step = abs((maximum - minimum) / 100)
-        step = math.log10(step)
-        if math.isnan(step) or math.isinf(step):
+        step = np.log10(step)
+        if np.isnan(step) or np.isinf(step):
             step = 0.01
         else:
-            step = 10 ** math.floor(step)
+            step = 10 ** np.floor(step)
 
     return [str(minimum), str(maximum), str(step)]
 
@@ -129,6 +129,7 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         imaging.ImagingDataSetControl('Color-scale', "Range", visibility=color_scale_visibility),
         imaging.ImagingDataSetControl('Colormap', "Colormap", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
         imaging.ImagingDataSetControl('Scaling', "Dropdown", values=['linear', 'logarithmic']),
+        imaging.ImagingDataSetControl('Include parameter information', "Dropdown", values=['True', 'False']),
     ]
 
     imaging_config = imaging.ImagingDataSetConfig(
@@ -141,8 +142,8 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         inputs,
         {})
 
-    images = [imaging.ImagingDataSetImage(previews=[imaging.ImagingDataSetPreview(preview_format="png")])]
-    imaging_property_config = imaging.ImagingDataSetPropertyConfig(imaging_config, images)
+    images = [imaging.ImagingDataSetImage(imaging_config, previews=[imaging.ImagingDataSetPreview(preview_format="png")])]
+    imaging_property_config = imaging.ImagingDataSetPropertyConfig(images)
     if VERBOSE:
         print(imaging_property_config.to_json())
 
@@ -181,27 +182,32 @@ def reorder_dat_channels(channels, header):
     if {} == header:
         return channels_x, channels_y
 
-    if header["Experiment"] == "bias spectroscopy":
-        if header["Lock-in>Lock-in status"] == "ON":
+    def get_header_value(text):
+        if text in header:
+            return header[text]
+        return None
+
+    if get_header_value("Experiment") == "bias spectroscopy":
+        if get_header_value("Lock-in>Lock-in status") == "ON":
             channel_x_index = channels_x.index(("V","V",1))
             channel_y_index = channels_y.index(("dIdV","pA",10**12))
         else:
-            if header["Z-Ctrl hold"] == "FALSE":
+            if get_header_value("Z-Ctrl hold") == "FALSE":
                 channel_x_index = channels_x.index(("V","V",1))
                 channel_y_index = channels_y.index(("zspec","nm",10**9))
             else:
-                if header["Oscillation Control>output off"] == "TRUE":
+                if get_header_value("Oscillation Control>output off") == "TRUE":
                     channel_x_index = channels_x.index(("V","V",1))
                     channel_y_index = channels_y.index(("df","Hz",1))
                 else:
                     channel_x_index = channels_x.index(("V","V",1))
                     channel_y_index = channels_y.index(("I","pA",10**12))
     else:
-        if header["Lock-in>Lock-in status"] == "ON":
+        if get_header_value("Lock-in>Lock-in status") == "ON":
             channel_x_index = channels_x.index(("zspec","nm",10**9))
             channel_y_index = channels_y.index(("dIdV","pA",10**12))
         else:
-            if header["Oscillation Control>output off"] == "TRUE":
+            if get_header_value("Oscillation Control>output off") == "TRUE":
                 channel_x_index = channels_x.index(("zspec","nm",10**9))
                 channel_y_index = channels_y.index(("df","Hz",1))
             else:
@@ -232,24 +238,29 @@ def get_dat_type(header):
     if {} == header:
         return "bias spectroscopy z vs V"
 
+    def get_header_value(text):
+        if text in header:
+            return header[text]
+        return None
+
     measurement_type = ""
 
-    if header["Experiment"] == "bias spectroscopy":
-        if header["Lock-in>Lock-in status"] == "ON":
+    if get_header_value("Experiment") == "bias spectroscopy":
+        if get_header_value("Lock-in>Lock-in status") == "ON":
             measurement_type = "bias spectroscopy dIdV vs V"
         else:
-            if header["Z-Ctrl hold"] == "TRUE":
+            if get_header_value("Z-Ctrl hold") == "TRUE":
                 measurement_type = "bias spectroscopy z vs V"
             else:
-                if header["Oscillation Control>output off"] == "TRUE":
+                if get_header_value("Oscillation Control>output off") == "TRUE":
                     measurement_type = "bias spectroscopy df vs V"
                 else:
                     measurement_type = "bias spectroscopy I vs V"
     else:
-        if header["Lock-in>Lock-in status"] == "ON":
+        if get_header_value("Lock-in>Lock-in status") == "ON":
             measurement_type = "z spectroscopy dIdV vs z"
         else:
-            if header["Oscillation Control>output off"] == "TRUE":
+            if get_header_value("Oscillation Control>output off") == "TRUE":
                 measurement_type = "z spectroscopy df vs z"
             else:
                 measurement_type = "z spectroscopy I vs z"
@@ -284,6 +295,8 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
     assert experiment is not None or sample is not None, "Either sample or experiment needs to be provided!"
     # data = spmpy.importall(folder_path, file_prefix, 'spec')
     data = spm.importall(folder_path, file_prefix, 'spec')
+    if [] == data:
+        raise ValueError(f"No nanonis .DAT files found in {folder_path}")
 
     imaging_control = imaging.ImagingControl(openbis)
 
@@ -352,8 +365,8 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         inputs,
         {})
 
-    images = [imaging.ImagingDataSetImage()]
-    imaging_property_config = imaging.ImagingDataSetPropertyConfig(imaging_config, images)
+    images = [imaging.ImagingDataSetImage(imaging_config)]
+    imaging_property_config = imaging.ImagingDataSetPropertyConfig(images)
     if VERBOSE:
         print(imaging_property_config.to_json())
 
@@ -595,8 +608,8 @@ for group in grouped_measurement_files:
         file_path = os.path.join(data_folder, group[0])
         try:
             demo_sxm_flow(o, file_path)
-        except:
-            print(f"Cannot upload {group[0]}.")
+        except ValueError as e:
+            print(f"Cannot upload {group[0]}. Reason: {e}")
     else:
 
         # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)
@@ -620,9 +633,10 @@ for group in grouped_measurement_files:
 
             for dat_file in dat_files_group:
                 shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
-
-            demo_dat_flow(o, dat_files_directory)
-
+            try:
+                demo_dat_flow(o, dat_files_directory)
+            except ValueError as e:
+                print(f"Cannot upload {dat_files_directory}. Reason: {e}")
             shutil.rmtree(dat_files_directory)
 
 # export_image(o, '20240125135841740-40', 0, '/home/alaskowski/PREMISE')

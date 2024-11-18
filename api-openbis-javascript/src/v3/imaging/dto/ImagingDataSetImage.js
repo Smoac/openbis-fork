@@ -4,8 +4,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	stjs.extend(ImagingDataSetImage, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'imaging.dto.ImagingDataSetImage';
 		constructor.serialVersionUID = 1;
-		prototype.previews = null;
 		prototype.config = null;
+		prototype.previews = null;
+		prototype.imageConfig = null;
 		prototype.index = null;
 		prototype.metadata = null;
 
@@ -33,6 +34,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setMetadata = function(metadata) {
 			this.metadata = metadata;
 		};
+		prototype.getImageConfig = function() {
+            return this.imageConfig;
+        };
+        prototype.setImageConfig = function(imageConfig) {
+            this.imageConfig = imageConfig;
+        };
 		prototype.toString = function() {
             return "ImagingDataSetImage: " + this.previews;
         };

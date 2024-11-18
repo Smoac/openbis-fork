@@ -73,7 +73,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                         imagingDataset: imagingDataSetPropertyConfig
                     });
                 }
-                //console.log("componentDidMount: ", imagingDataSetPropertyConfig);
+                console.log("componentDidMount: ", imagingDataSetPropertyConfig);
             } catch (error) {
                 this.handleError(error);
             }
@@ -343,8 +343,9 @@ class ImagingDataSetViewer extends React.PureComponent {
             isChanged
         } = this.state;
         const { classes } = this.props;
-        const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
-        //console.log('ImagingDataSetViewer.render: ', this.state);
+        const activeImage = imagingDataset.images[activeImageIdx];
+        const activePreview = activeImage.previews[activePreviewIdx];
+        console.log('ImagingDataSetViewer.render: ', this.state);
         return (
             <Container className={classes.container}>
                 <LoadingDialog loading={open} />
@@ -352,11 +353,11 @@ class ImagingDataSetViewer extends React.PureComponent {
                     onClose={this.handleErrorCancel} />
                 <ImageSection images={imagingDataset.images}
                     activeImageIdx={activeImageIdx}
-                    configExports={imagingDataset.config.exports}
+                    configExports={activeImage.config.exports}
                     onActiveItemChange={this.handleActiveImageChange}
                     handleExport={this.onExport}
                 />
-                <PreviewsSection previews={imagingDataset.images[activeImageIdx].previews}
+                <PreviewsSection previews={activeImage.previews}
                     activeImageIdx={activeImageIdx}
                     activePreviewIdx={activePreviewIdx}
                     isSaved={isSaved}
@@ -371,8 +372,8 @@ class ImagingDataSetViewer extends React.PureComponent {
                     <Grid2 container className={classes.gridDirection}>
                         <MainPreview activePreview={activePreview} resolution={resolution}/>
                         <MainPreviewInputControls activePreview={activePreview} 
-                            configInputs={imagingDataset.config.inputs}
-                            configResolutions={imagingDataset.config.resolutions}
+                            configInputs={activeImage.config.inputs}
+                            configResolutions={activeImage.config.resolutions}
                             resolution={resolution}
                             isChanged={isChanged}
                             onClickUpdate={this.handleUpdate}
@@ -383,8 +384,8 @@ class ImagingDataSetViewer extends React.PureComponent {
                     </Grid2>
                 </PaperBox>
                 <MetadataSection activePreview={activePreview}
-                    activeImage={imagingDataset.images[activeImageIdx]}
-                    configMetadata={imagingDataset.config.metadata}
+                    activeImage={activeImage}
+                    configMetadata={activeImage.config.metadata}
                 />
             </Container>
         )
