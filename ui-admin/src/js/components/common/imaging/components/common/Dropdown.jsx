@@ -19,7 +19,7 @@ const Dropdown = ({ label, values, initValue, isMulti, disabled = false, onSelec
 
     return (
         <OutlinedBox label={label}>
-            <FormControl fullWidth >
+            <FormControl fullWidth variant="standard">
                 <Select
                     labelId={"select-" + label + "-label"}
                     id={"select-" + label}

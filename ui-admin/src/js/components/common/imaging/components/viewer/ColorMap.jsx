@@ -27,7 +27,7 @@ const ColorMap = ({values, initValue, label, disabled = false, onSelectChange=nu
 
     return (
         <OutlinedBox label={label}>
-            <FormControl fullWidth >
+            <FormControl fullWidth variant="standard">
                 <Select
                     labelId={"select-" + label + "-label"}
                     disabled={disabled}
