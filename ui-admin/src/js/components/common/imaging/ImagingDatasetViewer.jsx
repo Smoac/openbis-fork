@@ -49,7 +49,8 @@ class ImagingDataSetViewer extends React.PureComponent {
             imagingDataset: {},
             activeImageIdx: 0,
             activePreviewIdx: 0,
-            resolution: ['original']
+            resolution: ['original'],
+            imagingTags:[]
         }
     }
 
@@ -57,20 +58,24 @@ class ImagingDataSetViewer extends React.PureComponent {
         if (!this.state.loaded) {
             const { objId, extOpenbis } = this.props;
             try {
-                const imagingDataSetPropertyConfig = await new ImagingFacade(extOpenbis).loadImagingDataset(objId);
+                const imagingFacade = new ImagingFacade(extOpenbis);
+                const imagingDataSetPropertyConfig = await imagingFacade.loadImagingDataset(objId);
+                const imagingTagsArr = await imagingFacade.loadImagingTagsVocabularyTerms(imagingFacade);
                 if (isObjectEmpty(imagingDataSetPropertyConfig.images[0].previews[0].config)) {
                     imagingDataSetPropertyConfig.images[0].previews[0].config = this.createInitValues(imagingDataSetPropertyConfig.config.inputs, {});
                     this.setState({
                         open: false,
                         loaded: true,
                         isChanged: true,
-                        imagingDataset: imagingDataSetPropertyConfig
+                        imagingDataset: imagingDataSetPropertyConfig,
+                        imagingTags: imagingTagsArr
                     });
                 } else {
                     this.setState({
                         open: false,
                         loaded: true,
-                        imagingDataset: imagingDataSetPropertyConfig
+                        imagingDataset: imagingDataSetPropertyConfig,
+                        imagingTags: imagingTagsArr
                     });
                 }
                 //console.log("componentDidMount: ", imagingDataSetPropertyConfig);
@@ -340,7 +345,8 @@ class ImagingDataSetViewer extends React.PureComponent {
             activePreviewIdx,
             resolution,
             isSaved,
-            isChanged
+            isChanged,
+            imagingTags
         } = this.state;
         const { classes } = this.props;
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
@@ -366,6 +372,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                     onHandleYes={this.deletePreview}
                     onClickNew={this.createNewPreview}
                     onInputFile={this.handleUpload}
+                    imagingTags={imagingTags}
                 />
                 <PaperBox>
                     <Grid2 container className={classes.gridDirection}>
