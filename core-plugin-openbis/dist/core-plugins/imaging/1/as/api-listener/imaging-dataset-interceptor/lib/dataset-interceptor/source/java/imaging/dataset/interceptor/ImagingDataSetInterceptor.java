@@ -1,5 +1,5 @@
 /*
- *  Copyright ETH 2023 Zürich, Scientific IT Services
+ *  Copyright ETH 2023 - 2024 Zürich, Scientific IT Services
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
@@ -30,11 +29,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetImage;
 import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetPreview;
@@ -52,15 +46,16 @@ public class ImagingDataSetInterceptor implements IOperationListener
 
     static final String IMAGING_CONFIG_PROPERTY_NAME = "IMAGING_DATA_CONFIG";
     static final String IMAGING_TYPE = "IMAGING_DATA";
-    static final String IMAGING_ADAPTER = "IMAGING_ADAPTERS";
+    static final String USER_DEFINED_IMAGING_DATA = "USER_DEFINED_IMAGING_DATA";
+    static final List<String> IMAGING_TYPES = Arrays.asList(IMAGING_TYPE, USER_DEFINED_IMAGING_DATA);
+
     static final String PREVIEW_TOTAL_COUNT = "preview-total-count";
-    static final String PACKAGE_PREFIX = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.";
 
     private boolean isImagingDataSet(String typePermId) {
         if(typePermId == null || typePermId.trim().isEmpty()) {
             return false;
         }
-        return typePermId.toUpperCase().contains(IMAGING_TYPE);
+        return IMAGING_TYPES.contains(typePermId);
     }
 
     private DataSet getDataSetToUpdate(DataSetUpdate update, IApplicationServerApi api, String sessionToken) {
@@ -126,19 +121,7 @@ public class ImagingDataSetInterceptor implements IOperationListener
                 if(isImagingDataSet(objectTypeCode)) {
 
                     String propertyConfig = getPropertyConfig(creation);
-                    if(propertyConfig == null || propertyConfig.isEmpty()) {
-                        //TODO create base config?
-                        String adapterCode = creation.getControlledVocabularyProperty(IMAGING_ADAPTER);
-                        IVocabularyTermId vocabularyTermId = new VocabularyTermPermId(adapterCode, IMAGING_ADAPTER);
-                        VocabularyTermSearchCriteria criteria = new  VocabularyTermSearchCriteria();
-                        criteria.withVocabulary().withCode().thatEquals(IMAGING_ADAPTER);
-                        criteria.withCode().thatEquals(adapterCode);
-                        SearchResult<VocabularyTerm> result = api.searchVocabularyTerms(sessionToken, criteria, new VocabularyTermFetchOptions());
-
-//                        Map<IVocabularyTermId, VocabularyTerm> terms = api.getVocabularyTerms(sessionToken,
-//                                Arrays.asList(vocabularyTermId),
-//                                new VocabularyTermFetchOptions());
-
+                    if(propertyConfig == null || propertyConfig.trim().isEmpty() || "{}".equals(propertyConfig.trim())) {
                         ImagingDataSetPropertyConfig config = new ImagingDataSetPropertyConfig();
                         ImagingDataSetImage image = new ImagingDataSetImage();
                         ImagingDataSetPreview preview = new ImagingDataSetPreview();
@@ -150,7 +133,6 @@ public class ImagingDataSetInterceptor implements IOperationListener
 
                         String property = convertConfigToJson(config);
                         creation.setJsonProperty(IMAGING_CONFIG_PROPERTY_NAME, property);
-//                        throw new UserFailureException("Imaging property config must not be empty!");
                     } else {
                         ImagingDataSetPropertyConfig config = readConfig(propertyConfig);
 
