@@ -1,4 +1,4 @@
-import {Box, Checkbox, Modal, Typography} from "@mui/material";
+import {Box, Checkbox, Modal, Stack, Typography} from "@mui/material";
 import React from "react";
 import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
 import makeStyles from '@mui/styles/makeStyles';
@@ -44,14 +44,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const TagModal = ({imagingTags, activePreview}) => {
+const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
-    
+    const [tags, setTags] = React.useState(activePreview.tags)
+    const [inputValue, setInputValue] = React.useState(activePreview.tags);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const hangleTagsChange = (tagAll) => {
+        handleClose();
+        handleTagImage(tagAll, tags);
+    }
+    
     console.log("TagModal - activePreview: ", activePreview);
     console.log("TagModal - tagOptions: ", imagingTags);
     return (<>
@@ -77,7 +83,10 @@ const TagModal = ({imagingTags, activePreview}) => {
                     options={imagingTags}
                     disableCloseOnSelect
                     getOptionLabel={(option) => option.label}
-                    defaultValue={activePreview.tags}
+                    inputValue={inputValue}
+                    onInputChange={(event, newInputValue) => {
+                        setInputValue(newInputValue);
+                      }}
                     renderInput={(params) => (
                         <TextField {...params} label="Imaging Tags" />
                       )}
@@ -95,11 +104,13 @@ const TagModal = ({imagingTags, activePreview}) => {
                           </li>
                         );
                       }}
+                    onChange={(event, newValue) => setTags(newValue)}
                 />
-                <div className={classes.mt} >
-                    <Button label={messages.get(messages.TAG)} type='secondary' onClick={() => console.log('CLICKED')} />
+                <Stack spacing={2} direction="row" sx={{ mt: 2 }}>
+                    <Button label={messages.get(messages.TAG) + " Current"} type='secondary' onClick={() => hangleTagsChange(false)} />
+                    <Button label={messages.get(messages.TAG) + " " + messages.get(messages.ALL)} type='secondary' onClick={() => hangleTagsChange(true)} />
                     <Button label={messages.get(messages.CANCEL)} type='risky' onClick={handleClose} styles={{ root: classes.risky }} />
-                </div>
+                </Stack>
             </Box>
 
         </Modal>

@@ -22,7 +22,8 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 	onHandleYes,
 	onClickNew,
 	onInputFile,
-	imagingTags
+	imagingTags,
+	handleTagImage
 }) => {
 	const nPreviews = previews.length;
 	return (
@@ -68,7 +69,7 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 
 					<InputFileUpload onInputFile={onInputFile} />
 
-					<TagModal imagingTags={imagingTags} activePreview={previews[activePreviewIdx]} />
+					<TagModal handleTagImage={handleTagImage} imagingTags={imagingTags} activePreview={previews[activePreviewIdx]} />
 				</Grid2>
 			</Grid2>
 		</PaperBox>

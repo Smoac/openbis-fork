@@ -322,6 +322,22 @@ class ImagingDataSetViewer extends React.PureComponent {
         }
     };
 
+    handleTagImage = (tagAll, tags) => {
+        console.log('handleTagImage - params: ', tagAll, tags);
+        this.handleOpen();
+        const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
+        let toUpdateImgDs = { ...imagingDataset };
+        console.log('handleTagImage - before: ', toUpdateImgDs);
+        if (tagAll){
+            toUpdateImgDs.images[activeImageIdx].previews.map(preview => preview.tags = tags)
+            this.setState({ open: false, imagingDataset: toUpdateImgDs, isSaved: false });
+        } else {
+            toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx].tags = tags;
+            this.setState({ open: false, imagingDataset: toUpdateImgDs, isSaved: false });
+        }
+        console.log('handleTagImage - after: ', toUpdateImgDs);
+    }
+
     deletePreview = () => {
         this.handleOpen();
         const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
@@ -374,6 +390,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                     onClickNew={this.createNewPreview}
                     onInputFile={this.handleUpload}
                     imagingTags={imagingTags}
+                    handleTagImage={this.handleTagImage}
                 />
                 <PaperBox>
                     <Grid2 container className={classes.gridDirection}>
