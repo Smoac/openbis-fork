@@ -1,6 +1,6 @@
-define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
+define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/search/DataStoreKind', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
 	'as/dto/common/search/SearchResult', 'afs'], function(jquery,
-		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult, AfsServer) {
+		stjsUtil, DataStoreSearchCriteria, DataStoreKind, DataStoreFetchOptions, SearchResult, AfsServer) {
 	jquery.noConflict();
 
 	var __private = function() {
@@ -151,7 +151,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			} else {
 				var thisFacade = this;
 				var criteria = new DataStoreSearchCriteria();
-				criteria.withKind().thatIn([]);
+				criteria.withKind().thatIn([DataStoreKind.DSS]);
 				criteria.withOrOperator();
 
 				for (var i = 0; i < dataStoreCodes.length; i++) {

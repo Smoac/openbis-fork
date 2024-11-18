@@ -96,9 +96,9 @@ public class ImagingService implements ICustomDSSServiceExecutor
         return data;
     }
 
-    private IImagingDataSetAdaptor getAdaptor(ImagingDataSetPropertyConfig config)
+    private IImagingDataSetAdaptor getAdaptor(ImagingDataSetImage image)
     {
-        final String adaptorName = config.getConfig().getAdaptor();
+        final String adaptorName = image.getConfig().getAdaptor();
         if (adaptorName == null || adaptorName.trim().isEmpty())
         {
             throw new UserFailureException("Adaptor name is missing from the config!");
@@ -129,22 +129,21 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
         String jsonConfig = dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME);
         if(jsonConfig == null || jsonConfig.isEmpty() || jsonConfig.equals("{}")) {
-            //todo make config flow
-            return null;
+            throw new UserFailureException("Imaging config is empty!");
         } else {
             ImagingDataSetPropertyConfig config =
                     Util.readConfig(dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME),
                             ImagingDataSetPropertyConfig.class);
-
-            IImagingDataSetAdaptor adaptor = getAdaptor(config);
-            File rootFile = getRootFile(sessionToken, dataSet);
-            String format = data.getPreview().getFormat();
 
             int index = data.getIndex();
             if (config.getImages().size() <= index) {
                 throw new UserFailureException("There is no image with index:" + index);
             }
             ImagingDataSetImage image = config.getImages().get(index);
+
+            IImagingDataSetAdaptor adaptor = getAdaptor(image);
+            File rootFile = getRootFile(sessionToken, dataSet);
+            String format = data.getPreview().getFormat();
 
             if (format == null || format.trim().isEmpty()) {
                 throw new UserFailureException("Format can not be empty!");
@@ -207,7 +206,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
                 ImagingServiceContext context =
                         new ImagingServiceContext(sessionToken, getApplicationServerApi(),
                                 getDataStoreServerApi());
-                IImagingDataSetAdaptor adaptor = getAdaptor(config);
+                IImagingDataSetAdaptor adaptor = getAdaptor(image);
                 archiveImage(context, adaptor, image, index, exportConfig, rootFile, "", archiver);
             } else if (exportType.toString().equalsIgnoreCase("raw data"))
             {
@@ -286,7 +285,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
                         ImagingServiceContext context =
                                 new ImagingServiceContext(sessionToken, getApplicationServerApi(),
                                         getDataStoreServerApi());
-                        IImagingDataSetAdaptor adaptor = getAdaptor(config);
+                        IImagingDataSetAdaptor adaptor = getAdaptor(image);
                         archivePreview(context, adaptor, image, imageIndex, preview, previewIndex,
                                 exportConfig, rootFile, export.getPermId(), archiver);
                     } else if (exportType.toString().equalsIgnoreCase("raw data"))
@@ -410,7 +409,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
         if(preview.getBytes() != null && !preview.getBytes().trim().isEmpty())
         {
             String imgString;
-            Map<String, Serializable> imageConfig = image.getConfig();
+            Map<String, Serializable> imageConfig = image.getImageConfig();
             Map<String, Serializable> previewConfig = preview.getConfig();
 
             if((imageConfig != null && !imageConfig.isEmpty())
