@@ -52,7 +52,8 @@ const styles = theme => ({
   searchIcon: {
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1),
-    cursor: 'default'
+    cursor: 'default',
+    color:'white'
   },
   searchClear: {
     cursor: 'pointer'

@@ -96,7 +96,9 @@ class ContentTabs extends React.PureComponent {
           scrollButtons
           onChange={this.handleTabChange}
           classes={{ root: classes.tabsRoot }}
-          allowScrollButtonsMobile>
+          allowScrollButtonsMobile
+          textColor='inherit'
+          indicatorColor='secondary'>
           {this.props.tabs.map(tab => (
             <Tab
               key={tab.id}

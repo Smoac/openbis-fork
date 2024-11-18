@@ -91,7 +91,8 @@ class GridColumnsConfig extends React.PureComponent {
           id={id + '.columns-button-id'}
           label={messages.get(messages.COLUMNS)}
           variant='outlined'
-          onClick={this.handleOpen} />
+          onClick={this.handleOpen} 
+          color='inherit'/>
         <Popover
           id={id + '.columns-popup-id'}
           open={Boolean(el)}

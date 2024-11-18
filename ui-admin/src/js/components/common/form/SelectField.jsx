@@ -155,7 +155,6 @@ class SelectFormField extends React.PureComponent {
             select: {
               displayEmpty: this.getOptionSelectable(emptyOption),
               MenuProps: {
-                getContentAnchorEl: null,
                 anchorOrigin: {
                   vertical: 'bottom',
                   horizontal: 'left'

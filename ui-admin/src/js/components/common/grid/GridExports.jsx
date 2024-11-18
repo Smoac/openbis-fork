@@ -192,6 +192,7 @@ class GridExports extends React.PureComponent {
           label={messages.get(messages.EXPORTS)}
           disabled={disabled}
           variant='outlined'
+          color='inherit'
           onClick={this.handleOpen} />
         <Popover
           id={id + '.exports-popup-id'}
