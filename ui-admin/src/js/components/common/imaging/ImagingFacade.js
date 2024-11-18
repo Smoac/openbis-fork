@@ -148,7 +148,7 @@ export default class ImagingFacade {
                         imageIdx: imageIdx,
                         select: false,
                         datasetProperties: datasetProperties,
-                        exportConfig: loadedImgDS.config.exports});
+                        exportConfig: loadedImgDS.images[imageIdx].config.exports});
                 }
                 partialIdxCount += loadedImgDS.images[imageIdx].previews.length
             }
