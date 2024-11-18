@@ -22,6 +22,7 @@ import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.afsserver.worker.proxy.*;
 import ch.ethz.sis.shared.pool.AbstractFactory;
 import ch.ethz.sis.shared.startup.Configuration;
+import org.apache.commons.lang3.StringUtils;
 
 public class WorkerFactory extends AbstractFactory<Configuration, Configuration, Worker> {
 
@@ -33,9 +34,10 @@ public class WorkerFactory extends AbstractFactory<Configuration, Configuration,
 
         // 4. Check that the user have rights to do the operation
         AuthorizationInfoProvider authorizationInfoProvider = configuration.getInstance(AtomicFileSystemServerParameter.authorizationInfoProviderClass);
+        Integer authorizationProxyCacheIdleTimeout = getIntegerParameter(configuration, AtomicFileSystemServerParameter.authorizationProxyCacheIdleTimeout);
         authorizationInfoProvider.init(configuration);
         AuditorProxy authorizationProxy = new AuditorProxy(new AuthorizationProxy(executorProxy,
-                authorizationInfoProvider));
+                authorizationInfoProvider, authorizationProxyCacheIdleTimeout));
 
         // 3. Pre/Post check correctness of the call and modifications to avoid things that make little sense
         int maxReadSizeInBytes = configuration.getIntegerProperty(AtomicFileSystemServerParameter.maxReadSizeInBytes);
@@ -44,13 +46,29 @@ public class WorkerFactory extends AbstractFactory<Configuration, Configuration,
 
         // 2. Authenticate user and check that have a valid session
         AuthenticationInfoProvider authenticationInfoProvider = configuration.getInstance(AtomicFileSystemServerParameter.authenticationInfoProviderClass);
+        Integer authenticationProxyCacheIdleTimeout = getIntegerParameter(configuration, AtomicFileSystemServerParameter.authenticationProxyCacheIdleTimeout);
         authenticationInfoProvider.init(configuration);
         AuditorProxy authenticationProxy = new AuditorProxy(new AuthenticationProxy(correctnessProxy,
-                authenticationInfoProvider));
+                authenticationInfoProvider, authenticationProxyCacheIdleTimeout));
 
         // 1. Log call
         AuditorProxy logProxy = new AuditorProxy(new LogProxy(authenticationProxy));
 
         return logProxy;
+    }
+
+    private static Integer getIntegerParameter(Configuration configuration, AtomicFileSystemServerParameter atomicFileSystemServerParameter)
+    {
+        String parameterStringValue = configuration.getStringProperty(atomicFileSystemServerParameter);
+
+        if (StringUtils.isNotEmpty(parameterStringValue)) {
+            try {
+                return Integer.parseInt(parameterStringValue);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Configuration parameter '" + atomicFileSystemServerParameter + "' is not a valid integer.");
+            }
+        } else {
+            return null;
+        }
     }
 }

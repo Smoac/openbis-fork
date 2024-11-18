@@ -51,9 +51,10 @@ task openBISDevelopmentEnvironmentAFSStart(type: JavaExec) {
 }
 
 task benchmarkAFS(type: JavaExec) {
-    main = 'ch.ethz.sis.afsserver.startup.Main'
+    mainClass = 'ch.ethz.sis.afsserver.startup.Main'
     classpath = sourceSets.main.runtimeClasspath
-    args(["../server-data-store/src/main/resources/standalone-service.properties"])
+    args(["../server-data-store/src/main/resources/" +
+          (System.getProperty("auth") ? 'standalone-service-auth.properties' : 'standalone-service.properties')])
 
     jvmArgs([
             '--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
@@ -65,6 +66,25 @@ task benchmarkAFS(type: JavaExec) {
             '-Dcom.sun.management.jmxremote.authenticate=false',
             '-Dcom.sun.management.jmxremote.ssl=false',
             (System.getProperty("serverXmx") ?: '-Xmx256M'),
+            '-ea'
+    ])
+}
+
+task benchmarkAFSAuth(type: JavaExec) {
+    mainClass = 'ch.ethz.sis.afsserver.startup.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args(["../server-data-store/src/main/resources/standalone-service-auth.properties"])
+
+    jvmArgs([
+            '--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
+            '--add-opens=java.base/java.nio=ALL-UNNAMED',
+            '--add-opens=java.base/java.util=ALL-UNNAMED',
+            '-Dio.netty.tryReflectionSetAccessible=true',
+            '-Dcom.sun.management.jmxremote',
+            '-Dcom.sun.management.jmxremote.port=12345',
+            '-Dcom.sun.management.jmxremote.authenticate=false',
+            '-Dcom.sun.management.jmxremote.ssl=false',
+            (System.getProperty("serverXmx") ?: '-Xmx1526M'),
             '-ea'
     ])
 }

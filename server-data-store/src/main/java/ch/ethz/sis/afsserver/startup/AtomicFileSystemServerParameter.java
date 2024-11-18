@@ -43,7 +43,9 @@ public enum AtomicFileSystemServerParameter
     //
     maxReadSizeInBytes, // This is the chunk size used by the API, sizes between 1 and 6 megabytes are typical, anything bigger is unlikely to provide performance benefits because we are limited by the http package sizes
     authenticationInfoProviderClass,
+    authenticationProxyCacheIdleTimeout,
     authorizationInfoProviderClass,
+    authorizationProxyCacheIdleTimeout,
     poolSize,
     connectionFactoryClass,
     workerFactoryClass,
