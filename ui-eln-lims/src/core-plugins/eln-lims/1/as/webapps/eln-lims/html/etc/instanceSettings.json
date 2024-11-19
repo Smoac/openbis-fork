@@ -9,7 +9,7 @@
     "variableName": "barcodePattern",
     "label": "Barcode pattern",
     "type": "REGEX",
-    "default": "/^[-a-z0-9]+$/i"
+    "default": "^[-A-Za-z0-9]+$"
   },
   {
     "variableName": "docuBaseUrl",
