@@ -45,6 +45,9 @@ public class PropertyRecordDataObjectBinding
         into.vocabularyPropertyValue = row.getString("vocabularyPropertyValue");
         into.vocabularyPropertyValueTypeCode = row.getString("vocabularyPropertyValueTypeCode");
         into.sample_id = row.getLong("sample_id");
+        if(row.wasNull()) {
+            into.sample_id = null;
+        }
         into.sample_perm_id = row.getString("sample_perm_id");
         into.modificationTimestamp = row.getTimestamp("modificationTimestamp");
 
