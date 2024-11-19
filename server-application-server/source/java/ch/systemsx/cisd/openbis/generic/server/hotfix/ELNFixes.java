@@ -67,6 +67,7 @@ public class ELNFixes {
         fixProperties("sample_properties", "sample_type_property_types", "stpt_id", "samp_frozen");
         fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id", "expe_frozen");
         fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id", "dase_frozen");
+        fixPropertyTypes();
         operationLog.info("ELNFixes beforeUpgrade FINISH");
     }
 
@@ -171,6 +172,17 @@ public class ELNFixes {
                 + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code != 'CONTROLLEDVOCABULARY' AND prop.%s = false",
                 propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn, frozenColumn));
         operationLog.info(String.format("ELNFixes fixProperties for propertiesTable %s", propertiesTable));
+    }
+
+
+    private static void fixPropertyTypes()
+    {
+        int executeNativeUpdate_1_Ok = ELNCollectionTypeMigration.executeNativeUpdate("UPDATE property_types \n" +
+                "SET covo_id = null \n" +
+                "WHERE covo_id IS NOT NULL AND\n" +
+                "daty_id != (SELECT id FROM data_types WHERE code = 'CONTROLLEDVOCABULARY')");
+
+        operationLog.info(String.format("ELNFixes fixProperties for property_types table"));
     }
 
     private static void storageCollectionIntroduction(String sessionToken,
