@@ -18,7 +18,7 @@ export default function AlertDialog({label, icon, title, content, disabled, onHa
         <Button
             label={label}
             variant='outlined'
-            color='primary'
+            color='inherit'
             onClick={handleClickOpen}
             startIcon={icon}
             disabled={disabled} />
