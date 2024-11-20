@@ -164,15 +164,21 @@ class DateField extends React.PureComponent {
               value={dateObject}
               inputValue={dateString}
               onChange={this.handleChange}
-              onBlur={this.handleBlur}
               onClose={this.props.onBlur}
               format={'yyyy-MM-dd HH:mm:ss'}
               fullWidth={true}
-              variant='inline'
-              inputVariant={variant}
+              slots={{ 
+                onBlur: this.handleBlur,
+                textField: this.renderEditInput
+              }}
+              slotProps={{ 
+                textField: 
+                { 
+                  variant: variant,
+                } 
+              }}
               disabled={disabled}
               error={!!error}
-              TextFieldComponent={this.renderEditInput}
             />
           </div>
         </FormFieldContainer>
@@ -188,15 +194,21 @@ class DateField extends React.PureComponent {
               value={dateObject}
               inputValue={dateString}
               onChange={this.handleChange}
-              onBlur={this.handleBlur}
               onClose={this.props.onBlur}
               format={'yyyy-MM-dd'}
               fullWidth={true}
-              variant='inline'
-              inputVariant={variant}
+              slots={{ 
+                onBlur: this.handleBlur,
+                textField: this.renderEditInput,
+              }}
+              slotProps={{ 
+                textField: 
+                { 
+                  variant: variant,
+                } 
+              }}
               disabled={disabled}
               error={!!error}
-              TextFieldComponent={this.renderEditInput}
             />
           </div>
         </FormFieldContainer>
