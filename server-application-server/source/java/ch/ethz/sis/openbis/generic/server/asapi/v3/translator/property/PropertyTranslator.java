@@ -79,16 +79,12 @@ public abstract class PropertyTranslator extends
             {
                 updateObjectProperty(objectProperties, record.propertyCode,
                         record.vocabularyPropertyValue);
-            } else if (record.sample_id != null)
+            } else if (record.sample_perm_id != null)
             {
-                if (record.sample_perm_id != null && visibleSamples.contains(record.sample_id))
+                if (visibleSamples.contains(record.sample_id))
                 {
-                    // referenced sample exists
-                    updateObjectProperty(objectProperties, record.propertyCode, record.sample_perm_id);
-                } else if (record.sample_perm_id == null)
-                {
-                    // referenced sample does not exist anymore
-                    updateObjectProperty(objectProperties, record.propertyCode, String.valueOf(record.sample_id));
+                    updateObjectProperty(objectProperties, record.propertyCode,
+                            record.sample_perm_id);
                 }
             } else if (record.integerArrayPropertyValue != null)
             {
@@ -110,6 +106,9 @@ public abstract class PropertyTranslator extends
             {
                 updateObjectProperty(objectProperties, record.propertyCode,
                         record.jsonPropertyValue);
+            } else
+            {
+                // SAMPLE property with deleted sample. Thus, nothing is put to objectProperties
             }
         }
 
