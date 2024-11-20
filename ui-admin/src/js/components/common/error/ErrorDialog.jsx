@@ -88,6 +88,7 @@ class ErrorDialog extends React.Component {
     return (
       <div className={classes.stackContainer}>
         <Link
+        underline='none'
           onClick={this.handleStackVisibleChange}
           className={classes.stackLink}
         >

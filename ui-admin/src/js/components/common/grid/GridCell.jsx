@@ -141,7 +141,9 @@ class GridCell extends React.PureComponent {
     if (column.truncate && height && height > TRUNCATE_HEIGHT) {
       return (
         <div>
-          <Link onClick={this.handleMoreClick}>
+          <Link 
+          underline='none'
+          onClick={this.handleMoreClick}>
             {more ? messages.get(messages.LESS) : messages.get(messages.MORE)}
           </Link>
         </div>

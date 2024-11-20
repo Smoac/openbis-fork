@@ -14,7 +14,7 @@ class LinkComponent extends React.Component {
   render() {
     const { href, onClick, children, classes } = this.props
     return (
-      <Link href={href} onClick={onClick} classes={{ root: classes.link }}>
+      <Link underline='none' href={href} onClick={onClick} classes={{ root: classes.link }}>
         {children}
       </Link>
     )
