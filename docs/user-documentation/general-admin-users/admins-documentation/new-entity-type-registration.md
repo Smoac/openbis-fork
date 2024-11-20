@@ -252,7 +252,7 @@ Procedure:
 
 ![image info](img/custom-widget-gen-settings-1024x293.png)
 
-Updated on October 19, 2022
+
  
 ## Enable Objects in dropdowns
 
@@ -274,7 +274,7 @@ show in dropdown menus can be customised from the Settings.
 
 ![image info](img/Screenshot-2020-02-26-at-13.19.33-1-1024x537.png)
 
-Updated on October 19, 2022
+
  
 ## Register masterdata via Excel
 
@@ -316,17 +316,6 @@ everything in one single spreadsheet.
 
  
 
-### Modifying existing types
-
-If you wish to add a new property to an existing
-*Collection/Object/Dataset* type, you need to:
-
-1\. add the property in the file
-
-2\. use **Ignore if exists** as upload method. In this case, only the
-new property is added to the type.
-
- 
 
 ### Masterdata and metadata import
 
