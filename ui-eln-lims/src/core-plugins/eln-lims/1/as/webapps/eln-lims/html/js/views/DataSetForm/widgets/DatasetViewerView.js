@@ -238,7 +238,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                     }
                 }
             });
-            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes, dataSets);
             FormUtil.sortPropertyColumns(propertyColumnsToSort, dataSets.map(function(dataSet){
                 return {
                     entityKind: "DATASET",
