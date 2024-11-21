@@ -96,7 +96,12 @@ class ContentTabs extends React.PureComponent {
           onChange={this.handleTabChange}
           classes={{ root: classes.tabsRoot }}
           textColor='inherit'
-          indicatorColor='secondary'>
+          indicatorColor='secondary'
+          TabIndicatorProps={{
+            style: {
+              transition: 'none',
+            }
+          }}>
           {this.props.tabs.map(tab => (
             <Tab
               key={tab.id}
