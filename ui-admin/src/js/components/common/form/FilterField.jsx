@@ -25,7 +25,8 @@ const styles = theme => ({
   },
   adornment: {
     margin: '8px',
-    marginLeft: '10px'
+    marginLeft: '10px',
+    minHeight: '33px' //keeps the height same as the tabs
   },
   adornmentButton: {
     padding: '4px'
@@ -58,8 +59,7 @@ class FilterField extends React.Component {
 
     const classes = this.props.classes
 
-    return (
-      (<TextField
+    return (<TextField
         className={classes.field}
         placeholder={messages.get(messages.FILTER)}
         value={this.props.filter}
@@ -77,7 +77,7 @@ class FilterField extends React.Component {
             }
           }
         }}
-      />)
+      />
     );
   }
 
