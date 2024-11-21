@@ -217,7 +217,9 @@ final class ExportImagingUtils {
                 propertyValue = ExportPDFUtils.convertJsonToHtml(jsonNode);
             } else if(propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY && rawPropertyValue != null)
             {
-                Map<String, String> terms = propertyType.getVocabulary().getTerms().stream().collect(Collectors.toMap(VocabularyTerm::getCode, VocabularyTerm::getLabel));
+                Map<String, String> terms = propertyType.getVocabulary().getTerms().stream()
+                        .collect(Collectors.toMap(VocabularyTerm::getCode,
+                                x -> x.getLabel() != null ? x.getLabel() : x.getCode()));
                 if(rawPropertyValue.getClass().isArray()) {
                     Serializable[] values = (Serializable[]) rawPropertyValue;
                     StringBuilder builder = new StringBuilder("[");

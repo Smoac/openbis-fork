@@ -1504,7 +1504,7 @@ public class ExportExecutor implements IExportExecutor
                         } else if(propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
                         {
                             Map<String, String> terms = propertyType.getVocabulary().getTerms().stream().collect(Collectors.toMap(
-                                    VocabularyTerm::getCode, VocabularyTerm::getLabel));
+                                    VocabularyTerm::getCode, x -> x.getLabel() != null ? x.getLabel() : x.getCode()));
                             if(rawPropertyValue.getClass().isArray()) {
                                 Serializable[] values = (Serializable[]) rawPropertyValue;
                                 StringBuilder builder = new StringBuilder("[");
