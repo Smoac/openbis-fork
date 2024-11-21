@@ -302,23 +302,18 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     final Serializable validatedValue =
                             propertyValueValidator.validatePropertyValue(propertyType,
                                     translatedValue);
-                    if(validatedValue != null)
-                    {
-                        results.addAll(createEntityProperty(registrator, propertyType,
-                                entityTypePropertyTypePE,
-                                validatedValue));
-                    }
+                    results.addAll(createEntityProperty(registrator, propertyType,
+                            entityTypePropertyTypePE,
+                            validatedValue));
+
                 }
             } else {
                 Serializable translatedValue = extendedETPT.translate(registrator, parsedValue);
 
                 final Serializable validatedValue =
                         propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
-                if(validatedValue != null)
-                {
-                    results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                            validatedValue));
-                }
+                results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
+                        validatedValue));
             }
             return results;
         }
@@ -961,9 +956,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 value = ((Sample)val).getPermId();
             } else {
                 value = val.toString();
-                if("null".equals(value)){
-                    return null;
-                }
             }
 
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();

@@ -140,7 +140,7 @@ public final class PropertyValidator implements IPropertyValueValidator
                 } else {
                     stringValue = value.toString();
                 }
-                if (StringUtils.isBlank(stringValue) || "null".equals(stringValue))
+                if (StringUtils.isBlank(stringValue))
                 {
                     return null;
                 }
