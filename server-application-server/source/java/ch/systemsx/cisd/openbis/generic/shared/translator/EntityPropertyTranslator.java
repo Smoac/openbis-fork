@@ -86,7 +86,7 @@ public final class EntityPropertyTranslator
                 if (propertyPE instanceof EntityPropertyWithSampleDataTypePE)
                 {
                     SamplePE sampleProperty = ((EntityPropertyWithSampleDataTypePE) propertyPE).getSampleValue();
-                    if (samplePropertyAccessValidator.isValid(sampleProperty))
+                    if (sampleProperty != null && samplePropertyAccessValidator.isValid(sampleProperty))
                     {
                         basicProperty.setSample(SampleTranslator.translateWithoutRevealingData(sampleProperty));
                     }

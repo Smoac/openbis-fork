@@ -218,7 +218,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                     EntityPropertyWithSampleDataTypePE existingProperty = null;
                     for(EntityPropertyPE propertyPE : existingProperties) {
                         EntityPropertyWithSampleDataTypePE prop = (EntityPropertyWithSampleDataTypePE) propertyPE;
-                        if(prop.getSampleValue().getPermId().equals(sample.getPermId())) {
+                        if(prop.getSampleValue() != null && prop.getSampleValue().getPermId().equals(sample.getPermId())) {
                             existingProperty = prop;
                             break;
                         }

@@ -174,6 +174,8 @@ class EntitiesFinder
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
 
+        fetchOptions.withSamples();
+
         final DataSetFetchOptions dataSetFetchOptions = fetchOptions.withDataSets();
         configureFetchOptions(dataSetFetchOptions);
         configureFetchOptions(dataSetFetchOptions.withParents());
@@ -250,7 +252,7 @@ class EntitiesFinder
         final ExperimentFetchOptions experimentFetchOptions = dataSetFetchOptions.withExperiment();
         experimentFetchOptions.withProperties();
         experimentFetchOptions.withProject().withSpace();
-        dataSetFetchOptions.withType().withPropertyAssignments().withPropertyType();
+        dataSetFetchOptions.withType().withPropertyAssignments().withPropertyType().withVocabulary().withTerms();
         dataSetFetchOptions.withProperties();
         dataSetFetchOptions.withRegistrator();
         dataSetFetchOptions.withModifier();

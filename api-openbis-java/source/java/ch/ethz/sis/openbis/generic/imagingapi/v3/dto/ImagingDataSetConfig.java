@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -47,13 +48,13 @@ public class ImagingDataSetConfig implements Serializable
     private boolean playable;
 
     @JsonProperty
-    private List<ImagingDataSetControl> exports;
+    private List<ImagingDataSetControl> exports = Arrays.asList();
 
     @JsonProperty
-    private List<ImagingDataSetControl> inputs;
+    private List<ImagingDataSetControl> inputs = Arrays.asList();
 
     @JsonProperty
-    private Map<String, String> metadata;
+    private Map<String, String> metadata = Map.of();
 
     @JsonIgnore
     public String getAdaptor()

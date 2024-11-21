@@ -55,7 +55,7 @@ public class ImagingDataSetPreview implements Serializable
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, Serializable> metadata;
+    private Map<String, Serializable> metadata = Map.of();
 
     @JsonProperty
     private String comment;

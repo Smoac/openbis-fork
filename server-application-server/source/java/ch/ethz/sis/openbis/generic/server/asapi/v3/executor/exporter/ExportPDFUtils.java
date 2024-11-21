@@ -1,6 +1,8 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import org.apache.commons.io.IOUtils;
+
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
@@ -14,6 +16,8 @@ public class ExportPDFUtils
 
     static final Pattern hslColorPattern = Pattern.compile("color:hsl\\(.*?\\);");
     static final Pattern hslBackgroundColorPattern = Pattern.compile("background-color:hsl\\(.*?\\);");
+    static final String COMMON_STYLE = "border: 1px solid black;";
+    static final String TABLE_STYLE = COMMON_STYLE + " border-collapse: collapse;";
 
     /*
      * This algorithm to replace HSL to Hex colors has the benefit of having a complexity of O(n)
@@ -79,5 +83,37 @@ public class ExportPDFUtils
 
     public static String insertPagePagebreak(String html, String before) {
         return html.replace(before, "<div class=\"pagebreak\"> </div>" + before);
+    }
+
+    public static String convertJsonToHtml(final JsonNode node)
+    {
+        JsonNode data = node.get("values");
+        if (data == null) {
+            // backwards compatibility
+            data = node.get("data");
+        }
+
+        final JsonNode styles = node.get("style");
+
+        final StringBuilder tableBody = new StringBuilder();
+        for (int i = 0; i < data.size(); i++)
+        {
+            final JsonNode dataRow = data.get(i);
+            tableBody.append("<tr>\n");
+            for (int j = 0; j < dataRow.size(); j++)
+            {
+                final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
+                final String style = styles.get(stylesKey).asText();
+                final JsonNode cell = dataRow.get(j);
+                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.asText())
+                        .append(" </td>\n");
+            }
+            tableBody.append("</tr>\n");
+        }
+        return String.format("<table style='%s'>\n%s\n%s", TABLE_STYLE, tableBody, "</table>");
+    }
+
+    private ExportPDFUtils()
+    {
     }
 }
