@@ -36,14 +36,14 @@ public class ImagingDataSetImage implements Serializable
     @JsonProperty
     private List<ImagingDataSetPreview> previews;
 
-    @JsonProperty
+    @JsonProperty("image_config")
     private Map<String, Serializable> imageConfig;
 
     @JsonProperty
     private Integer index;
 
     @JsonProperty
-    private Map<String, Serializable> metadata;
+    private Map<String, Serializable> metadata = Map.of();
 
     @JsonIgnore
     public List<ImagingDataSetPreview> getPreviews()
