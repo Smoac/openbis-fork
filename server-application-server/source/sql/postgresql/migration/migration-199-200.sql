@@ -283,9 +283,9 @@ CREATE OR REPLACE RULE data_set_properties_delete AS
 
 -- Delete sample property values that reference samples that do not exist anymore (needs to be done before foreign keys creation)
 
-DELETE FROM experiment_properties WHERE samp_prop_id NOT IN (SELECT id FROM SAMPLES_ALL);
-DELETE FROM sample_properties WHERE samp_prop_id NOT IN (SELECT id FROM SAMPLES_ALL);
-DELETE FROM data_set_properties WHERE samp_prop_id NOT IN (SELECT id FROM SAMPLES_ALL);
+DELETE FROM experiment_properties WHERE samp_prop_id IS NOT NULL AND samp_prop_id NOT IN (SELECT id FROM SAMPLES_ALL);
+DELETE FROM sample_properties WHERE samp_prop_id IS NOT NULL AND samp_prop_id NOT IN (SELECT id FROM SAMPLES_ALL);
+DELETE FROM data_set_properties WHERE samp_prop_id IS NOT NULL AND samp_prop_id NOT IN (SELECT id FROM SAMPLES_ALL);
 
 -- Create foreign keys for sample property values (i.e. values that point to samples_all.id table)
 
