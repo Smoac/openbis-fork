@@ -209,7 +209,7 @@ class AutocompleterFormField extends React.PureComponent {
           onClick={this.handleClick}
         >
         <Autocomplete
-          disableClearable
+          disableClearable={true}
           freeSolo={true}
           name={name}
           disabled={disabled}
@@ -226,6 +226,7 @@ class AutocompleterFormField extends React.PureComponent {
           onInputChange={this.handleInputChange}
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
+          clearOnBlur={true}
           onKeyDown={this.handleKeyDown}
           classes={{
             paper: classes.paper,
