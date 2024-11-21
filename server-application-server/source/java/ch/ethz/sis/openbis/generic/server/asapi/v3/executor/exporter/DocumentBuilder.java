@@ -24,6 +24,8 @@ import org.jsoup.select.Elements;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
+import java.util.List;
+
 class DocumentBuilder
 {
 
@@ -95,6 +97,36 @@ class DocumentBuilder
         if (!closed)
         {
             doc.append("<h").append(level).append(">").append(header).append("</h").append(level).append(">");
+        }
+    }
+
+    public void addTable(final List<String> headers, final List<List<String>> values)
+    {
+        if (!closed)
+        {
+            doc.append("<table>");
+            if(!headers.isEmpty())
+            {
+                doc.append("<tr>");
+                for(String header : headers)
+                {
+                    doc.append("<th>").append("<p>").append(header).append("</p>").append("</th>");
+                }
+                doc.append("</tr>");
+            }
+            for(List<String> row : values)
+            {
+                if(!row.isEmpty())
+                {
+                    doc.append("<tr>");
+                    for(String value : row)
+                    {
+                        doc.append("<td>").append("<p>").append(value).append("</p>").append("</td>");
+                    }
+                    doc.append("</tr>");
+                }
+            }
+            doc.append("</table>");
         }
     }
 

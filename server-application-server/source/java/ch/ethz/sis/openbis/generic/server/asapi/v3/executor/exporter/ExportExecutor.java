@@ -38,6 +38,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEx
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportPropertiesUtils.BUFFER_SIZE;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -82,6 +83,7 @@ import java.util.zip.ZipEntry;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
@@ -207,41 +209,6 @@ public class ExportExecutor implements IExportExecutor
 
     private static final String PYTHON_EXTENSION = ".py";
 
-    private static final String COMMON_STYLE = "border: 1px solid black;";
-
-    private static final String TABLE_STYLE = COMMON_STYLE + " border-collapse: collapse;";
-
-    private static final String DATA_TAG_START = "<DATA>";
-
-    private static final int DATA_TAG_START_LENGTH = DATA_TAG_START.length();
-
-    private static final String DATA_TAG_END = "</DATA>";
-
-    private static final int DATA_TAG_END_LENGTH = DATA_TAG_END.length();
-
-    private static final String PNG_MEDIA_TYPE = "image/png";
-
-    private static final String JPEG_MEDIA_TYPE = "image/jpeg";
-
-    /** Buffer size for the buffer stream for Base64 encoding. Should be a multiple of 3. */
-    private static final int BUFFER_SIZE = 3 * 1024;
-
-    private static final Map<String, String> MEDIA_TYPE_BY_EXTENSION = Map.of(
-            ".png", PNG_MEDIA_TYPE,
-            ".jpg", JPEG_MEDIA_TYPE,
-            ".jpeg", JPEG_MEDIA_TYPE,
-            ".jfif", JPEG_MEDIA_TYPE,
-            ".pjpeg", JPEG_MEDIA_TYPE,
-            ".pjp", JPEG_MEDIA_TYPE,
-            ".gif", "image/gif",
-            ".bmp", "image/bmp",
-            ".webp", "image/webp",
-            ".tiff", "image/tiff");
-
-    private static final String DEFAULT_MEDIA_TYPE = JPEG_MEDIA_TYPE;
-
-    private static final String DATA_PREFIX_TEMPLATE = "data:%s;base64,";
-
     private static final String KIND_DOCUMENT_PROPERTY_ID = "Kind";
 
     private static final String TYPE_DOCUMENT_PROPERTY_ID = "Type";
@@ -251,7 +218,6 @@ public class ExportExecutor implements IExportExecutor
     /** All characters except the ones we consider safe as a directory name. */
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
 
-    private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -1463,6 +1429,12 @@ public class ExportExecutor implements IExportExecutor
         final Set<String> selectedExportAttributes = filterFields(selectedExportFields, ATTRIBUTE);
         final Set<String> selectedExportProperties = filterFields(selectedExportFields, PROPERTY);
 
+
+        boolean isImagingType = ExportImagingUtils.isImagingType(typeObj);
+        if(isImagingType)
+        {
+            ExportImagingUtils.buildImagingData(documentBuilder, typeObj, entityObj, configurer);
+        }
         // Properties
 
         documentBuilder.addHeader("Properties", 2);
@@ -1476,16 +1448,21 @@ public class ExportExecutor implements IExportExecutor
                 final Map<String, Serializable> properties = includeSampleProperties((IPropertiesHolder) entityObj);
                 boolean firstAssignment = true;
                 String currentSection = null;
-                for (final PropertyAssignment propertyAssignment : propertyAssignments)
-                {
-                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || firstAssignment)
+                for (final PropertyAssignment propertyAssignment : propertyAssignments) {
+                    final PropertyType propertyType = propertyAssignment.getPropertyType();
+
+                    if(isImagingType && ExportImagingUtils.isImagingInternalProperty(propertyType.getCode()))
                     {
+                        // skip this one
+                        continue;
+                    }
+
+                    if (!Objects.equals(propertyAssignment.getSection(), currentSection) || firstAssignment) {
                         currentSection = propertyAssignment.getSection();
                         documentBuilder.addHeader(currentSection != null ? currentSection : "", 3);
                         firstAssignment = false;
                     }
 
-                    final PropertyType propertyType = propertyAssignment.getPropertyType();
                     final String propertyTypeCode = propertyType.getCode();
                     final Object rawPropertyValue = properties.get(propertyTypeCode);
 
@@ -1512,19 +1489,38 @@ public class ExportExecutor implements IExportExecutor
                         } else if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
-                            propertyValue = encodeImages(initialPropertyValue);
+                            propertyValue = ExportPropertiesUtils.encodeImages(configurer, initialPropertyValue);
                         } else if (propertyType.getDataType() == DataType.XML
                                 && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
-                                && initialPropertyValue.toUpperCase().startsWith(DATA_TAG_START) && initialPropertyValue.toUpperCase()
-                                .endsWith(DATA_TAG_END))
+                                && initialPropertyValue.toUpperCase().startsWith(ExportPropertiesUtils.DATA_TAG_START) && initialPropertyValue.toUpperCase()
+                                .endsWith(ExportPropertiesUtils.DATA_TAG_END))
                         {
-                            final String subString = initialPropertyValue.substring(DATA_TAG_START_LENGTH,
-                                    initialPropertyValue.length() - DATA_TAG_END_LENGTH);
+                            final String subString = initialPropertyValue.substring(ExportPropertiesUtils.DATA_TAG_START_LENGTH,
+                                    initialPropertyValue.length() - ExportPropertiesUtils.DATA_TAG_END_LENGTH);
                             final String decodedString = new String(Base64.getDecoder().decode(subString), StandardCharsets.UTF_8);
                             final ObjectMapper objectMapper = new ObjectMapper();
                             final JsonNode jsonNode = objectMapper.readTree(decodedString);
-                            propertyValue = convertJsonToHtml(jsonNode);
-                        } else
+                            propertyValue = ExportPDFUtils.convertJsonToHtml(jsonNode);
+                        } else if(propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
+                        {
+                            Map<String, String> terms = propertyType.getVocabulary().getTerms().stream().collect(Collectors.toMap(
+                                    VocabularyTerm::getCode, VocabularyTerm::getLabel));
+                            if(rawPropertyValue.getClass().isArray()) {
+                                Serializable[] values = (Serializable[]) rawPropertyValue;
+                                StringBuilder builder = new StringBuilder("[");
+                                for(Serializable value : values) {
+                                    if(builder.length() > 1) {
+                                        builder.append(", ");
+                                    }
+                                    builder.append(terms.get(value.toString().toUpperCase()));
+                                }
+                                builder.append("]");
+                                propertyValue =  builder.toString();
+                            } else {
+                                propertyValue = terms.get(rawPropertyValue.toString().toUpperCase());
+                            }
+                        }
+                        else
                         {
                             propertyValue = initialPropertyValue;
                         }
@@ -1546,7 +1542,7 @@ public class ExportExecutor implements IExportExecutor
             if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
                 documentBuilder.addHeader("Description", 2);
-                documentBuilder.addParagraph(encodeImages(description));
+                documentBuilder.addParagraph(ExportPropertiesUtils.encodeImages(configurer, description));
             }
         }
 
@@ -1659,23 +1655,6 @@ public class ExportExecutor implements IExportExecutor
         return documentBuilder.getHtml();
     }
 
-    private String encodeImages(final String initialPropertyValue) throws IOException
-    {
-        final String propertyValue;
-        final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
-        final Document doc = Jsoup.parse(initialPropertyValue);
-        final Elements imageElements = doc.select("img");
-        for (final Element imageElement : imageElements)
-        {
-            final String imageSrc = imageElement.attr("src");
-            if (!imageSrc.isEmpty())
-            {
-                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
-            }
-        }
-        propertyValue = propertyValueBuilder.toString();
-        return propertyValue;
-    }
 
     private static IEntityType getEntityType(final IApplicationServerInternalApi v3, final String sessionToken, final ICodeHolder entityObj)
     {
@@ -1684,7 +1663,7 @@ public class ExportExecutor implements IExportExecutor
             final ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
             searchCriteria.withCode().thatEquals(((Experiment) entityObj).getType().getCode());
             final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
-            fetchOptions.withPropertyAssignments().withPropertyType();
+            fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary().withTerms();
             final SearchResult<ExperimentType> results = v3.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
             return results.getObjects().get(0);
         } else if (entityObj instanceof Sample)
@@ -1692,7 +1671,7 @@ public class ExportExecutor implements IExportExecutor
             final SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
             searchCriteria.withCode().thatEquals(((Sample) entityObj).getType().getCode());
             final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-            fetchOptions.withPropertyAssignments().withPropertyType();
+            fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary().withTerms();
             final SearchResult<SampleType> results = v3.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
             return results.getObjects().get(0);
         } else if (entityObj instanceof DataSet)
@@ -1700,7 +1679,7 @@ public class ExportExecutor implements IExportExecutor
             final DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
             searchCriteria.withCode().thatEquals(((DataSet) entityObj).getType().getCode());
             final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
-            fetchOptions.withPropertyAssignments().withPropertyType();
+            fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary().withTerms();
             final SearchResult<DataSetType> results = v3.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
             return results.getObjects().get(0);
         } else
@@ -1765,53 +1744,7 @@ public class ExportExecutor implements IExportExecutor
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    private String encodeImageContentToString(final String imageSrc) throws IOException
-    {
-        final Base64.Encoder encoder = Base64.getEncoder();
-        final int extensionIndex = imageSrc.lastIndexOf('.');
 
-        if (extensionIndex >= 0 && !isAbsoluteUrl(imageSrc))
-        {
-            final String extension = imageSrc.substring(extensionIndex);
-            final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
-            final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
-
-            final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
-
-            final StringBuilder result = new StringBuilder(dataPrefix);
-            final FileInputStream fileInputStream = new FileInputStream(filePath);
-            try (final BufferedInputStream in = new BufferedInputStream(fileInputStream, BUFFER_SIZE))
-            {
-                byte[] chunk = new byte[BUFFER_SIZE];
-                int len;
-                while ((len = in.read(chunk)) == BUFFER_SIZE)
-                {
-                    result.append(encoder.encodeToString(chunk));
-                }
-
-                if (len > 0)
-                {
-                    chunk = Arrays.copyOf(chunk, len);
-                    result.append(encoder.encodeToString(chunk));
-                }
-            }
-
-            return result.toString();
-        } else
-        {
-            // Invalid image file or the path is absolute. We just return the initial reference.
-            return imageSrc;
-        }
-    }
-
-    protected String extractFileServicePath(final String value)
-    {
-        final Matcher matcher = FILE_SERVICE_PATTERN.matcher(value);
-        final boolean found = matcher.find();
-
-        // If not match is found, it would normally mean we are in testing, so we return the value back to make it work - Volkswagen's approach :).
-        return found ? value.substring(matcher.end()) : value;
-    }
 
     /**
      * Whether the set does not forbid a value.
@@ -1825,58 +1758,12 @@ public class ExportExecutor implements IExportExecutor
         return set == null || set.contains(value);
     }
 
-    private static String convertJsonToHtml(final JsonNode node)
-    {
-        JsonNode data = node.get("values");
-        if (data == null) {
-            // backwards compatibility
-            data = node.get("data");
-        }
-
-        final JsonNode styles = node.get("style");
-
-        final StringBuilder tableBody = new StringBuilder();
-        for (int i = 0; i < data.size(); i++)
-        {
-            final JsonNode dataRow = data.get(i);
-            tableBody.append("<tr>\n");
-            for (int j = 0; j < dataRow.size(); j++)
-            {
-                final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
-                final String style = styles.get(stylesKey).asText();
-                final JsonNode cell = dataRow.get(j);
-                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.asText())
-                        .append(" </td>\n");
-            }
-            tableBody.append("</tr>\n");
-        }
-        return String.format("<table style='%s'>\n%s\n%s", TABLE_STYLE, tableBody, "</table>");
-    }
-
-    private static void replaceAll(final StringBuilder sb, final String target, final String replacement)
-    {
-        // Start index for the first search
-        int startIndex = sb.indexOf(target);
-        while (startIndex != -1)
-        {
-            final int endIndex = startIndex + target.length();
-            sb.replace(startIndex, endIndex, replacement);
-            // Update the start index for the next search
-            startIndex = sb.indexOf(target, startIndex + replacement.length());
-        }
-    }
-
     private static Map<String, List<Map<String, String>>> findExportAttributes(final ExportableKind exportableKind, final SelectedFields selectedFields)
     {
         final List<Map<String, String>> attributes = selectedFields.getAttributes().stream()
                 .map(attribute -> Map.of(IExportFieldsFinder.TYPE, ATTRIBUTE.name(), IExportFieldsFinder.ID, attribute.name()))
                 .collect(Collectors.toList());
         return Map.of(exportableKind.name(), attributes);
-    }
-
-    private File getFilesRepository()
-    {
-        return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
     }
 
     /**
