@@ -66,7 +66,7 @@ public interface SampleQuery extends ObjectQuery
     @Select(sql =
             "select p.id as id, p.samp_id as objectId, p.pers_id_author AS authorId, p.modification_timestamp AS modificationTimestamp, pt.code as propertyCode, "
                     + "p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, "
-                    + "s.perm_id as sample_perm_id, s.id as sample_id, "
+                    + "s.perm_id as sample_perm_id, p.samp_prop_id as sample_id, "
                     + "cvt.code as vocabularyPropertyValue, "
                     + "cv.code as vocabularyPropertyValueTypeCode, "
                     + "p.integer_array_value as integerArrayPropertyValue, "
