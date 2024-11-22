@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -161,7 +160,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.FreezingFlags;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -187,15 +185,6 @@ import junit.framework.Assert;
  */
 public class AbstractTest extends SystemTestCase
 {
-    private static final Comparator<PropertyAssignment> ASSIGNMENT_COMPARATOR = new SimpleComparator<PropertyAssignment, String>()
-    {
-        @Override
-        public String evaluate(PropertyAssignment item)
-        {
-            return item.getPermId().toString();
-        }
-    };
-
     protected static final String USER_ROLES_PROVIDER = "provideUserRoles";
 
     protected BufferedAppender logRecorder;
@@ -243,11 +232,6 @@ public class AbstractTest extends SystemTestCase
     {
         logRecorder.reset();
         System.out.println("<<<<<<<<< AFTER METHOD: " + method.getName());
-    }
-
-    protected void sortPropertyAssignments(List<PropertyAssignment> assignments)
-    {
-        Collections.sort(assignments, ASSIGNMENT_COMPARATOR);
     }
 
     protected void assertTypeNotFetched(final Experiment experiment)
@@ -1247,6 +1231,11 @@ public class AbstractTest extends SystemTestCase
         assertEquals(identifiers, Arrays.asList(expectedPermIds));
     }
 
+    protected static void assertSamplePermIdsInOrder(Sample[] samples, String... expectedPermIds)
+    {
+        assertSamplePermIdsInOrder(Arrays.asList(samples), expectedPermIds);
+    }
+
     protected static void assertMaterialIdentifiersInOrder(final Collection<Material> materials,
             final String... expectedIdentifiers)
     {
@@ -1530,11 +1519,11 @@ public class AbstractTest extends SystemTestCase
 
     protected PropertyTypePermId createASamplePropertyType(final String sessionToken, final IEntityTypeId sampleTypeId)
     {
-        return createASamplePropertyType(sessionToken, sampleTypeId, "TYPE-" + System.currentTimeMillis());
+        return createASamplePropertyType(sessionToken, sampleTypeId, "TYPE-" + System.currentTimeMillis(), false);
     }
 
     protected PropertyTypePermId createASamplePropertyType(final String sessionToken,
-            final IEntityTypeId sampleTypeId, final String code)
+            final IEntityTypeId sampleTypeId, final String code, final boolean multivalued)
     {
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -1542,7 +1531,7 @@ public class AbstractTest extends SystemTestCase
         creation.setSampleTypeId(sampleTypeId);
         creation.setLabel("label");
         creation.setDescription("description");
-        creation.setMultiValue(false);
+        creation.setMultiValue(multivalued);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1877,7 +1866,7 @@ public class AbstractTest extends SystemTestCase
         return map.get(tokenId);
     }
 
-    @DataProvider (name = USER_ROLES_PROVIDER)
+    @DataProvider(name = USER_ROLES_PROVIDER)
     protected Object[][] provideUserRoles()
     {
         return createProvider(RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_OBSERVER, RoleWithHierarchy.SPACE_ADMIN,
