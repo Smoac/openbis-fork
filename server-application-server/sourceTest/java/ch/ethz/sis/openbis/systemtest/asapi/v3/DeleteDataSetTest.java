@@ -297,6 +297,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
 
         // delete SAMPLE-A permanently
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
+        daoFactory.getSessionFactory().getCurrentSession().flush();
 
         dataSet = v3api.getDataSets(sessionToken, Arrays.asList(dataSetPermId), fetchOptions).get(dataSetPermId);
         assertEquals(dataSet.getSampleProperties().size(), 1);

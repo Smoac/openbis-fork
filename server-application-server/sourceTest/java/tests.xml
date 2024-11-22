@@ -1,41 +1,14 @@
-<suite name="All" verbose="2" >
-  <test name="unit" annotations="JDK">
-    <groups>
-      <run>
-        <exclude name="abstract" />
-        <exclude name="project-samples" />
-        <exclude name="broken" />
-        <exclude name="scalability"/>
-        <exclude name="system-cleandb"/>
-      </run>
-    </groups>
-    <packages>
-      <package name="ch.systemsx.cisd.openbis.*">
-        <exclude name="ch.systemsx.cisd.openbis.common.*" />
-        <exclude name="ch.systemsx.cisd.openbis.remoteapitest.*" />
-        <exclude name="ch.systemsx.cisd.openbis.systemtest.*" />
-      </package>
-      <package name="ch.ethz.sis.openbis.*">
-        <exclude name="ch.ethz.sis.openbis.systemtest.*" />
-      </package>      
-    </packages>     
-  </test>
-  
-  <test name="system" annotations="JDK">
-    <groups>
-      <run>
-        <exclude name="abstract" />
-        <exclude name="broken" />
-        <exclude name="scalability"/>
-        <exclude name="system-cleandb"/>
-        <exclude name="project-samples" />
-      </run>
-    </groups>
-    <packages>
-        <package name="ch.systemsx.cisd.openbis.remoteapitest.*" />
-        <package name="ch.systemsx.cisd.openbis.systemtest.*" />
-        <package name="ch.ethz.sis.openbis.systemtest.*" />
-    </packages>
-  </test>
-  
+<suite name="All" verbose="1">
+    <test name="All">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="ch.ethz.sis.openbis.systemtest.asapi.v3.DeleteSampleTest"/>
+            <class name="ch.ethz.sis.openbis.systemtest.asapi.v3.DeleteExperimentTest"/>
+            <class name="ch.ethz.sis.openbis.systemtest.asapi.v3.DeleteDataSetTest"/>
+        </classes>
+    </test>
 </suite>
