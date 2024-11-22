@@ -103,7 +103,9 @@ class ImportAllForm extends React.PureComponent {
 
     return (
       <div className={classes.result}>
-        <Link onClick={this.controller.handleToggleResult}>
+        <Link 
+        underline='none'
+        onClick={this.controller.handleToggleResult}>
           {result.visible
             ? messages.get(messages.HIDE_DETAILS)
             : messages.get(messages.SHOW_DETAILS)}

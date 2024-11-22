@@ -38,7 +38,7 @@ import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDia
 import LocationDialog from '@src/js/components/database/data-browser/LocationDialog.jsx'
 import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 
-const color = 'default'
+const color = 'inherit'
 const iconButtonSize = 'medium'
 const moveLocationMode = 'move'
 const copyLocationMode = 'copy'

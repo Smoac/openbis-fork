@@ -26,6 +26,7 @@ export default class HistoryGridContentCell extends React.PureComponent {
       return (
         <div>
           <Link
+            underline='none'
             onClick={() => {
               this.handleVisibilityChange()
             }}

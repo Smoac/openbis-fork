@@ -157,15 +157,18 @@ class SelectFormField extends React.PureComponent {
               MenuProps: {
                 anchorOrigin: {
                   vertical: 'bottom',
-                  horizontal: 'left'
-                }
+                  horizontal: 'left',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
               },
               classes: {
                 root: classes.select,
                 disabled: classes.selectDisabled
               }
             },
-
             inputLabel: {
               shrink:
                 !util.empty(value) ||

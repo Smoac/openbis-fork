@@ -70,7 +70,7 @@ const Export = ({ config, handleExport, disabled = false }) => {
         <Button
             label={messages.get(messages.EXPORT)}
             type='final'
-            color='primary'
+            color='inherit'
             variant='outlined'
             disabled={disabled}
             onClick={handleOpen}

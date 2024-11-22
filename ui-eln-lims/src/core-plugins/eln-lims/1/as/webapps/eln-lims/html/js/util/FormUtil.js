@@ -1666,7 +1666,8 @@ var FormUtil = new function() {
 		}
 		
 		var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), view, permIdOrIdentifier);
-		var click = function() {
+		var click = function(event) {
+		    event.preventDefault(); // Prevent default link behavior
 			var arg = null;
 			if(paginationInfo) {
 				arg = {

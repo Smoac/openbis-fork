@@ -12,18 +12,33 @@ module.exports = {
   },
 
   devServer: {
+    client: {
+      overlay: {
+        // explanation at https://sentry.io/answers/react-resizeobserver-loop-completed-with-undelivered-notifications/
+        runtimeErrors: (error) => {
+          const ignoreErrors = [
+            "ResizeObserver loop limit exceeded",
+            "ResizeObserver loop completed with undelivered notifications.",
+          ];
+          if (ignoreErrors.includes(error.message)) {
+            return false;
+          }
+          return true;
+        },
+      },
+    },
     host: '0.0.0.0',
     port: 9999,
     server: {
-        type: 'https'
+      type: 'https'
     },
     proxy: [{
-        context: ['/openbis'],
-        target: 'http://localhost:8888',
-        pathRewrite: { '^/openbis/resources': '/openbis-test/resources' },
-        changeOrigin: true,
-        secure: false
-      }
+      context: ['/openbis'],
+      target: 'http://localhost:8888',
+      pathRewrite: { '^/openbis/resources': '/openbis-test/resources' },
+      changeOrigin: true,
+      secure: false
+    }
     ],
     devMiddleware: {
       publicPath: '/admin/'

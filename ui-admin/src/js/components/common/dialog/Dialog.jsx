@@ -51,7 +51,7 @@ class DialogWindow extends React.Component {
         scroll='paper'
         fullWidth={true}
         maxWidth='md'
-        classes={{ root: classes.dialog }}
+        //classes={{ root: classes.dialog }}
         TransitionComponent={Transition}
       >
         <DialogTitle classes={{ root: classes.title }}>

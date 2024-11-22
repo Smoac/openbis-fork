@@ -30,6 +30,7 @@ class PropertyTypesGridXMLCell extends React.PureComponent {
         <div>
           <div>
             <Link
+              underline='none'
               onClick={() => {
                 this.handleVisibilityChange()
               }}

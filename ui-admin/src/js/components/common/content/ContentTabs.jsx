@@ -12,12 +12,10 @@ const styles = theme => ({
     borderBottomStyle: 'solid',
     borderBottomWidth: '1px',
     borderBottomColor: theme.palette.border.primary,
-    minHeight: '38px'
   },
   tabRoot: {
     textTransform: 'none',
     minHeight: '38px',
-    maxWidth: 'unset'
   },
   iconRoot: {
     marginLeft: '6px'
@@ -93,10 +91,17 @@ class ContentTabs extends React.PureComponent {
         <Tabs
           value={value}
           variant='scrollable'
-          scrollButtons
+          scrollButtons='auto'
+          allowScrollButtonsMobile={true}
           onChange={this.handleTabChange}
           classes={{ root: classes.tabsRoot }}
-          allowScrollButtonsMobile>
+          textColor='inherit'
+          indicatorColor='secondary'
+          TabIndicatorProps={{
+            style: {
+              transition: 'none',
+            }
+          }}>
           {this.props.tabs.map(tab => (
             <Tab
               key={tab.id}

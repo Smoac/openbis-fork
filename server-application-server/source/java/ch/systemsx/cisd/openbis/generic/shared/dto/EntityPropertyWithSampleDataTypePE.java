@@ -24,6 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 import java.util.Date;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 @MappedSuperclass
 public abstract class EntityPropertyWithSampleDataTypePE extends EntityPropertyPE
 {
@@ -32,6 +35,7 @@ public abstract class EntityPropertyWithSampleDataTypePE extends EntityPropertyP
     private SamplePE sample;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = ColumnNames.SAMPLE_PROP_COLUMN)
     public SamplePE getSampleValue()
     {

@@ -113,6 +113,7 @@ class CheckboxFormField extends React.PureComponent {
             onClick={onClick}
             classes={{ root: classes.checkbox }}
             size='small'
+            color='secondary'
           />
           <Typography
             component='label'

@@ -16,6 +16,8 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +33,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -270,26 +273,52 @@ public class DeleteSampleTest extends AbstractDeletionTest
         sampleCreation.setTypeId(sampleType);
         sampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
         SamplePermId propertySamplePermId = createCisdSample(createCisdExperiment());
+        SamplePE propertySample = daoFactory.getSampleDAO().tryToFindByPermID(propertySamplePermId.getPermId());
         sampleCreation.setProperty(propertyType.getPermId(), propertySamplePermId.getPermId());
         SamplePermId samplePermId = v3api.createSamples(sessionToken, Arrays.asList(sampleCreation)).get(0);
         SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
         deletionOptions.setReason("a test");
 
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        fetchOptions.withPropertiesHistory();
+
+        Sample sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
+        assertEquals(sample.getPropertiesHistory().size(), 1);
+
+        PropertyHistoryEntry propertyHistoryEntry = (PropertyHistoryEntry) sample.getPropertiesHistory().get(0);
+        assertEquals(propertyHistoryEntry.getPropertyName(), propertyType.getPermId());
+        assertEquals(propertyHistoryEntry.getPropertyValue(), String.valueOf(propertySample.getPermId()));
+        assertNotNull(propertyHistoryEntry.getValidFrom());
+        assertNull(propertyHistoryEntry.getValidTo());
+
         // When
         IDeletionId deletionId = v3api.deleteSamples(sessionToken, Arrays.asList(propertySamplePermId), deletionOptions);
 
         // Then
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withSampleProperties();
-        Sample sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
+        sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getSampleProperties().toString(), "{}");
         assertEquals(sample.getProperties().toString(), "{}");
+        assertEquals(sample.getPropertiesHistory().size(), 1);
+
+        propertyHistoryEntry = (PropertyHistoryEntry) sample.getPropertiesHistory().get(0);
+        assertEquals(propertyHistoryEntry.getPropertyName(), propertyType.getPermId());
+        assertEquals(propertyHistoryEntry.getPropertyValue(), String.valueOf(propertySample.getId()));
+        assertNotNull(propertyHistoryEntry.getValidFrom());
+        assertNull(propertyHistoryEntry.getValidTo());
 
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
         sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getSampleProperties().toString(), "{}");
         assertEquals(sample.getProperties().toString(), "{}");
+        assertEquals(sample.getPropertiesHistory().size(), 1);
+
+        propertyHistoryEntry = (PropertyHistoryEntry) sample.getPropertiesHistory().get(0);
+        assertEquals(propertyHistoryEntry.getPropertyName(), propertyType.getPermId());
+        assertEquals(propertyHistoryEntry.getPropertyValue(), String.valueOf(propertySample.getId()));
+        assertNotNull(propertyHistoryEntry.getValidFrom());
+        assertNotNull(propertyHistoryEntry.getValidTo());
     }
 
     @Test

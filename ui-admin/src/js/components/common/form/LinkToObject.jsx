@@ -26,6 +26,7 @@ class LinkToObject extends React.Component {
     const { children, classes } = this.props
     return (
       <Link
+      underline='none'
         component='button'
         classes={{ root: classes.link }}
         onClick={this.handleClick}

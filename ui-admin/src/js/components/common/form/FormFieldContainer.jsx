@@ -140,7 +140,7 @@ class FormFieldContainer extends React.PureComponent {
 
     if (error) {
       return (
-        <FormHelperText>
+        <FormHelperText sx={{marginLeft:'0px'}}>
           <span
             data-part='error'
             onClick={this.handleClick}

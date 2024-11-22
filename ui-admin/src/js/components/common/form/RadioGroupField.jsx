@@ -137,6 +137,7 @@ class RadioGroupField extends React.PureComponent {
           checked={option.value === value}
           disabled={isDisabled}
           //onChange={this.handleChange}
+          color='secondary'
           onFocus={this.handleFocus}
           onClick={this.handleChange}
           classes={{ root: classes.radio }}

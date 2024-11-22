@@ -47,6 +47,7 @@ class PropertyTypesGridUsagesCell extends React.PureComponent {
           <div>
             {value.count} (
             <Link
+            underline='none'
               onClick={() => {
                 this.handleVisibilityChange()
               }}

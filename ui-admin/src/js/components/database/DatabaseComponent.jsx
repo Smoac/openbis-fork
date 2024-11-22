@@ -138,7 +138,9 @@ class DatabaseComponent extends React.PureComponent {
       <Container>
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={this.handleTabChange}>
+            <Tabs value={value} onChange={this.handleTabChange} 
+            textColor='secondary'
+            indicatorColor='secondary'>
               <Tab label={messages.get(messages.FILES)} value="0" />
               <Tab label={messages.get(messages.IMAGES)} value="1" />
             </Tabs>

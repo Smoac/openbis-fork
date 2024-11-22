@@ -50,7 +50,7 @@ public abstract class PropertyTranslator extends
             PropertyFetchOptions fetchOptions)
     {
         List<PropertyRecord> records = loadProperties(objectIds);
-        Set<Long> visibaleSamples =
+        Set<Long> visibleSamples =
                 sampleAuthorizationValidator.validate(context.getSession().tryGetPerson(),
                         records.stream().filter(r -> r.sample_id != null).map(r -> r.sample_id)
                                 .collect(Collectors.toSet()));
@@ -81,7 +81,7 @@ public abstract class PropertyTranslator extends
                         record.vocabularyPropertyValue);
             } else if (record.sample_perm_id != null)
             {
-                if (visibaleSamples.contains(record.sample_id))
+                if (visibleSamples.contains(record.sample_id))
                 {
                     updateObjectProperty(objectProperties, record.propertyCode,
                             record.sample_perm_id);
@@ -136,15 +136,19 @@ public abstract class PropertyTranslator extends
         {
             Serializable[] current = (Serializable[]) objectProperties.get(propertyCode);
             Serializable[] result;
-            if(current.length > 0) {
-                if(current[0].getClass().isArray()) {
+            if (current.length > 0)
+            {
+                if (current[0].getClass().isArray())
+                {
                     result = new Serializable[current.length + 1];
                     System.arraycopy(current, 0, result, 0, current.length);
                     result[current.length] = propertyValue;
-                } else {
-                    result = new Serializable[] {current, propertyValue};
+                } else
+                {
+                    result = new Serializable[] { current, propertyValue };
                 }
-            } else {
+            } else
+            {
                 result = propertyValue;
             }
             objectProperties.put(propertyCode, result);
