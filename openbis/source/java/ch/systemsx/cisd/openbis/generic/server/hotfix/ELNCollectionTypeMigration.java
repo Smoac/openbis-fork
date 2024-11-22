@@ -209,13 +209,13 @@ public class ELNCollectionTypeMigration {
         nativeQuery.executeUpdate();
     }
 
-    static void executeNativeUpdate(String SQL) {
+    static int executeNativeUpdate(String SQL) {
         try {
             DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
             Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
             Connection connection = ((SessionImpl) currentSession).connection();
             PreparedStatement statement = connection.prepareStatement(SQL);
-            statement.execute();
+            return statement.executeUpdate();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
