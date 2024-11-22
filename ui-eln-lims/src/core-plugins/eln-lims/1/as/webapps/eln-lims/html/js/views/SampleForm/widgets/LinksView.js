@@ -482,7 +482,6 @@ function LinksView(linksController, linksModel) {
         			advancedSampleSearchCriteria.subCriteria["1"].rules["1-3"] = { type : "Property/Attribute", name : "PROP.ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         			advancedSampleSearchCriteria.subCriteria["2"].rules["2-3"] = { type : "Property/Attribute", name : "PROP.ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         		}
-        		debugger;
                 if (["ORGANIZATION_UNIT", "REQUEST", "PRODUCT", "SUPPLIER"].indexOf(sampleTypeCode) >= 0 &&
                 mainController.currentView._sampleFormModel.sample.projectCode !== "TEMPLATES") {
                     var spaceCodePrefix = mainController.currentView._sampleFormModel.sample.spaceCode.split("_")[0];
