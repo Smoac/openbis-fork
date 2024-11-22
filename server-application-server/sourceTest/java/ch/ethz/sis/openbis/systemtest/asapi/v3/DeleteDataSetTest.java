@@ -268,6 +268,7 @@ public class DeleteDataSetTest extends AbstractDeletionTest
 
         // move SAMPLE-A to trash
         IDeletionId deletionId = v3api.deleteSamples(sessionToken, Arrays.asList(propertySampleAPermId), deletionOptions);
+        daoFactory.getSessionFactory().getCurrentSession().flush();
 
         dataSet = v3api.getDataSets(sessionToken, Arrays.asList(dataSetPermId), fetchOptions).get(dataSetPermId);
         assertEquals(dataSet.getSampleProperties().size(), 1);
