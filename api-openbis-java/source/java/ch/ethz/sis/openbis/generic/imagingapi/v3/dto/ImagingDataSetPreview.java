@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonObject("imaging.dto.ImagingDataSetPreview")
@@ -55,7 +56,7 @@ public class ImagingDataSetPreview implements Serializable
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, Serializable> metadata = Map.of();
+    private Map<String, Serializable> metadata;
 
     @JsonProperty
     private String comment;
@@ -67,6 +68,10 @@ public class ImagingDataSetPreview implements Serializable
     @JsonIgnore
     public Map<String, Serializable> getConfig()
     {
+        if(config == null)
+        {
+            config = new HashMap<>();
+        }
         return config;
     }
 
@@ -144,6 +149,10 @@ public class ImagingDataSetPreview implements Serializable
     @JsonIgnore
     public Map<String, Serializable> getMetadata()
     {
+        if(metadata == null)
+        {
+            metadata = new HashMap<>();
+        }
         return metadata;
     }
 

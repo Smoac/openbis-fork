@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @JsonObject("imaging.dto.ImagingDataSetConfig")
 public class ImagingDataSetConfig implements Serializable
@@ -48,13 +46,13 @@ public class ImagingDataSetConfig implements Serializable
     private boolean playable;
 
     @JsonProperty
-    private List<ImagingDataSetControl> exports = Arrays.asList();
+    private List<ImagingDataSetControl> exports;
 
     @JsonProperty
-    private List<ImagingDataSetControl> inputs = Arrays.asList();
+    private List<ImagingDataSetControl> inputs;
 
     @JsonProperty
-    private Map<String, String> metadata = Map.of();
+    private Map<String, String> metadata;
 
     @JsonIgnore
     public String getAdaptor()
@@ -81,6 +79,10 @@ public class ImagingDataSetConfig implements Serializable
     @JsonIgnore
     public List<Integer> getSpeeds()
     {
+        if(speeds == null)
+        {
+            speeds = new ArrayList<>();
+        }
         return speeds;
     }
 
@@ -92,6 +94,10 @@ public class ImagingDataSetConfig implements Serializable
     @JsonIgnore
     public List<String> getResolutions()
     {
+        if(resolutions == null)
+        {
+            resolutions = new ArrayList<>();
+        }
         return resolutions;
     }
 
@@ -114,6 +120,10 @@ public class ImagingDataSetConfig implements Serializable
     @JsonIgnore
     public List<ImagingDataSetControl> getExports()
     {
+        if(exports == null)
+        {
+            exports = new ArrayList<>();
+        }
         return exports;
     }
 
@@ -126,6 +136,10 @@ public class ImagingDataSetConfig implements Serializable
     @JsonIgnore
     public List<ImagingDataSetControl> getInputs()
     {
+        if(inputs == null)
+        {
+            inputs = new ArrayList<>();
+        }
         return inputs;
     }
 
@@ -138,6 +152,10 @@ public class ImagingDataSetConfig implements Serializable
     @JsonIgnore
     public Map<String, String> getMetadata()
     {
+        if(metadata == null)
+        {
+            metadata = new HashMap<>();
+        }
         return metadata;
     }
 

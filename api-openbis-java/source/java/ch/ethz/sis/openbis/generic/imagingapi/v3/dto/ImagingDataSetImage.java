@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class ImagingDataSetImage implements Serializable
     private Integer index;
 
     @JsonProperty
-    private Map<String, Serializable> metadata = Map.of();
+    private Map<String, Serializable> metadata;
 
     @JsonIgnore
     public List<ImagingDataSetPreview> getPreviews()
@@ -60,6 +61,10 @@ public class ImagingDataSetImage implements Serializable
     @JsonIgnore
     public Map<String, Serializable> getImageConfig()
     {
+        if(imageConfig == null)
+        {
+            imageConfig = new HashMap<>();
+        }
         return imageConfig;
     }
 
@@ -82,6 +87,10 @@ public class ImagingDataSetImage implements Serializable
     @JsonIgnore
     public Map<String, Serializable> getMetadata()
     {
+        if(metadata == null)
+        {
+            metadata = new HashMap<>();
+        }
         return metadata;
     }
 
