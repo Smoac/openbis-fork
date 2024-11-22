@@ -78,14 +78,62 @@ final class ExportImagingUtils {
                 dataSetOnly = true;
                 break;
         }
-        documentBuilder.addHeader("Images", 2);
-        for(DataSet dataSet : dataSets)
+
+        buildImagingDataSets(configurer, documentBuilder, dataSets, dataSetOnly);
+    }
+
+    private static void buildImagingDataSets(ExposablePropertyPlaceholderConfigurer configurer,
+            DocumentBuilder documentBuilder, List<DataSet> inputDataSets, boolean dataSetOnly)
+            throws IOException
+    {
+        List<Map.Entry<DataSet, ImagingDataSetPropertyConfig>> result = new ArrayList<>();
+        List<Map.Entry<DataSet, ImagingDataSetPropertyConfig>> allDataSets = new ArrayList<>();
+        for(DataSet dataSet : inputDataSets)
         {
-            buildImagingDataSet(documentBuilder, dataSet, dataSetOnly, configurer);
+            String jsonConfig = dataSet.getJsonProperty(IMAGING_DATA_CONFIG);
+            if(jsonConfig != null && !jsonConfig.isEmpty())
+            {
+                ImagingDataSetPropertyConfig config = readConfig(jsonConfig);
+                allDataSets.add(Map.entry(dataSet, config));
+
+                List<ImagingDataSetImage> images = config.getImages();
+                if(images != null && !images.isEmpty())
+                {
+                    for (ImagingDataSetImage image : config.getImages())
+                    {
+                        List<ImagingDataSetPreview> previews = image.getPreviews();
+                        if(previews != null && !previews.isEmpty())
+                        {
+                            for (ImagingDataSetPreview preview : image.getPreviews())
+                            {
+                                if (preview.isShow())
+                                {
+                                    result.add(Map.entry(dataSet, config));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        boolean useShowFlag = true;
+        if(result.isEmpty() || dataSetOnly)
+        {
+            useShowFlag = false;
+            result = allDataSets;
+        }
+
+        documentBuilder.addHeader("Images", 2);
+        for(Map.Entry<DataSet, ImagingDataSetPropertyConfig> pair : result)
+        {
+            buildImagingDataSet(configurer, documentBuilder, pair.getKey(), pair.getValue(), dataSetOnly, useShowFlag);
         }
     }
 
-    private static void buildImagingDataSet(DocumentBuilder documentBuilder, DataSet dataSet, boolean dataSetOnly, ExposablePropertyPlaceholderConfigurer configurer)
+    private static void buildImagingDataSet(ExposablePropertyPlaceholderConfigurer configurer,
+            DocumentBuilder documentBuilder, DataSet dataSet, ImagingDataSetPropertyConfig config,
+            boolean dataSetOnly, boolean useShowFlag)
             throws IOException
     {
         String name = dataSet.getStringProperty("NAME");
@@ -97,40 +145,41 @@ final class ExportImagingUtils {
         {
             documentBuilder.addHeader(String.format("DataSet %s (%s)", name, dataSet.getPermId().getPermId()), 3);
         }
-        String jsonConfig = dataSet.getJsonProperty(IMAGING_DATA_CONFIG);
-        if(jsonConfig != null && !jsonConfig.isEmpty())
+        List<ImagingDataSetImage> images = config.getImages();
+        if(images != null && !images.isEmpty())
         {
-            ImagingDataSetPropertyConfig config = readConfig(jsonConfig);
-            List<ImagingDataSetImage> images = config.getImages();
-            if(images != null && !images.isEmpty())
+            for(int i=0; i<images.size(); i++)
             {
-                for(int i=0; i<images.size(); i++)
+                documentBuilder.addHeader(String.format("Image %d", i+1), 4);
+                ImagingDataSetImage image = images.get(i);
+                List<ImagingDataSetPreview> previews = image.getPreviews();
+                if(previews != null && !previews.isEmpty())
                 {
-                    documentBuilder.addHeader(String.format("Image %d", i+1), 4);
-                    ImagingDataSetImage image = images.get(i);
-                    List<ImagingDataSetPreview> previews = image.getPreviews();
-                    if(previews != null && !previews.isEmpty())
+                    for(ImagingDataSetPreview preview : previews)
                     {
-                        for(ImagingDataSetPreview preview : previews)
+                        if(useShowFlag && !preview.isShow())
                         {
-                            documentBuilder.addParagraph(String.format(IMAGE_FORM, preview.getBytes()));
-                            if(preview.getComment() != null)
+                            continue;
+                        }
+                        documentBuilder.addParagraph(String.format(IMAGE_FORM, preview.getBytes()));
+                        Map<String, Serializable> previewConfig = preview.getConfig();
+                        if(previewConfig != null && !previewConfig.isEmpty())
+                        {
+                            documentBuilder.addHeader("Preview parameters:", 5);
+                            List<List<String>> values = new ArrayList<>();
+                            for(Map.Entry<String, Serializable> entry : previewConfig.entrySet())
                             {
-                                documentBuilder.addProperty("Comment", preview.getComment());
+                                values.add(Arrays.asList(entry.getKey(), getValueAsString(entry.getValue())));
                             }
-                            Map<String, Serializable> previewConfig = preview.getConfig();
-                            if(previewConfig != null && !previewConfig.isEmpty())
-                            {
-                                List<List<String>> values = new ArrayList<>();
-                                for(Map.Entry<String, Serializable> entry : previewConfig.entrySet())
-                                {
-                                    values.add(Arrays.asList(entry.getKey(), getValueAsString(entry.getValue())));
-                                }
-                                documentBuilder.addTable(Arrays.asList("Parameter", "Value"), values);
-
-                            }
+                            documentBuilder.addTable(Arrays.asList("Parameter", "Value"), values);
 
                         }
+                        String comment = preview.getComment();
+                        if(comment != null && !comment.trim().isEmpty())
+                        {
+                            documentBuilder.addProperty("Comment:", comment);
+                        }
+
                     }
                 }
             }

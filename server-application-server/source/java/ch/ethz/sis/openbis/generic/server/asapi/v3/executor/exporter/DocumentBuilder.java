@@ -104,13 +104,14 @@ class DocumentBuilder
     {
         if (!closed)
         {
-            doc.append("<table>");
+            doc.append("<table style=\"border:1px solid black;margin-left:auto;margin-right:auto;\">");
             if(!headers.isEmpty())
             {
-                doc.append("<tr>");
+                doc.append("<tr style=\"text-align: left; page-break-inside: avoid;\">");
                 for(String header : headers)
                 {
-                    doc.append("<th>").append("<p>").append(header).append("</p>").append("</th>");
+                    // translateY was used because openhtmltopdf library does not handle 'vertical-align'
+                    doc.append("<th>").append("<p style=\" transform: translateY(25%); \">").append(header).append("</p>").append("</th>");
                 }
                 doc.append("</tr>");
             }
@@ -118,10 +119,11 @@ class DocumentBuilder
             {
                 if(!row.isEmpty())
                 {
-                    doc.append("<tr>");
+                    doc.append("<tr style=\"text-align: left; page-break-inside: avoid; \">");
                     for(String value : row)
                     {
-                        doc.append("<td>").append("<p>").append(value).append("</p>").append("</td>");
+                        // translateY was used because openhtmltopdf library does not handle 'vertical-align'
+                        doc.append("<td>").append("<p style=\" transform: translateY(25%); \">").append(value).append("</p>").append("</td>");
                     }
                     doc.append("</tr>");
                 }

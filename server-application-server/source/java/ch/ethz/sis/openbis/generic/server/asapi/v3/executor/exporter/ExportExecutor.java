@@ -1415,7 +1415,7 @@ public class ExportExecutor implements IExportExecutor
         final String bareEntityName = entityObj instanceof IPropertiesHolder ? getBareEntityName((IPropertiesHolder) entityObj) : null;
         if (bareEntityName != null)
         {
-            titleStringBuilder.append(bareEntityName).append(" (").append(entityObj.getCode()).append(")");
+            titleStringBuilder.append(bareEntityName);
         } else
         {
             titleStringBuilder.append(entityObj.getCode());
@@ -1431,12 +1431,8 @@ public class ExportExecutor implements IExportExecutor
 
 
         boolean isImagingType = ExportImagingUtils.isImagingType(typeObj);
-        if(isImagingType)
-        {
-            ExportImagingUtils.buildImagingData(documentBuilder, typeObj, entityObj, configurer);
-        }
-        // Properties
 
+        // Properties
         documentBuilder.addHeader("Properties", 2);
         if (entityObj instanceof IPropertiesHolder && typeObj != null)
         {
@@ -1650,6 +1646,12 @@ public class ExportExecutor implements IExportExecutor
             {
                 documentBuilder.addProperty("Modification Date", String.valueOf(modificationDate));
             }
+        }
+
+        // Imaging Section
+        if(isImagingType)
+        {
+            ExportImagingUtils.buildImagingData(documentBuilder, typeObj, entityObj, configurer);
         }
 
         return documentBuilder.getHtml();
