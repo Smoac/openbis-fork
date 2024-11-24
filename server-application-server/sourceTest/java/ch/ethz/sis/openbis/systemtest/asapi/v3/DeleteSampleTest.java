@@ -268,7 +268,8 @@ public class DeleteSampleTest extends AbstractDeletionTest
     public void testDeleteSampleOfASampleProperty()
     {
         Comparator<PropertyHistoryEntry> PROPERTY_HISTORY_COMPARATOR = Comparator.comparing(
-                PropertyHistoryEntry::getPropertyName).thenComparing(PropertyHistoryEntry::getPropertyValue);
+                        PropertyHistoryEntry::getPropertyName).thenComparing(e -> e.getPropertyValue().length())
+                .thenComparing(PropertyHistoryEntry::getPropertyValue);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -326,7 +327,6 @@ public class DeleteSampleTest extends AbstractDeletionTest
 
         // move SAMPLE-A to trash
         IDeletionId deletionId = v3api.deleteSamples(sessionToken, Arrays.asList(propertySampleAPermId), deletionOptions);
-        daoFactory.getSessionFactory().getCurrentSession().flush();
 
         sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getSampleProperties().size(), 1);
@@ -356,7 +356,6 @@ public class DeleteSampleTest extends AbstractDeletionTest
 
         // delete SAMPLE-A permanently
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
-        daoFactory.getSessionFactory().getCurrentSession().flush();
 
         sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getSampleProperties().size(), 1);
