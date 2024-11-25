@@ -6,7 +6,7 @@ export default class ImagingMapper{
         this.openbis = extOpenbis;
     }
 
-    getImagingDataSetPreview(config, format, bytes, width, height, index, show, metadata) {
+    getImagingDataSetPreview(config, format, bytes, width, height, index, show, metadata, tags, comment) {
         let imagingDataSetPreview = new this.openbis.ImagingDataSetPreview();
         imagingDataSetPreview.config = config;
         imagingDataSetPreview.format = format;
@@ -16,6 +16,8 @@ export default class ImagingMapper{
         imagingDataSetPreview.index = index;
         imagingDataSetPreview.show = show;
         imagingDataSetPreview.metadata = metadata;
+        imagingDataSetPreview.tags = tags;
+        imagingDataSetPreview.comment = comment;
         return imagingDataSetPreview;
     }
 

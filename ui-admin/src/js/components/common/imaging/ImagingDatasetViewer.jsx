@@ -281,7 +281,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         let activeImage = toUpdateImgDs.images[activeImageIdx];
         let newLastIdx = activeImage.previews.length;
         let inputValues = this.createInitValues(imagingDataset.images[0].config.inputs, activeImage.previews[activePreviewIdx].config);
-        let imagingDataSetPreview = new ImagingMapper(extOpenbis).getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
+        let imagingDataSetPreview = new ImagingMapper(extOpenbis).getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {}, [], '');
             activeImage.previews = [...activeImage.previews, imagingDataSetPreview];
         this.setState({
             activePreviewIdx: newLastIdx,
@@ -309,7 +309,9 @@ class ImagingDataSetViewer extends React.PureComponent {
                 null,
                 newLastIdx,
                 false,
-                { "file": file }
+                { "file": file },
+                [],
+                ''
             )
             toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, previewTemplate];
             this.setState({ open: false, imagingDataset: toUpdateImgDs, isSaved: false })

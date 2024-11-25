@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
 const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
-    const [tags, setTags] = React.useState(activePreview.tags)
-    const [inputValue, setInputValue] = React.useState(activePreview.tags);
+    const [tags, setTags] = React.useState([])
+    const [inputValue, setInputValue] = React.useState('');
 
 
     React.useEffect(() => {
@@ -59,7 +59,7 @@ const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
         }
         //console.log("trasformedTags: ", trasformedTags);
         setTags(trasformedTags);
-        setInputValue(trasformedTags);
+        setInputValue(trasformedTags.join(', '));
     }, [activePreview])
 
     const handleOpen = () => setOpen(true);
