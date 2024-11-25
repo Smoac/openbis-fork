@@ -20,6 +20,7 @@ const EXPORT_TYPE = 'export';
 const IMAGE_TYPE = 'image';
 const IMAGING_CODE = 'imaging';
 const IMAGING_DATA_CONFIG = 'IMAGING_DATA_CONFIG';
+const IMAGING_NOTES = 'IMAGING_NOTES';
 const IMAGING_TAGS = 'IMAGING_TAGS';
 const IMAGING_TAGS_LABEL = 'Imaging Tags';
 const METADATA_PREVIEW_COUNT = 'preview-total-count';
@@ -39,6 +40,7 @@ export default {
     IMAGE_TYPE,
     IMAGING_CODE,
     IMAGING_DATA_CONFIG,
+    IMAGING_NOTES,
     IMAGING_TAGS,
     IMAGING_TAGS_LABEL,
     METADATA_PREVIEW_COUNT,

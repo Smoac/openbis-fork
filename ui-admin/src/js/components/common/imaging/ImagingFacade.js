@@ -66,6 +66,15 @@ export default class ImagingFacade {
         }
     };
 
+    editImagingDatasetNote = async (permId, note) => {
+        let imagingDataset = await this.loadImagingDataset(permId);
+        let update = new this.openbis.DataSetUpdate();
+        update.setDataSetId(new this.openbis.DataSetPermId(permId));
+        update.setProperty(constants.IMAGING_DATA_CONFIG, JSON.stringify(imagingDataset));
+        update.setProperty(constants.IMAGING_NOTES, note);
+        return await this.openbis.updateDataSets([ update ]);
+    };
+
     saveImagingDataset = async (permId, imagingDataset) => {
         let update = new this.openbis.DataSetUpdate();
         update.setDataSetId(new this.openbis.DataSetPermId(permId));

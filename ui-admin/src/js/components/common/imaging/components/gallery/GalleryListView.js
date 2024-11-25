@@ -11,9 +11,8 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import constants from "@src/js/components/common/imaging/constants.js";
 import { isObjectEmpty } from "@src/js/components/common/imaging/utils.js";
-import CommentMetadataField from "@src/js/components/common/imaging/components/gallery/CommentMetadataField.jsx";
-import DefaultMetadaField
-    from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
+import DefaultMetadataField from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
+import EditableMetadataField from "@src/js/components/common/imaging/components/gallery/EditableMetadataField.jsx";
 
 const useStyles = makeStyles((theme) => ({
     card: {
@@ -30,83 +29,87 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const GalleryListView = ({ previewContainerList, onOpenPreview, onEditComment }) => {
+const GalleryListView = ({ previewContainerList, onOpenPreview, onEditComment, onEditNote }) => {
     const classes = useStyles();
 
-    const renderMetadataField = (datasetProperties, idx) => {
-        return isObjectEmpty(datasetProperties) ?
-                                    <p>No Property to display</p>
-                                    : Object.entries(datasetProperties).map(([key, value], pos) =>
-                                        <DefaultMetadaField key={'property-' + idx + '-' + pos} keyProp={key} valueProp={value} idx={idx} pos={pos} />)
+    const renderDatasetProps = (datasetProperties, datasetId, idx) => {
+        if (isObjectEmpty(datasetProperties)) {
+            <p>No Properties to display</p>
+        } else {
+            return Object.entries(datasetProperties).map(([key, value], pos) => {
+                console.log(key, value)
+                if (key === 'IMAGING_NOTES') {
+                    return <EditableMetadataField keyProp={key}
+                        valueProp={value}
+                        idx={idx}
+                        onEdit={newVal => onEditNote(newVal, datasetId)} />
+                } else {
+                    return <DefaultMetadataField key={'property-' + idx + '-' + pos} keyProp={key} valueProp={value} idx={idx} pos={pos} />
+                }
+            })
+        }
+
     }
 
     const renderCommentField = (previewContainer, idx) => {
-        console.log('renderCommentField: ', previewContainer);
-        return isObjectEmpty(previewContainer.preview.metadata) ?
-        <p>No Preview metadata to display</p>
-        : Object.entries(previewContainer.preview.metadata)
-            .map(([key, value], pos) =>
-                <CommentMetadataField key={key}
-                    keyProp={key}
-                    valueProp={value}
-                    pos={pos}
-                    idx={idx}
-                    onEditComment={newVal => onEditComment(newVal, previewContainer, idx)} />
-            )
+        return <EditableMetadataField keyProp={"COMMENT"}
+            valueProp={previewContainer.preview.comment}
+            idx={idx}
+            onEdit={newVal => onEditComment(newVal, previewContainer, idx)} />
+
+    }
+
+    const renderMetadataFields = (metadata, idx) => {
+        return <DefaultMetadataField key={'property-metadata'} keyProp={'METADATA'} valueProp={metadata} />
+        /* if (isObjectEmpty(metadata)) {
+            return <DefaultMetadataField key={'property-metadata'} keyProp={'METADATA'} valueProp={metadata} />
+        } else {
+            return Object.entries(metadata).map(([key, value], pos) =>
+                <DefaultMetadataField key={'property-' + idx + '-' + pos} keyProp={key} valueProp={value} idx={idx} pos={pos} />)
+        } */
     }
 
     return (<ImageList sx={{ width: '100%', height: '800px' }} cols={1} gap={5}>
-            {previewContainerList.map((previewContainer, idx) => (
-                <ImageListItem style={{ height: 'unset' }} key={'image-list-item-' + idx}>
-                    <Card className={classes.card} key={'card-list-item-' + idx}>
-                        <CardActionArea style={{ width: 'unset' }}>
-                            <CardMedia component="img"
-                                alt={""}
-                                src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
-                                onClick={() => onOpenPreview(previewContainer.datasetId)}
-                            />
-                        </CardActionArea>
-                        <CardContent className={classes.content}>
-                            <Typography key={`metadata-datasetid-${idx}`} gutterBottom variant="h5">
-                                Data Set ID - {previewContainer.datasetId}
-                            </Typography>
-                            <Divider />
-                            <Typography key={`dataset-types-header-${idx}`} gutterBottom variant="h6">
-                                Data Set Types
-                            </Typography>
-                            <Typography key={`dataset-types-${idx}`} variant="body2"
-                                component={'span'} sx={{
-                                    color: "textSecondary"
-                                }}>
-                                {renderMetadataField(previewContainer.datasetProperties, idx)}
-                            </Typography>
-                            <Divider />
-                            <Typography key={`preview-metadata-header-${idx}`} gutterBottom variant="h6">
-                                Preview Metadata
-                            </Typography>
-                            <Typography key={`preview-metadata-${idx}`} variant="body2"
-                                component={'span'} sx={{
-                                    color: "textSecondary"
-                                }}>
-                                {isObjectEmpty(previewContainer.preview.metadata) ?
-                                    <p>No Preview metadata to display</p>
-                                    : Object.entries(previewContainer.preview.metadata)
-                                        .map(([key, value], pos) =>
-                                            <CommentMetadataField key={key}
-                                                keyProp={key}
-                                                valueProp={value}
-                                                pos={pos}
-                                                idx={idx}
-                                                onEditComment={newVal => onEditComment(newVal, previewContainer, idx)} />
-                                        )
-                                }
-                                {renderCommentField(previewContainer, idx)}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                </ImageListItem>
-            ))}
-        </ImageList>
+        {previewContainerList.map((previewContainer, idx) => (
+            <ImageListItem style={{ height: 'unset' }} key={'image-list-item-' + idx}>
+                <Card className={classes.card} key={'card-list-item-' + idx}>
+                    <CardActionArea style={{ width: 'unset' }}>
+                        <CardMedia component="img"
+                            alt={""}
+                            src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
+                            onClick={() => onOpenPreview(previewContainer.datasetId)}
+                        />
+                    </CardActionArea>
+                    <CardContent className={classes.content}>
+                        <Typography key={`metadata-datasetid-${idx}`} gutterBottom variant="h5">
+                            Data Set ID - {previewContainer.datasetId}
+                        </Typography>
+                        <Divider />
+                        <Typography key={`dataset-types-header-${idx}`} gutterBottom variant="h6">
+                            Data Set Types
+                        </Typography>
+                        <Typography key={`dataset-types-${idx}`} variant="body2"
+                            component={'span'} sx={{
+                                color: "textSecondary"
+                            }}>
+                            {renderDatasetProps(previewContainer.datasetProperties, previewContainer.datasetId, idx)}
+                        </Typography>
+                        <Divider />
+                        <Typography key={`preview-metadata-header-${idx}`} gutterBottom variant="h6">
+                            Preview Metadata
+                        </Typography>
+                        <Typography key={`preview-metadata-${idx}`} variant="body2"
+                            component={'span'} sx={{
+                                color: "textSecondary"
+                            }}>
+                            {renderMetadataFields(previewContainer.preview.metadata, idx)}
+                            {renderCommentField(previewContainer, idx)}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </ImageListItem>
+        ))}
+    </ImageList>
     );
 }
 

@@ -126,7 +126,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
     const handleEditComment = async (comment, previewContainer, idx) => {
         handleOpen();
         let selectedPreviewContainer = previewContainer;
-        selectedPreviewContainer.preview.metadata['comment'] = comment;
+        selectedPreviewContainer.preview.comment = comment;
         try {
             const isSaved = await imagingFacade.updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreviewContainer.preview);
             if (isSaved === null) {
@@ -134,6 +134,17 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
                 updatedContainerList[idx] = selectedPreviewContainer;
                 setPreviewsInfo({...previewsInfo, previewContainerList: updatedContainerList});
             }
+        } catch (error) {
+            handleError(error);
+        } finally {
+            setOpen(false);
+        }
+    }
+
+    const handleEditNote = async (note, datasetId) => {
+        handleOpen();
+        try {
+            await imagingFacade.editImagingDatasetNote(datasetId, note);
         } catch (error) {
             handleError(error);
         } finally {
@@ -208,7 +219,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStor
                                          onOpenPreview={onOpenPreview}
                                          handleShowPreview={handleShowPreview}
                                          handleSelectPreview={handleSelectPreview} />
-                : <GalleryListView previewContainerList={previewContainerList} onOpenPreview={onOpenPreview} onEditComment={handleEditComment}/> }
+                : <GalleryListView previewContainerList={previewContainerList} onOpenPreview={onOpenPreview} onEditComment={handleEditComment} onEditNote={handleEditNote}/> }
 
         </>
     );
