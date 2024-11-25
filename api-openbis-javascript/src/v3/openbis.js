@@ -150,12 +150,11 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				return dfd.promise();
 			} else {
 				var thisFacade = this;
+
 				var criteria = new DataStoreSearchCriteria();
 				criteria.withKind().thatIn([DataStoreKind.DSS]);
-				criteria.withOrOperator();
-
-				for (var i = 0; i < dataStoreCodes.length; i++) {
-					criteria.withCode().thatEquals(dataStoreCodes[i]);
+				if (dataStoreCodes.length > 0) {
+					criteria.withCodes().thatIn(dataStoreCodes)
 				}
 
 				return facade.searchDataStores(criteria, new DataStoreFetchOptions()).then(function(results) {

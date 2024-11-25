@@ -22,7 +22,9 @@ import static org.testng.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
@@ -36,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
@@ -287,18 +290,34 @@ public class DeleteExperimentTest extends AbstractDeletionTest
     @Test
     public void testDeleteSampleOfASampleProperty()
     {
-        // Given
+        Comparator<PropertyHistoryEntry> PROPERTY_HISTORY_COMPARATOR = Comparator.comparing(
+                        PropertyHistoryEntry::getPropertyName).thenComparing(e -> e.getPropertyValue().length())
+                .thenComparing(PropertyHistoryEntry::getPropertyValue);
+
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        PropertyTypePermId propertyType = createASamplePropertyType(sessionToken, null);
-        EntityTypePermId experimentType = createAnExperimentType(sessionToken, true, propertyType);
-        ExperimentCreation creation = new ExperimentCreation();
-        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
-        creation.setTypeId(experimentType);
-        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
-        SamplePermId propertySamplePermId = createCisdSample(createCisdExperiment());
-        SamplePE propertySample = daoFactory.getSampleDAO().tryToFindByPermID(propertySamplePermId.getPermId());
-        creation.setProperty(propertyType.getPermId(), propertySamplePermId.getPermId());
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+
+        // create SAMPLE-PROPERTY-SINGLE-VALUED and SAMPLE-PROPERTY-MULTI-VALUED property types
+        PropertyTypePermId propertyTypeSingleValued =
+                createASamplePropertyType(sessionToken, null, "SAMPLE-PROPERTY-SINGLE-VALUED-" + System.currentTimeMillis(), false);
+        PropertyTypePermId propertyTypeMultiValued =
+                createASamplePropertyType(sessionToken, null, "SAMPLE-PROPERTY-MULTI-VALUED-" + System.currentTimeMillis(), true);
+        EntityTypePermId experimentType = createAnExperimentType(sessionToken, false, propertyTypeSingleValued, propertyTypeMultiValued);
+
+        ExperimentPermId propertySampleExperimentPermId = createCisdExperiment();
+        SamplePermId propertySampleAPermId = createCisdSample(propertySampleExperimentPermId, "SAMPLE-A-" + System.currentTimeMillis());
+        SamplePermId propertySampleBPermId = createCisdSample(propertySampleExperimentPermId, "SAMPLE-B-" + System.currentTimeMillis());
+        SamplePE propertySampleA = daoFactory.getSampleDAO().tryToFindByPermID(propertySampleAPermId.getPermId());
+        SamplePE propertySampleB = daoFactory.getSampleDAO().tryToFindByPermID(propertySampleBPermId.getPermId());
+
+        // create experiment with SAMPLE-PROPERTY-SINGLE-VALUED = SAMPLE-A and SAMPLE-PROPERTY-MULTI-VALUED = SAMPLE-A, SAMPLE-B
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        experimentCreation.setTypeId(experimentType);
+        experimentCreation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        experimentCreation.setProperty(propertyTypeSingleValued.getPermId(), propertySampleAPermId.getPermId());
+        experimentCreation.setMultiValueSampleProperty(propertyTypeMultiValued.getPermId(), List.of(propertySampleAPermId, propertySampleBPermId));
+        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(experimentCreation)).get(0);
+
         SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
         deletionOptions.setReason("a test");
 
@@ -308,40 +327,95 @@ public class DeleteExperimentTest extends AbstractDeletionTest
         fetchOptions.withPropertiesHistory();
 
         Experiment experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
-        assertEquals(experiment.getPropertiesHistory().size(), 1);
+        List<PropertyHistoryEntry> propertiesHistory =
+                experiment.getPropertiesHistory().stream().map(e -> (PropertyHistoryEntry) e).collect(Collectors.toList());
+        assertEquals(propertiesHistory.size(), 3);
+        Collections.sort(propertiesHistory, PROPERTY_HISTORY_COMPARATOR);
 
-        PropertyHistoryEntry propertyHistoryEntry = (PropertyHistoryEntry) experiment.getPropertiesHistory().get(0);
-        assertEquals(propertyHistoryEntry.getPropertyName(), propertyType.getPermId());
-        assertEquals(propertyHistoryEntry.getPropertyValue(), String.valueOf(propertySample.getPermId()));
-        assertNotNull(propertyHistoryEntry.getValidFrom());
-        assertNull(propertyHistoryEntry.getValidTo());
+        // property history entries have SAMPLE-A and SAMPLE-B values as perm ids
+        assertEquals(propertiesHistory.get(0).getPropertyName(), propertyTypeMultiValued.getPermId());
+        assertEquals(propertiesHistory.get(0).getPropertyValue(), String.valueOf(propertySampleA.getPermId()));
+        assertNotNull(propertiesHistory.get(0).getValidFrom());
+        assertNull(propertiesHistory.get(0).getValidTo());
 
-        // When
-        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Arrays.asList(propertySamplePermId), deletionOptions);
+        assertEquals(propertiesHistory.get(1).getPropertyName(), propertyTypeMultiValued.getPermId());
+        assertEquals(propertiesHistory.get(1).getPropertyValue(), String.valueOf(propertySampleB.getPermId()));
+        assertNotNull(propertiesHistory.get(1).getValidFrom());
+        assertNull(propertiesHistory.get(1).getValidTo());
 
-        // Then
+        assertEquals(propertiesHistory.get(2).getPropertyName(), propertyTypeSingleValued.getPermId());
+        assertEquals(propertiesHistory.get(2).getPropertyValue(), String.valueOf(propertySampleA.getPermId()));
+        assertNotNull(propertiesHistory.get(2).getValidFrom());
+        assertNull(propertiesHistory.get(2).getValidTo());
+
+        // move SAMPLE-A to trash
+        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Arrays.asList(propertySampleAPermId), deletionOptions);
+
         experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
-        assertEquals(experiment.getSampleProperties().toString(), "{}");
-        assertEquals(experiment.getProperties().toString(), "{}");
-        assertEquals(experiment.getPropertiesHistory().size(), 1);
+        assertEquals(experiment.getSampleProperties().size(), 1);
+        assertSamplePermIdsInOrder(experiment.getSampleProperties().get(propertyTypeMultiValued.getPermId()), propertySampleBPermId.getPermId());
+        assertEquals(experiment.getProperties().size(), 1);
+        assertEquals(experiment.getProperties().get(propertyTypeMultiValued.getPermId()), propertySampleBPermId.getPermId());
+        propertiesHistory =
+                experiment.getPropertiesHistory().stream().map(e -> (PropertyHistoryEntry) e).collect(Collectors.toList());
+        assertEquals(propertiesHistory.size(), 3);
+        Collections.sort(propertiesHistory, PROPERTY_HISTORY_COMPARATOR);
 
-        propertyHistoryEntry = (PropertyHistoryEntry) experiment.getPropertiesHistory().get(0);
-        assertEquals(propertyHistoryEntry.getPropertyName(), propertyType.getPermId());
-        assertEquals(propertyHistoryEntry.getPropertyValue(), String.valueOf(propertySample.getId()));
-        assertNotNull(propertyHistoryEntry.getValidFrom());
-        assertNull(propertyHistoryEntry.getValidTo());
+        // property history entries have SAMPLE-A value as tech id and SAMPLE-B value as perm id
+        assertEquals(propertiesHistory.get(0).getPropertyName(), propertyTypeMultiValued.getPermId());
+        assertEquals(propertiesHistory.get(0).getPropertyValue(), String.valueOf(propertySampleA.getId()));
+        assertNotNull(propertiesHistory.get(0).getValidFrom());
+        assertNull(propertiesHistory.get(0).getValidTo());
 
+        assertEquals(propertiesHistory.get(1).getPropertyName(), propertyTypeMultiValued.getPermId());
+        assertEquals(propertiesHistory.get(1).getPropertyValue(), String.valueOf(propertySampleB.getPermId()));
+        assertNotNull(propertiesHistory.get(1).getValidFrom());
+        assertNull(propertiesHistory.get(1).getValidTo());
+
+        assertEquals(propertiesHistory.get(2).getPropertyName(), propertyTypeSingleValued.getPermId());
+        assertEquals(propertiesHistory.get(2).getPropertyValue(), String.valueOf(propertySampleA.getId()));
+        assertNotNull(propertiesHistory.get(2).getValidFrom());
+        assertNull(propertiesHistory.get(2).getValidTo());
+
+        // delete SAMPLE-A permanently
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
-        experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
-        assertEquals(experiment.getSampleProperties().toString(), "{}");
-        assertEquals(experiment.getProperties().toString(), "{}");
-        assertEquals(experiment.getPropertiesHistory().size(), 1);
 
-        propertyHistoryEntry = (PropertyHistoryEntry) experiment.getPropertiesHistory().get(0);
-        assertEquals(propertyHistoryEntry.getPropertyName(), propertyType.getPermId());
-        assertEquals(propertyHistoryEntry.getPropertyValue(), String.valueOf(propertySample.getId()));
-        assertNotNull(propertyHistoryEntry.getValidFrom());
-        assertNotNull(propertyHistoryEntry.getValidTo());
+        experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
+        assertEquals(experiment.getSampleProperties().size(), 1);
+        assertSamplePermIdsInOrder(experiment.getSampleProperties().get(propertyTypeMultiValued.getPermId()), propertySampleBPermId.getPermId());
+        assertEquals(experiment.getProperties().size(), 1);
+        assertEquals(experiment.getProperties().get(propertyTypeMultiValued.getPermId()), propertySampleBPermId.getPermId());
+        propertiesHistory =
+                experiment.getPropertiesHistory().stream().map(e -> (PropertyHistoryEntry) e).collect(Collectors.toList());
+        assertEquals(propertiesHistory.size(), 3);
+        Collections.sort(propertiesHistory, PROPERTY_HISTORY_COMPARATOR);
+
+        // property history entries have SAMPLE-A value as tech id and SAMPLE-B value as perm id
+        assertEquals(propertiesHistory.get(0).getPropertyName(), propertyTypeMultiValued.getPermId());
+        assertEquals(propertiesHistory.get(0).getPropertyValue(), String.valueOf(propertySampleA.getId()));
+        assertNotNull(propertiesHistory.get(0).getValidFrom());
+        assertNotNull(propertiesHistory.get(0).getValidTo());
+
+        assertEquals(propertiesHistory.get(1).getPropertyName(), propertyTypeMultiValued.getPermId());
+        assertEquals(propertiesHistory.get(1).getPropertyValue(), String.valueOf(propertySampleB.getPermId()));
+        assertNotNull(propertiesHistory.get(1).getValidFrom());
+        assertNull(propertiesHistory.get(1).getValidTo());
+
+        assertEquals(propertiesHistory.get(2).getPropertyName(), propertyTypeSingleValued.getPermId());
+        assertEquals(propertiesHistory.get(2).getPropertyValue(), String.valueOf(propertySampleA.getId()));
+        assertNotNull(propertiesHistory.get(2).getValidFrom());
+        assertNotNull(propertiesHistory.get(2).getValidTo());
+
+        // update SAMPLE-PROPERTY-SINGLE-VALUED and SAMPLE-PROPERTY-MULTI-VALUED property values
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentPermId);
+        update.setProperty(propertyTypeSingleValued.getPermId(), null);
+        update.setProperty(propertyTypeMultiValued.getPermId(), null);
+        v3api.updateExperiments(sessionToken, List.of(update));
+
+        experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
+        assertEquals(experiment.getProperties().size(), 0);
+        assertEquals(experiment.getSampleProperties().size(), 0);
     }
 
     @Test

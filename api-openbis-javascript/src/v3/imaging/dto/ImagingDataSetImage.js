@@ -49,7 +49,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             name : "List",
             arguments : [ "ImagingDataSetPreview"]
         },
-        config : {
+        imageConfig : {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         },
