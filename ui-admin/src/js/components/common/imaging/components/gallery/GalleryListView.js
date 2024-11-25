@@ -37,7 +37,6 @@ const GalleryListView = ({ previewContainerList, onOpenPreview, onEditComment, o
             <p>No Properties to display</p>
         } else {
             return Object.entries(datasetProperties).map(([key, value], pos) => {
-                console.log(key, value)
                 if (key === 'IMAGING_NOTES') {
                     return <EditableMetadataField keyProp={key}
                         valueProp={value}

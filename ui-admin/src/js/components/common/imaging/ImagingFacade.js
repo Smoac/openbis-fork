@@ -217,7 +217,7 @@ export default class ImagingFacade {
             //console.log('splittedText: ', splittedText);
             for(const value of splittedText){
                 console.log('Search on [', property, '] with text [', value, ']')
-                if (property === messages.get(messages.ALL) || property === constants.IMAGING_TAGS) {
+                if (property === messages.get(messages.ALL) || property === constants.IMAGING_TAGS || property === 'XMLCOMMENTS') {
                     subCriteria.withAnyStringProperty().thatContains(value);
                     //subCriteria.withAnyProperty().thatContains(value);
                 } else {

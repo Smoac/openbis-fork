@@ -31,6 +31,8 @@ export default class ImagingMapper{
         imagingDataSetPreview.index = preview.index;
         imagingDataSetPreview.show = preview.show;
         imagingDataSetPreview.metadata = preview.metadata;
+        imagingDataSetPreview.tags = preview.tags;
+        imagingDataSetPreview.comment = preview.comment;
         return imagingDataSetPreview;
     }
 
