@@ -12,9 +12,6 @@ import Autocomplete from '@mui/material/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
-
 const style = {
     position: 'absolute',
     top: '50%',
@@ -50,12 +47,29 @@ const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
     const [tags, setTags] = React.useState(activePreview.tags)
     const [inputValue, setInputValue] = React.useState(activePreview.tags);
 
+
+    React.useEffect(() => {
+        //console.log('activePreview.tags: ', activePreview.tags);
+        var trasformedTags = []
+        for (const activePreviewTag of activePreview.tags) {
+            //console.log('activePreviewTag: ', activePreviewTag);
+            const matchTag = imagingTags.find(imagingTag => imagingTag.value === activePreviewTag);
+            //console.log("matchTag: ", matchTag);
+            trasformedTags.push(matchTag);
+        }
+        //console.log("trasformedTags: ", trasformedTags);
+        setTags(trasformedTags);
+        setInputValue(trasformedTags);
+    }, [activePreview])
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const hangleTagsChange = (tagAll) => {
         handleClose();
-        handleTagImage(tagAll, tags);
+        const tagsArray = tags.map(tag => tag.value);
+        //console.log('hangleTagsChange: ', tagsArray);
+        handleTagImage(tagAll, tagsArray);
     }
     
     console.log("TagModal - activePreview: ", activePreview);
@@ -64,7 +78,7 @@ const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
         <Button
             label={messages.get(messages.TAGS)}
             type='final'
-            color='primary'
+            color='inherit'
             variant='outlined'
             onClick={handleOpen}
             startIcon={<StyleIcon/>} />
@@ -84,6 +98,7 @@ const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
                     disableCloseOnSelect
                     getOptionLabel={(option) => option.label}
                     inputValue={inputValue}
+                    value={tags}
                     onInputChange={(event, newInputValue) => {
                         setInputValue(newInputValue);
                       }}
@@ -95,8 +110,8 @@ const TagModal = ({handleTagImage, imagingTags, activePreview}) => {
                         return (
                           <li key={key} {...optionProps}>
                             <Checkbox
-                              icon={icon}
-                              checkedIcon={checkedIcon}
+                              icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                              checkedIcon={<CheckBoxIcon fontSize="small" />}
                               style={{ marginRight: 8 }}
                               checked={selected}
                             />

@@ -205,8 +205,10 @@ export default class ImagingFacade {
             const subCriteria = criteria.withSubcriteria();
             operator === messages.get(messages.OPERATOR_AND) ? subCriteria.withAndOperator() : subCriteria.withOrOperator();
             const splittedText = filterText.split(' ');
+            //console.log('splittedText: ', splittedText);
             for(const value of splittedText){
-                if (property === messages.get(messages.ALL)) {
+                console.log('Search on [', property, '] with text [', value, ']')
+                if (property === messages.get(messages.ALL) || property === constants.IMAGING_TAGS) {
                     subCriteria.withAnyStringProperty().thatContains(value);
                     //subCriteria.withAnyProperty().thatContains(value);
                 } else {

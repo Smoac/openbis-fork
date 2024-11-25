@@ -62,7 +62,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                 const imagingDataSetPropertyConfig = await imagingFacade.loadImagingDataset(objId);
                 const imagingTagsArr = await imagingFacade.loadImagingTagsVocabularyTerms(imagingFacade);
                 if (isObjectEmpty(imagingDataSetPropertyConfig.images[0].previews[0].config)) {
-                    imagingDataSetPropertyConfig.images[0].previews[0].config = this.createInitValues(imagingDataSetPropertyConfig.config.inputs, {});
+                    imagingDataSetPropertyConfig.images[0].previews[0].config = this.createInitValues(imagingDataSetPropertyConfig.images[0].config.inputs, {});
                     this.setState({
                         open: false,
                         loaded: true,
@@ -78,7 +78,6 @@ class ImagingDataSetViewer extends React.PureComponent {
                         imagingTags: imagingTagsArr
                     });
                 }
-                console.log("componentDidMount: ", imagingDataSetPropertyConfig);
             } catch (error) {
                 this.handleError(error);
             }
@@ -279,11 +278,11 @@ class ImagingDataSetViewer extends React.PureComponent {
         const { imagingDataset, activeImageIdx, activePreviewIdx } = this.state;
         const { extOpenbis, onUnsavedChanges } = this.props;
         let toUpdateImgDs = { ...imagingDataset };
-        let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
-        let inputValues = this.createInitValues(imagingDataset.config.inputs, toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx].config);
-        let imagingDataSetPreview = new ImagingMapper(extOpenbis)
-            .getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
-        toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, imagingDataSetPreview];
+        let activeImage = toUpdateImgDs.images[activeImageIdx];
+        let newLastIdx = activeImage.previews.length;
+        let inputValues = this.createInitValues(imagingDataset.images[0].config.inputs, activeImage.previews[activePreviewIdx].config);
+        let imagingDataSetPreview = new ImagingMapper(extOpenbis).getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
+            activeImage.previews = [...activeImage.previews, imagingDataSetPreview];
         this.setState({
             activePreviewIdx: newLastIdx,
             imagingDataset: toUpdateImgDs,
