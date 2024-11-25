@@ -89,6 +89,8 @@ public final class EntityPropertyTranslator
                     if (sampleProperty != null && samplePropertyAccessValidator.isValid(sampleProperty))
                     {
                         basicProperty.setSample(SampleTranslator.translateWithoutRevealingData(sampleProperty));
+                    } else {
+                        return null;
                     }
                 }
                 break;
@@ -125,8 +127,11 @@ public final class EntityPropertyTranslator
         final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final EntityPropertyPE property : list)
         {
-            result.add(translate(property, materialTypeCache, cacheOrNull, true, managedPropertyEvaluatorFactory,
-                    samplePropertyAccessValidator));
+            final IEntityProperty translated = translate(property, materialTypeCache, cacheOrNull, true, managedPropertyEvaluatorFactory,
+                    samplePropertyAccessValidator);
+            if(translated != null) {
+                result.add(translated);
+            }
         }
         return result;
     }
@@ -144,8 +149,12 @@ public final class EntityPropertyTranslator
         final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final EntityPropertyPE property : list)
         {
-            result.add(translate(property, materialTypeCache, cacheOrNull, managedPropertyEvaluatorFactory,
-                    samplePropertyAccessValidator));
+            final IEntityProperty translated = translate(property, materialTypeCache, cacheOrNull, managedPropertyEvaluatorFactory,
+                    samplePropertyAccessValidator);
+            if(translated != null)
+            {
+                result.add(translated);
+            }
         }
         return result;
     }
@@ -164,8 +173,12 @@ public final class EntityPropertyTranslator
         int idx = 0;
         for (final EntityPropertyPE property : list)
         {
-            result[idx++] = translate(property, materialTypeCache, cacheOrNull, managedPropertyEvaluatorFactory,
+            final IEntityProperty translated = translate(property, materialTypeCache, cacheOrNull, managedPropertyEvaluatorFactory,
                     samplePropertyAccessValidator);
+            if(translated != null)
+            {
+                result[idx++] = translated;
+            }
         }
         return result;
     }

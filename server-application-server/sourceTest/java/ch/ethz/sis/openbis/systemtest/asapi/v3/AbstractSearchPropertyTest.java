@@ -936,13 +936,13 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
 
         final EntityTypePermId propertySampleType1 = createASampleType(sessionToken, false);
         final PropertyTypePermId samplePropertyType1 = createASamplePropertyType(sessionToken, propertySampleType1,
-                samplePropertyCode1);
+                samplePropertyCode1, false);
         final PropertyTypePermId samplePropertyType2 = createASamplePropertyType(sessionToken, propertySampleType1,
-                samplePropertyCode2);
+                samplePropertyCode2, false);
 
         final EntityTypePermId propertySampleType2 = createASampleType(sessionToken, false);
         final PropertyTypePermId samplePropertyType3= createASamplePropertyType(sessionToken, propertySampleType2,
-                samplePropertyCode3);
+                samplePropertyCode3, false);
 
         final EntityTypePermId searchTest1EntityType = createEntityType(sessionToken, null, samplePropertyType1,
                 samplePropertyType2);
