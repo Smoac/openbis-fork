@@ -38,25 +38,39 @@ public class VocabularyTermImportHelper extends BasicImportHelper
     private static final String VOCABULARY_CODE_FIELD = "Code";
 
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Label("Label", true),
-        Description("Description", true);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Label("Label", true, false),
+        Description("Description", true, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
@@ -90,7 +104,6 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
         if (code == null)
@@ -104,12 +117,12 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
         if (canUpdate == false) {
             return false;
-        } if (canUpdate && (version == null || version.isEmpty())) {
-            return true;
-        } else {
-            return VersionUtils.isNewVersion(version,
-                    VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code));
         }
+
+        return isNewVersionWithInternalNamespace(header, values, versions,
+                delayedExecutor.isSystem(),
+                ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode,
+                Attribute.Version, Attribute.Code, isInternalNamespace);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
