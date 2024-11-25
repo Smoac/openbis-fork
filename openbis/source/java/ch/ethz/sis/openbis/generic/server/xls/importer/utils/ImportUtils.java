@@ -40,9 +40,9 @@ public class ImportUtils
         isProjectSamplesEnabled = CommonServiceProvider.getCommonServer().isProjectSamplesEnabled(null);
     }
 
-    public static boolean isInternalNamespace(String property)
+    public static boolean isInternalNamespace(String propertyCode)
     {
-        return property.startsWith("$");
+        return propertyCode != null && propertyCode.startsWith("$");
     }
 
     public static ISampleId buildSampleIdentifier(String id)
