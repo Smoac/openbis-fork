@@ -25,13 +25,13 @@
 |------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
 | max-number-of-sessions-per-user                | 5                                             | The maximum number of sessions a single user is allowed to have open                    |
 | personal-access-tokens-enabled                 | true                                          | Enable personal access tokens                                                           |
-| personal-access-tokens-file-path               | /home/openbis/run/personal-access-tokens.json |                                                                                         |
+| personal-access-tokens-file-path               | ${root-dir}/personal-access-tokens.json       |                                                                                         |
 | personal-access-tokens-max-validity-period     | 2592000                                       | Validity of personal access tokens                                                      |
 | personal-access-tokens-validity-warning-period | 432000                                        |                                                                                         |
 | session-workspace-root-dir                     | ${storeroot-dir}/sessionWorkspace             |                                                                                         |
 | session-timeout                                | 720                                           | The time after which an inactive session is expired by the service (in minutes).        |
-| session-timeout-no-login                       |                                               | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |
-| users-with-unrestricted-number-of-sessions     |                                               |                                                                                         |
+| session-timeout-no-login                       | 10                                            | Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. |
+| users-with-unrestricted-number-of-sessions     | etlserver                                     | Specify user(s) allowed to have an unrestriced amount of sessions. This is typically only useful for the internal etlserver user (the user contacting the openBIS Application Server) |
 
 ### Mail server Configuration (Optional)
 
@@ -57,27 +57,12 @@
 
 ### Authentication Configuration (Required)
 
-Supported Authentication options are:
-- 'file-authentication-service'
-- 'ldap-authentication-service'
-- 'crowd-authentication-service' TO_DELETE?
-- 'file-crowd-authentication-service' TO_DELETE?
-- 'file-ldap-authentication-service'
-- 'stacked-authentication-service' : ldap - crowd TO_DELETE?
-
-crowd prefixed properties are only used by crowd. TO_DELETE?
-ldap prefixed properties are only used by ldap.
-
 | Key                                        | Example Value               | Short Explanation                                                                                                                                       |
 |--------------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
 | allow-missing-user-creation                | false                       | When a new person is created in the database the authentication service is asked by default whether this person is known by the authentication service  |
-| authentication-service                     | file-authentication-service | Authentication configuration                                                                                                                            |
+| authentication-service                     | file-authentication-service | Authentication configuration - can be 'file-authentication-service', 'ldap-authentication-service', or 'file-ldap-authentication-service'               |
 | authentication-service.switch-aai.label    | Single Sign On Login Service | Label of the single sign-on (shibboleth) login service provider                                                                                        |
 | authentication-service.switch-aai.link     | https://${host}/Shibboleth.sso/Login?target=https://${host}/shibboleth?redirect-url=${current-url} | URL to be used for authenticating via the shibboleth login service provider      |
-| crowd.service.host                         |                             | TO_DELETE? Crowd configuration                                                                                                                          |
-| crowd.service.port                         |                             | TO_DELETE?                                                                                                                                              |
-| crowd.application.name                     |                             | TO_DELETE?                                                                                                                                              |
-| crowd.application.password                 |                             | TO_DELETE?                                                                                                                                              |
 | ldap.server.url                            | <LDAP URL1> <LDAP URL2>     | The space-separated URLs of the LDAP servers                                                                                                            |
 | ldap.security.principal.distinguished.name |                             | The distinguished name of the security principal                                                                                                        |
 | ldap.security.principal.password           |                             |                                                                                                                                                         |
@@ -95,6 +80,7 @@ ldap prefixed properties are only used by ldap.
 | ldap.timeout                               |                             |                                                                                                                                                         |
 | ldap.timeToWaitAfterFailure                |                             |                                                                                                                                                         |
 | user-for-anonymous-login                   |                             | Login of the existing user whose settings will be used for anonymous login                                                                              |
+| single-sign-on.enabled                     | false                       | Used to switch on or off single sign-on authentication                                                                                                  |
 
 ### Authorization Configuration (Required)
 
@@ -102,6 +88,25 @@ ldap prefixed properties are only used by ldap.
 |-------------------------------------|---------------|-------------------|
 | authorization.project-level.enabled |               |                   |
 | authorization.project-level.users   |               |                   |
+
+### Hibernate Search Configuration (Optional)
+
+| Key                                      | Example Value | Short Explanation |
+|------------------------------------------|---------------|-------------------|
+| hibernate.search.batch-size | 1000 |  |
+| hibernate.search.index-base | ./indices |  |
+| hibernate.search.index-mode | SKIP_IF_MARKER_FOUND |  |
+| hibernate.search.maxResults | 100000 |  |
+| hibernate.search.worker.execution | async |  |
+
+### Support Related Configuration (Optional)
+
+| Key                                  | Example Value | Short Explanation |
+|--------------------------------------|---------------|-------------------|
+| memorymonitor-high-watermark-percent | 90            |                   |
+| memorymonitor-log-interval           | 3600          |                   |
+| memorymonitor-monitoring-interval    | 60            |                   |
+| openbis.support.email                |               |                   |
 
 ### AutoArchiver Configuration (optional)
 
@@ -118,37 +123,34 @@ ldap prefixed properties are only used by ldap.
 | `<AutoArchiverName>`.policy.minimal-archive-size | 10000000000 | Minimum size of container file (tar file) to be created by the AutoArchiver |
 | `<AutoArchiverName>`.remove-datasets-from-store | true | Remove datasets from store after the archiving is complete (true) or not (false) |
 
-### Hibernate Search Configuration (Optional)
+### Usage Reporting (Optional)
 
-| Key                                      | Example Value | Short Explanation |
-|------------------------------------------|---------------|-------------------|
-| hibernate.search.batch-size | 1000 |  |
-| hibernate.search.index-base | ./indices |  |
-| hibernate.search.index-mode | SKIP_IF_MARKER_FOUND |  |
-| hibernate.search.maxResults | 100000 |  |
-| hibernate.search.worker.execution | async |  |
+| Key                                                    | Example Value                                                     | Short Explanation                                                                                                          |
+|--------------------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| usage-reporting.class | ch.systemsx.cisd.openbis.generic.server.task.UsageReportingTask |  |
+| usage-reporting.configuration-file-path | ${root-dir}/user-management-maintenance-config.json |  |
+| usage-reporting.email-addresses |  |
+| usage-reporting.interval | 60 min |  |
+| usage-reporting.path-to-save-report | ${root-dir} |  |
+| usage-reporting.report-name-prefix |  |  |
+| usage-reporting.run-schedule | 1. 00:15 |  |
+| usage-reporting.spaces-to-be-ignored |  |  |
+| usage-reporting.start | 00:15 |  |
+| usage-reporting.title-name-prefix |  |  |
+| usage-reporting.user-reporting-type | ALL |  |
 
-### Miscellaneous Configuration (Optional)
+### User Management (Optional, Required for multi-group setups)
 
-| Key                                      | Example Value | Short Explanation |
-|------------------------------------------|---------------|-------------------|
-| create-continuous-sample-codes           | true          |                   |
-| data-set-types-with-no-experiment-needed |               |                   |
-| material-relax-code-constraints          |               |                   |
-| project-samples-enabled                  | true          |                   |
-| web-client-configuration-file            |               |                   |
-| trusted-cross-origin-domains             |               |                   |
-
-### Support Related Configuration (Optional)
-
-| Key                                  | Example Value | Short Explanation |
-|--------------------------------------|---------------|-------------------|
-| memorymonitor-high-watermark-percent | 90            |                   |
-| memorymonitor-log-interval           | 3600          |                   |
-| memorymonitor-monitoring-interval    | 60            |                   |
-| onlinehelp.generic.root-url          |               | TO_DELETE? - the default URL we use, https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp , no longer works         |
-| onlinehelp.generic.page-template     | true&fromPageId=40633829 | TO_DELETE?                  |
-| openbis.support.email                |               |                   |
+| Key                                                    | Example Value                                                     | Short Explanation                                                                                                          |
+|--------------------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| user-management.audit-log-file-path                    | /var/log/user-management-audit_log.txt | Path to user-managment audit log file |  |
+| user-management.class                                  | ch.systemsx.cisd.openbis.generic.server.task.UserManagementMaintenanceTask |  |
+| user-management.configuration-file-path                | ${root-dir}/user-management-maintenance-config.json |  |
+| user-management.deactivate-unknown-users               | false | Deactivate users unkown to the authentication backend (true) or not (false) |
+| user-management.interval                               | 1 h | Time interval by how often the user-management task should be invoked |
+| user-management.ldap-group-query-template              |  |  |
+| user-management.shares-mapping-file-path               | ${root-dir}/shares-mapping.txt | Path to shares-mapping file. Must match the value of post-registration.eager-shuffling.share-finder.mapping-file |
+| user-management.start                                  | 02:00 | Time (%H:%M) by when to start the user-management |
 
 ### Miscellaneous Configuration (Optional)
 
@@ -157,11 +159,17 @@ ldap prefixed properties are only used by ldap.
 | authorization-component-factory          | active-authorization             | Internal - do not change                                                                                                                                                         |
 | authorization.project-level.enabled      | true                             |                                                                                                                                                                                  |
 | authorization.project-level.users        | .*                               |                                                                                                                                                                                  |
+| create-continuous-sample-codes           | true                             |                                                                                                                                                                                  |
+| data-set-types-with-no-experiment-needed |                                  |                                                                                                                                                                                  |
 | entity-history.enabled                   | true                             | Enables/disables history of deleted entities. Default value is 'true', keeping entity history has a performance overhead on updates. On certain scenarios you might not want it. |
 | jython-version                           | 2.7                              | Internal - do not change                                                                                                                                                         |
 | maintenance-plugins                      |                                  | Comma-separated list of maintenance plugins to be configured for the AS                                                                                                          |
-| script-folder                            |                                  | Internal - do not change                                                                                                                                                         |
+| material-relax-code-constraints          |                                  |                                                                                                                                                                                  |
+| project-samples-enabled                  | true                             |                                                                                                                                                                                  |
+| script-folder                            | .                                | Internal - do not change                                                                                                                                                         |
 | server-public-information.afs-server.url | http://localhost:8085/afs-server | A URL of the AFS server which is used for data storage                                                                                                                           |
+| web-client-configuration-file            |                                  |                                                                                                                                                                                  |
+| trusted-cross-origin-domains             | *                                |                                                                                                                                                                                  |
 
 ### V3 API Configuration (Optional)
 
@@ -233,14 +241,15 @@ ldap prefixed properties are only used by ldap.
 | root-dir                                               | /home/openbis/data                                                | parent directory of the store directory and all the dropboxes                                                              |
 | rsync-options                                          | --no-p --no-o --no-g --chmod=Du=rwx,Fu=rw --chown=openbis:openbis | Typical options to disable coping general, owner and group permissions                                                     |
 | sample-name-property-code                              | samplename                                                        |                                                                                                                            |
-| server-url                                             | ${host-address}:8443                                              | The URL of the openBIS server                                                                                              |
+| server-url                                             | ${host-address}:8080                                              | The URL of the openBIS server                                                                                              |
 | session-timeout                                        | 720                                                               | Session timeout in minutes                                                                                                 |
 | shutdown-timeout                                       | 180                                                               | The time-out for clean up work in the shutdown sequence (in seconds).                                                      |
 | storeroot-dir                                          | ${root-dir}/store                                                 | The root directory of the data store                                                                                       |
 | use-ssl                                                | false                                                             |                                                                                                                            |
 | username                                               | etlserver                                                         | The username to use when contacting the openBIS Application Server (AS)                                                    |
 
-### Archiver Configuration
+### Archiver Configuration (Optional)
+
 | Key                                                    | Example Value                            | Short Explanation                                                                                                          |
 |--------------------------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | archiver.batch-size-in-bytes | 1520000000000 | Size of batches of datasets to be archived. Should be marginally higher than archiver.maximum_container_size_in_bytes |
@@ -281,6 +290,17 @@ ldap prefixed properties are only used by ldap.
 | archiver.wait-for-sanity-check | true | Wait for the sanity check to return with SUCCESS (true) or not (false) |
 | archiver.waiting-for-free-space-polling-time | 10 min | Time used to polling (querying) whether sufficient disk space got available on the final destination for storing the container file (.tar) |
 | archiver.with-sharding | false | Use directory sharding for the data stored on the archiving destination |
+
+### Archiving By Request Configuration (Optional)
+
+| Key                                                    | Example Value                            | Short Explanation                                                                                                          |
+|--------------------------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| multi-dataset-archiver-archiving-by-request.class      | ch.systemsx.cisd.openbis.generic.server.task.ArchivingByRequestTask | Archiving By Request class specification |
+| multi-dataset-archiver-archiving-by-request.configuration-file-path | ${user-management-config-file-path} |  |
+| multi-dataset-archiver-archiving-by-request.interval   | 10 min | Time interval at which the Archiver attempts to archive all data sets marked as 'archiving requested' through invoking the 'Request or disallow archiving' button in the ELN |
+| multi-dataset-archiver-archiving-by-request.keep-in-store | false | Keep datasets in the openBIS store after being successfully archived (true) or delete them (false) |
+| multi-dataset-archiver-archiving-by-request.maximum-container-size-in-bytes | 1500000000000 | Should match the value assigned to archiver.maximum-container-size-in-bytes |
+| multi-dataset-archiver-archiving-by-request.minimum-container-size-in-bytes | 10000000000 | Should match the value assigned to archiver.minimum-container-size-in-bytes |
 
 ### Database Configuration (Required)
 
@@ -340,6 +360,9 @@ ldap prefixed properties are only used by ldap.
 | post-registration.post-registration-tasks              | pathinfo-feeding                                                            |                                                                                                                            |
 | post-registration.pathinfo-feeding.class               | ch.systemsx.cisd.etlserver.path.PathInfoDatabaseFeedingTask                 |                                                                                                                            |
 | post-registration.pathinfo-feeding.compute-checksum    | true                                                                        |                                                                                                                            |
+| post-registration.eager-shuffling.class                | ch.systemsx.cisd.etlserver.postregistration.EagerShufflingTask              |                                                                                                                            |
+| post-registration.eager-shuffling.share-finder.class   | ch.systemsx.cisd.openbis.dss.generic.shared.MappingBasedShareFinder         |                                                                                                                            |
+| post-registration.eager-shuffling.share-finder.mapping-file | ${root-dir}/shares-mapping.txt                                         |                                                                                                                            |
 
 ### Processing Plugins (Optional)
 
@@ -354,12 +377,24 @@ ldap prefixed properties are only used by ldap.
 
 | Key                                    | Example Value                                                          | Short Explanation                                            |
 |----------------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------|
-| maintenance-plugins                    | post-registration, path-info-deletion                                  | Comma separated names of maintenance plugins.                |
+| maintenance-plugins                    | post-registration, path-info-deletion, data-set-and-path-info-db-consistency-check-task, fill-unknown-data-set-size-in-openbis-db-from-path-info-db, data-set-archiver-orphan-finder-task | Comma separated names of maintenance plugins. |
 | path-info-deletion.class               | ch.systemsx.cisd.etlserver.plugins.DeleteFromExternalDBMaintenanceTask | Maintenance task for deleting entries from pathinfo database |
 | path-info-deletion.interval            | 120                                                                    |                                                              |
 | path-info-deletion.data-source         | path-info-db                                                           |                                                              |
 | path-info-deletion.data-set-table-name | data_sets                                                              |                                                              |
 | path-info-deletion.data-set-perm-id    | CODE                                                                   |                                                              |
+| data-set-and-path-info-db-consistency-check-task.checking-time-interval | 36500 days |  |
+| data-set-and-path-info-db-consistency-check-task.class | ch.systemsx.cisd.etlserver.path.DataSetAndPathInfoDBConsistencyCheckTask |  |
+| data-set-and-path-info-db-consistency-check-task.continuing-time-point | 22:00 |  |
+| data-set-and-path-info-db-consistency-check-task.pausing-time-point | 09:00 |  |
+| data-set-and-path-info-db-consistency-check-task.run-schedule | cron: 0 0 22 5 * * |  |
+| fill-unknown-data-set-size-in-openbis-db-from-path-info-db.class | ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask |  |
+| fill-unknown-data-set-size-in-openbis-db-from-path-info-db.data-set-chunk-size | 1000 |  |
+| fill-unknown-data-set-size-in-openbis-db-from-path-info-db.run-schedule | cron: 0 0 22 * * SUN |  |
+| fill-unknown-data-set-size-in-openbis-db-from-path-info-db.time-limit | 3 hours |  |
+| data-set-archiver-orphan-finder-task.class | ch.systemsx.cisd.etlserver.plugins.DataSetArchiverOrphanFinderTask |  |
+| data-set-archiver-orphan-finder-task.run-schedule | cron: 0 15 1 * * * |  |
+| data-set-archiver-orphan-finder-task.email-addresses |  |  |
 
 ### Miscellaneous Configuration (Optional)
 
@@ -372,13 +407,13 @@ ldap prefixed properties are only used by ldap.
 | maintenance-tasks |  | Comma-separated list of maintenance tasks to be configured for the DSS |
 
 ### Screening Configuration (Optional)
+
 | Key                                    | Example Value                                                          | Short Explanation                                            |
 |----------------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------|
 | data-source-provider                   | dss-based-data-source-provider                                         |                                                              |
 | dss-based-data-source-provider.data-store-servers	| dss-screening | |
 | dss-based-data-source-provider.dss-screening.database-driver | org.postgresql.Driver | |
 | dss-based-data-source-provider.dss-screening.database-url | jdbc:postgresql://{{ openbis_local_hostname }}/imaging_productive | |
-
 
 ## PLUGIN MODULES
 
@@ -392,7 +427,6 @@ e.g
 | Core Plugin | Server Type | Plugin Type   | Plugin Name  | Plugin Property Name        |
 |-------------|-------------|---------------|--------------|-----------------------------|
 | eln-lims    | as          | miscellaneous | file-service | file-server.repository-path |
-
 
 ### ELN
 
@@ -464,9 +498,6 @@ e.g
 | eln-lims.dss.reporting-plugins.zenodo-exports-api.label                              |               |                   |
 | eln-lims.dss.reporting-plugins.zenodo-exports-api.script-path                        |               |                   |
 | eln-lims.dss.reporting-plugins.zenodo-exports-api.share-id                           |               |                   |
-| zenodo-exports-api-limit-data-size-megabytes                                         |               |                   |
-| zenodo-exports-api-zenodoUrl                                                         |               |                   |
-| zenodo-exports-api-accessToken                                                       |               |                   |
 | eln-lims.dss.search-domain-services.blastsearch.blast-tools-directory                |               |                   |
 | eln-lims.dss.search-domain-services.blastsearch.blast-databases-folder               |               |                   |
 | rc-exports-api-limit-data-size-megabytes                                             |               |                   |
@@ -478,6 +509,9 @@ e.g
 | default-incoming-share-id                                                            | 1             |                   |
 | default-incoming-share-minimum-free-space-in-gb                                      |               |                   |
 | download-url                                                                         |               |                   |
+| zenodo-exports-api-limit-data-size-megabytes                                         | 4000          |                   |
+| zenodo-exports-api-zenodoUrl                                                         |               |                   |
+| zenodo-exports-api-accessToken                                                       |               |                   |
 
 ### ADMIN
 
@@ -544,7 +578,7 @@ None.
 | dropbox-monitor.dss.reporting-plugins.dropboxReporter.label       |               |                   |
 | dropbox-monitor.dss.reporting-plugins.dropboxReporter.script-path |               |                   |
 | dropbox-monitor.dss.reporting-plugins.dropboxReporter.share-id    |               |                   |
-| root-dir                                                          |               |                   |
+| root-dir                                                          | /data         | The root directory of the DSS. This property should point to a peristent storage path that is also backed up. |
 | dss-registration-log-dir                                          | /var/log/openbis/dss/log-registrations |                   |
 
 ### IMAGING
@@ -604,31 +638,3 @@ None.
 #### DSS PROPERTIES
 
 None.
-
-### XLS-IMPORT
-
-#### AS PROPERTIES
-
-| Key                                               | Example Value | Short Explanation |
-|---------------------------------------------------|---------------|-------------------|
-| xls-import.as.services.xls-import-api.script-path |               |                   |
-
-#### DSS PROPERTIES
-
-None.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
