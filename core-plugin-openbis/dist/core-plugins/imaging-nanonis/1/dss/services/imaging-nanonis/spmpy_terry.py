@@ -289,6 +289,77 @@ class spm:
             print(label)
         
         return label
+
+
+    def print_params_dict(self, show = True):
+
+        # import numpy as np
+
+        label = {}
+
+        if self.type == 'scan':
+            fb_enable = self.get_param('z-controller>controller status')
+            fb_ctrl = self.get_param('z-controller>controller name')
+            bias = self.get_param('V')
+            set_point = self.get_param('setpoint')
+            height = self.get_param('height')
+            width = self.get_param('width')
+            angle = self.get_param('angle')
+            z_offset = self.get_param('z_offset')
+            comment = self.get_param('comments')
+
+
+
+            if fb_enable == 'OFF':
+                label['constant height'] = 'TRUE'
+                label['z-offset'] ='%.3f%s' % z_offset
+
+            if np.abs(bias[0])<0.1:
+                bias = list(bias)
+                bias[0] = bias[0]*1000
+                bias[1] = 'mV'
+                bias = tuple(bias)
+
+            label['I'] = '%.0f%s' % set_point
+            label['bias'] = '%.2f%s' % bias
+            label['size'] ='%.1f%s x %.1f%s (%.0f%s)' % (width+height+angle)
+            label['comment'] = '%s' % comment
+
+
+        elif self.type == 'spec':
+
+            fb_enable = self.get_param('Z-Ctrl hold')
+            set_point = self.get_param('setpoint_spec')
+            bias = self.get_param('V_spec')
+            #lockin_status = self.get_param('Lock-in>Lock-in status')
+            lockin_amplitude = self.get_param('lockin_amplitude')
+            lockin_phase= self.get_param('lockin_phase')
+            lockin_frequency= self.get_param('lockin_frequency')
+            comment = self.get_param('comment_spec')
+
+
+            #if lockin_status == 'ON':
+            label['lockin'] =  'A = %.0f%s (θ = %.0f%s, f = %.0f%s)' % (lockin_amplitude+lockin_phase+lockin_frequency)
+
+
+            if fb_enable == 'FALSE':
+                label['feedback'] = 'on'
+
+            elif fb_enable == 'TRUE':
+                label['feedback'] = 'off'
+
+
+            label['setpoint'] = 'I = %.0f%s, V = %.1f%s' % (set_point+bias)
+
+            label['comment'] = '%s' % comment
+
+        # label.append('path: %s' % self.path)
+        # label = '\n'.join(label)
+
+        # if show:
+        #     print('\n'.join(label))
+
+        return label
          
       
     

@@ -87,6 +87,9 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
             } else if (entry.getKey().equalsIgnoreCase("bytes"))
             {
                 preview.setBytes(entry.getValue().toString());
+            } else if (entry.getKey().equalsIgnoreCase("comment"))
+            {
+                preview.setComment(entry.getValue().toString());
             } else
             {
                 preview.getMetadata().put(entry.getKey(), entry.getValue());

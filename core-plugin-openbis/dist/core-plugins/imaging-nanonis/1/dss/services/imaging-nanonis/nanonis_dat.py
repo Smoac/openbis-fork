@@ -71,7 +71,7 @@ def generate_random_image(height, width):
     return encoded
 
 
-def get_dat_image(channel_x, channel_y, x_axis, y_axis, colormap, scaling, grouping, print_legend, resolution):
+def get_dat_image(channel_x, channel_y, x_axis, y_axis, colormap, scaling, grouping, print_legend, resolution, include_param_info):
     specs = spmpy.importall(folder_dir, '', 'spec')
 
     for spec in specs:
@@ -96,7 +96,23 @@ def get_dat_image(channel_x, channel_y, x_axis, y_axis, colormap, scaling, group
 
     img_byte_arr = img_byte_arr.getvalue()
     encoded = base64.b64encode(img_byte_arr)
-    return size[0], size[1], encoded
+    preview = {'bytes': encoded.decode('utf-8'), 'width': int(size[0]), 'height': int(size[1])}
+
+    # if include_param_info:
+    #     # print_params = img.print_params_dict(show=False)
+    #     # #     header = json.dumps(img.header, cls=NumpyEncoder)
+    #     # #     preview['header'] = header
+    #     #
+    #     # # for x in img.header.keys():
+    #     # #     preview[x] = json.dumps(img.header[x], cls=NumpyEncoder)
+    #     #
+    #     # for x in print_params.keys():
+    #     #     key = x
+    #     #     if key in ['bytes', 'width', 'height']:
+    #     #         key = 'meta_' + key
+    #     #     preview[key] = print_params[x]
+
+    return preview
 
 
 def dat_mode(parameters):
@@ -106,6 +122,7 @@ def dat_mode(parameters):
     resolution = 'figure'
     color = False
     print_legend = True
+    include_param_info = False
 
     for param_key in parameters.keys():
 
@@ -128,7 +145,7 @@ def dat_mode(parameters):
             color = parameters[param_key]
         elif key == 'color':
             color = parameters[param_key]
-        elif key == 'print_legend':
+        elif key == 'print legend':
             print_legend = parameters[param_key].upper() == "TRUE"
         elif key == 'resolution':
             resolution = parameters[param_key].upper()
@@ -138,6 +155,8 @@ def dat_mode(parameters):
                 resolution = float(resolution[:-3])
             else:
                 resolution = float(resolution)
+        elif key == 'include parameter information':
+            include_param_info = parameters[param_key].upper() == "TRUE"
 
 
     input_config = dict(
@@ -154,10 +173,11 @@ def dat_mode(parameters):
 
     input_config['print_legend'] = print_legend
     input_config['resolution'] = resolution
+    input_config['include_param_info'] = include_param_info
 
 
-    width, height, image_bytes = get_dat_image(**input_config)
-    preview = {'bytes': image_bytes.decode('utf-8'), 'width': int(width), 'height': int(height)}
+    # width, height, image_bytes = get_dat_image(**input_config)
+    preview = get_dat_image(**input_config)
     print(f'{json.dumps(preview)}')
 
 params = preview_config
