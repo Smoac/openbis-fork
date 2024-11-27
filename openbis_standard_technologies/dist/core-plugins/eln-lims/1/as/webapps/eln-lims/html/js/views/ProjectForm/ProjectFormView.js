@@ -58,15 +58,11 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode === FormMode.VIEW) {
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
-				var experimentTypes = mainController.profile.getExperimentTypes();
-				FormUtil.addCreationDropdown(toolbarModel, experimentTypes, ["DEFAULT_EXPERIMENT", "COLLECTION"], function(typeCode) {
-					return function() {
-						Util.blockUI();
-						setTimeout(function() {
-							_this._projectFormController.createNewExperiment(typeCode);
-						}, 100);
-					}
-				});
+                var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function () {
+                    Util.blockUI();
+                    FormUtil.createNewCollection(IdentifierUtil.getProjectIdentifier(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code));
+                }, "New", null, "new-btn");
+                toolbarModel.push({ component : $createBtn });
 			}
 			if (_this._allowedToMove()) {
                 //Move
@@ -376,10 +372,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
         var modalView = new DeleteEntityController(function(reason) {
             require(["as/dto/experiment/id/ExperimentPermId","as/dto/experiment/delete/ExperimentDeletionOptions"],
                 function(ExperimentPermId, ExperimentDeletionOptions) {
-                    var experimentIds = permIds.map(permId => new ExperimentPermId(permId));
                     var deletionOptions = new ExperimentDeletionOptions();
                     deletionOptions.setReason(reason);
-                    mainController.openbisV3.deleteExperiments(experimentIds, deletionOptions).done(function() {
+                    mainController.openbisV3.deleteExperiments(permIds, deletionOptions).done(function() {
                         Util.showSuccess("All " + permIds.length + " " + ELNDictionary.getExperimentsDualName() 
                                 + " are moved to trashcan", function() {
                             permIds.forEach(function(permId) {

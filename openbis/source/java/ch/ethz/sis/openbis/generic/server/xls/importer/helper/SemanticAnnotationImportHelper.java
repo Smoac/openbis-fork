@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.semantic.ApplicationServerSemanticAPIExtensions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -37,25 +38,39 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
     public enum SemanticAnnotationType { EntityType, PropertyType, EntityTypeProperty }
 
     private enum Attribute implements IAttribute {
-        Code("Code", true),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        Code("Code", true, true),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
@@ -202,14 +217,28 @@ public class SemanticAnnotationImportHelper extends BasicImportHelper
                 throw new RuntimeException("Should never happen!");
         }
 
-        super.importBlock(page, pageIndex, start + 2, end);
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
+
+        if(canUpdate) {
+            super.importBlock(page, pageIndex, start + 2, end);
+        }
     }
 
     public void importBlockForPropertyType(List<List<String>> page, int pageIndex, int start, int end)
     {
         type = SemanticAnnotationType.PropertyType;
         this.permIdOrNull = null;
-        super.importBlock(page, pageIndex, start, end);
+
+        Map<String, Integer> header = parseHeader(page.get(start), false);
+        String code = getValueByColumnName(header, page.get(start + 1), Attribute.Code);
+
+        boolean isInternalNamespace =  ImportUtils.isInternalNamespace(code);
+        boolean canUpdate = (isInternalNamespace == false) || delayedExecutor.isSystem();
+
+        if(canUpdate) {
+            super.importBlock(page, pageIndex, start, end);
+        }
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)

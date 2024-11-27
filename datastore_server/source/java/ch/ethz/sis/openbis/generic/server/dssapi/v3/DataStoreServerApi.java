@@ -147,6 +147,12 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     public SearchResult<DataSetFile> searchFiles(String sessionToken,
             DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
     {
+        if (fetchOptions.getFrom() != null || fetchOptions.getCount() != null)
+        {
+            throw new IllegalArgumentException("Pagination parameters are not supported. Try to make the search more specific, "
+                    + "if you want to make the result set smaller.");
+        }
+
         getOpenBISService().checkSession(sessionToken);
 
         List<DataSetFile> result = new ArrayList<>();
@@ -371,7 +377,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Override
     public int getMinorVersion()
     {
-        return 6;
+        return 7;
     }
 
     @Override

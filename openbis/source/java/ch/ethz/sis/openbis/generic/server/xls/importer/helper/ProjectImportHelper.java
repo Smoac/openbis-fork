@@ -34,25 +34,39 @@ import java.util.Map;
 public class ProjectImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Identifier("Identifier", false),
-        Code("Code", true),
-        Space("Space", true),
-        Description("Description", false);
+        Identifier("Identifier", false, true),
+        Code("Code", true, true),
+        Space("Space", true, true),
+        Description("Description", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 

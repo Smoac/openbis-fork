@@ -65,20 +65,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
 		    var toolbarConfig = profile.getExperimentTypeToolbarConfiguration(_this._experimentFormModel.experiment.experimentTypeCode);
 			if (_this._allowedToCreateSample() && toolbarConfig.CREATE) {
-				//Create Experiment Step
-				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._experimentFormModel.experiment.identifier));
-				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, ["ENTRY", "EXPERIMENTAL_STEP"], function(typeCode) {
-					return function() {
-						Util.blockUI();
-						setTimeout(function() {
-							var argsMap = {
-								"sampleTypeCode" : typeCode,
-								"experimentIdentifier" : _this._experimentFormModel.experiment.identifier
-							};
-							mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
-						}, 100);
-					}
-				});
+			    var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function () {
+                                    Util.blockUI();
+                                    FormUtil.createNewSample(_this._experimentFormModel.experiment.identifier);
+                				}, "New", null, "new-btn");
+                toolbarModel.push({ component : $createBtn });
 			}
 			if (_this._allowedToEdit() && toolbarConfig.EDIT) {
 				//Edit
@@ -108,7 +99,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 var experimentKindName = ELNDictionary.getExperimentKindName(experiment.getType().getCode()).toLowerCase();
                 var samples = experiment.samples;
                 if (samples.length > 0) {
-                    var warningText = "The " + experimentKindName + " has " + samples.length + " " 
+                    var warningText = "The " + experimentKindName + " has " + samples.length + " "
                             + ELNDictionary.sample + "s, which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, samples.length); cIdx++) {
                         warningText += "\n  " + Util.getDisplayNameForEntity(samples[cIdx]);
@@ -122,7 +113,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 }
                 var dataSets = experiment.dataSets;
                 if (dataSets.length > 0) {
-                    var warningText = "The " + experimentKindName + " has " + dataSets.length + " data sets " 
+                    var warningText = "The " + experimentKindName + " has " + dataSets.length + " data sets "
                             + "which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, dataSets.length); cIdx++) {
                         warningText += "\n  " + Util.getDisplayNameForEntity(dataSets[cIdx]);
@@ -352,7 +343,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 // Dataset Viewer
                 var $dataSetViewerContainer = new $('<div>', { id : "dataSetViewerContainer", style: "overflow: scroll; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #ddd; " });
                 mainController.sideMenu.addSubSideMenu($dataSetViewerContainer);
-                this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._experimentFormModel.v3_experiment, mainController.serverFacade, 
+                this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._experimentFormModel.v3_experiment, mainController.serverFacade,
                         profile.getDefaultDataStoreURL(), null, false, true, this._experimentFormModel.mode);
                 this._experimentFormModel.dataSetViewer.init();
             }

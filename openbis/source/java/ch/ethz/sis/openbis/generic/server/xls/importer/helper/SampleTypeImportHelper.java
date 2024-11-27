@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -39,30 +36,44 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class SampleTypeImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Description("Description", true),
-        AutoGenerateCodes("Auto generate codes", true),
-        ValidationScript("Validation script", true),
-        GeneratedCodePrefix("Generated code prefix", true),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Description("Description", true, false),
+        AutoGenerateCodes("Auto generate codes", true, false),
+        ValidationScript("Validation script", true, false),
+        GeneratedCodePrefix("Generated code prefix", true, false),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
@@ -88,19 +99,11 @@ public class SampleTypeImportHelper extends BasicImportHelper
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
-
-        String version = getValueByColumnName(header, values, Attribute.Version);
-
-        if (version == null || version.isEmpty()) {
-            return true;
-        } else {
-            return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.SAMPLE_TYPE.getType(), code));
-        }
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        return isNewVersionWithInternalNamespace(header, values, versions,
+                delayedExecutor.isSystem(),
+                getTypeName().getType(),
+                Attribute.Version, Attribute.Code, isInternalNamespace);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)

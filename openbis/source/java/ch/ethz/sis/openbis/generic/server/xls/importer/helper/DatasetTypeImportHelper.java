@@ -22,9 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
@@ -33,33 +31,47 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class DatasetTypeImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Description("Description", true),
-        ValidationScript("Validation script", true),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Description("Description", true, false),
+        ValidationScript("Validation script", true, false),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        @Override
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
@@ -85,19 +97,11 @@ public class DatasetTypeImportHelper extends BasicImportHelper
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
-
-        String version = getValueByColumnName(header, values, Attribute.Version);
-
-        if (version == null || version.isEmpty()) {
-            return true;
-        } else {
-            return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.DATASET_TYPE.getType(), code));
-        }
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        return isNewVersionWithInternalNamespace(header, values, versions,
+                delayedExecutor.isSystem(),
+                getTypeName().getType(),
+                Attribute.Version, Attribute.Code, isInternalNamespace);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)

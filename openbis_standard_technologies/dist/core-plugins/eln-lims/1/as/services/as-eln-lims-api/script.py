@@ -45,6 +45,13 @@ def process(context, parameters):
         result = getNextExperimentCode(context, parameters);
     elif method == "doSpacesBelongToDisabledUsers":
         result = doSpacesBelongToDisabledUsers(context, parameters);
+    elif method == "isUnusedBarcode":
+        sessionToken = None
+        try:
+            sessionToken = context.applicationService.loginAsSystem();
+            result = isUnusedBarcode(context, parameters, sessionToken);
+        finally:
+            context.applicationService.logout(sessionToken);
     elif method == "trashStorageSamplesWithoutParents":
         sessionToken = None
         try:
@@ -657,6 +664,20 @@ def doSpacesBelongToDisabledUsers(context, parameters):
     disabled_spaces.setParameterList("codes", spaceCodes)
     disabled_spaces_result = disabled_spaces.list()
     return disabled_spaces_result
+
+def isUnusedBarcode(context, parameters, sessionToken):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
+    from ch.systemsx.cisd.common.exceptions import UserFailureException
+
+    searchCriteria = SampleSearchCriteria()
+    searchCriteria.withOrOperator();
+    searchCriteria.withCode().thatEquals(parameters["barcode"]);
+    searchCriteria.withStringProperty("BARCODE").thatEquals(parameters["barcode"])
+    fetchOptions = SampleFetchOptions()
+
+    sampleSearchResults = context.applicationService.searchSamples(sessionToken, searchCriteria, fetchOptions).getObjects()
+    return sampleSearchResults.size() == 0
 
 def trashStorageSamplesWithoutParents(context, parameters, sessionToken):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
