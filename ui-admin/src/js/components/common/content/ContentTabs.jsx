@@ -16,6 +16,7 @@ const styles = theme => ({
   tabRoot: {
     textTransform: 'none',
     minHeight: '38px',
+    maxInlineSize: 'fit-content'
   },
   iconRoot: {
     marginLeft: '6px'
