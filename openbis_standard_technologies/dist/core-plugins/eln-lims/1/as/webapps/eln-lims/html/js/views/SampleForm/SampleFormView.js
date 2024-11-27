@@ -98,19 +98,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			// New
 			if(_this._allowedToCreateChild() && this._sampleFormModel.isELNSample && toolbarConfig.CREATE) {
-				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
-				var priorityTypes = ["ENTRY", "EXPERIMENTAL_STEP"];
-				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, priorityTypes, function(typeCode) {
-					return function() {
-						Util.blockUI();
-						setTimeout(function() {
-							FormUtil.createNewSampleOfTypeWithParent(typeCode,
-									_this._sampleFormModel.sample.experimentIdentifierOrNull,
-									_this._sampleFormModel.sample.identifier,
-									_this._sampleFormModel.sample);
-						}, 100);
-					}
-				});
+			    var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function () {
+                                    Util.blockUI();
+                                    FormUtil.createNewSample(_this._sampleFormModel.sample.experimentIdentifierOrNull,_this._sampleFormModel.sample);
+                                }, "New", null, "new-btn");
+                toolbarModel.push({ component : $createBtn });
 			}
 
 			if (_this._allowedToEdit()) {
@@ -627,7 +619,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             // Dataset Viewer
             var $dataSetViewerContainer = new $('<div>', { id : "dataSetViewerContainer", style: "overflow: scroll; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #ddd; " });
             mainController.sideMenu.addSubSideMenu($dataSetViewerContainer);
-            this._sampleFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, 
+            this._sampleFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade,
                     profile.getDefaultDataStoreURL(), this._sampleFormModel.datasets, false, true, this._sampleFormModel.mode);
             this._sampleFormModel.dataSetViewer.init();
 		}
@@ -898,7 +890,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		return false;
 	}
-	
+
     this._renderPropertyTypeSemanticAnnotations = function(propertyTypeCode) {
         var annotations = this._getAllSemanticAnnotations(propertyTypeCode);
         if (annotations && annotations.length > 0) {
@@ -926,7 +918,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             [propertyAssignment.semanticAnnotations, propertyAssignment.propertyType.semanticAnnotations].forEach(function(annotations) {
                 if (annotations) {
                     annotations.forEach(function(annotation) {
-                        semanticAnnotations[annotation.permId.permId] = annotation; 
+                        semanticAnnotations[annotation.permId.permId] = annotation;
                     });
                 }
             });
@@ -1171,6 +1163,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		var childrenAnyTypeDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"];
 		var annotations = this._sampleFormController.getAnnotationsState('CHILDREN');
+		var spaceCode = null;
+		if(this._sampleFormModel.sample.spaceCode) {
+		    spaceCode = this._sampleFormModel.sample.spaceCode;
+		} else if(this._sampleFormModel.sample.identifier) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier);
+		} else if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull);
+		}
 		this._sampleFormModel.sampleLinksChildren = new LinksController(childrenTitle,
 															requiredChildren,
 															isDisabled,
@@ -1179,7 +1179,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
 															annotations,
-															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull),
+															spaceCode,
 															function() {
                                                                 _this._sampleFormModel.isFormDirty = true;
                                                             });
@@ -1541,7 +1541,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
 
-		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
+		var spaceCode = null;
+		if(this._sampleFormModel.sample.spaceCode) {
+		    spaceCode = this._sampleFormModel.sample.spaceCode;
+		} else if(this._sampleFormModel.sample.identifier) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.identifier);
+		} else if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+		    spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull);
+		}
+
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, spaceCode);
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
 

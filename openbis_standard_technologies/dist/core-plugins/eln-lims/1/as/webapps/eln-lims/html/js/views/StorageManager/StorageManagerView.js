@@ -46,8 +46,10 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		var $container = views.content;
 		
 		$header.append($("<h2>").append("Storage Manager"));
-		$header.append(this._moveBtn).append(" ").append(this._showHideStorageToBtn).append(" ").append(this._showHideMenuBtn);
-		
+		var $toolbarContainer = $("<span>", { class : 'toolBox' });
+		$toolbarContainer.append(this._moveBtn).append(" ").append(this._showHideStorageToBtn).append(" ").append(this._showHideMenuBtn);
+		$header.append($toolbarContainer);
+
 		var $containerColumn = $("<form>", {
 			'role' : "form", 
 			"action" : "javascript:void(0);", 

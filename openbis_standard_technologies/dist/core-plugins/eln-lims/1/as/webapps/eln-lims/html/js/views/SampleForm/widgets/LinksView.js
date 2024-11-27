@@ -473,7 +473,7 @@ function LinksView(linksController, linksModel) {
                                         logicalOperator : "AND",
                                         rules : {
                                             "2-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
-                                            "2-2": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: searchDropdown.getParams().data.q }
+                                            "2-2": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: searchDropdown.getParams().data.q }
                                         }
                         }
                     }
@@ -482,7 +482,8 @@ function LinksView(linksController, linksModel) {
         			advancedSampleSearchCriteria.subCriteria["1"].rules["1-3"] = { type : "Property/Attribute", name : "PROP.$ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         			advancedSampleSearchCriteria.subCriteria["2"].rules["2-3"] = { type : "Property/Attribute", name : "PROP.$ORDERING.ORDER_STATUS", operator : "thatEqualsString", value : "NOT_YET_ORDERED" };
         		}
-                if (["ORGANIZATION_UNIT", "REQUEST", "PRODUCT", "SUPPLIER"].indexOf(sampleTypeCode) >= 0) {
+                if (["ORGANIZATION_UNIT", "REQUEST", "PRODUCT", "SUPPLIER"].indexOf(sampleTypeCode) >= 0 &&
+                mainController.currentView._sampleFormModel.sample.projectCode !== "TEMPLATES") {
                     var spaceCodePrefix = mainController.currentView._sampleFormModel.sample.spaceCode.split("_")[0];
                     var rule = { type : "Property/Attribute", name : "ATTR.SPACE_PREFIX", value : spaceCodePrefix };
                     advancedSampleSearchCriteria.subCriteria["1"].rules["1-4"] = rule;

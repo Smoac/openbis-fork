@@ -34,8 +34,8 @@ def process(transaction):
     incoming = transaction.getIncoming();
     folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
-    discardFilesPatternsString = getConfigurationProperty(transaction, 'eln-lims-dropbox-discard-files-patterns')
-    illegalFilesPatternsString = getConfigurationProperty(transaction, 'eln-lims-dropbox-illegal-files-patterns')
+    discardFilesPatternsString = getConfigurationProperty(transaction, 'discard-files-patterns')
+    illegalFilesPatternsString = getConfigurationProperty(transaction, 'illegal-files-patterns')
 
     try:
         deleteFilesMatchingPatterns(incoming, discardFilesPatternsString)

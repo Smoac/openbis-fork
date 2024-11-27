@@ -30,29 +30,42 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class VocabularyImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Description("Description", true);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Description("Description", true, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
@@ -77,25 +90,12 @@ public class VocabularyImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
-
-        if (code == null)
-        {
-            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
-        }
-
         boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
-        boolean isSystem = delayedExecutor.isSystem();
-        boolean canUpdate = (isInternalNamespace == false) || isSystem;
-
-        if (canUpdate == false) {
-            return false;
-        } if (canUpdate && (version == null || version.isEmpty())) {
-            return true;
-        } else { // canUpdate && (version != null) && (version.isEmpty() == false)
-            return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TYPE.getType(), code));
-        }
+        return isNewVersionWithInternalNamespace(header, values, versions,
+                delayedExecutor.isSystem(),
+                getTypeName().getType(),
+                Attribute.Version, Attribute.Code, isInternalNamespace);
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)

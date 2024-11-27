@@ -277,7 +277,7 @@ var BarcodeUtil = new function() {
     }
 
     this.getBarcodePattern = function() {
-        return profile.barcodePattern ? profile.barcodePattern : /^[-0-9]+$/;
+        return profile.barcodePattern ? new RegExp(profile.barcodePattern) : /^[-0-9]+$/;
     }
 
     this.isValidBarcode = function(barcode) {
@@ -656,21 +656,11 @@ var BarcodeUtil = new function() {
             if($barcodeReader.val().length === 0) {
                 updateBarcode();
             } else {
-                var criteria = {
-			        entityKind : "SAMPLE",
-				    logicalOperator : "OR",
-				    rules : {
-				        "UUIDv4-1": { type: "Property/Attribute", 	name: "PROP.$BARCODE", operator : "thatEqualsString", value: $barcodeReader.val() }
-				    }
-			    };
-                mainController.serverFacade.searchForSamplesAdvanced(criteria, {
-                only : true,
-                withProperties : true
-                }, function(results) {
-                    if(results.objects.length === 0) {
+                mainController.serverFacade.customELNASAPI({ "method" : "isUnusedBarcode", "barcode" : $barcodeReader.val() }, function(result) {
+                    if(result) {
                         updateBarcode();
                     } else {
-                        Util.showError("Custom Barcode/QR code already in use by " +  results.objects[0].identifier.identifier + " : It will not be assigned.");
+                        Util.showError("Custom Barcode/QR code already in use: It will not be assigned.");
                     }
                 });
             }

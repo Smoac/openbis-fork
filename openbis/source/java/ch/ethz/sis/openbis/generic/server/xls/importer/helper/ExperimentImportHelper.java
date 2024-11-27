@@ -44,24 +44,39 @@ public class ExperimentImportHelper extends BasicImportHelper
     private static final String EXPERIMENT_TYPE_FIELD = "Experiment type";
 
     private enum Attribute implements IAttribute {
-        Identifier("Identifier", false),
-        Code("Code", true),
-        Project("Project", true);
+        Identifier("Identifier", false, true),
+        Code("Code", true, true),
+        Project("Project", true, true);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        @Override
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 

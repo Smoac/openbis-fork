@@ -88,9 +88,9 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.defaultStartView = {
-		    page : "showBlancPage",
+            page : "showWelcomePage",
             args : null
-		};
+        };
 
 		this.orderLabInfo = {
 

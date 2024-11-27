@@ -53,30 +53,44 @@ public class SampleImportHelper extends BasicImportHelper
     private static final String SAMPLE_TYPE_FIELD = "Sample type";
 
     public enum Attribute implements IAttribute {
-        $("$", false),
-        Identifier("Identifier", false),
-        Code("Code", false),
-        Space("Space", false),
-        Project("Project", false),
-        Experiment("Experiment", false),
-        AutoGenerateCode("Auto generate code", false),
-        Parents("Parents", false),
-        Children("Children", false);
+        $("$", false, true),
+        Identifier("Identifier", false, true),
+        Code("Code", false, true),
+        Space("Space", false, true),
+        Project("Project", false, true),
+        Experiment("Experiment", false, true),
+        AutoGenerateCode("Auto generate code", false, false),
+        Parents("Parents", false, true),
+        Children("Children", false, true);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 

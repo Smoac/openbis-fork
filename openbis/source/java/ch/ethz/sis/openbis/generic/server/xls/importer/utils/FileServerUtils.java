@@ -22,7 +22,7 @@ public class FileServerUtils
             "/eln-lims/c0/1b/2e/c01b2e1f-8212-4562-ae8a-9072bf92e687/c01b2e1f-8212-4562-ae8a-9072bf92e687.jpg",
             "/eln-lims/c1/b2/91/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c.jpg",
             "/eln-lims/f3/e4/0c/f3e40c2e-109c-4191-bed0-2cf931de185a/f3e40c2e-109c-4191-bed0-2cf931de185a.jpg",
-            "/eln-lims/13/3d/d4/133dd458-9f7f-4ca9-8353-9de3f00f2a55/78397d5b-fe0d-45e8-9f1c-9fa665bc81e3.png");
+            "/eln-lims/98/05/3b/98053b86-36cb-4a74-a603-893a9a1c53bb/98053b86-36cb-4a74-a603-893a9a1c53bb.png");
 
     public static Path getFilePath(String filePath) throws IOException
     {

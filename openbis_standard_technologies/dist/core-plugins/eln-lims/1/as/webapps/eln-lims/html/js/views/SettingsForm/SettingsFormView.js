@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2024 ETH Zuerich, Scientific IT Services
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,8 +130,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             mainMenu : this._mainMenuItemsTableModel.getValues(),
             sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
             showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
-            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
-            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
+//            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
+//            hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
             inventorySpaces : this._inventorySpacesTableModel.getValues(),
             inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues()
         };
@@ -380,16 +380,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 
 		return tableModel;
-	}
-
-	this._getSortedArray = function(array, comparator) {
-	    if(array) {
-	        if(comparator) {
-	            return array.sort(comparator);
-	        }
-	        return array.sort();
-	    }
-	    return array;
 	}
 
 	this._getForcedMonospaceTableModel = function() {
@@ -923,7 +913,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			}), params.placeholder);
 		}
 		// add data
-		for (var item of this._getSortedArray(params.initialValues)) {
+		for (var item of params.initialValues) {
 			tableModel.addRow(item);
 		}
 		// transform output

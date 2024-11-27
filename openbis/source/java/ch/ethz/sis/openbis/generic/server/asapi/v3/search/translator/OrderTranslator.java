@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2019 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
+
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.MATCH_VALUE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.PREFIX_MATCH_VALUE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.RANK_ALIAS;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AS;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.COALESCE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.COMMA;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FULL_OUTER_JOIN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.GROUP_BY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NL;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NULLS_LAST;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ON;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ORDER_BY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SELECT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SELECT_UNNEST;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SUM;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.buildFullIdentifierConcatenationString;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.REGISTRATION_TIMESTAMP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_IDENTIFIER_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_PROP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIALS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SPACES_TABLE;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntitySortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
@@ -24,24 +62,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.Sorting;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringMatchesValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringStartsWithValue;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.AttributesMapper;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.MATCH_VALUE;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter.PREFIX_MATCH_VALUE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.RANK_ALIAS;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.MAIN_TABLE_ALIAS;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.buildFullIdentifierConcatenationString;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 public class OrderTranslator
 {
@@ -226,7 +250,7 @@ public class OrderTranslator
         final StringBuilder sqlBuilder = new StringBuilder(SELECT + SP + SearchCriteriaTranslator.MAIN_TABLE_ALIAS
                 + PERIOD
                 + ((propertyScoreSortingFieldName || propertySortingFieldName || anyPropertyScoreSortingFieldName)
-                        ? translationContext.getTableMapper().getValuesTableEntityIdField() : ID_COLUMN)
+                ? translationContext.getTableMapper().getValuesTableEntityIdField() : ID_COLUMN)
                 + SP + AS + SP + ID_COLUMN);
 
         if (!anyPropertyScoreSortingFieldName)
@@ -241,8 +265,8 @@ public class OrderTranslator
                 final String casting = translationContext.getDataTypeByPropertyName().get(propertyName);
                 if (casting != null)
                 {
-                    sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(VALUE_COLUMN).append(DOUBLE_COLON)
-                            .append(casting.toLowerCase());
+                    final String castingType = casting.toLowerCase();
+                    TranslatorUtils.appendDynamicPropertyCheck(sqlBuilder, MAIN_TABLE_ALIAS, castingType);
                 } else
                 {
                     TranslatorUtils.appendPropertyValueCoalesceForOrder(sqlBuilder, tableMapper, joinInformationMap);
@@ -361,22 +385,17 @@ public class OrderTranslator
         {
             final String fullPropertyName = trimFieldName(sorting.getField());
 
-            final String entityTypePropertyTypesTableAlias = "etpt";
-            final String attributeTypesTableAlias = "at";
-
-            final String result = WHERE + SP + MAIN_TABLE_ALIAS + PERIOD
-                    + tableMapper.getValuesTableEntityTypeAttributeTypeIdField() + SP + IN + NL
-                    + LP + NL
-                    + '\t' + SELECT + SP + entityTypePropertyTypesTableAlias + PERIOD + ID_COLUMN + NL
-                    + '\t' + FROM + SP + tableMapper.getEntityTypesAttributeTypesTable() + SP
-                    + entityTypePropertyTypesTableAlias + NL
-                    + '\t' + LEFT_JOIN + SP + tableMapper.getAttributeTypesTable() + SP + attributeTypesTableAlias
-                    + SP + ON + SP
-                    + entityTypePropertyTypesTableAlias + PERIOD
-                    + tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField()
-                    + SP + EQ + SP + attributeTypesTableAlias + PERIOD + ID_COLUMN + NL
-                    + '\t' + WHERE + SP + attributeTypesTableAlias + PERIOD + CODE_COLUMN + SP + EQ + SP + QU
-                    + NL + RP;
+            final String result =
+                    String.format("WHERE %s.%s IN\n"
+                                    + "(\n"
+                                    + "\tSELECT etpt.id\n"
+                                    + "\tFROM %s etpt\n"
+                                    + "\tLEFT JOIN %s at ON etpt.%s = at.id\n"
+                                    + "\tWHERE at.code = ?\n"
+                                    + ")",
+                            MAIN_TABLE_ALIAS, tableMapper.getValuesTableEntityTypeAttributeTypeIdField(),
+                            tableMapper.getEntityTypesAttributeTypesTable(),
+                            tableMapper.getAttributeTypesTable(), tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
             translationContext.getArgs().add(TranslatorUtils.normalisePropertyName(fullPropertyName));
             return result;
         } else
@@ -411,14 +430,9 @@ public class OrderTranslator
         {
             final String propertyName = sortingCriteriaFieldName.substring(EntityWithPropertiesSortOptions.PROPERTY.length());
             final String propertyNameLowerCase = propertyName.toLowerCase();
-            final String valuesTableAlias = translationContext.getAliases().get(propertyNameLowerCase).get(tableMapper.getEntityTypesAttributeTypesTable()).getMainTableAlias();
-            sqlBuilder.append(valuesTableAlias).append(PERIOD).append(VALUE_COLUMN);
-
-            final String casting = translationContext.getDataTypeByPropertyName().get(propertyName);
-            if (casting != null)
-            {
-                sqlBuilder.append(DOUBLE_COLON).append(casting.toLowerCase());
-            }
+            final String valuesTableAlias = translationContext.getAliases().get(propertyNameLowerCase)
+                    .get(tableMapper.getEntityTypesAttributeTypesTable()).getMainTableAlias();
+            TranslatorUtils.appendDynamicPropertyCheck(sqlBuilder, valuesTableAlias, translationContext.getDataTypeByPropertyName().get(propertyName));
         } else if (isTypeSearchCriterion(sortingCriteriaFieldName))
         {
             final String typesTableAlias = translationContext.getAliases().get(EntityWithPropertiesSortOptions.TYPE)

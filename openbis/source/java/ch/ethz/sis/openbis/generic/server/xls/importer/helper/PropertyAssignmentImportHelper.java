@@ -16,27 +16,24 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
@@ -53,36 +50,51 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 {
 
     private enum Attribute implements IAttribute {
-        Version("Version", false),
-        Code("Code", true),
-        Mandatory("Mandatory", true),
-        DefaultValue("Default Value", false),
-        ShowInEditViews("Show in edit views", true),
-        Section("Section", true),
-        PropertyLabel("Property label", true),
-        DataType("Data type", true),
-        VocabularyCode("Vocabulary code", true),
-        Description("Description", true),
-        Metadata("Metadata", false),
-        DynamicScript("Dynamic script", false),
-        OntologyId("Ontology Id", false),
-        OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        Version("Version", false, false),
+        Code("Code", true, true),
+        Mandatory("Mandatory", true, false),
+        DefaultValue("Default Value", false, false),
+        ShowInEditViews("Show in edit views", true, false),
+        Section("Section", true, false),
+        PropertyLabel("Property label", true, false),
+        DataType("Data type", true, true),
+        VocabularyCode("Vocabulary code", true, true),
+        Description("Description", true, false),
+        Metadata("Metadata", false, false),
+        DynamicScript("Dynamic script", false, false),
+        OntologyId("Ontology Id", false, false),
+        OntologyVersion("Ontology Version", false, false),
+        OntologyAnnotationId("Ontology Annotation Id", false, false),
+        MultiValued("Multivalued", false, false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        private final boolean upperCase;
+
+        Attribute(String headerName, boolean mandatory, boolean upperCase)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
+            this.upperCase = upperCase;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        @Override
+        public boolean isMandatory()
+        {
             return mandatory;
+        }
+
+        @Override
+        public boolean isUpperCase()
+        {
+            return upperCase;
         }
     }
 
@@ -99,9 +111,9 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
     private AttributeValidator<Attribute> attributeValidator;
 
     public PropertyAssignmentImportHelper(DelayedExecutionDecorator delayedExecutor,
-                                          ImportModes mode,
-                                          ImportOptions options,
-                                          Map<String, Integer> beforeVersions)
+            ImportModes mode,
+            ImportOptions options,
+            Map<String, Integer> beforeVersions)
     {
         super(mode, options);
         this.delayedExecutor = delayedExecutor;
@@ -117,16 +129,20 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
-
+        String version = getValueByColumnName(header, values, Attribute.Version);
+        String code = getValueByColumnName(header, values, Attribute.Code);
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
         if (code == null)
         {
             throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
         }
 
-        String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
+        boolean isSystem = delayedExecutor.isSystem();
+        boolean canUpdate = (isInternalNamespace == false) || isSystem;
 
-        if (version == null || version.isEmpty()) {
+        if (canUpdate == false) {
+            return false;
+        } if (canUpdate && (version == null || version.isEmpty())) {
             return true;
         } else {
             Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();
@@ -134,9 +150,10 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         }
     }
 
-    @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
+    @Override protected boolean isObjectExist(Map<String, Integer> headers, List<String> values)
     {
-        return false;
+        String code = getValueByColumnName(headers, values, Attribute.Code);
+        return existingDynamicPluginsByPropertyCode.containsKey(code);
     }
 
     @Override protected void createObject(Map<String, Integer> headers, List<String> values, int page, int line)
@@ -257,34 +274,35 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         createObject(header, values, page, line);
     }
 
-    private void generateExistingCodes(IEntityTypeId permId)
-    {
+    private IPropertyAssignmentsHolder getPropertyAssignmentHolder(IEntityTypeId permId) {
         switch (importTypes)
         {
             case EXPERIMENT_TYPE:
                 ExperimentTypeFetchOptions experimentFetchOptions = new ExperimentTypeFetchOptions();
                 experimentFetchOptions.withPropertyAssignments().withPropertyType();
                 experimentFetchOptions.withPropertyAssignments().withPlugin();
-                ExperimentType experimentType = delayedExecutor.getExperimentType(permId, experimentFetchOptions);
-                assignExisting(experimentType.getPropertyAssignments());
-                break;
+                return delayedExecutor.getExperimentType(permId, experimentFetchOptions);
             case SAMPLE_TYPE:
                 SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
                 sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
                 sampleTypeFetchOptions.withPropertyAssignments().withPlugin();
-                SampleType sampleType = delayedExecutor.getSampleType(permId, sampleTypeFetchOptions);
-                assignExisting(sampleType.getPropertyAssignments());
-                break;
+                return delayedExecutor.getSampleType(permId, sampleTypeFetchOptions);
             case DATASET_TYPE:
                 DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
                 dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
                 dataSetTypeFetchOptions.withPropertyAssignments().withPlugin();
-                DataSetType dataSetType = delayedExecutor.getDataSetType(permId, dataSetTypeFetchOptions);
-                assignExisting(dataSetType.getPropertyAssignments());
-                break;
+                return delayedExecutor.getDataSetType(permId, dataSetTypeFetchOptions);
             default:
-                existingDynamicPluginsByPropertyCode = new HashMap<>();
-            break;
+                return null;
+        }
+    }
+
+    private void generateExistingCodes(IPropertyAssignmentsHolder propertyAssignmentsHolder)
+    {
+        if(propertyAssignmentsHolder != null) {
+            assignExisting(propertyAssignmentsHolder.getPropertyAssignments());
+        } else {
+            existingDynamicPluginsByPropertyCode = new HashMap<>();
         }
     }
 
@@ -313,8 +331,11 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
                 break;
         }
 
-        generateExistingCodes(this.permId);
-        super.importBlock(page, pageIndex, start + 2, end);
+        IPropertyAssignmentsHolder propertyAssignmentsHolder = getPropertyAssignmentHolder(this.permId);
+        if(propertyAssignmentsHolder != null) {
+            generateExistingCodes(propertyAssignmentsHolder);
+            super.importBlock(page, pageIndex, start + 2, end);
+        }
     }
 
     @Override public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
