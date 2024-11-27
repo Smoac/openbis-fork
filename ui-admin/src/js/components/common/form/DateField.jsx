@@ -157,6 +157,7 @@ class DateField extends React.PureComponent {
         <FormFieldContainer error={error}>
           <div className={classes.container}>
             <DateTimePicker
+              sx={{ width:'100%' }}
               name={name}
               ampm={false}
               label={this.renderEditLabel()}
