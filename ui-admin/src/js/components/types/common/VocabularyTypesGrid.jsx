@@ -22,25 +22,25 @@ class VocabularyTypesGrid extends React.PureComponent {
         header={messages.get(messages.VOCABULARY_TYPES)}
         columns={[
           {
-            name: 'Internal',
-            label: '',
-            getValue: ({ row }) => {
-                return row.internal;
-            },
-            renderValue: ({ value }) => {
-                if(value) {
-                  return  <LockLabel fontSize='small' color='disabled' />
-                }
-              return null;
-            }
-          },
-          {
             name: 'code',
             label: messages.get(messages.CODE),
             exportableField: GridExportOptions.EXPORTABLE_FIELD.CODE,
             getValue: ({ row }) => row.code,
             renderValue: ({ row }) => {
               return <VocabularyTypeLink vocabularyCode={row.code} />
+            }
+          },
+          {
+            name: 'Internal',
+            label: messages.get(messages.INTERNAL),
+            getValue: ({ row }) => {
+              return row.internal;
+            },
+            renderValue: ({ value }) => {
+              if(value) {
+                  return <LockLabel fontSize='small' color='disabled' />
+              }
+              return null;
             }
           },
           {

@@ -26,22 +26,22 @@ class PropertyTypesGrid extends React.PureComponent {
         header={messages.get(messages.PROPERTY_TYPES)}
         columns={[
           {
+            name: 'code',
+            label: messages.get(messages.CODE),
+            getValue: ({ row }) => row.code
+          },
+          {
             name: 'Internal',
-            label: '',
+            label: messages.get(messages.INTERNAL),
             getValue: ({ row }) => {
               return row.internal;
             },
             renderValue: ({ value }) => {
               if(value) {
-                return <LockLabel fontSize='small' color='disabled' />
+                  return <LockLabel fontSize='small' color='disabled' />
               }
-            return null;
+              return null;
             }
-          },
-          {
-            name: 'code',
-            label: messages.get(messages.CODE),
-            getValue: ({ row }) => row.code
           },
           {
             name: 'label',

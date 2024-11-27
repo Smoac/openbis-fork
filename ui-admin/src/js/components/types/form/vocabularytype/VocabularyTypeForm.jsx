@@ -18,22 +18,22 @@ import LockLabel from '@src/js/components/common/form/LockLabel.jsx'
 
 const columns = [
   {
-      name: 'Internal',
-      label: '',
-      getValue: ({ row }) => {
-          return row.internal.value;
-      },
-      renderValue: ({ value }) => {
-          if(value) {
-              return <LockLabel fontSize='small' color='disabled' />
-          }
-          return null;
-      }
-    },
-  {
     name: 'code',
     label: messages.get(messages.CODE),
     getValue: ({ row }) => row.code.value
+  },
+  {
+    name: 'Internal',
+    label: messages.get(messages.INTERNAL),
+    getValue: ({ row }) => {
+      return row.internal.value;
+    },
+    renderValue: ({ value }) => {
+      if(value) {
+          return <LockLabel fontSize='small' color='disabled' />
+      }
+      return null;
+    }
   },
   {
     name: 'label',

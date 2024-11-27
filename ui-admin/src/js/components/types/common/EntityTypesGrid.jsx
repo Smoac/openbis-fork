@@ -58,8 +58,18 @@ class EntityTypesGrid extends React.PureComponent {
     const columns = []
 
     columns.push({
+      name: 'code',
+      label: messages.get(messages.CODE),
+      exportableField: GridExportOptions.EXPORTABLE_FIELD.CODE,
+      getValue: ({ row }) => row.code,
+      renderValue: ({ row }) => {
+        return <EntityTypeLink typeCode={row.code} typeKind={kind} />
+      }
+    })
+
+    columns.push({
       name: 'Internal',
-      label: '',
+      label: messages.get(messages.INTERNAL),
       getValue: ({ row }) => {
         return row.internal;
       },
@@ -68,16 +78,6 @@ class EntityTypesGrid extends React.PureComponent {
             return <LockLabel fontSize='small' color='disabled' />
         }
         return null;
-      }
-    })
-
-    columns.push({
-      name: 'code',
-      label: messages.get(messages.CODE),
-      exportableField: GridExportOptions.EXPORTABLE_FIELD.CODE,
-      getValue: ({ row }) => row.code,
-      renderValue: ({ row }) => {
-        return <EntityTypeLink typeCode={row.code} typeKind={kind} />
       }
     })
 

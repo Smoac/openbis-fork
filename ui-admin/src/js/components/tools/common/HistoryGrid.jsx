@@ -14,6 +14,7 @@ import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
 import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
+import format from 'date-fns/format';
 
 class HistoryGrid extends React.PureComponent {
   constructor(props) {
@@ -42,12 +43,12 @@ class HistoryGrid extends React.PureComponent {
         if (filterValue.from && filterValue.from.dateObject) {
           criteria['with' + _.upperFirst(filterName)]()
             .withTimeZone(date.timezone())
-            .thatIsLaterThanOrEqualTo(filterValue.from.dateString)
+            .thatIsLaterThanOrEqualTo(format(filterValue.from.dateObject, 'yyyy-MM-dd HH:mm:ss').toString())
         }
         if (filterValue.to && filterValue.to.dateObject) {
           criteria['with' + _.upperFirst(filterName)]()
             .withTimeZone(date.timezone())
-            .thatIsEarlierThanOrEqualTo(filterValue.to.dateString)
+            .thatIsEarlierThanOrEqualTo(format(filterValue.to.dateObject, 'yyyy-MM-dd HH:mm:ss').toString())
         }
       } else {
         criteria['with' + _.upperFirst(filterName)]().thatContains(filterValue)
