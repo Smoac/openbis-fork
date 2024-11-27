@@ -339,22 +339,9 @@ class EntityAutocompleterField extends React.PureComponent {
     })
   }
 
-  renderOption(option) {
-    if (option) {
-      return option.fullLabel || option.label
-    } else {
-      return ''
-    }
-  }
-
-  filterOptions(options) {
-    // do not filter options on the client side
-    return options
-  }
-
   getOptionLabel(option) {
     if (option) {
-      return option.label || ''
+      return option.fullLabel || option.label || ''
     } else {
       return ''
     }
@@ -383,8 +370,6 @@ class EntityAutocompleterField extends React.PureComponent {
         loading={loading}
         freeSolo={false}
         value={value}
-        renderOption={this.renderOption}
-        filterOptions={this.filterOptions}
         getOptionLabel={this.getOptionLabel}
         getOptionSelected={this.getOptionSelected}
         getOptionDisabled={this.getOptionDisabled}

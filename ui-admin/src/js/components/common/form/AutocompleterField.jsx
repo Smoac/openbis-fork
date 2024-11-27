@@ -209,8 +209,8 @@ class AutocompleterFormField extends React.PureComponent {
           onClick={this.handleClick}
         >
         <Autocomplete
-          disableClearable={true}
-          freeSolo={true}
+          disableClearable
+          freeSolo
           name={name}
           disabled={disabled}
           options={this.getOptions()}
