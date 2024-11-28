@@ -39,17 +39,15 @@ const ImageSection = ({ images, activeImageIdx, configExports, onActiveItemChang
 		<Accordion
 			className={classes.root}
 			expanded={expanded}
-			onChange={handleExpansion}>
+			onChange={handleExpansion}
+			sx={{ '& .MuiAccordionSummary-root': { padding: '0px' },
+					'& .MuiAccordionSummary-content': { margin: '0px', justifyContent: 'space-between' },
+					'& .MuiAccordionDetails-root': { padding: '0px' }
+				}}>
 			<AccordionSummary
 				expandIcon={<ExpandMoreIcon />}
 				aria-controls="images-panel-control"
 				id="images-panel-header"
-				sx={{
-					'& .MuiAccordionSummary-content': {
-						margin: '0px',
-						justifyContent: 'space-between'
-					}
-				}}
 			>
 				<Typography variant='h6'>
 					{messages.get(messages.IMAGES)}
