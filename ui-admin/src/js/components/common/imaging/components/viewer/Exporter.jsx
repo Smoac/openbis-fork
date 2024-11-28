@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const Export = ({ config, handleExport, disabled = false }) => {
+const Export = ({ config, handleExport, disabled = false, styles}) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [exportState, setExportState] = React.useState(Object.fromEntries(config.map(c => {
@@ -47,8 +47,14 @@ const Export = ({ config, handleExport, disabled = false }) => {
             }
         })));
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleOpen = (event) => {
+        event.stopPropagation();
+        setOpen(true);
+    };
+    const handleClose = (event) => {
+        event.stopPropagation();
+        setOpen(false);
+    }
 
     const handleExportChange = (event) => {
         //console.log('handleExportChange: ', event);
@@ -74,7 +80,8 @@ const Export = ({ config, handleExport, disabled = false }) => {
             variant='outlined'
             disabled={disabled}
             onClick={handleOpen}
-            startIcon={<CloudDownloadIcon/>} />
+            startIcon={<CloudDownloadIcon/>}
+            styles={styles} />
         <Modal open={open}
                onClose={handleClose}
                aria-labelledby="modal-modal-title"

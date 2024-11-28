@@ -82,9 +82,9 @@ const ImageListItemSection = ({title, cols, rowHeight, type, items, activeImageI
     }
 
     return <>
-        <Typography variant='h6'>
+        {title && <Typography variant='h6'>
             {title}
-        </Typography>
+        </Typography>}
         <ImageList className={classes.imageList}
                    cols={cols}
                    rowHeight={rowHeight}>
