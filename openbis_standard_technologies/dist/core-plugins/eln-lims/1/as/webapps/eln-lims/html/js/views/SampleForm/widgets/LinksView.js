@@ -473,7 +473,7 @@ function LinksView(linksController, linksModel) {
                                         logicalOperator : "AND",
                                         rules : {
                                             "2-1": { type : "Attribute", name : "SAMPLE_TYPE", value : sampleTypeCode },
-                                            "2-2": { type: "Property/Attribute", 	name: "PROP.NAME", operator : "thatContainsString", value: searchDropdown.getParams().data.q }
+                                            "2-2": { type: "Property/Attribute", 	name: "PROP.$NAME", operator : "thatContainsString", value: searchDropdown.getParams().data.q }
                                         }
                         }
                     }
