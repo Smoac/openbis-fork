@@ -28,6 +28,10 @@ const styles = theme => ({
     justifyContent: 'center',
     padding: '0 !important'
   },
+  progressBackground: {
+      color: theme.palette.grey[300], // Grey background color
+      position: 'absolute',
+    },
   icon: {
     margin: theme.spacing(2)
   }
@@ -46,6 +50,14 @@ class LoadingDialog extends React.Component {
         keepMounted
       >
         <DialogContent className={classes.content}>
+            {/* Background Circle */}
+            <CircularProgress
+              size={68}
+              variant="determinate"
+              value={100} // Always full for the background
+              className={classes.progressBackground}
+            />
+            {/* Foreground Progress */}
           <CircularProgress
             size={68}
             variant={variant}

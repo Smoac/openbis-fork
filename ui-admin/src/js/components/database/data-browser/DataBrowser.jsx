@@ -265,6 +265,9 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1,
       loading: false,
+      totalUploaded:0,
+      totalUploadSize:0,
+      progress: 0,
       errorMessage: null,
       editable: false
     }
@@ -301,33 +304,70 @@ class DataBrowser extends React.Component {
     })
   }
 
+  updateProgress(downloadedChunk) {
+    this.setState((prevState) => {
+      const totalUploaded = prevState.totalUploaded + downloadedChunk;
+      const progress = Math.round((totalUploaded / prevState.totalUploadSize) * 100);
+      const newProgress = Math.min(progress, 100);      
+      return {
+        totalUploaded,
+        progress: newProgress,
+        loading: true,
+      };
+    });
+  }
+
+
   async handleDownload() {
     const { multiselectedFiles } = this.state
-    const files = multiselectedFiles.values()
-    const file = files.next().value
 
-    if (multiselectedFiles.size > 1 || file.directory) {
-      // ZIP download
-      await this.downloadFiles()
+    try{
+      var totalSize = await this.calculateTotalSize(multiselectedFiles)
+      this.setState({ loading: true, totalUploaded:0, progress: 0, totalUploadSize: totalSize})
+
+      // for chrome and edge
+      if(this.isDirectoryPickerAvailable()){
+          await this.handleDownloadWithDirectoryPicker(multiselectedFiles, totalSize)
+      } else {
+          // for rest of browsers
+          await this.handleDownloadAsBlob(multiselectedFiles, totalSize);
+      }
+    } finally{
+        this.setState({ loading: false })
+    }
+
+  }
+
+  async  handleDownloadWithDirectoryPicker(files, totalSize){
+    const { hasQuota, availableQuota } = await this.checkDownloadQuota(totalSize);
+    if(hasQuota){
+        await this.selectDirectoryAndDownloadFiles(files);
+    } else {
+        this.showDownloadErrorDialog(availableQuota)
+    }
+  }
+
+  async  handleDownloadAsBlob(files, totalSize){
+    if(totalSize >= sizeLimit){
+        this.showDownloadErrorDialog(sizeLimit)
+        return;
+    }
+
+    const { id } = this.props
+    const file = files.values().next().value;
+    if (files.length > 1 || file.directory) {
+       // ZIP download
+       const zipBlob = await this.prepareZipBlob(files)
+       this.downloadBlob(zipBlob, id)
+       this.zip = new JSZip()
     } else {
       // Single file download
       await this.downloadFile(file)
     }
   }
 
-  async downloadFiles() {
-    const { multiselectedFiles } = this.state
-    const { id } = this.props
-
-    if ((await this.calculateTotalSize(multiselectedFiles)) <= sizeLimit) {
-      this.setState({ loading: true })
-      const zipBlob = await this.prepareZipBlob(multiselectedFiles)
-      this.downloadBlob(zipBlob, id)
-      this.zip = new JSZip()
-      this.setState({ loading: false })
-    } else {
-      this.showDownloadErrorDialog()
-    }
+  isDirectoryPickerAvailable(){
+    return  ('showSaveFilePicker' in window &&  'showDirectoryPicker' in window)
   }
 
   async calculateTotalSize(files) {
@@ -346,7 +386,7 @@ class DataBrowser extends React.Component {
   async prepareZipBlob(files) {
     for (let file of files) {
       if (!file.directory) {
-        const dataArray = await this.controller.download(file)
+        const dataArray = await this.controller.download(file, this.updateProgress)
         this.zip.file(
           file.path,
           new Blob(dataArray, { type: this.inferMimeType(file.path) })
@@ -360,21 +400,68 @@ class DataBrowser extends React.Component {
     return await this.zip.generateAsync({ type: 'blob' })
   }
 
-  async downloadFile(file) {
-    if (file.size <= sizeLimit) {
-      try {
-        this.setState({ loading: true })
-        const blob = await this.fileToBlob(file)
-        this.downloadBlob(blob, file.name)
-      } finally {
-        this.setState({ loading: false })
+  // Start :File System API : Limited availability
+  async checkDownloadQuota(fileSize) {
+    if (!navigator.storage || !navigator.storage.estimate) {
+      // Storage estimation not supported in this browser
+      return { hasQuota: true, availableQuota: Infinity }; // Assume enough space as fallback
+    }
+
+    try {
+      const { quota, usage } = await navigator.storage.estimate();
+      const availableQuota = quota - usage;
+
+      if (fileSize > availableQuota) {
+          return { hasQuota: false, availableQuota };
       }
-    } else {
-      this.showDownloadErrorDialog()
+
+      return { hasQuota: true, availableQuota };
+    } catch (error) {
+        return { hasQuota: false, availableQuota: 0 }; // Default to 0 available on error
     }
   }
 
-  showDownloadErrorDialog() {
+  async selectDirectoryAndDownloadFiles(files) {
+    try {
+      // Prompt user to select a directory
+      const rootDirHandle = await window.showDirectoryPicker()
+      await this.downloadFilesAndFolders(files, rootDirHandle);
+    } catch (err) {
+      if (err.name === "AbortError") {
+          // no feedback needed, user aborted
+      } else {
+        this.openErrorDialog("An error occurred while accessing the directory. Please try again.")
+      }
+    }
+  }
+
+  async downloadFilesAndFolders(files, parentDirHandle) {
+    try {
+      for (const file of files) {
+        if (!file.directory) {
+          // Handle file download
+          await this.controller.downloadAndAssemble(file, parentDirHandle,this.updateProgress)
+        } else {
+          // Handle subfolder recursively
+          const dirHandle = await parentDirHandle.getDirectoryHandle(file.name, { create: true })
+          const filesInDir =  await this.controller.listFiles(file.path)
+          await this.downloadFilesAndFolders(filesInDir,dirHandle)
+        }
+      }
+    } catch (err) {
+      this.openErrorDialog(
+        `Error downloading ${[...files].map(file => file.name).join(", ")}: ` + (err.message || err)
+      );
+    }
+  }
+  // End :File System API : Limited availability
+
+  async downloadFile(file) {
+    const blob = await this.fileToBlob(file)
+    this.downloadBlob(blob, file.name)
+  }
+
+  showDownloadErrorDialog(sizeLimit) {
     this.openErrorDialog(messages.get(messages.CANNOT_DOWNLOAD, sizeLimit))
   }
 
@@ -388,7 +475,7 @@ class DataBrowser extends React.Component {
   }
 
   async fileToBlob(file) {
-    const dataArray = await this.controller.download(file)
+    const dataArray = await this.controller.download(file,this.updateProgress)
     return new Blob(dataArray, { type: this.inferMimeType(file.path) })
   }
 
@@ -499,7 +586,8 @@ class DataBrowser extends React.Component {
       totalSpace,
       loading,
       errorMessage,
-      editable
+      editable,
+      progress
     } = this.state
 
     return [
@@ -637,10 +725,11 @@ class DataBrowser extends React.Component {
         </div>
       </div>,
       <LoadingDialog
-        key='data-browser-loaging-dialog'
-        variant='indeterminate'
+        key='data-browser-loading-dialog'
+        variant='determinate'
+        value={progress}
         loading={loading}
-        message={messages.get(messages.PREPARING_FILE)}
+        message={messages.get(messages.DOWNLOADING)}
       />,
       <ErrorDialog
         key='data-browser-error-dialog'

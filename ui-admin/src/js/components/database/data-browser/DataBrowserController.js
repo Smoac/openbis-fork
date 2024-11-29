@@ -236,7 +236,7 @@ export default class DataBrowserController extends ComponentController {
     return await openbis.write(this.owner, source, offset, data)
   }
 
-  async download(file) {
+  async download(file, onProgressUpdate) {
     let offset = 0
     const dataArray = []
 
@@ -244,10 +244,56 @@ export default class DataBrowserController extends ComponentController {
       const blob = await this._download(file, offset)
       dataArray.push(await blob.arrayBuffer())
       offset += CHUNK_SIZE
+      onProgressUpdate(CHUNK_SIZE)
     }
 
     return dataArray
   }
+
+  async _createWritableStream(dirHandle, fileName) {
+    // Create or access the file in the selected directory
+    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+    return await fileHandle.createWritable();
+  }
+
+  async downloadAndAssemble(file, dirHandle, onProgressUpdate) {
+    let offset = 0;
+
+    // Create a writable stream for the file in the selected directory
+    const fileStream = await this._createWritableStream(dirHandle, file.name);
+
+    let writeToDiskOffset = 0;
+    var dataArrayForDisk = []
+    while (offset < file.size) {
+      const blob = await this._download(file, offset); 
+      dataArrayForDisk.push(await blob.arrayBuffer());
+      offset += CHUNK_SIZE;
+
+      writeToDiskOffset += CHUNK_SIZE;      
+
+      // write to file only when almost 100MB
+      if(writeToDiskOffset > 100_000_000 || offset >= file.size){
+        // Write the chunk directly to the file
+        const combinedBuffer = new Uint8Array(dataArrayForDisk.reduce((acc, buf) => acc + buf.byteLength, 0));
+        let offset = 0;
+        for (const buf of dataArrayForDisk) {
+            combinedBuffer.set(new Uint8Array(buf), offset);
+            offset += buf.byteLength;
+        }
+        await fileStream.write(combinedBuffer);
+
+        writeToDiskOffset = 0;
+        dataArrayForDisk = []
+      }
+
+      onProgressUpdate(CHUNK_SIZE)
+    }
+
+    await fileStream.close();
+    console.log(`Download of ${file.name} complete!`);
+  }
+
+
 
   async _download(file, offset) {
     const limit = Math.min(CHUNK_SIZE, file.size - offset)
