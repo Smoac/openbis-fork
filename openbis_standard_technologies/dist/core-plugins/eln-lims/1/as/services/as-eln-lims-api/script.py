@@ -672,7 +672,7 @@ def isUnusedBarcode(context, parameters, sessionToken):
 
     searchCriteria = SampleSearchCriteria()
     searchCriteria.withOrOperator();
-    searchCriteria.withCode().thatEquals(parameters["barcode"]);
+    searchCriteria.withPermId().thatEquals(parameters["barcode"])
     searchCriteria.withStringProperty("$BARCODE").thatEquals(parameters["barcode"])
     fetchOptions = SampleFetchOptions()
 
