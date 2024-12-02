@@ -270,13 +270,13 @@ Experimental Step (measurement 4) from an existing Experimental Step
 (measurement 3), this will be automatically set as child of measurement
 3, as shown below.
 
-![](img/ELN-new-exp-step-from-exp-step-1.png)
+![](img/ELN-exp-step-from-exp-step.png)
 
 If you do not wish to have this relationship established, you need to
 create the new Object starting from the Experiment level, as shown
 below.
 
-![](img/ELN-new-exp-step-from-experiment.png) 
+![](img/ELN-exp-step-from-experiment.png) 
 
 
  
