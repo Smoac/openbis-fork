@@ -1,15 +1,45 @@
 # OpenBIS Change Log
 
+## Version 20.12.02 (02 Dec 2024)
+
+### Core
+- Bugfix: Fix Property Types DB, remove vocabulary type from converted Varchar types (BIS-1069)
+- Bugfix: SFTP now reports the right timestamps (BIS-1432)
+- Bugfix: Name collision of testing PNG with the production one, image export does not work for uncompressed data (BIS-1439)
+- Bugfix: Search fails if integer dynamic property is evaluated and used for sorting (BIS-1448)
+- Bugfix: SearchFiles ignores fetch options (BIS-1487)
+- Bugfix: Number of DSS Java threads gradually increasing to critically high values (BIS-1640)
+
+### ELN
+- Improvement: Move addition of new widget for properties in ELN Settings to top of list (BIS-918)
+- Improvement: Login with SSO/SwitchAAI was not showing the loading spinning clock (BIS-1488)
+- Improvement: "+New" dropdown list in forms replaced, this improves usability in small screens/tables (BIS-1512)
+
+- Bugfix: Now experiments from Experiments/Collections table in Project page can be deleted (BIS-983)
+- Bugfix: Uniqueness of QRcodes was only checked against objects a user has access to, now to all (BIS-1038)
+- Bugfix: URL display in text fields changed in 20.10.9 (BIS-1461)
+- Bugfix: Error after login in 20.10.9 reported by external users (BIS-1485)
+- Bugfix: Failing to download files with comma in name (BIS-1515)
+- Bugfix: XLSX Import failure when using "Ignore if Exists" on certain scenarios (BIS-1528)
+- Bugfix: XLSX Import failure if images are embedded in text fields (BIS-1534)
+- Bugfix: XLSX Import failure if code fields are not uppercase, now they uppercase automatically (BIS-1545)
+- Bugfix: XLSX Import failure of ELN Standard Technologies master data (BIS-1582)
+- Bugfix: Barcode/QR scanner view broken in 20.10.9.1 (BIS-1533)
+- Bugfix: Samples without experiments get blank edit form (BIS-1537)
+_ Bugfix: ELN lims dropbox ignores plugin.properties config (BIS-1593)
+- Bugfix: Advanced search date widget not configured with openBIS date and timestamp format (BIS-1616)
+- Bugfix: Search for products does not work when creating a Template for a Request (BIS-1617)
+
 ## Version 20.10.10 (10 Oct 2024)
 
 ### Core
-- Remove rotateLogFiles from datastore_server.sh and datamover.sh (BIS-1396)
-- Make SFTP Certificate configurable on the dss service.properties (BIS-1401)
-- Forward all properties from plugins we ship to the as and dss service.properties (BIS-1399)
-- Forward all properties from plugins we ship to OS environment variables (BIS-1587)
+- New Feature: Forward all properties from plugins we ship to the as and dss service.properties (BIS-1399)
+- New Feature: Forward all properties from plugins we ship to OS environment variables (BIS-1587)- New Feature: Make SFTP Certificate configurable on the dss service.properties (BIS-1401)
+- New Feature: Make SFTP Certificate configurable on the dss service.properties (BIS-1401)
+- Improvement: Remove rotateLogFiles from datastore_server.sh and datamover.sh (BIS-1396)
 
 ### ELN
-- ELN: Move InstanceProfile.js parameters to the ELN Settings UI (BIS-1400)
+- New Feature: Move InstanceProfile.js parameters to the ELN Settings UI (BIS-1400)
 
 ## Version 20.10.9.1 (16 Aug 2024)
 
