@@ -52,7 +52,6 @@ To create the *Project* folder:
 
 To register the *Collection* folder, inside the *Project* folder:
 
-1.
 1.   Click on the *Project* folder, in this case **Samples**.
 2.  Click the **+ New** button in the main form and choose **Collection** from the dropdown.
 
