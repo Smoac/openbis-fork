@@ -25,8 +25,6 @@ public class ImagingDataSetExportConfig implements Serializable
     @JsonProperty
     private List<ImagingExportIncludeOptions> include = new ArrayList<>();
 
-    @JsonProperty
-    private boolean generate;
 
     @JsonIgnore
     public String getArchiveFormat()
@@ -72,14 +70,4 @@ public class ImagingDataSetExportConfig implements Serializable
         this.include = include;
     }
 
-    @JsonIgnore
-    public boolean isGenerate()
-    {
-        return generate;
-    }
-
-    public void setGenerate(boolean generate)
-    {
-        this.generate = generate;
-    }
 }
