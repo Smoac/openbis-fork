@@ -57,7 +57,7 @@ openBIS provides by default 2 options for registering Experiments:
 
 2.  Select **Default Experiment** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on how it has been configured by the Instance admin.
 
-![image info](img/ELN-default -experiment-registration-201011.png)
+![image info](img/ELN-default-experiment-registration-201011.png)
 
 3.  Fill in the relevant fields in the form.
 
