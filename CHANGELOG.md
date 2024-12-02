@@ -1,6 +1,6 @@
 # OpenBIS Change Log
 
-## Version 20.12.02 (02 Dec 2024)
+## Version 20.10.11 (02 Dec 2024)
 
 ### Core
 - Bugfix: Fix Property Types DB, remove vocabulary type from converted Varchar types (BIS-1069)
