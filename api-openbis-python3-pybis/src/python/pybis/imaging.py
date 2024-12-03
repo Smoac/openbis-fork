@@ -115,30 +115,62 @@ class ImagingDataSetPreview(AbstractImagingRequest):
             preview.__dict__[prop] = attribute
         return preview
 
+class ImagingDataSetExportConfig(AbstractImagingClass):
+    archiveFormat: str
+    imageFormat: str
+    resolution: str
+    include: list
+
+    def __init__(self, archive_format, image_format, resolution, include=None):
+        if include is None:
+            include = ["IMAGE", "RAW_DATA"]
+        self.__dict__["@type"] = "imaging.dto.ImagingDataSetExportConfig"
+        self.imageFormat = image_format
+        self.archiveFormat = archive_format
+        if resolution is None:
+            resolution = "original"
+        self.resolution = resolution
+        self.include = include
+        self._validate_data()
+
+    def _validate_data(self):
+        assert self.imageFormat is not None, "image format can not be null"
+        assert self.archiveFormat is not None, "image format can not be null"
+
+    @classmethod
+    def from_dict(cls, data):
+        if data is None:
+            return None
+        if "@id" in data:
+            del data["@id"]
+        preview = cls(None, None, None)
+        for prop in cls.__annotations__.keys():
+            attribute = data.get(prop)
+            preview.__dict__[prop] = attribute
+        return preview
+
+
 
 class ImagingDataSetExport(AbstractImagingRequest):
-    config: dict
+    config: ImagingDataSetExportConfig
     metadata: dict
 
     def __init__(self, config, metadata=None):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetExport"
-        self.config = config if config is not None else dict()
+        self.config = config
         self.metadata = metadata if metadata is not None else dict()
         self._validate_data()
 
     def _validate_data(self):
         assert self.config is not None, "Config can not be null"
-        required_keys = {"include", "archive-format", "image-format", "resolution"}
-        for key in required_keys:
-            assert key in self.config and self.config[key] is not None, \
-                f"export->config->{key}: Must not be None!"
+
 
 
 class ImagingDataSetMultiExport(AbstractImagingRequest):
     permId: str
     imageIndex: int
     previewIndex: int
-    config: dict
+    config: ImagingDataSetExportConfig
     metadata: dict
 
     def __init__(self, permId, imageIndex, previewIndex, config, metadata=None):
@@ -154,11 +186,6 @@ class ImagingDataSetMultiExport(AbstractImagingRequest):
         assert self.permId is not None, "PermId can not be null"
         assert self.imageIndex is not None, "imageIndex can not be null"
         assert self.previewIndex is not None, "previewIndex can not be null"
-        assert self.config is not None, "Config can not be null"
-        required_keys = {"include", "archive-format", "image-format", "resolution"}
-        for key in required_keys:
-            assert key in self.config and self.config[key] is not None, \
-                f"export->config->{key}: Must not be None!"
 
 
 class ImagingDataSetControlVisibility(AbstractImagingClass):

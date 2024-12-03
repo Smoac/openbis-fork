@@ -5598,13 +5598,15 @@ class ImagingControl:
             raise ValueError(service_response['error'])
 
     def _get_export_url(self, perm_id: str, export: ImagingDataSetExport, image_index: int = 0) -> str:
+        export_params = export.__dict__
+        export_params["config"] = export_params["config"].__dict__
         parameters = {
             "type": "export",
             "permId": perm_id,
             "index": image_index,
             "error": None,
             "url": None,
-            "export": export.__dict__
+            "export": export_params
         }
         service_response = self._openbis.execute_custom_dss_service(self._service_name, parameters)
         if service_response['error'] is None:
@@ -5613,6 +5615,9 @@ class ImagingControl:
             raise ValueError(service_response['error'])
 
     def _get_multi_export_url(self, exports: list[ImagingDataSetMultiExport]) -> str:
+        export_params = [export.__dict__ for export in exports]
+        for param in export_params:
+            param["config"] = param["config"].__dict__
         parameters = {
             "type": "multi-export",
             "error": None,
@@ -5625,30 +5630,29 @@ class ImagingControl:
         else:
             raise ValueError(service_response['error'])
 
-    def export_image(self, perm_id, image_id, path_to_download,
+    def export_image(self, perm_id:str, image_id:int, path_to_download:str,
                      include=None, image_format='original', archive_format="zip", resolution='original'):
         if include is None:
-            include = ['image', 'raw data']
-        export_config = {
-            "include": include,
-            "image-format": image_format,
-            "archive-format": archive_format,
-            "resolution": resolution
-        }
+            include = ['IMAGE', 'RAW_DATA']
+
+        export_config = ImagingDataSetExportConfig(archive_format, image_format, resolution, include)
+        self._export_image(perm_id, image_id, path_to_download, export_config)
+
+
+    def _export_image(self, perm_id:str, image_id:int, path_to_download:str,
+                     export_config: ImagingDataSetExportConfig):
+
         imaging_export = ImagingDataSetExport(export_config)
         self._single_export_download(perm_id, imaging_export, image_id, path_to_download)
 
-    def multi_export_images(self, perm_ids, image_ids, preview_ids,
+    def export_previews(self, perm_ids, image_ids, preview_ids,
                             path_to_download, include=None, image_format='original',
                             archive_format="zip", resolution='original'):
         if include is None:
-            include = ['image', 'raw data']
-        export_config = {
-            "include": include,
-            "image-format": image_format,
-            "archive-format": archive_format,
-            "resolution": resolution
-        }
+            include = ['IMAGE', 'RAW_DATA']
+
+        export_config = ImagingDataSetExportConfig(archive_format, image_format, resolution, include)
+
         imaging_multi_exports = []
         for i in range(len(perm_ids)):
             imaging_multi_exports += [ImagingDataSetMultiExport(perm_ids[i], image_ids[i],

@@ -126,7 +126,7 @@ def check_datatype(type_name, value, is_multi_value=False):
         if type_name == "INTEGER":
             return all([isinstance(x, int) and not math.isnan(x) for x in value])
         if type_name == "REAL":
-            return all([isinstance(x, (int | float)) and not math.isnan(x) for x in value])
+            return all([isinstance(x, (int, float)) and not math.isnan(x) for x in value])
         if type_name == "BOOLEAN":
             return all([isinstance(x, bool) for x in value])
         if type_name == "VARCHAR":
@@ -135,7 +135,7 @@ def check_datatype(type_name, value, is_multi_value=False):
         if type_name == "INTEGER":
             return isinstance(value, int) and not math.isnan(value)
         if type_name == "REAL":
-            return isinstance(value, (int | float)) and not math.isnan(value)
+            return isinstance(value, (int, float)) and not math.isnan(value)
         if type_name == "BOOLEAN":
             return isinstance(value, bool)
         if type_name == "VARCHAR":
