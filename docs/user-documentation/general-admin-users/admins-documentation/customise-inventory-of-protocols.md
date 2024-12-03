@@ -19,12 +19,12 @@ Inventory. In this case, *Objects* are protocols.
 For example, if we want to create a collection of lab protocols for
 microscopy and Mass spec, we need to adopt the following steps:
 
-1.  Register a first *Project* folder called LAB\_PROTOCOLS in the
+1.  Register a first *Project* folder called PROTOCOLS in the
     **Methods** *Space*.
 
 ![image info](img/create-project-methods.png)
 
-1.  In the **Lab** **Protocols** folder, register two additional
+1.  In the **Protocols** folder, you can register two additional
     Collections called Microscopy Protocols and MS Protocols
 
  
