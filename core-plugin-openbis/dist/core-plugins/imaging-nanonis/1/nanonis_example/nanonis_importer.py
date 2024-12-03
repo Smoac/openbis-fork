@@ -142,7 +142,10 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         inputs,
         {})
 
-    images = [imaging.ImagingDataSetImage(imaging_config, previews=[imaging.ImagingDataSetPreview(preview_format="png")])]
+    images = [imaging.ImagingDataSetImage(imaging_config,
+                                          previews=[imaging.ImagingDataSetPreview(preview_format="png")]
+                                          # ,metadata=img.print_params_dict(False)
+                                          )]
     imaging_property_config = imaging.ImagingDataSetPropertyConfig(images)
     if VERBOSE:
         print(imaging_property_config.to_json())
