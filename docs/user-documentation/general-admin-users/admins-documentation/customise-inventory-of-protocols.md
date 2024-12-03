@@ -29,7 +29,7 @@ microscopy and Mass spec, we need to adopt the following steps:
 
  
 
-![image info](img/create-collection-lab-protocols.png)
+![image info](img/inventory-protocol-collection-registration.png)
 
   
 The steps for the registration of the folders are the same as explained
