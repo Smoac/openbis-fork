@@ -129,20 +129,16 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, Attribute.Version);
-        String code = getValueByColumnName(header, values, Attribute.Code);
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
+
         if (code == null)
         {
             throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
         }
 
-        boolean isSystem = delayedExecutor.isSystem();
-        boolean canUpdate = (isInternalNamespace == false) || isSystem;
+        String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
 
-        if (canUpdate == false) {
-            return false;
-        } if (canUpdate && (version == null || version.isEmpty())) {
+        if (version == null || version.isEmpty()) {
             return true;
         } else {
             Set<String> existingCodes = existingDynamicPluginsByPropertyCode.keySet();
