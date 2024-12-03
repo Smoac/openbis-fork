@@ -13,10 +13,10 @@ public class ImagingDataSetExportConfig implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("archive_format")
+    @JsonProperty
     private String archiveFormat;
 
-    @JsonProperty("image_format")
+    @JsonProperty
     private String imageFormat;
 
     @JsonProperty
