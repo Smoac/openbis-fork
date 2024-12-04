@@ -309,15 +309,24 @@ def getSamplesImportTemplate(context, parameters):
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
         cell_index = _create_cell(row, cell_index, header_style, "Children")
-        attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
+        # Find duplicated Property Labels
         usedPropertyLabels = {}
+        duplicatedPropertyLabels = {}
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
             if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
                 propertyLabel = propertyAssignment.getPropertyType().getLabel()
-                if not attributeValidator.isHeader(propertyLabel) and not propertyLabel in usedPropertyLabels:
+                if propertyLabel in usedPropertyLabels:
+                    duplicatedPropertyLabels[propertyLabel] = True
+                usedPropertyLabels[propertyLabel] = True
+        # Create Template using codes for all duplicated property labels
+        attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
+        for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
+            plugin = propertyAssignment.getPlugin()
+            if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
+                propertyLabel = propertyAssignment.getPropertyType().getLabel()
+                if not attributeValidator.isHeader(propertyLabel) and not propertyLabel in duplicatedPropertyLabels:
                     cell_index = _create_cell(row, cell_index, header_style, propertyLabel)
-                    usedPropertyLabels[propertyLabel] = True
                 else:
                     cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getCode())
 
