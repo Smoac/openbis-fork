@@ -77,7 +77,7 @@ def generate_random_image(height, width):
     return preview
 
 
-def get_sxm_image(channel_name, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling, resolution):
+def get_sxm_image(channel_name, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling, resolution, include_param_info):
     img = load_image(file_path)
     img_byte_arr = io.BytesIO()
 
@@ -93,18 +93,27 @@ def get_sxm_image(channel_name, x_axis, y_axis, scaling, color_scale, colormap, 
 
     img_byte_arr = img_byte_arr.getvalue()
     encoded = base64.b64encode(img_byte_arr)
-    # print_params = img.print_params(show=False).split('\n')
-    # print_params = {x: y for x, y in (s.split(':') for s in print_params)}
-    # print_params = json.dumps(print_params)
-    # print(f'PARAMS={print_params}')
-    # header = json.dumps(img.header, cls=NumpyEncoder)
-    # print(f'HEADER={header}')
+    preview = {'bytes': encoded.decode('utf-8'), 'width': int(size[0]), 'height': int(size[1])}
 
-    return size[0], size[1], encoded
+    if include_param_info:
+        print_params = img.print_params_dict(show=False)
+    #     header = json.dumps(img.header, cls=NumpyEncoder)
+    #     preview['header'] = header
+
+        # for x in img.header.keys():
+        #     preview[x] = json.dumps(img.header[x], cls=NumpyEncoder)
+
+        for x in print_params.keys():
+            key = x
+            if key in ['bytes', 'width', 'height']:
+                key = 'meta_' + key
+            preview[key] = print_params[x]
+    return preview
 
 def sxm_mode(parameters):
 
     colormap_scaling = False
+    include_param_info = False
     # 'figure' is default parameter for matplotlib dpi param
     resolution = 'figure'
 
@@ -133,16 +142,16 @@ def sxm_mode(parameters):
                 resolution = float(resolution[:-3])
             else:
                 resolution = float(resolution)
+        elif key == 'include parameter information':
+            include_param_info = parameters[param_key].upper() == "TRUE"
 
-    width, height, image_bytes = get_sxm_image(channel, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling, resolution)
-    preview = {'bytes': image_bytes.decode('utf-8'), 'width': int(width), 'height': int(height)}
+    preview = get_sxm_image(channel, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling, resolution, include_param_info)
     print(f'{json.dumps(preview)}')
-    # print(f'{image_bytes}')
 
 print(params)
 if 'mode' in params:
     if params['mode'] == '3':
-        generate_random_image(256, 256)
+        generate_random_image(640, 640)
     elif params['mode'] == '5':
         sxm_mode(preview_config)
 else:

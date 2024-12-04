@@ -17,6 +17,7 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging;
 
+import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetExportConfig;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.io.Serializable;
@@ -36,40 +37,25 @@ class Validator
     }
 
 
-    static void validateExportConfig(Map<String, Serializable> exportConfig) {
+    static void validateExportConfig(ImagingDataSetExportConfig exportConfig) {
         if(exportConfig == null) {
             throw new UserFailureException("Export config can not be empty!");
         }
-        validateTag(exportConfig, "include", true);
-        validateTag(exportConfig, "image-format");
-        validateTag(exportConfig, "archive-format");
-        validateTag(exportConfig, "resolution");
-    }
-
-    private static void validateTag(Map<String, Serializable> config, String tagName)
-    {
-        validateTag(config, tagName, false);
-    }
-
-    private static void validateTag(Map<String, Serializable> config, String tagName, boolean isMultiValue)
-    {
-        if(!config.containsKey(tagName)){
-            throw new UserFailureException("Missing '"+tagName+"' in config!");
-        }
-        Serializable include = config.get(tagName);
-        if(include == null){
-            throw new UserFailureException("'"+tagName+"' tag in config can not be null!");
-        }
-        if(isMultiValue)
+        if(exportConfig.getInclude() == null || exportConfig.getInclude().isEmpty())
         {
-            if (!include.getClass().isArray())
-            {
-                throw new UserFailureException("'include' tag in config must be an array!");
-            }
-            if (((Serializable[]) include).length == 0)
-            {
-                throw new UserFailureException("'include' tag in config can not be empty!");
-            }
+            throw new UserFailureException("Include option of config can not be empty!");
+        }
+        if(exportConfig.getImageFormat() == null || exportConfig.getImageFormat().trim().isEmpty())
+        {
+            throw new UserFailureException("Image format of config can not be empty!");
+        }
+        if(exportConfig.getArchiveFormat() == null || exportConfig.getArchiveFormat().trim().isEmpty())
+        {
+            throw new UserFailureException("Archive format of config can not be empty!");
+        }
+        if(exportConfig.getResolution() == null || exportConfig.getResolution().trim().isEmpty())
+        {
+            throw new UserFailureException("resolution option of config can not be empty!");
         }
     }
 

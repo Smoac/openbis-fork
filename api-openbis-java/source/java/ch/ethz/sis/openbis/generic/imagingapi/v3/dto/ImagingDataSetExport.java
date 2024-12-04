@@ -32,20 +32,19 @@ public class ImagingDataSetExport implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, Serializable> config;
+    private ImagingDataSetExportConfig config;
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, String> metadata;
 
     @JsonIgnore
-    public Map<String, Serializable> getConfig()
+    public ImagingDataSetExportConfig getConfig()
     {
         return config;
     }
 
-    public void setConfig(Map<String, Serializable> config)
+    public void setConfig(ImagingDataSetExportConfig config)
     {
         this.config = config;
     }

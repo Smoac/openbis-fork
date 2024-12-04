@@ -40,8 +40,7 @@ public class ImagingDataSetMultiExport implements Serializable
     private int previewIndex;
 
     @JsonProperty
-    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, Serializable> config;
+    private ImagingDataSetExportConfig config;
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
@@ -79,12 +78,12 @@ public class ImagingDataSetMultiExport implements Serializable
     }
 
     @JsonIgnore
-    public Map<String, Serializable> getConfig()
+    public ImagingDataSetExportConfig getConfig()
     {
         return config;
     }
 
-    public void setConfig(Map<String, Serializable> config)
+    public void setConfig(ImagingDataSetExportConfig config)
     {
         this.config = config;
     }

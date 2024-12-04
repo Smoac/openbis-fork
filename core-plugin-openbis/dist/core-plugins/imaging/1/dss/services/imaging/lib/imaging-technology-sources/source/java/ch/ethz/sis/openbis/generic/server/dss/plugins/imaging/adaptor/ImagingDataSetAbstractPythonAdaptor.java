@@ -85,6 +85,7 @@ public abstract class ImagingDataSetAbstractPythonAdaptor implements IImagingDat
                 image.getImageConfig(), image.getMetadata(),
                 preview.getConfig(), preview.getMetadata());
 
+        preview.getMetadata().clear();
         for (Map.Entry<String, Serializable> entry : map.entrySet())
         {
             if (entry.getKey().equalsIgnoreCase("width"))
@@ -98,7 +99,7 @@ public abstract class ImagingDataSetAbstractPythonAdaptor implements IImagingDat
             } else if (entry.getKey().equalsIgnoreCase("bytes"))
             {
                 preview.setBytes(entry.getValue().toString());
-            } else
+            }  else
             {
                 preview.getMetadata().put(entry.getKey(), entry.getValue());
             }

@@ -74,6 +74,7 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
                 image.getImageConfig(), image.getMetadata(),
                 preview.getConfig(), preview.getMetadata());
 
+        preview.getMetadata().clear();
         for (Map.Entry<String, Serializable> entry : map.entrySet())
         {
             if (entry.getKey().equalsIgnoreCase("width"))

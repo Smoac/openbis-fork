@@ -999,6 +999,8 @@ var fullTypes = [
 "imaging/dto/ImagingDataSetControlVisibility",
 "imaging/dto/ImagingDataSetPropertyConfig",
 "imaging/dto/ImagingDataSetExport",
+"imaging/dto/ImagingDataSetExportConfig",
+"imaging/dto/ImagingExportIncludeOptions",
 "util/DateFormat",
 "util/Json",
 "util/Exceptions",

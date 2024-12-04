@@ -87,6 +87,7 @@ public final class ImagingDataSetExampleAdaptor implements IImagingDataSetAdapto
                 image.getImageConfig(), image.getMetadata(),
                 preview.getConfig(), preview.getMetadata());
 
+        preview.getMetadata().clear();
         for (Map.Entry<String, Serializable> entry : map.entrySet())
         {
             if (entry.getKey().equalsIgnoreCase("width"))

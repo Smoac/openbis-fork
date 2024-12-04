@@ -30,9 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
-import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetImage;
-import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetPreview;
-import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetPropertyConfig;
+import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.*;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -45,6 +43,8 @@ public class ImagingDataSetInterceptor implements IOperationListener
 {
 
     static final String IMAGING_CONFIG_PROPERTY_NAME = "IMAGING_DATA_CONFIG";
+    static final String DEFAULT_DATASET_VIEW_PROPERTY = "DEFAULT_DATASET_VIEW";
+    static final String DEFAULT_DATASET_VIEWER_VALUE = "IMAGING_DATASET_VIEWER";
     static final String IMAGING_TYPE = "IMAGING_DATA";
     static final String USER_DEFINED_IMAGING_DATA = "USER_DEFINED_IMAGING_DATA";
     static final List<String> IMAGING_TYPES = Arrays.asList(IMAGING_TYPE, USER_DEFINED_IMAGING_DATA);
@@ -105,6 +105,39 @@ public class ImagingDataSetInterceptor implements IOperationListener
         return propertyValue;
     }
 
+    private ImagingDataSetImage getDefaultImage()
+    {
+        ImagingDataSetImage image = new ImagingDataSetImage();
+        ImagingDataSetConfig config = new ImagingDataSetConfig();
+        config.setInputs(Arrays.asList());
+        config.setResolutions(Arrays.asList("original"));
+        config.setPlayable(false);
+
+        ImagingDataSetControl include = new ImagingDataSetControl();
+        include.setLabel("include");
+        include.setType("Dropdown");
+        include.setMultiselect(true);
+        include.setValues(Arrays.asList("image", "raw data"));
+
+        ImagingDataSetControl archiveFormat = new ImagingDataSetControl();
+        archiveFormat.setLabel("archive-format");
+        archiveFormat.setType("Dropdown");
+        archiveFormat.setValues(Arrays.asList("zip", "tar"));
+
+        config.setExports(Arrays.asList(include, archiveFormat));
+        config.setMetadata(Map.of());
+
+        image.setConfig(config);
+        ImagingDataSetPreview preview = new ImagingDataSetPreview();
+        preview.setIndex(0);
+        preview.setFormat("png");
+        preview.setConfig(Map.of("PLACEHOLDER", "dummy"));
+        preview.setMetadata(Map.of());
+        image.setPreviews(Arrays.asList(preview));
+        image.setIndex(0);
+        return image;
+    }
+
 
     @Override
     public void beforeOperation(IApplicationServerApi api, String sessionToken,
@@ -123,10 +156,7 @@ public class ImagingDataSetInterceptor implements IOperationListener
                     String propertyConfig = getPropertyConfig(creation);
                     if(propertyConfig == null || propertyConfig.trim().isEmpty() || "{}".equals(propertyConfig.trim())) {
                         ImagingDataSetPropertyConfig config = new ImagingDataSetPropertyConfig();
-                        ImagingDataSetImage image = new ImagingDataSetImage();
-                        ImagingDataSetPreview preview = new ImagingDataSetPreview();
-                        image.setPreviews(Arrays.asList(preview));
-                        config.setImages(Arrays.asList(image));
+                        config.setImages(Arrays.asList(getDefaultImage()));
                         Map<String, String> metaData = new HashMap<>();
                         metaData.put(PREVIEW_TOTAL_COUNT.toLowerCase(), "1");
                         creation.setMetaData(metaData);
@@ -151,6 +181,11 @@ public class ImagingDataSetInterceptor implements IOperationListener
                         }
                         creation.getMetaData().put(PREVIEW_TOTAL_COUNT, Integer.toString(count));
                     }
+
+                    if(creation.getControlledVocabularyProperty(DEFAULT_DATASET_VIEW_PROPERTY) == null) {
+                        creation.setControlledVocabularyProperty(DEFAULT_DATASET_VIEW_PROPERTY, DEFAULT_DATASET_VIEWER_VALUE);
+                    }
+
                 }
 
 

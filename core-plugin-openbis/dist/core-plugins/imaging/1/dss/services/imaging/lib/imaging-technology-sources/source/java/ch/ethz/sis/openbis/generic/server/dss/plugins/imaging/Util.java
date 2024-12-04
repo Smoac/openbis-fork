@@ -17,6 +17,7 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging;
 
+import ch.ethz.sis.openbis.generic.imagingapi.v3.dto.ImagingDataSetPropertyConfig;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -84,6 +85,18 @@ public class Util
         {
             ObjectMapper objectMapper = getObjectMapper();
             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+        } catch (Exception e)
+        {
+            throw new UserFailureException("Could not serialize the input parameters!", e);
+        }
+    }
+
+    static String convertConfigToJson(ImagingDataSetPropertyConfig config)
+    {
+        try
+        {
+            ObjectMapper objectMapper = getObjectMapper();
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(config);
         } catch (Exception e)
         {
             throw new UserFailureException("Could not serialize the input parameters!", e);

@@ -17,9 +17,11 @@
 
 package ch.ethz.sis.openbis.generic.imagingapi.v3.dto;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -38,12 +40,14 @@ public class ImagingDataSetImage implements Serializable
     private List<ImagingDataSetPreview> previews;
 
     @JsonProperty
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> imageConfig;
 
     @JsonProperty
     private Integer index;
 
     @JsonProperty
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> metadata;
 
     @JsonIgnore

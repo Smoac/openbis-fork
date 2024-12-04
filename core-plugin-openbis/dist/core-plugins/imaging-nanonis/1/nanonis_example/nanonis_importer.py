@@ -142,7 +142,10 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         inputs,
         {})
 
-    images = [imaging.ImagingDataSetImage(imaging_config, previews=[imaging.ImagingDataSetPreview(preview_format="png")])]
+    images = [imaging.ImagingDataSetImage(imaging_config,
+                                          previews=[imaging.ImagingDataSetPreview(preview_format="png")]
+                                          # ,metadata=img.print_params_dict(False)
+                                          )]
     imaging_property_config = imaging.ImagingDataSetPropertyConfig(images)
     if VERBOSE:
         print(imaging_property_config.to_json())
@@ -353,6 +356,8 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         imaging.ImagingDataSetControl('Grouping', "Dropdown", values=[d.name for d in data], multiselect=True),
         imaging.ImagingDataSetControl('Colormap', "Colormap", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
         imaging.ImagingDataSetControl('Scaling', "Dropdown", values=['lin-lin', 'lin-log', 'log-lin', 'log-log']),
+        imaging.ImagingDataSetControl('Include parameter information', "Dropdown", values=['True', 'False']),
+        # imaging.ImagingDataSetControl('Print legend', "Dropdown", values=['True', 'False']),
     ]
 
     imaging_config = imaging.ImagingDataSetConfig(
@@ -461,6 +466,7 @@ def demo_sxm_flow(openbis, file_sxm, permId=None):
         "Color-scale": color_scale,  # file dependent
         "Colormap": "gray",  # [gray, YlOrBr, viridis, cividis, inferno, rainbow, Spectral, RdBu, RdGy]
         "Scaling": "linear",  # ['linear', 'logarithmic']
+        "Include parameter information" : "True"
     }
     config_preview = config_sxm_preview.copy()
 
@@ -535,7 +541,7 @@ def demo_dat_flow(openbis, folder_path, permId=None):
         "Grouping": sorted([os.path.basename(str(f)) for f in data]),
         "Colormap": "rainbow",
         "Scaling": "lin-lin",  # ['lin-lin', 'lin-log', 'log-lin', 'log-log']
-        # "print_legend": "false", # disable legend in image
+        "Print legend": "True", # disable legend in image
     }
 
     config_preview = config_dat_preview.copy()

@@ -28,6 +28,17 @@ IMAGING_CONFIG_PROP_NAME = "IMAGING_DATA_CONFIG".lower()
 DEFAULT_DATASET_VIEW_PROP_NAME = "default_dataset_view"
 
 
+def get_instance(url="http://localhost:8888/openbis"):
+    openbis_instance = Openbis(
+        url=url,
+        verify_certificates=False,
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
+    )
+    token = openbis_instance.login('admin', 'changeit')
+    print(f'Connected to {url} -> token: {token}')
+    return openbis_instance
+
+
 class AtomicIncrementer:
     def __init__(self, value=0):
         self._value = int(value)
@@ -68,20 +79,24 @@ class AbstractImagingRequest(AbstractImagingClass, metaclass=abc.ABCMeta):
 class ImagingDataSetPreview(AbstractImagingRequest):
     config: dict
     format: str
-    bytes: str | None
+    # bytes: str | None
     width: int
     height: int
     index: int
     show: bool
     metadata: dict
+    comment: str
+    tags: list
 
-    def __init__(self, preview_format, config=None, metadata=None, index=0):
+    def __init__(self, preview_format, config=None, metadata=None, index=0, comment="", tags=[]):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetPreview"
         self.bytes = None
         self.format = preview_format
         self.config = config if config is not None else dict()
         self.metadata = metadata if metadata is not None else dict()
         self.index = index
+        self.comment = comment
+        self.tags = tags
         self._validate_data()
 
     def set_preview_image_bytes(self, width, height, bytes):
@@ -110,30 +125,59 @@ class ImagingDataSetPreview(AbstractImagingRequest):
             preview.__dict__[prop] = attribute
         return preview
 
+class ImagingDataSetExportConfig(AbstractImagingClass):
+    archive_format: str
+    image_format: str
+    resolution: str
+    include: list
+
+    def __init__(self, archive_format, image_format, resolution, include=None):
+        if include is None:
+            include = ["IMAGE", "RAW_DATA"]
+        self.__dict__["@type"] = "imaging.dto.ImagingDataSetExportConfig"
+        self.image_format = image_format
+        self.archive_format = archive_format
+        self.resolution = resolution
+        self.include = include
+        self._validate_data()
+
+    def _validate_data(self):
+        assert self.image_format is not None, "image format can not be null"
+
+    @classmethod
+    def from_dict(cls, data):
+        if data is None:
+            return None
+        if "@id" in data:
+            del data["@id"]
+        preview = cls(None, None, None)
+        for prop in cls.__annotations__.keys():
+            attribute = data.get(prop)
+            preview.__dict__[prop] = attribute
+        return preview
+
+
 
 class ImagingDataSetExport(AbstractImagingRequest):
-    config: dict
+    config: ImagingDataSetExportConfig
     metadata: dict
 
     def __init__(self, config, metadata=None):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetExport"
-        self.config = config if config is not None else dict()
+        self.config = config
         self.metadata = metadata if metadata is not None else dict()
         self._validate_data()
 
     def _validate_data(self):
         assert self.config is not None, "Config can not be null"
-        required_keys = {"include", "archive-format", "image-format", "resolution"}
-        for key in required_keys:
-            assert key in self.config and self.config[key] is not None, \
-                f"export->config->{key}: Must not be None!"
+
 
 
 class ImagingDataSetMultiExport(AbstractImagingRequest):
     permId: str
     imageIndex: int
     previewIndex: int
-    config: dict
+    config: ImagingDataSetExportConfig
     metadata: dict
 
     def __init__(self, permId, imageIndex, previewIndex, config, metadata=None):
@@ -149,11 +193,6 @@ class ImagingDataSetMultiExport(AbstractImagingRequest):
         assert self.permId is not None, "PermId can not be null"
         assert self.imageIndex is not None, "imageIndex can not be null"
         assert self.previewIndex is not None, "previewIndex can not be null"
-        assert self.config is not None, "Config can not be null"
-        required_keys = {"include", "archive-format", "image-format", "resolution"}
-        for key in required_keys:
-            assert key in self.config and self.config[key] is not None, \
-                f"export->config->{key}: Must not be None!"
 
 
 class ImagingDataSetControlVisibility(AbstractImagingClass):
@@ -274,14 +313,17 @@ class ImagingDataSetConfig(AbstractImagingClass):
 
 
 class ImagingDataSetImage(AbstractImagingClass):
+    config: ImagingDataSetConfig
     previews: list[ImagingDataSetPreview]
-    config: dict
+    image_config: dict
     index: int
     metadata: dict
 
-    def __init__(self, config=None, previews=None, metadata=None, index=0):
+    def __init__(self, config: ImagingDataSetConfig, image_config=None, previews=None, metadata=None, index=0):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetImage"
-        self.config = config if config is not None else dict()
+        assert config is not None, "Config must not be None!"
+        self.config = config
+        self.image_config = image_config if image_config is not None else dict()
         self.previews = previews if previews is not None else [ImagingDataSetPreview("png")]
         self.metadata = metadata if metadata is not None else dict()
         self.index = index if index is not None else 0
@@ -296,7 +338,8 @@ class ImagingDataSetImage(AbstractImagingClass):
             return None
         if "@id" in data:
             del data["@id"]
-        image = cls(None, None, None)
+        config = ImagingDataSetConfig.from_dict(data.get('config'))
+        image = cls(config,None, None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
             if prop == 'previews' and attribute is not None:
@@ -306,13 +349,10 @@ class ImagingDataSetImage(AbstractImagingClass):
 
 
 class ImagingDataSetPropertyConfig(AbstractImagingClass):
-    config: ImagingDataSetConfig
     images: list[ImagingDataSetImage]
 
-    def __init__(self, config: ImagingDataSetConfig, images: list[ImagingDataSetImage]):
-        assert config is not None, "Config must not be None!"
+    def __init__(self, images: list[ImagingDataSetImage]):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetPropertyConfig"
-        self.config = config
         self.images = images if images is not None else []
 
     @classmethod
@@ -320,10 +360,9 @@ class ImagingDataSetPropertyConfig(AbstractImagingClass):
         assert data is not None and any(data), "There is no property config found!"
         if "@id" in data:
             del data["@id"]
-        config = ImagingDataSetConfig.from_dict(data.get('config'))
         attr = data.get('images')
         images = [ImagingDataSetImage.from_dict(image) for image in attr] if attr is not None else None
-        return cls(config, images)
+        return cls(images)
 
     def add_image(self, image: ImagingDataSetImage):
         if self.images is None:
@@ -376,40 +415,45 @@ class ImagingControl:
         else:
             raise ValueError(service_response['error'])
 
-    def get_export_url(self, perm_id: str, export: ImagingDataSetExport, image_index: int = 0) -> str:
+    def _get_export_url(self, perm_id: str, export: ImagingDataSetExport, image_index: int = 0) -> str:
+        export_params = export.__dict__
+        export_params["config"] = export_params["config"].__dict__
         parameters = {
             "type": "export",
             "permId": perm_id,
             "index": image_index,
             "error": None,
             "url": None,
-            "export": export.__dict__
+            "export": export_params
         }
-        service_response = self._execute_custom_dss_service(parameters)
+        service_response = self._openbis.execute_custom_dss_service(self._service_name, parameters)
         if service_response['error'] is None:
             return service_response['url']
         else:
             raise ValueError(service_response['error'])
 
-    def get_multi_export_url(self, exports: list[ImagingDataSetMultiExport]) -> str:
+    def _get_multi_export_url(self, exports: list[ImagingDataSetMultiExport]) -> str:
+        export_params = [export.__dict__ for export in exports]
+        for param in export_params:
+            param["config"] = param["config"].__dict__
         parameters = {
             "type": "multi-export",
             "error": None,
             "url": None,
             "exports": [export.__dict__ for export in exports]
         }
-        service_response = self._execute_custom_dss_service(parameters)
+        service_response = self._openbis.execute_custom_dss_service(self._service_name, parameters)
         if service_response['error'] is None:
             return service_response['url']
         else:
             raise ValueError(service_response['error'])
 
     def single_export_download(self, perm_id: str, export: ImagingDataSetExport, image_index: int = 0, directory_path=""):
-        export_url = self.get_export_url(perm_id, export, image_index)
+        export_url = self._get_export_url(perm_id, export, image_index)
         self._download(export_url, directory_path)
 
     def multi_export_download(self, exports: list[ImagingDataSetMultiExport], directory_path=""):
-        export_url = self.get_multi_export_url(exports)
+        export_url = self._get_multi_export_url(exports)
         self._download(export_url, directory_path)
 
     def _download(self, url, directory_path=""):
