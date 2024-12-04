@@ -250,6 +250,107 @@ export default class DataBrowserController extends ComponentController {
     return dataArray
   }
 
+async _appendToFile(dirHandle, fileName, newData) {
+try {
+    // Get a handle to the existing file
+    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+
+    // Get the size of the existing file
+    const existingFile = await fileHandle.getFile();
+    const existingSize = existingFile.size;
+
+    // Open the writable stream
+    const writable = await fileHandle.createWritable();
+
+    // Move the write pointer to the end of the file
+    await writable.seek(existingSize);
+
+    // Write the new data
+    await writable.write(newData);
+
+    // Finalize changes
+    await writable.close();
+
+    console.log(`Successfully appended data to "${fileName}".`);
+  } catch (err) {
+    console.error(`Failed to append data to "${fileName}":`, err);
+    throw err;
+  }
+}
+
+async renameFile(dirHandle, oldName, newName) {
+  try {
+    // Get the original file handle
+    const oldFileHandle = await dirHandle.getFileHandle(oldName);
+    const oldFile = await oldFileHandle.getFile();
+
+    // Create a new file with the desired name
+    const newFileHandle = await dirHandle.getFileHandle(newName, { create: true });
+    const writable = await newFileHandle.createWritable();
+
+    // Copy the contents of the old file to the new file
+    const reader = oldFile.stream().getReader();
+    let chunk;
+    while (!(chunk = await reader.read()).done) {
+      await writable.write(chunk.value);
+    }
+
+    // Finalize the new file
+    await writable.close();
+
+    // Remove the original file
+    await dirHandle.removeEntry(oldName);
+
+    console.log(`Successfully renamed "${oldName}" to "${newName}".`);
+  } catch (err) {
+    console.error(`Failed to rename "${oldName}" to "${newName}":`, err);
+    throw err;
+  }
+}
+
+  async downloadAndAssemble_resume(file, dirHandle, onProgressUpdate) {
+    let offset = 0;
+
+    // Create a writable stream for the file in the selected directory
+    //const fileStream = await this._createWritableStream(dirHandle, file.name);
+
+    let writeToDiskOffset = 0;
+    var dataArrayForDisk = []
+    while (offset < file.size) {
+
+      const downloadStartTime = Date.now();
+      const blob = await this._download(file, offset);
+      const downloadEndTime = Date.now();
+      dataArrayForDisk.push(await blob.arrayBuffer());
+      offset += CHUNK_SIZE;
+
+      writeToDiskOffset += CHUNK_SIZE;
+
+      const elapsedTime = (downloadEndTime - downloadStartTime) / 1000; // Seconds
+      const speed = blob.size / elapsedTime; 
+
+      // write to file only when almost 100MB
+      if(writeToDiskOffset > 100_000_000 || offset >= file.size){
+        // Write the chunk directly to the file
+        const combinedBuffer = new Uint8Array(dataArrayForDisk.reduce((acc, buf) => acc + buf.byteLength, 0));
+        let offset = 0;
+        for (const buf of dataArrayForDisk) {
+            combinedBuffer.set(new Uint8Array(buf), offset);
+            offset += buf.byteLength;
+        }
+        await this._appendToFile(dirHandle, file.name, combinedBuffer);
+
+        writeToDiskOffset = 0;
+        dataArrayForDisk = []
+      }
+
+      onProgressUpdate(CHUNK_SIZE,file.name, speed)
+    }
+
+    //await fileStream.close();
+    console.log(`Download of ${file.name} complete!`);
+  }
+
   async _createWritableStream(dirHandle, fileName) {
     // Create or access the file in the selected directory
     const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
@@ -265,34 +366,44 @@ export default class DataBrowserController extends ComponentController {
     let writeToDiskOffset = 0;
     var dataArrayForDisk = []
     while (offset < file.size) {
-      const blob = await this._download(file, offset); 
+      const downloadStartTime = Date.now();
+      const blob = await this._download(file, offset);
+      const downloadEndTime = Date.now();
+
       dataArrayForDisk.push(await blob.arrayBuffer());
       offset += CHUNK_SIZE;
 
-      writeToDiskOffset += CHUNK_SIZE;      
+      writeToDiskOffset += CHUNK_SIZE;
+
+      // Calculate download speed      
+      const elapsedTime = (downloadEndTime - downloadStartTime) / 1000; // Seconds
+      const speed = blob.size / elapsedTime; 
 
       // write to file only when almost 100MB
       if(writeToDiskOffset > 100_000_000 || offset >= file.size){
+        onProgressUpdate(CHUNK_SIZE,file.name, "write to disk")
+
         // Write the chunk directly to the file
-        const combinedBuffer = new Uint8Array(dataArrayForDisk.reduce((acc, buf) => acc + buf.byteLength, 0));
+        var combinedBuffer = new Uint8Array(dataArrayForDisk.reduce((acc, buf) => acc + buf.byteLength, 0));
         let offset = 0;
         for (const buf of dataArrayForDisk) {
             combinedBuffer.set(new Uint8Array(buf), offset);
             offset += buf.byteLength;
         }
-        await fileStream.write(combinedBuffer);
+        await fileStream.write(combinedBuffer);        
 
+        combinedBuffer = null;
         writeToDiskOffset = 0;
         dataArrayForDisk = []
       }
 
-      onProgressUpdate(CHUNK_SIZE)
+      onProgressUpdate(CHUNK_SIZE,file.name, speed)
     }
 
-    await fileStream.close();
+    onProgressUpdate(CHUNK_SIZE,file.name, "Finalizing...")
+    await fileStream.close();    
     console.log(`Download of ${file.name} complete!`);
   }
-
 
 
   async _download(file, offset) {

@@ -14,6 +14,9 @@ import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
 import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 import ErrorDialog from '@src/js/components/common/error/ErrorDialog.jsx'
+import Modal from '@mui/material/Modal';
+import FileExistsDialog from '@src/js/components/common/dialog/FileExistsDialog.jsx'
+
 
 // 2GB limit for total download size
 const sizeLimit = 2147483648
@@ -250,7 +253,7 @@ class DataBrowser extends React.Component {
     super(props, context)
     autoBind(this)
 
-    const { sessionToken, controller, id } = this.props
+    const { sessionToken, controller, id, showFileExistsDialog, currentFile} = this.props
 
     this.controller = controller || new DataBrowserController(id)
     this.controller.attach(this)
@@ -269,10 +272,58 @@ class DataBrowser extends React.Component {
       totalUploadSize:0,
       progress: 0,
       errorMessage: null,
-      editable: false
+      editable: false,
+      showFileExistsDialog: false,
+      currentFile: null,
+      resolveDecision: null,
+      replaceFile: false,
+      skipFile: false,
+      cancelDownload: false,
+      applyToAllFiles: false
     }
     this.zip = new JSZip()
   }
+
+  // Triggered when the user confirms to overwrite
+  handleReplace() {
+    this.setState({ showFileExistsDialog: false, replaceFile: true, skipFile:false }, () => {
+      if (this.resolveDecision) {
+        this.resolveDecision(true); 
+        this.resolveDecision = null; 
+      }      
+    });
+  }
+
+  handleSkip() {    
+    this.setState({ showFileExistsDialog: false, replaceFile: false, skipFile:true }, () => {
+      if (this.resolveDecision) {
+        this.resolveDecision(true); 
+        this.resolveDecision = null; 
+      }      
+    });
+  }
+
+  // Triggered when the user cancels to overwrite
+  handleCancel() {
+    this.setState({ showFileExistsDialog: false, cancelDownload: true }, () => {
+      if (this.resolveDecision) {
+        this.resolveDecision(false); 
+        this.resolveDecision = null; 
+      }      
+    });
+  }
+
+  resetFileExistsDialogState() {
+    this.setState({
+        showFileExistsDialog: false, 
+        replaceFile: false, 
+        skipFile:false, 
+        resolveDecision: false , 
+        applyToAllFiles : false,
+        cancelDownload: false
+      })    
+  }
+
 
   handleViewTypeChange(viewType) {
     this.setState({ viewType })
@@ -304,18 +355,50 @@ class DataBrowser extends React.Component {
     })
   }
 
-  updateProgress(downloadedChunk) {
+  updateProgressDetails(progressDetailPrimary, progressDetailSecondary) {
+      this.setState({progressDetailPrimary, progressDetailSecondary})
+  }
+
+  handleApplyToAllSelection(checked) {
+    console.log("handleApplyToAllSelection checked : " + checked)
+      this.setState({ applyToAllFiles: checked })
+      console.log("handleApplyToAllSelection applyToAllFiles :" + this.state.applyToAllFiles)
+  }
+
+  updateProgress(downloadedChunk, fileName, speed) {
     this.setState((prevState) => {
       const totalUploaded = prevState.totalUploaded + downloadedChunk;
       const progress = Math.round((totalUploaded / prevState.totalUploadSize) * 100);
-      const newProgress = Math.min(progress, 100);      
+      const newProgress = Math.min(progress, 100);   
+      const speedFormatted =   this.formatDownloadSpeed(speed);
+
       return {
         totalUploaded,
         progress: newProgress,
         loading: true,
+        progressDetailPrimary : fileName,
+        progressDetailSecondary : speedFormatted
       };
     });
   }
+
+  formatDownloadSpeed(bytesPerSecond) {
+    if (isNaN(bytesPerSecond)) {
+      return bytesPerSecond; 
+    }
+    if (bytesPerSecond >= 1024 * 1024) {
+        // Convert to MB/s
+        const mbps = bytesPerSecond / (1024 * 1024);
+        return `${mbps.toFixed(2)} MB/s`;
+    } else if (bytesPerSecond >= 1024) {
+        // Convert to KB/s
+        const kbps = bytesPerSecond / 1024;
+        return `${kbps.toFixed(2)} KB/s`;
+    } else {
+        // Bytes per second
+        return `${bytesPerSecond} B/s`;
+    }
+  } 
 
 
   async handleDownload() {
@@ -347,20 +430,23 @@ class DataBrowser extends React.Component {
     }
   }
 
-  async  handleDownloadAsBlob(files, totalSize){
+  async  handleDownloadAsBlob(selectedFiles, totalSize){
     if(totalSize >= sizeLimit){
         this.showDownloadErrorDialog(sizeLimit)
         return;
     }
 
-    const { id } = this.props
-    const file = files.values().next().value;
-    if (files.length > 1 || file.directory) {
+    const { id } = this.props    
+    const file = selectedFiles.values().next().value;
+    
+    if (selectedFiles.size > 1 || file.directory) {
        // ZIP download
-       const zipBlob = await this.prepareZipBlob(files)
+      
+       const zipBlob = await this.prepareZipBlob(selectedFiles)
        this.downloadBlob(zipBlob, id)
        this.zip = new JSZip()
     } else {
+      
       // Single file download
       await this.downloadFile(file)
     }
@@ -380,12 +466,31 @@ class DataBrowser extends React.Component {
         size += await this.calculateTotalSize(nestedFiles)
       }
     }
+    this.updateProgressDetails("Calculating size", this.formatSize(size))
     return size
   }
+
+    formatSize(sizeInBytes) {
+        if (sizeInBytes >= 1024 * 1024 * 1024) {
+            // Convert to GB
+            return `${(sizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+        } else if (sizeInBytes >= 1024 * 1024) {
+            // Convert to MB
+            return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
+        } else if (sizeInBytes >= 1024) {
+            // Convert to KB
+            return `${(sizeInBytes / 1024).toFixed(2)} KB`;
+        } else {
+            // Bytes
+            return `${sizeInBytes} B`;
+        }
+    }
+
 
   async prepareZipBlob(files) {
     for (let file of files) {
       if (!file.directory) {
+        console.log(file.name)
         const dataArray = await this.controller.download(file, this.updateProgress)
         this.zip.file(
           file.path,
@@ -425,35 +530,105 @@ class DataBrowser extends React.Component {
     try {
       // Prompt user to select a directory
       const rootDirHandle = await window.showDirectoryPicker()
+      console.log(await this.collectExistingFiles(rootDirHandle, [...files]))
       await this.downloadFilesAndFolders(files, rootDirHandle);
     } catch (err) {
       if (err.name === "AbortError") {
           // no feedback needed, user aborted
       } else {
+        console.error(err)
         this.openErrorDialog("An error occurred while accessing the directory. Please try again.")
       }
+    } finally{
+        this.resetFileExistsDialogState()
     }
   }
 
   async downloadFilesAndFolders(files, parentDirHandle) {
-    try {
+    try {    
+
       for (const file of files) {
+        if (this.state.cancelDownload) {
+          return;
+        }
+
         if (!file.directory) {
+
           // Handle file download
-          await this.controller.downloadAndAssemble(file, parentDirHandle,this.updateProgress)
+          const fileExists = await parentDirHandle.getFileHandle(file.name, { create: false }).catch(() => null);          
+
+          if (fileExists) {
+            // Skip file logic if apply-to-all and skip were selected earlier
+            if (this.state.applyToAllFiles && this.state.skipFile) continue;
+  
+            // Prompt user decision if not applying to all files
+              if ( !this.state.applyToAllFiles) {                  
+                  this.setState({ currentFile: file, showFileExistsDialog: true });
+
+                  const decision = await new Promise((resolve) => {
+                    this.resolveDecision = resolve;
+                  });              
+
+                  if ( this.state.skipFile ){
+                    continue;
+                  }
+                 
+                  if ( this.state.cancelDownload ){                 
+                    return;
+                  }
+              } 
+          }
+
+          await this.controller.downloadAndAssemble(file, parentDirHandle,this.updateProgress)              
+          
         } else {
           // Handle subfolder recursively
           const dirHandle = await parentDirHandle.getDirectoryHandle(file.name, { create: true })
           const filesInDir =  await this.controller.listFiles(file.path)
           await this.downloadFilesAndFolders(filesInDir,dirHandle)
+          if ( this.state.cancelDownload ){
+            return;
+          }
         }
       }
     } catch (err) {
+        console.error(err)
       this.openErrorDialog(
         `Error downloading ${[...files].map(file => file.name).join(", ")}: ` + (err.message || err)
       );
     }
   }
+
+  async collectExistingFiles(dirHandle, files, existingFiles = []) {
+    for (let file of files) {
+      if (!file.directory) {
+        // Check if the file exists in the selected directory
+        const exists = await this.fileExistsInDirectory(dirHandle, file.name);
+        if (exists) {
+          existingFiles.push(file.path); // Add file name to the list of existing files
+        }
+      } else {
+        // Recursively collect files in subdirectories
+        const nestedFiles = await this.controller.listFiles(file.path);
+        const subDirHandle = await dirHandle.getDirectoryHandle(file.name, { create: false });
+        await this.collectExistingFiles(subDirHandle, nestedFiles, existingFiles);
+      }
+    }
+    return existingFiles; // Return the list of existing files
+  }
+
+  async fileExistsInDirectory(dirHandle, fileName) {
+    try {
+      await dirHandle.getFileHandle(fileName); // Attempt to get file handle
+      return true; // File exists
+    } catch (err) {
+      if (err.name === "NotFoundError") {
+        return false; // File does not exist
+      }
+      throw err; // Re-throw unexpected errors
+    }
+  }
+
   // End :File System API : Limited availability
 
   async downloadFile(file) {
@@ -573,6 +748,8 @@ class DataBrowser extends React.Component {
     this.setState({ errorMessage: null })
   }
 
+
+
   render() {
     const { classes, sessionToken, id } = this.props
     const {
@@ -587,8 +764,13 @@ class DataBrowser extends React.Component {
       loading,
       errorMessage,
       editable,
-      progress
+      progress,
+      progressDetailPrimary,
+      progressDetailSecondary,
+      showFileExistsDialog,
+      applyToAllFiles      
     } = this.state
+
 
     return [
       <div
@@ -730,12 +912,27 @@ class DataBrowser extends React.Component {
         value={progress}
         loading={loading}
         message={messages.get(messages.DOWNLOADING)}
+        showBackground='true'
+        detailPrimary={progressDetailPrimary}
+        detailSecondary={progressDetailSecondary}
       />,
       <ErrorDialog
         key='data-browser-error-dialog'
         open={!!errorMessage}
         error={errorMessage}
         onClose={this.closeErrorDialog}
+      />,
+      <FileExistsDialog
+        key='overwrite-modal-title"'
+        open={showFileExistsDialog}
+        onReplace={this.handleReplace}
+        onSkip={this.handleSkip}      
+        onCancel={this.handleCancel}
+        title={messages.get(messages.FILE_EXISTS)}        
+        onApplyToAllChange={this.handleApplyToAllSelection}
+        applyToAll={applyToAllFiles}         
+        content={messages.get(messages.CONFIRMATION_FILE_OVERWRITE,
+          this.state.currentFile?.name)}
       />
     ]
   }
