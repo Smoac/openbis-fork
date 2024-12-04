@@ -310,11 +310,14 @@ def getSamplesImportTemplate(context, parameters):
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
         cell_index = _create_cell(row, cell_index, header_style, "Children")
         attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
+        usedPropertyLabels = {}
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
             if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
-                if not attributeValidator.isHeader(propertyAssignment.getPropertyType().getLabel()):
-                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                propertyLabel = propertyAssignment.getPropertyType().getLabel()
+                if not attributeValidator.isHeader(propertyLabel) and not propertyLabel in usedPropertyLabels:
+                    cell_index = _create_cell(row, cell_index, header_style, propertyLabel)
+                    usedPropertyLabels[propertyLabel] = True
                 else:
                     cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getCode())
 
