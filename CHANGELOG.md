@@ -26,7 +26,7 @@
 - Bugfix: XLSX Import failure of ELN Standard Technologies master data (BIS-1582)
 - Bugfix: Barcode/QR scanner view broken in 20.10.9.1 (BIS-1533)
 - Bugfix: Samples without experiments get blank edit form (BIS-1537)
-_ Bugfix: ELN lims dropbox ignores plugin.properties config (BIS-1593)
+- Bugfix: ELN lims dropbox ignores plugin.properties config (BIS-1593)
 - Bugfix: Advanced search date widget not configured with openBIS date and timestamp format (BIS-1616)
 - Bugfix: Search for products does not work when creating a Template for a Request (BIS-1617)
 
