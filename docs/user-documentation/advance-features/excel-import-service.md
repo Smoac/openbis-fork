@@ -102,6 +102,14 @@ If any content is placed after two consecutive empty rows it will result in an e
 Header rows **NEED TO BE** a valid attribute of the entity or entity type, property label or property code.
 ```
 
+### Clarifying Header Interpretation in Ambiguous Cases
+
+#### Case 1: Property Type A Code Matches Property Type B Label
+If the header matches both, it will be interpreted as the Code of Property Type A, as codes take precedence over labels.
+
+#### Case 2: Property Type A Label Matches Property Type B Label
+If the header matches both labels, it will be interpreted as the Label of Property Type A, since the first-listed property type takes precedence.
+
 ## Entity Types Definitions
 
 All entity types can be created. There are differences due to the nature of the defined elements themselves.
