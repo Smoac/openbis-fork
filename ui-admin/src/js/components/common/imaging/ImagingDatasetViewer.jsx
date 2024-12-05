@@ -390,8 +390,6 @@ class ImagingDataSetViewer extends React.PureComponent {
                     onHandleYes={this.deletePreview}
                     onClickNew={this.createNewPreview}
                     onInputFile={this.handleUpload}
-                    imagingTags={imagingTags}
-                    handleTagImage={this.handleTagImage}
                 />
                 <PaperBox>
                     <Grid2 container className={classes.gridDirection}>
@@ -405,13 +403,12 @@ class ImagingDataSetViewer extends React.PureComponent {
                             onChangeShow={this.handleShowPreview}
                             onSelectChangeRes={this.handleResolutionChange}
                             onChangeActConf={this.handleActiveConfigChange}
+                            imagingTags={imagingTags}
+                            handleTagImage={this.handleTagImage}
                         />
                     </Grid2>
                 </PaperBox>
-                <MetadataSection activePreview={activePreview}
-                    activeImage={activeImage}
-                    configMetadata={activeImage.config.metadata}
-                />
+                <MetadataSection activePreview={activePreview} activeImage={activeImage} />
             </Container>
         )
     };

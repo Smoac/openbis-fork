@@ -1,5 +1,5 @@
 import React from "react";
-import {ImageList, ImageListItem, Typography} from "@mui/material";
+import { ImageList, ImageListItem, Typography } from "@mui/material";
 import BlankImage from "@src/js/components/common/imaging/components/common/BlankImage.js";
 import makeStyles from '@mui/styles/makeStyles';
 import ImageListItemBarAction
@@ -27,7 +27,7 @@ const useStyles = makeStyles(() => ({
     }
 }));
 
-const ImageListItemSection = ({title, cols, rowHeight, type, items, activeImageIdx, activePreviewIdx, onActiveItemChange, onMove}) => {
+const ImageListItemSection = ({ title, cols, rowHeight, type, items, activeImageIdx, activePreviewIdx, onActiveItemChange, onMove }) => {
     const classes = useStyles();
 
     const moveArrowCompList = (currentIdx) => {
@@ -36,43 +36,42 @@ const ImageListItemSection = ({title, cols, rowHeight, type, items, activeImageI
             return [];
         } else if (currentIdx === 0) { // first element
             return [<ImageListItemBarAction key={"ImageListItemBarAction-left-" + currentIdx}
-                                            classNames={'singleActionBar'} position={'right'}
-                                            onMove={() => onMove(1)}/>];
+                classNames={'singleActionBar'} position={'right'}
+                onMove={() => onMove(1)} />];
         } else if (currentIdx === previewsLength - 1) { // last element
             return [<ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
-                                            classNames={'singleActionBar'} position={'left'}
-                                            onMove={() => onMove(-1)}/>];
+                classNames={'singleActionBar'} position={'left'}
+                onMove={() => onMove(-1)} />];
         } else {
-            //console.log('ELEMENT ', currentIdx, (activeImage.previews.length) - 1);
             return [<ImageListItemBarAction key={"ImageListItemBarAction-left-" + currentIdx}
-                                            classNames={'actionBarL'} position={'left'}
-                                            onMove={() => onMove(-1)}/>,
-                <ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
-                                        classNames={'actionBarR'} position={'right'}
-                                        onMove={() => onMove(1)}/>];
+                classNames={'actionBarL'} position={'left'}
+                onMove={() => onMove(-1)} />,
+            <ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
+                classNames={'actionBarR'} position={'right'}
+                onMove={() => onMove(1)} />];
         }
     };
 
     const renderImageListItems = () => {
-        switch(type){
+        switch (type) {
             case constants.IMAGE_TYPE:
                 return items.map(image => (
                     <ImageListItem key={`imageListItem-image-${image.index}`}
-                                   className={activeImageIdx === image.index ? classes.elevation : classes.trasparency}
-                                   onClick={() => onActiveItemChange(image.index)}>
+                        className={activeImageIdx === image.index ? classes.elevation : classes.trasparency}
+                        onClick={() => onActiveItemChange(image.index)}>
                         {image.previews[0].bytes ?
-                            <img alt={""} className={classes.imgFullWidth} src={`data:image/${image.previews[0].format};base64,${image.previews[0].bytes}`}/>
-                            : <BlankImage className={classes.imgFullWidth}/>}
+                            <img alt={""} className={classes.imgFullWidth} src={`data:image/${image.previews[0].format};base64,${image.previews[0].bytes}`} />
+                            : <BlankImage className={classes.imgFullWidth} />}
                     </ImageListItem>
                 ))
             case constants.PREVIEW_TYPE:
                 return items.map(preview => (
                     <ImageListItem key={`imageListItem-preview-${activeImageIdx}-${preview.index}`}
-                                   className={activePreviewIdx === preview.index ? classes.elevation : classes.trasparency}
-                                   onClick={() => onActiveItemChange(preview.index)}>
+                        className={activePreviewIdx === preview.index ? classes.elevation : classes.trasparency}
+                        onClick={() => onActiveItemChange(preview.index)}>
                         {preview.bytes ?
-                            <img alt={""} className={classes.imgFullWidth} src={`data:image/${preview.format};base64,${preview.bytes}`}/>
-                            : <BlankImage className={classes.imgFullWidth}/>}
+                            <img alt={""} className={classes.imgFullWidth} src={`data:image/${preview.format};base64,${preview.bytes}`} />
+                            : <BlankImage className={classes.imgFullWidth} />}
                         {activePreviewIdx === preview.index && moveArrowCompList(activePreviewIdx)}
                     </ImageListItem>
                 ))
@@ -86,8 +85,8 @@ const ImageListItemSection = ({title, cols, rowHeight, type, items, activeImageI
             {title}
         </Typography>}
         <ImageList className={classes.imageList}
-                   cols={cols}
-                   rowHeight={rowHeight}>
+            cols={cols}
+            rowHeight={rowHeight}>
             {renderImageListItems()}
         </ImageList>
     </>
