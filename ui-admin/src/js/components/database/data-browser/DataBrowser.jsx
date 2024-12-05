@@ -14,8 +14,9 @@ import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
 import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 import ErrorDialog from '@src/js/components/common/error/ErrorDialog.jsx'
-import Modal from '@mui/material/Modal';
 import FileExistsDialog from '@src/js/components/common/dialog/FileExistsDialog.jsx'
+import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDialog.jsx'
+
 
 
 // 2GB limit for total download size
@@ -279,10 +280,30 @@ class DataBrowser extends React.Component {
       replaceFile: false,
       skipFile: false,
       cancelDownload: false,
-      applyToAllFiles: false
+      applyToAllFiles: false,
+      showMergeDialog: false,
+      resolveMergeDecision : null,
     }
     this.zip = new JSZip()
   }
+
+
+  handleConfirmMerge() {
+    this.setState({ showMergeDialog: false}, () => {
+      if (this.resolveMergeDecision) {
+        this.resolveMergeDecision(true); 
+        this.resolveMergeDecision = null; 
+      }})   
+  }
+
+  handleCancelMerge() {
+    this.setState({ showMergeDialog: false}, () => {
+      if (this.resolveMergeDecision) {
+        this.resolveMergeDecision(false); 
+        this.resolveMergeDecision = null; 
+      }})
+  }
+
 
   // Triggered when the user confirms to overwrite
   handleReplace() {
@@ -313,14 +334,16 @@ class DataBrowser extends React.Component {
     });
   }
 
-  resetFileExistsDialogState() {
+  resetDownloadDialogStates() {
     this.setState({
         showFileExistsDialog: false, 
         replaceFile: false, 
         skipFile:false, 
         resolveDecision: false , 
         applyToAllFiles : false,
-        cancelDownload: false
+        cancelDownload: false,
+        showMergeDialog: false,
+        mergeTopLevelFolder: false
       })    
   }
 
@@ -470,21 +493,21 @@ class DataBrowser extends React.Component {
     return size
   }
 
-    formatSize(sizeInBytes) {
-        if (sizeInBytes >= 1024 * 1024 * 1024) {
-            // Convert to GB
-            return `${(sizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-        } else if (sizeInBytes >= 1024 * 1024) {
-            // Convert to MB
-            return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
-        } else if (sizeInBytes >= 1024) {
-            // Convert to KB
-            return `${(sizeInBytes / 1024).toFixed(2)} KB`;
-        } else {
-            // Bytes
-            return `${sizeInBytes} B`;
-        }
-    }
+  formatSize(sizeInBytes) {
+      if (sizeInBytes >= 1024 * 1024 * 1024) {
+          // Convert to GB
+          return `${(sizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+      } else if (sizeInBytes >= 1024 * 1024) {
+          // Convert to MB
+          return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
+      } else if (sizeInBytes >= 1024) {
+          // Convert to KB
+          return `${(sizeInBytes / 1024).toFixed(2)} KB`;
+      } else {
+          // Bytes
+          return `${sizeInBytes} B`;
+      }
+  }
 
 
   async prepareZipBlob(files) {
@@ -530,7 +553,19 @@ class DataBrowser extends React.Component {
     try {
       // Prompt user to select a directory
       const rootDirHandle = await window.showDirectoryPicker()
-      console.log(await this.collectExistingFiles(rootDirHandle, [...files]))
+  
+
+      if(!(await this.isDirectoryEmpty(rootDirHandle))){
+        this.setState({showMergeDialog: true})
+        const decision = await new Promise((resolve) => {
+          this.resolveMergeDecision = resolve;
+        });
+        console.log(this.state.showMergeDialog)
+        if(!decision) {
+          return;
+        }
+      }
+
       await this.downloadFilesAndFolders(files, rootDirHandle);
     } catch (err) {
       if (err.name === "AbortError") {
@@ -540,8 +575,17 @@ class DataBrowser extends React.Component {
         this.openErrorDialog("An error occurred while accessing the directory. Please try again.")
       }
     } finally{
-        this.resetFileExistsDialogState()
+        this.resetDownloadDialogStates()
     }
+  }
+
+  async isDirectoryEmpty(dirHandle) {    
+    const entries = dirHandle.entries();   
+     
+    for await (const _ of entries) {
+        return false; 
+    }
+    return true; 
   }
 
   async downloadFilesAndFolders(files, parentDirHandle) {
@@ -597,24 +641,6 @@ class DataBrowser extends React.Component {
         `Error downloading ${[...files].map(file => file.name).join(", ")}: ` + (err.message || err)
       );
     }
-  }
-
-  async collectExistingFiles(dirHandle, files, existingFiles = []) {
-    for (let file of files) {
-      if (!file.directory) {
-        // Check if the file exists in the selected directory
-        const exists = await this.fileExistsInDirectory(dirHandle, file.name);
-        if (exists) {
-          existingFiles.push(file.path); // Add file name to the list of existing files
-        }
-      } else {
-        // Recursively collect files in subdirectories
-        const nestedFiles = await this.controller.listFiles(file.path);
-        const subDirHandle = await dirHandle.getDirectoryHandle(file.name, { create: false });
-        await this.collectExistingFiles(subDirHandle, nestedFiles, existingFiles);
-      }
-    }
-    return existingFiles; // Return the list of existing files
   }
 
   async fileExistsInDirectory(dirHandle, fileName) {
@@ -768,7 +794,8 @@ class DataBrowser extends React.Component {
       progressDetailPrimary,
       progressDetailSecondary,
       showFileExistsDialog,
-      applyToAllFiles      
+      applyToAllFiles,
+      showMergeDialog      
     } = this.state
 
 
@@ -933,6 +960,13 @@ class DataBrowser extends React.Component {
         applyToAll={applyToAllFiles}         
         content={messages.get(messages.CONFIRMATION_FILE_OVERWRITE,
           this.state.currentFile?.name)}
+      />,
+      <ConfirmationDialog
+        open={showMergeDialog}
+        onConfirm={this.handleConfirmMerge}
+        onCancel={this.handleCancelMerge}
+        title={messages.get(messages.CONFIRM_MERGE)}
+        content={messages.get(messages.CONFIRMATION_MERGE_DOWNLOAD)}
       />
     ]
   }
