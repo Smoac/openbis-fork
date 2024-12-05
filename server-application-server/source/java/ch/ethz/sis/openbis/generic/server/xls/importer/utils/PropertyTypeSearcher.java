@@ -57,7 +57,10 @@ public class PropertyTypeSearcher
         {
             PropertyType propertyType = propertyAssignment.getPropertyType();
             code2PropertyType.put(propertyType.getCode(), propertyType);
-            label2PropertyType.put(propertyType.getLabel(), propertyType);
+            if (label2PropertyType.containsKey(propertyType.getLabel()) == false) // If a label already exists, the next one is ignored
+            {
+                label2PropertyType.put(propertyType.getLabel(), propertyType);
+            }
         }
     }
 
