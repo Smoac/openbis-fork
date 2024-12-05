@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid2 } from "@mui/material";
+import { Divider, Grid2, TextField, Autocomplete, Checkbox } from "@mui/material";
 import { inRange, isObjectEmpty } from "@src/js/components/common/imaging/utils.js";
 import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
 import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
@@ -11,7 +11,8 @@ import ColorMap from "@src/js/components/common/imaging/components/viewer/ColorM
 import constants from "@src/js/components/common/imaging/constants.js";
 import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
 import RefreshIcon from "@mui/icons-material/Refresh";
-
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import messages from '@src/js/common/messages.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
@@ -24,8 +25,29 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const MainPreviewInputControls = ({ activePreview, configInputs, configResolutions, resolution, isChanged, onClickUpdate, onChangeShow, onSelectChangeRes, onChangeActConf }) => {
+const MainPreviewInputControls = ({ activePreview, configInputs, configResolutions, resolution, isChanged, onClickUpdate, onChangeShow, onSelectChangeRes, onChangeActConf, imagingTags, handleTagImage}) => {
 	const classes = useStyles();
+	const [tags, setTags] = React.useState([])
+    const [inputValue, setInputValue] = React.useState('');
+
+
+    React.useEffect(() => {
+        if (activePreview) {
+            var trasformedTags = []
+            for (const activePreviewTag of activePreview.tags) {
+                const matchTag = imagingTags.find(imagingTag => imagingTag.value === activePreviewTag);
+                trasformedTags.push(matchTag);
+            }
+            setTags(trasformedTags);
+            setInputValue(trasformedTags.join(', '));
+        }
+    }, [activePreview])
+
+    const handleTagsChange = (event, newTags) => {
+		setTags(newTags);
+        const tagsArray = newTags.map(tag => tag.value);
+        handleTagImage(false, tagsArray);
+    }
 
 	const createInitValues = (inputsConfig, activeConfig) => {
 		const isActiveConfig = isObjectEmpty(activeConfig);
@@ -112,7 +134,42 @@ const MainPreviewInputControls = ({ activePreview, configInputs, configResolutio
 						label={messages.get(messages.RESOLUTIONS)}
 						values={configResolutions}
 						initValue={resolution.join('x')} />
+
+					<OutlinedBox label="Imaging Tags">
+						<Autocomplete
+							multiple
+							id="tags-outlined"
+							options={imagingTags}
+							disableCloseOnSelect
+							getOptionLabel={(option) => option.label}
+							inputValue={inputValue}
+							value={tags}
+							onInputChange={(event, newInputValue) => {
+								setInputValue(newInputValue);
+							}}
+							renderInput={(params) => (
+								<TextField variant='standard' {...params} placeholder="Search Tag"/>
+							)}
+							renderOption={(props, option, { selected }) => {
+								const { key, ...optionProps } = props;
+								return (
+									<li key={key} {...optionProps}>
+										<Checkbox
+											icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+											checkedIcon={<CheckBoxIcon fontSize="small" />}
+											style={{ marginRight: 8 }}
+											checked={selected}
+										/>
+										{option.label}
+									</li>
+								);
+							}}
+							onChange={handleTagsChange}
+						/>
+					</OutlinedBox>
 				</Grid2>
+
+				<Divider sx={{ margin: '16px 8px 16px 8px', borderWidth: '1px'}}/> 
 
 				{configInputs.map((c, idx) => {
 					switch (c.type) {

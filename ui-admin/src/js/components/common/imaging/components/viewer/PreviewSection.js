@@ -15,15 +15,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import messages from '@src/js/common/messages.js'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
-import TagModal from '@src/js/components/common/imaging/components/viewer/TagModal.jsx'
 
-const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, onActiveItemChange, onMove,
+const PreviewsSection = ({ previews, activeImageIdx, activePreviewIdx, isSaved, onActiveItemChange, onMove,
 	onClickSave,
 	onHandleYes,
 	onClickNew,
-	onInputFile,
-	imagingTags,
-	handleTagImage
+	onInputFile 
 }) => {
 	const nPreviews = previews.length;
 	return (
@@ -70,8 +67,6 @@ const PreviewsSection = ({previews, activeImageIdx, activePreviewIdx, isSaved, o
 						onClick={onClickNew} />
 
 					<InputFileUpload onInputFile={onInputFile} />
-
-					<TagModal handleTagImage={handleTagImage} imagingTags={imagingTags} activePreview={previews[activePreviewIdx]} />
 				</Grid2>
 			</Grid2>
 		</PaperBox>

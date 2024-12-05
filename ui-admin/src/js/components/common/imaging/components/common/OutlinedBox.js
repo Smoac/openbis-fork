@@ -12,7 +12,7 @@ const useStyles = makeStyles({
         borderRadius: '6px',
         position: 'relative',
         padding: '0.8rem',
-        display: 'flex',
+        //display: 'flex',
         '&:hover': {
             borderColor: 'rgba(0, 0, 0, 0.5)'
         }
