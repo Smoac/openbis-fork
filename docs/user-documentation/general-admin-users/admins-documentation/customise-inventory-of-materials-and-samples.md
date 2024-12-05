@@ -52,11 +52,10 @@ To create the *Project* folder:
 
 To register the *Collection* folder, inside the *Project* folder:
 
-1.
 1.   Click on the *Project* folder, in this case **Samples**.
 2.  Click the **+ New** button in the main form and choose **Collection** from the dropdown.
 
-![image info](img/create-collection-materials-1024x403.png)
+![image info](img/Inventory-collection-registration-201011.png)
 
 3.  Replace the automatically generated **Code** with something pertinent to the collection (e.g RAW\_SAMPLES)
 4.  Fill in the **Name** field (e.g. Raw Samples). Note that by default, the navigation menu on the left shows the name. If the name is not provided, the code is shown.
